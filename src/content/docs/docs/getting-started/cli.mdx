@@ -1,0 +1,43 @@
+---
+title: CLI Commands
+description: Noodle command-line interface reference
+---
+
+## Default Command
+
+Launch the TUI:
+
+```bash
+noodle
+noodle --collection ./collections --env production
+noodle -c ./my-requests -e staging
+```
+
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `--collection` | `-c` | `./collections` | Path to collection directory |
+| `--env` | `-e` | `(none)` | Environment name to activate |
+
+## Import
+
+```bash
+noodle import ./api-spec.json
+noodle import ./postman_collection.json --format postman --output ./collections
+```
+
+| Argument | Description |
+|----------|-------------|
+| `source` | Path to OpenAPI or Postman file |
+
+| Flag | Short | Default | Description |
+|------|-------|---------|-------------|
+| `--format` | `-i` | auto-detect | `openapi` or `postman` |
+| `--output` | `-o` | `./collections` | Output directory |
+
+## Update
+
+```bash
+noodle update
+```
+
+Checks GitHub for the latest release and updates the binary. Detects Homebrew installs and redirects to `brew upgrade`.

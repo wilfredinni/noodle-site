@@ -1,0 +1,466 @@
+---
+// Landing page — outside Starlight, full control
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Noodle — Terminal REST Client</title>
+    <meta
+      name="description"
+      content="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal."
+    />
+    <style is:global>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #0d0d0d;
+        --fg: #e4e4e7;
+        --muted: #a1a1aa;
+        --accent: #22d3ee;
+        --accent-dim: #0891b2;
+        --border: #27272a;
+        --card-bg: #18181b;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* ─── Nav ─── */
+      nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      nav .logo {
+        font-weight: 700;
+        font-size: 1.3rem;
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      nav .nav-links {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+      }
+
+      nav .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+
+      nav .nav-links a:hover {
+        color: var(--fg);
+      }
+
+      /* ─── Hero ─── */
+      .hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 6rem 2rem 4rem;
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        font-size: 0.8rem;
+        color: var(--muted);
+        margin-bottom: 2rem;
+        transition: border-color 0.2s;
+      }
+
+      .hero-badge:hover {
+        border-color: var(--accent-dim);
+      }
+
+      .hero h1 {
+        font-size: clamp(2.5rem, 6vw, 4.5rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+        max-width: 800px;
+      }
+
+      .hero h1 .highlight {
+        background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero p {
+        color: var(--muted);
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin-top: 1.5rem;
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2.5rem;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.75rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: var(--accent);
+        color: #0d0d0d;
+      }
+
+      .btn-primary:hover {
+        background: #5ee7f5;
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        border: 1px solid var(--border);
+        color: var(--fg);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--muted);
+        transform: translateY(-1px);
+      }
+
+      .install-cmd {
+        margin-top: 3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.75rem 1.25rem;
+        font-family: "SF Mono", "Fira Code", monospace;
+        font-size: 0.9rem;
+        color: var(--muted);
+        cursor: pointer;
+        transition: border-color 0.2s;
+      }
+
+      .install-cmd:hover {
+        border-color: var(--accent-dim);
+      }
+
+      .install-cmd .prompt {
+        color: var(--accent);
+      }
+
+      /* ─── Features ─── */
+      .features {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 5rem 2rem;
+      }
+
+      .features h2 {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 3rem;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .feature-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.75rem;
+        transition: border-color 0.2s, transform 0.2s;
+      }
+
+      .feature-card:hover {
+        border-color: var(--accent-dim);
+        transform: translateY(-2px);
+      }
+
+      .feature-card .icon {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        display: block;
+      }
+
+      .feature-card h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .feature-card p {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      /* ─── Terminal ─── */
+      .terminal-section {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 2rem 5rem;
+      }
+
+      .terminal-window {
+        background: #1a1a2e;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .terminal-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: #16162a;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .terminal-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .terminal-dot.red {
+        background: #ff5f57;
+      }
+      .terminal-dot.yellow {
+        background: #ffbd2e;
+      }
+      .terminal-dot.green {
+        background: #28c840;
+      }
+
+      .terminal-title {
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-family: "SF Mono", "Fira Code", monospace;
+        margin-left: 0.5rem;
+      }
+
+      .terminal-body {
+        padding: 1.25rem;
+        font-family: "SF Mono", "Fira Code", monospace;
+        font-size: 0.85rem;
+        line-height: 1.8;
+        color: #c9d1d9;
+      }
+
+      .terminal-body .prompt {
+        color: var(--accent);
+      }
+
+      .terminal-body .comment {
+        color: #565f6b;
+      }
+
+      .terminal-body .response {
+        color: #7ee787;
+      }
+
+      /* ─── Screenshots ─── */
+      .screenshots {
+        all: unset;
+        display: block;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 2rem 5rem;
+      }
+
+      .screenshots h2 {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 3rem;
+      }
+
+      .screenshot-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .screenshot-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+      }
+
+      .screenshot-card:hover {
+        border-color: var(--accent-dim);
+      }
+
+      .screenshot-card img {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      /* ─── Footer ─── */
+      footer {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--muted);
+        font-size: 0.85rem;
+        border-top: 1px solid var(--border);
+      }
+
+      footer a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/" class="logo">noodle</a>
+      <div class="nav-links">
+        <a href="/docs/getting-started/installation/">Docs</a>
+        <a href="https://github.com/wilfredinni/noodle" target="_blank">GitHub</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <a href="https://github.com/wilfredinni/noodle" class="hero-badge" target="_blank">
+        ★ v1.0 — MIT Licensed
+      </a>
+
+      <h1>
+        REST client<br />
+        for the <span class="highlight">terminal</span>
+      </h1>
+
+      <p>
+        Inspect, send, and iterate on HTTP requests from YAML files on disk.
+        Built with Bun, powered by OpenTUI.
+      </p>
+
+      <div class="hero-actions">
+        <a href="/docs/getting-started/installation/" class="btn btn-primary">
+          Get Started →
+        </a>
+        <a href="/docs/" class="btn btn-secondary">Documentation</a>
+      </div>
+
+      <div class="install-cmd" onclick="navigator.clipboard?.writeText('curl -LsSf https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.sh | sh')">
+        <span class="prompt">$</span>
+        <span>curl -LsSf https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.sh | sh</span>
+      </div>
+    </section>
+
+    <section class="features">
+      <h2>Why Noodle?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <span class="icon">📁</span>
+          <h3>File-First Workflows</h3>
+          <p>Requests are YAML files on disk. Edit with your editor, version control them, share with your team.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">🖥️</span>
+          <h3>Terminal-Native TUI</h3>
+          <p>Full keyboard-driven interface. Three panes, split layouts, themes, no mouse needed.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">🔐</span>
+          <h3>Auth Built In</h3>
+          <p>Bearer, Basic, API Key — plus folder-level inheritance and environment variable interpolation.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">🌿</span>
+          <h3>Environment Variables</h3>
+          <p>Dotenv-style <code>&#123;&#123;var&#125;&#125;</code> substitution in URLs, headers, body, and auth. Cycle environments with a keystroke.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">📥</span>
+          <h3>Import from Anywhere</h3>
+          <p>OpenAPI 3.0 and Postman collections. Auto-detects format. Generates environment placeholders.</p>
+        </div>
+        <div class="feature-card">
+          <span class="icon">🎨</span>
+          <h3>30+ Themes</h3>
+          <p>Built-in theme picker. Customize every color. Light, dark, and everything in between.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="terminal-section">
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+          <span class="terminal-title">noodle — collections/github.yml</span>
+        </div>
+        <div class="terminal-body">
+          <span class="comment"># Send a request to the GitHub API</span><br />
+          <span class="prompt">$</span> noodle --collection ./collections --env production<br /><br />
+          <span class="comment">// Request: GET https://api.github.com/repos/wilfredinni/noodle</span><br />
+          <span>&gt; GET /repos/wilfredinni/noodle HTTP/2</span><br />
+          <span>&gt; Authorization: Bearer &#123;&#123;github_token&#125;&#125;</span><br />
+          <span>&gt; Accept: application/vnd.github.v3+json</span><br /><br />
+          <span class="response">&lt; 200 OK (342ms)</span><br />
+          <span class="response">&#123;</span><br />
+          <span class="response">  "name": "noodle",</span><br />
+          <span class="response">  "description": "Terminal REST client",</span><br />
+          <span class="response">  "stars": 42,</span><br />
+          <span class="response">  "language": "TypeScript"</span><br />
+          <span class="response">&#125;</span>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>
+        MIT Licensed &middot;
+        <a href="https://github.com/wilfredinni/noodle">GitHub</a> &middot;
+        <a href="https://github.com/wilfredinni/noodle/issues">Issues</a>
+      </p>
+    </footer>
+  </body>
+</html>

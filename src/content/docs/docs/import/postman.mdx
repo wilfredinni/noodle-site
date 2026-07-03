@@ -1,0 +1,18 @@
+---
+title: Postman Import
+description: Import Postman collections as Noodle collections
+---
+
+Import a Postman collection:
+
+```bash
+noodle import ./postman_collection.json -i postman
+noodle import ./collection.json -i postman -o ./my-collections
+```
+
+The importer:
+
+- Converts each Postman request to a `.yml` file
+- Preserves folder structure and auth
+- Generates `{{var}}` placeholders for Postman variables
+- Handles body types, headers, and query parameters

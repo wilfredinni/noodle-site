@@ -1,0 +1,32 @@
+---
+title: Quick Start
+description: Send your first request with Noodle
+---
+
+Create a collection directory and your first request file:
+
+```bash
+mkdir -p my-collection/.environments
+```
+
+Create `my-collection/example.yml`:
+
+```yaml
+name: Example Request
+method: GET
+url: https://httpbin.org/get
+```
+
+Launch the TUI:
+
+```bash
+noodle --collection ./my-collection
+```
+
+Press **Ctrl+Return** to send the request. The response pane shows the status code, headers, and body.
+
+## Next Steps
+
+- Add [environment variables](/guides/environments/) with `{{var}}` syntax
+- Configure [authentication](/guides/authentication/) for your APIs
+- Explore the [keybindings](/reference/keybindings/) reference

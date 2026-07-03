@@ -1,0 +1,49 @@
+---
+title: Installation
+description: Install Noodle on macOS and Linux
+---
+
+## Quick Install
+
+```bash
+curl -LsSf https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.sh | sh
+```
+
+This detects your OS and architecture, downloads the latest binary from GitHub Releases, and installs it to `/usr/local/bin`.
+
+## Homebrew
+
+```bash
+brew tap wilfredinni/noodle
+brew trust wilfredinni/noodle
+brew install noodle
+```
+
+## From Source
+
+Requires [Bun](https://bun.sh).
+
+```bash
+git clone https://github.com/wilfredinni/noodle
+cd noodle
+bun install
+bun run build:bin
+```
+
+The binary is written to `./noodle`. Move it to a directory in your `$PATH`.
+
+## Platform Support
+
+| Platform | Architecture | Support |
+|----------|-------------|---------|
+| macOS    | arm64       | ✅      |
+| Linux    | x86_64      | ✅      |
+| Linux    | arm64       | ✅      |
+
+## Updating
+
+```bash
+noodle update
+```
+
+If installed via Homebrew, `noodle update` redirects to `brew upgrade noodle`.

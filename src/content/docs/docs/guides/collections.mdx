@@ -1,0 +1,70 @@
+---
+title: Collections
+description: Organize requests with the collection file format
+---
+
+A collection is a directory of `.yml` files, one per request.
+
+## Directory Structure
+
+```
+my-collection/
+├── .environments/
+│   ├── production.env
+│   └── staging.env
+├── settings.yml
+├── users/
+│   ├── folder.yml
+│   ├── list.yml
+│   ├── create.yml
+│   └── delete.yml
+├── example.yml
+└── another-request.yml
+```
+
+## Request File
+
+```yaml
+name: Get Users
+method: GET
+url: https://api.example.com/users
+headers:
+  - key: Accept
+    value: application/json
+    enabled: true
+```
+
+### Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | yes | Display name in sidebar |
+| `method` | string | yes | HTTP method (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS`) |
+| `url` | string | yes | Request URL (supports `{{var}}` substitution) |
+| `headers` | array | no | Array of header objects |
+| `params` | array | no | Array of query parameter objects |
+| `auth` | object | no | Override collection/folder auth |
+| `body_type` | string | no | `none`, `json`, `urlencoded`, `multipart`, or `binary` |
+| `body` | string | no | Raw body content |
+| `timeout` | number | no | Request timeout in ms |
+
+## folder.yml
+
+Optional metadata for organizing collections:
+
+```yaml
+name: Users API
+seq: 0
+```
+
+Headers and auth defined in `folder.yml` are inherited by all requests in that folder (unless overridden).
+
+## settings.yml
+
+Collection-wide settings:
+
+```yaml
+environment: production
+keybindings:
+  request_send: ctrl+enter
+```

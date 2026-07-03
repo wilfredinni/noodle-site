@@ -1,0 +1,22 @@
+---
+title: OpenAPI Import
+description: Import OpenAPI 3.0 specifications as Noodle collections
+---
+
+Import an OpenAPI 3.0 spec:
+
+```bash
+noodle import ./openapi.json
+noodle import ./openapi.yaml -i openapi -o ./collections
+```
+
+The importer:
+
+- Creates one `.yml` request file per endpoint
+- Groups endpoints by tag into folders
+- Generates `{{var}}` placeholders for environment variables
+- Preserves request bodies, parameters, and auth schemes
+
+## Format Detection
+
+OpenAPI format is auto-detected from the file contents. Use `--format openapi` or `-i openapi` to force it.

@@ -1,0 +1,52 @@
+---
+title: Authentication
+description: Configure authentication for your requests
+---
+
+## Auth Types
+
+### Bearer Token
+
+```yaml
+auth:
+  type: bearer
+  token: "{{api_token}}"
+```
+
+### Basic Auth
+
+```yaml
+auth:
+  type: basic
+  user: "{{username}}"
+  pass: "{{password}}"
+```
+
+### API Key
+
+```yaml
+auth:
+  type: api_key
+  key: X-API-Key
+  value: "{{api_key}}"
+  placement: header
+```
+
+`placement` can be `header` or `query`.
+
+## Inheritance
+
+Auth can be defined at multiple levels:
+
+- **Collection**: In `settings.yml`
+- **Folder**: In `folder.yml`
+- **Request**: In the request file
+
+Noodle resolves auth by walking up the folder hierarchy. A request-level `auth` with `type: inherit` uses the nearest parent's auth config.
+
+## Disabling Auth
+
+```yaml
+auth:
+  type: none
+```

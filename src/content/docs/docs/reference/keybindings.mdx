@@ -1,0 +1,59 @@
+---
+title: Keybindings
+description: Default keyboard shortcuts
+---
+
+## Global
+
+| Key | Action |
+|-----|--------|
+| `Tab` / `Shift+Tab` | Cycle focus (sidebar → request → response) |
+| `Ctrl+Return` | Send request |
+| `Ctrl+S` | Save request |
+| `Ctrl+N` | New request |
+| `Ctrl+K` | Clone request |
+| `Ctrl+W` | Delete request |
+| `Ctrl+P` | Cycle environment |
+| `Ctrl+L` | Toggle layout (stacked / side-by-side) |
+| `F2` | Expand/collapse focused pane |
+| `F1` | Toggle help overlay |
+| `Ctrl+T` | Open theme picker |
+| `Ctrl+E` | Edit request in overlay |
+| `Ctrl+Alt+E` | Edit request YAML in overlay |
+| `Ctrl+B` | Copy response body |
+| `Ctrl+Alt+N` | New folder |
+| `e` | Open environment editor |
+| `Ctrl+C` | Quit |
+
+## Browse Mode
+
+When the request pane is focused (not editing):
+
+| Key | Action |
+|-----|--------|
+| `↑/↓/←/→` | Navigate fields |
+| `Return` | Enter edit mode |
+| `Escape` | Exit browse mode |
+| `Space` | Toggle header/param enabled |
+| `Ctrl+T` | Toggle form entry text/file |
+| `Ctrl+D` | Revert current field |
+| `Ctrl+R` | Revert all fields |
+
+## Edit Mode
+
+When editing a field value:
+
+| Key | Action |
+|-----|--------|
+| `Return` | Commit edit |
+| `Escape` | Cancel edit |
+| `Tab` | Move to next field |
+
+## Customization
+
+Keybindings can be customized in `~/.config/noodle/keybinds.yml`:
+
+```yaml
+request_send: ctrl+enter
+env_cycle: ctrl+shift+p
+```

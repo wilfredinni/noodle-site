@@ -1,0 +1,87 @@
+---
+title: Requests
+description: Writing and editing requests in Noodle
+---
+
+## HTTP Methods
+
+Noodle supports the standard HTTP methods: `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, and `OPTIONS`.
+
+## Headers
+
+```yaml
+headers:
+  - key: Content-Type
+    value: application/json
+    enabled: true
+  - key: Authorization
+    value: Bearer {{token}}
+    enabled: true
+```
+
+Each header has a `key`, `value`, and `enabled` flag. Disabled headers are preserved but not sent.
+
+## Query Parameters
+
+```yaml
+params:
+  - key: page
+    value: "1"
+    enabled: true
+  - key: limit
+    value: "50"
+    enabled: true
+```
+
+## Body Types
+
+### JSON
+
+```yaml
+body_type: json
+body: |
+  {
+    "name": "John",
+    "email": "john@example.com"
+  }
+```
+
+### URL-Encoded
+
+```yaml
+body_type: urlencoded
+form_data:
+  - name: username
+    value: johndoe
+    enabled: true
+```
+
+### Multipart
+
+```yaml
+body_type: multipart
+form_data:
+  - name: file
+    value: ./photo.jpg
+    enabled: true
+    type: file
+  - name: description
+    value: Profile photo
+    enabled: true
+    type: text
+```
+
+### Binary
+
+```yaml
+body_type: binary
+file_path: ./image.png
+```
+
+## Timeout & Redirects
+
+```yaml
+timeout: 5000
+followRedirects: true
+maxRedirects: 10
+```

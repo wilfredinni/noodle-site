@@ -1,0 +1,34 @@
+---
+title: Layout
+description: TUI layout modes and navigation
+---
+
+## Panes
+
+The Noodle TUI has three panes:
+
+| Pane | Description |
+|------|-------------|
+| **Sidebar** | Collection tree with folders and requests |
+| **Request** | Request detail view with inline editing |
+| **Response** | Response rendering (idle / sending / done / error) |
+
+## Focus
+
+Press **Tab** / **Shift+Tab** to cycle focus. The active pane gets a cyan border with a `▸` prefix in its title.
+
+## Layout Modes
+
+Press **Ctrl+L** to toggle between:
+
+- **Stacked** — panes stack vertically
+- **Side-by-side** — request and response split horizontally
+
+Press **F2** to expand the focused pane to full width.
+
+## Editing
+
+The request pane has two modes:
+
+- **Browse** — navigate between fields with arrow keys
+- **Edit** — modify a field value (enter via `Return`, exit via `Escape`)

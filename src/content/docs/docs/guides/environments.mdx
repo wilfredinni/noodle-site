@@ -1,0 +1,65 @@
+---
+title: Environments
+description: Manage environment variables for different contexts
+---
+
+Environment files use dotenv format and live in the `.environments/` subdirectory of your collection.
+
+## File Format
+
+```bash
+# my-collection/.environments/production.env
+API_URL=https://api.example.com
+API_KEY=sk-prod-abc123
+USER_EMAIL=admin@example.com
+```
+
+```bash
+# my-collection/.environments/staging.env
+API_URL=https://staging-api.example.com
+API_KEY=sk-staging-xyz789
+USER_EMAIL=admin@example.com
+```
+
+## Variable Interpolation
+
+Reference environment variables in your requests with `{{var}}` syntax:
+
+```yaml
+url: "{{API_URL}}/users"
+headers:
+  - key: Authorization
+    value: "Bearer {{API_KEY}}"
+    enabled: true
+```
+
+## Disabling Variables
+
+Prefix a line with `#` to disable a variable:
+
+```bash
+# API_KEY=sk-old-key
+```
+
+Disabled variables are not available for substitution.
+
+## Badge Colors
+
+Use `_color` in your `.env` file to set the sidebar badge color:
+
+```bash
+_color=green
+API_URL=https://api.example.com
+```
+
+## Default Environment
+
+Set the default environment in `settings.yml`:
+
+```yaml
+environment: production
+```
+
+## Cycling Environments
+
+Press **Ctrl+P** to cycle through available environments in the TUI.
