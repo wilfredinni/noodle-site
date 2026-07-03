@@ -8,6 +8,7 @@ export default defineConfig({
     starlight({
       title: "Noodle Docs",
       description: "Terminal REST client — inspect, send, and iterate on HTTP requests from YAML files on disk.",
+      customCss: ["./src/styles/catppuccin.css"],
       social: [
         { icon: "github", label: "GitHub", href: "https://github.com/wilfredinni/noodle" },
       ],

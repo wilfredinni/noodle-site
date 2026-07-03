@@ -1,0 +1,36 @@
+/* Catppuccin Mocha — Starlight theme override */
+:root {
+  --sl-color-accent-low: #1e1e2e;
+  --sl-color-accent: #b4befe;
+  --sl-color-accent-high: #cdd6f4;
+  --sl-color-white: #cdd6f4;
+  --sl-color-gray-1: #bac2de;
+  --sl-color-gray-2: #a6adc8;
+  --sl-color-gray-3: #7f849c;
+  --sl-color-gray-4: #585b70;
+  --sl-color-gray-5: #45475a;
+  --sl-color-gray-6: #313244;
+  --sl-color-black: #1e1e2e;
+  --sl-color-bg: #1e1e2e;
+  --sl-color-bg-nav: #181825;
+  --sl-color-bg-sidebar: #181825;
+  --sl-color-bg-inline-code: #313244;
+  --sl-color-bg-accent: #b4befe;
+  --sl-color-hairline-light: #313244;
+  --sl-color-hairline-shade: #45475a;
+  --sl-color-border: #313244;
+  --sl-color-border-accent: #b4befe;
+
+  --sl-color-orange-high: #fab387;
+  --sl-color-orange: #fab387;
+  --sl-color-green-high: #a6e3a1;
+  --sl-color-green: #a6e3a1;
+  --sl-color-blue-high: #89b4fa;
+  --sl-color-blue: #89b4fa;
+  --sl-color-red-high: #f38ba8;
+  --sl-color-red: #f38ba8;
+  --sl-color-purple-high: #cba6f7;
+  --sl-color-purple: #cba6f7;
+
+  --sl-color-hero: #b4befe;
+}
