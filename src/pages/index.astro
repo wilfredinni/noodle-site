@@ -68,7 +68,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 1.25rem 2rem;
-        max-width: 1300px;
+        max-width: 1600px;
         margin: 0 auto;
         position: relative;
         z-index: 10;
@@ -115,11 +115,11 @@
       /* ─── Hero (Two Column Layout) ─── */
       .hero {
         display: grid;
-        grid-template-columns: 1fr 1.2fr;
+        grid-template-columns: 1fr 2fr;
         gap: 4rem;
         align-items: center;
         padding: 6rem 2rem 6rem;
-        max-width: 1300px;
+        max-width: 1600px;
         margin: 0 auto;
         position: relative;
         z-index: 2;
@@ -153,8 +153,9 @@
       }
 
       .hero h1 {
-        font-size: clamp(3rem, 5vw, 4.5rem);
-        font-weight: 800;
+        font-family: var(--font-mono);
+        font-size: clamp(2.2rem, 3.8vw, 3.2rem);
+        font-weight: 400;
         letter-spacing: -0.04em;
         line-height: 1.1;
         margin-bottom: 1.5rem;
@@ -211,8 +212,8 @@
         overflow-x: auto;
         scrollbar-width: none;
       }
-      
-      .install-block code::-webkit-scrollbar { 
+
+      .install-block code::-webkit-scrollbar {
         display: none;
       }
 
@@ -307,14 +308,14 @@
       footer a:hover {
         color: var(--fg);
       }
-      
+
       /* Mobile responsiveness */
       @media (max-width: 900px) {
         .hero {
           gap: 2rem;
         }
       }
-      
+
       @media (max-width: 768px) {
         .hero {
           grid-template-columns: 1fr;
@@ -322,12 +323,12 @@
           gap: 3rem;
           padding-top: 4rem;
         }
-        
+
         .hero-content {
           align-items: center;
           text-align: center;
         }
-        
+
         .hero h1, .hero p.lede {
           text-align: center;
         }
@@ -335,7 +336,7 @@
         .hero-actions {
           align-items: center;
         }
-      
+
       @media (max-width: 768px) {
         .hero h1 {
           font-size: 2.5rem;
@@ -369,12 +370,12 @@
         </a>
 
         <h1>
-          REST client<br />
+          A delicious REST client<br />
           for the <span class="highlight">terminal</span>
         </h1>
 
         <p class="lede">
-          Inspect, send, and iterate on HTTP requests from YAML files on disk. 
+          Inspect, send, and iterate on HTTP requests from YAML files on disk.
           Built with Bun, powered by OpenTUI.
         </p>
 
@@ -383,7 +384,7 @@
             <code><span class="prompt">$</span> curl -LsSf https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.sh | sh</code>
             <button class="copy-btn" onclick="navigator.clipboard?.writeText('curl -LsSf https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.sh | sh'); const t=this.innerText; this.innerText='Copied!'; setTimeout(()=>this.innerText=t, 2000);">Copy</button>
           </div>
-          
+
           <div class="secondary-links">
             <a href="/docs/getting-started/installation/">Quick start →</a>
             <a href="/docs/">Read the docs →</a>
@@ -393,7 +394,7 @@
 
       <div class="hero-visual">
         <div class="terminal-mockup">
-          <img src="https://placehold.co/1000x700/0d1117/38c85a?text=Terminal+Mockup\n(Placeholder+for+App+Screenshot)&font=monospace" alt="Terminal Mockup" loading="lazy" />
+          <img src="/noodle.png" alt="Noodle Terminal Interface" loading="lazy" />
         </div>
       </div>
     </section>
