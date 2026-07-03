@@ -68,7 +68,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 1.25rem 2rem;
-        max-width: 1600px;
+        max-width: 1200px;
         margin: 0 auto;
         position: relative;
         z-index: 10;
@@ -112,14 +112,14 @@
         color: var(--fg);
       }
 
-      /* ─── Hero (Two Column Layout) ─── */
+      /* ─── Hero (Centered Layout) ─── */
       .hero {
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        gap: 4rem;
+        display: flex;
+        flex-direction: column;
         align-items: center;
-        padding: 6rem 2rem 6rem;
-        max-width: 1600px;
+        gap: 3rem;
+        padding: 1.5rem 2rem 6rem;
+        max-width: 1200px;
         margin: 0 auto;
         position: relative;
         z-index: 2;
@@ -128,8 +128,8 @@
       .hero-content {
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        text-align: left;
+        align-items: center;
+        text-align: center;
       }
 
       .hero-badge {
@@ -158,8 +158,8 @@
         font-weight: 400;
         letter-spacing: -0.04em;
         line-height: 1.1;
-        margin-bottom: 1.5rem;
-        text-align: left; /* FORCE LEFT ALIGN */
+        text-align: center;
+        margin-bottom: 2rem;
       }
 
       .hero h1 .highlight {
@@ -171,19 +171,18 @@
       }
 
       .hero p.lede {
+        font-size: 1.1rem;
         color: var(--muted);
-        font-size: 1.25rem;
-        margin-bottom: 2.5rem;
+        margin-bottom: 0;
         line-height: 1.6;
         font-weight: 400;
-        text-align: left; /* FORCE LEFT ALIGN */
       }
 
       .hero-actions {
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        gap: 1.5rem;
+        align-items: center;
+        gap: 1rem;
         width: 100%;
       }
 
@@ -191,7 +190,7 @@
         display: flex;
         align-items: stretch;
         width: 100%;
-        max-width: 450px;
+        max-width: 900px;
         border: 1px solid var(--border);
         background: var(--bg-elevated);
         overflow: hidden;
@@ -272,6 +271,7 @@
         display: flex; /* FORCE GRID FIX */
         justify-content: center;
         align-items: center;
+        margin-top: -2.5rem;
       }
 
 
@@ -365,36 +365,36 @@
 
     <section class="hero">
       <div class="hero-content">
-        <a href="https://github.com/wilfredinni/noodle" class="hero-badge" target="_blank">
-          ★ v1.0 — MIT Licensed
-        </a>
+
 
         <h1>
           A delicious REST client<br />
-          for the <span class="highlight">terminal</span>
+          for your <span class="highlight">terminal</span>
         </h1>
 
         <p class="lede">
           Inspect, send, and iterate on HTTP requests from YAML files on disk.
           Built with Bun, powered by OpenTUI.
         </p>
+      </div>
 
+      <div class="hero-visual" style="width: 100%; max-width: 950px; margin: -2.2rem auto 0;">
+        <div class="terminal-mockup">
+          <img src="/noodle.png" alt="Noodle Terminal Interface" loading="lazy" style="width: 100%; height: auto;" />
+        </div>
+      </div>
+
+      <div class="hero-content">
         <div class="hero-actions">
           <div class="install-block">
             <code><span class="prompt">$</span> curl -LsSf https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.sh | sh</code>
             <button class="copy-btn" onclick="navigator.clipboard?.writeText('curl -LsSf https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.sh | sh'); const t=this.innerText; this.innerText='Copied!'; setTimeout(()=>this.innerText=t, 2000);">Copy</button>
           </div>
 
-          <div class="secondary-links">
+          <div class="secondary-links" style="justify-content: center;">
             <a href="/docs/getting-started/installation/">Quick start →</a>
             <a href="/docs/">Read the docs →</a>
           </div>
-        </div>
-      </div>
-
-      <div class="hero-visual">
-        <div class="terminal-mockup">
-          <img src="/noodle.png" alt="Noodle Terminal Interface" loading="lazy" />
         </div>
       </div>
     </section>
