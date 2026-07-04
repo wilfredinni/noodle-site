@@ -63,3 +63,33 @@ environment: production
 ## Cycling Environments
 
 Press **Ctrl+P** to cycle through available environments in the TUI.
+
+## Environment Editor
+
+Press **e** to open the full environment editor. The TUI switches to a
+split view:
+
+- **Sidebar** (left) — lists all `.env` files, shows color dots and an
+  unsaved indicator (yellow bullet)
+- **Header** (top) — edit the environment name and pick a color badge
+- **Main** — key/value grid with enable/disable checkboxes
+
+### Keybindings
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+S` | Save environment |
+| `Ctrl+N` | Create new environment |
+| `Ctrl+K` | Clone selected environment |
+| `Ctrl+W` | Delete environment (with confirmation) |
+| `↑`/`↓` | Navigate rows |
+| `Return` | Edit field |
+| `Tab` | Switch between key and value fields |
+| `Space` | Select environment in sidebar |
+
+### Features
+
+- **Dirty tracking** — unsaved changes show a yellow bullet
+- **Color badges** — pick from 17 theme colors (green, blue, red, etc.)
+- **Disable variables** — checkbox toggles a `#` prefix in the `.env` file
+- **Clone** — appends " - Copy" to the name, duplicates all vars

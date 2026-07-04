@@ -3,25 +3,45 @@ title: Responses
 description: Reading and working with responses
 ---
 
-After sending a request, the response pane displays:
+After sending a request, the response pane displays the status code,
+response time, headers, body (auto-formatted if JSON), and body size.
 
-- **Status code** and status text
-- **Response time** in milliseconds
-- **Headers** (sorted alphabetically)
-- **Body** (formatted JSON or plain text)
-- **Body size**
+## Tabs
 
-## Copy Response Body
+When the response pane is focused, switch between views with **←**/**→**:
 
-Press **Ctrl+B** to copy the response body to your clipboard.
+| Tab | Content |
+|-----|---------|
+| **Body** | Response body with JSON syntax highlighting and line numbers |
+| **Headers** | Response headers sorted alphabetically |
+| **Timeline** | History of every send for this request |
+
+**↑**/**↓** scrolls the active tab. **PgUp**/**PgDn** page-scrolls.
 
 ## Timeline
 
-Each response includes timing information for the full request lifecycle.
+Each send is stored as a timeline entry on disk at
+`.timeline/<request-id>.yml`. Navigate entries with **↑**/**↓**,
+press **Return** to expand and see the full request + response snapshot.
+
+An expanded entry shows two blocks:
+
+- **Request** — method, URL, auth summary, headers, body
+- **Response** — status line, size, headers, body
+
+Entries with errors show `ERR` in red with the error message.
+
+Max 50 entries per request — older ones are pruned automatically.
+
+## Copy Response Body
+
+Press **Ctrl+B** to copy the response body to clipboard. Uses OSC52 —
+works over SSH.
 
 ## Error Handling
 
-Noodle displays errors inline in the response pane when:
+Errors display inline in the response pane when:
+
 - The server is unreachable
 - DNS resolution fails
 - A timeout occurs

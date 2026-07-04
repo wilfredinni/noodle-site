@@ -55,9 +55,45 @@ Optional metadata for organizing collections:
 ```yaml
 name: Users API
 seq: 0
+overrides:
+  headers:
+    Accept:
+      key: Accept
+      value: application/json
+      enabled: true
+  auth:
+    type: bearer
+    token: "{{folder_token}}"
 ```
 
-Headers and auth defined in `folder.yml` are inherited by all requests in that folder (unless overridden).
+### Fields
+
+| Field | Description |
+|-------|-------------|
+| `name` | Display name in sidebar. Falls back to directory name |
+| `seq` | Custom sort position. Folders without `seq` sort alphabetically |
+| `overrides` | Headers and auth inherited by child requests |
+
+### Inheritance
+
+Requests inherit headers and auth from their parent folder. Set
+`auth: { type: inherit }` on a request to use the nearest parent's auth
+config. Set `auth: { type: none }` to disable auth for a specific request.
+
+### Activity Tab
+
+When a folder is focused in the sidebar, the Folder Pane shows an
+**Activity** tab with per-request stats:
+
+| Column | Description |
+|--------|-------------|
+| Method | HTTP method |
+| Name | Request name |
+| OK% | Success rate — green ≥90%, yellow ≥50%, red below |
+| Avg | Average response time |
+| Last | Calls + time since last send |
+
+Stats are computed from the request timeline.
 
 ## settings.yml
 
