@@ -6,10 +6,21 @@ description: Organize requests with folders, overrides, and activity stats
 Folders group requests and can apply shared headers and auth to
 everything inside them.
 
+![Folder pane](/noodle-everforest.png)
+
+## Navigation
+
+| Key | Action |
+|-----|--------|
+| **↑**/**↓** | Move between folders and requests |
+| **→** | Expand folder |
+| **←** | Collapse folder |
+| **Space** | Toggle folder open/closed |
+| **Return** | Select request |
+
 ## Folder Pane
 
-When a folder is selected in the sidebar, the folder pane shows four
-tabs. Switch with **←**/**→**:
+When a folder is selected, opens four tabs. Navigate with **←**/**→**:
 
 | Tab | Content |
 |-----|---------|
@@ -17,6 +28,18 @@ tabs. Switch with **←**/**→**:
 | **Headers** | Headers inherited by child requests |
 | **Auth** | Auth inherited by child requests |
 | **Activity** | Per-request stats table |
+
+### Keybindings
+
+| Key | Action |
+|-----|--------|
+| **←**/**→** | Switch tabs (General / Headers / Auth / Activity) |
+| **↑**/**↓** | Navigate fields |
+| **Return** | Enter edit mode |
+| **Space** | Toggle checkbox |
+| **Escape** | Exit folder pane, return to sidebar |
+| **Ctrl+S** | Save folder changes |
+| **Ctrl+W** | Delete folder (with confirmation) |
 
 ## Inheritance
 

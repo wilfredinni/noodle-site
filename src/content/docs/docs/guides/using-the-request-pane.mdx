@@ -7,6 +7,8 @@ The request pane sits in the center of the TUI. It shows every detail of
 the selected request — URL, method, headers, params, auth, body, and
 settings.
 
+![Request pane](/noodle-owl.png)
+
 ## Browse Mode
 
 When the request pane is focused, arrow keys navigate between sections:
@@ -19,6 +21,18 @@ When the request pane is focused, arrow keys navigate between sections:
 | **Space** | Toggle header/param enabled/disabled |
 
 Disabled fields are preserved but not sent with the request.
+
+## Headers & Params
+
+Headers and query params are lists of key/value pairs. Both work the
+same way:
+
+| Action | Key |
+|--------|-----|
+| Add new row | Arrow down past the last row |
+| Toggle enabled | **Space** |
+| Edit value | **Return** to enter edit mode |
+| Delete row | **Ctrl+D** in browse mode |
 
 ## Edit Mode
 
@@ -44,6 +58,29 @@ shows different fields:
 | **binary** | File path |
 
 For multipart entries, **Ctrl+T** toggles between text and file mode.
+
+## Settings
+
+Below the body section, configure request behavior:
+
+| Setting | Description |
+|---------|-------------|
+| **Timeout** | Request timeout in milliseconds. `0` means no timeout |
+| **Follow redirects** | Toggle automatic redirect following on/off |
+| **Max redirects** | Maximum number of redirects to follow |
+
+## Auth
+
+Navigate to the auth section to set authentication:
+
+| Auth type | Fields |
+|-----------|--------|
+| **None** | No auth |
+| **Bearer** | Token field |
+| **Basic** | Username and password |
+| **API Key** | Key, value, and placement (header / query) |
+
+Press **Return** on the type field to cycle through options.
 
 ## Creating and Managing Requests
 
