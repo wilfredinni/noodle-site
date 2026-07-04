@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro"
+import { marked } from "marked"
 
 const releases = [
   {
@@ -7,21 +8,21 @@ const releases = [
     name: "noodle v0.1.0 — Terminal REST client",
     date: "2026-07-03",
     url: "https://github.com/wilfredinni/noodle/releases/tag/v0.1.0",
-    body: `noodle is a terminal REST client that treats HTTP requests as files on disk. Each request lives in a YAML file you can edit, version-control, and share like any other code.
+    body: marked.parse(`noodle is a terminal REST client that treats HTTP requests as files on disk. Each request lives in a YAML file you can edit, version-control, and share like any other code.
 
 ## ✨ What you can do
 
-  - ⚡ Send any HTTP request — GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS
-  - ✏️ Edit requests inline — headers, query params, auth, and body all editable from the TUI or directly in the YAML file
-  - 🔄 Switch environments — define dev/staging/prod variables in .env files, toggle with a keybinding
-  - 🧩 Use variables everywhere — $BASE_URL, $API_KEY, $TOKEN — substitute in URLs, headers, body, anywhere
-  - 🔐 Authenticate — Basic, Bearer, API Key, OAuth 2.0 built-in
-  - 📦 Send JSON, forms, files — JSON body, multipart form data, URL-encoded, raw text, binary uploads
-  - 📥 Import your existing stuff — OpenAPI 3.0 and Postman collections come in with \`noodle import\`
-  - 📁 Organize with folders — group requests into folders, inherit auth from parent
-  - 🎨 Pick a theme — 30+ built-in terminal themes
-  - ⌨️ Custom keybindings — remap any shortcut via ~/.config/noodle/keybinds.yml
-  - 🔼 Self-update — \`noodle update\` checks GitHub for the latest release`,
+- ⚡ **Send any HTTP request** — GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS
+- ✏️ **Edit requests inline** — headers, query params, auth, and body all editable from the TUI or directly in the YAML file
+- 🔄 **Switch environments** — define dev/staging/prod variables in .env files, toggle with a keybinding
+- 🧩 **Use variables everywhere** — \`$BASE_URL\`, \`$API_KEY\`, \`$TOKEN\` — substitute in URLs, headers, body, anywhere
+- 🔐 **Authenticate** — Basic, Bearer, API Key, OAuth 2.0 built-in
+- 📦 **Send JSON, forms, files** — JSON body, multipart form data, URL-encoded, raw text, binary uploads
+- 📥 **Import your existing stuff** — OpenAPI 3.0 and Postman collections come in with \`noodle import\`
+- 📁 **Organize with folders** — group requests into folders, inherit auth from parent
+- 🎨 **Pick a theme** — 30+ built-in terminal themes
+- ⌨️ **Custom keybindings** — remap any shortcut via \`~/.config/noodle/keybinds.yml\`
+- 🔼 **Self-update** — \`noodle update\` checks GitHub for the latest release`),
   },
 ]
 ---
@@ -107,13 +108,12 @@ const releases = [
     }
 
     .release-body ul {
-      list-style: none;
       margin: 0.5rem 0 1rem;
+      padding-left: 1.5rem;
     }
 
     .release-body li {
       margin-bottom: 0.4rem;
-      padding-left: 1.5rem;
     }
 
     .release-body code {
@@ -143,25 +143,7 @@ const releases = [
             <a href={r.url} class="tag" target="_blank">{r.tag}</a>
             <span class="date">{r.date}</span>
           </div>
-          <div class="release-body">
-            <p><strong>{r.name}</strong></p>
-            <br />
-            {r.body.split("\n").map((line) => {
-              if (line.startsWith("## ")) {
-                return <h2>{line.slice(3)}</h2>
-              }
-              if (line.startsWith("- ")) {
-                return <li>{line.slice(2)}</li>
-              }
-              if (line.startsWith("  - ")) {
-                return <li style="padding-left:2.5rem">{line.slice(4)}</li>
-              }
-              if (line.trim() === "") {
-                return <br />
-              }
-              return <p>{line}</p>
-            })}
-          </div>
+          <div class="release-body" set:html={r.body} />
         </div>
       ))
     }
