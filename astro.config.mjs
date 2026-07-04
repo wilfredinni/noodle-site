@@ -60,19 +60,13 @@ export default defineConfig({
         {
           label: "Guides",
           items: [
+            { label: "Layout", slug: "docs/reference/layout" },
             { label: "Using the Sidebar", slug: "docs/guides/using-the-sidebar" },
             { label: "Using the Request Pane", slug: "docs/guides/using-the-request-pane" },
             { label: "Using the Response Pane", slug: "docs/guides/using-the-response-pane" },
             { label: "Using Environments", slug: "docs/guides/using-environments" },
-            { label: "Using Folders", slug: "docs/guides/using-folders" },
-          ],
-        },
-        {
-          label: "UI Reference",
-          items: [
             { label: "Keybindings", slug: "docs/reference/keybindings" },
             { label: "Theming", slug: "docs/reference/theming" },
-            { label: "Layout", slug: "docs/reference/layout" },
           ],
         },
         {
