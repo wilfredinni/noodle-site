@@ -1,0 +1,326 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+
+const versions = [
+  {
+    version: "v0.1",
+    status: "done",
+    title: "Current release",
+    features: [
+      { text: "Requests in folders (nested request directories)", done: true },
+      { text: "Duplicate and delete requests", done: true },
+      { text: "Expand panels keybinding (F2 toggle)", done: true },
+      { text: "Create requests from UI (Ctrl+N modal)", done: true },
+      { text: "Persist UI state (last request + tabs)", done: true },
+      { text: "File upload (multipart files + binary body)", done: true },
+      { text: "Multipart/form-data body", done: true },
+      { text: "Content-Type aware body", done: true },
+      { text: "Inline auth editor (None/Bearer/Basic/API Key)", done: true },
+      { text: "Max redirects / follow redirects toggle", done: true },
+      { text: "Configurable request timeout", done: true },
+      { text: "Persistent request history", done: true },
+      { text: "Environment editor (CRUD from UI)", done: true },
+      { text: "Full-featured CLI mode", done: true },
+      { text: "Self-update CLI (noodle update)", done: true },
+      { text: "CI/CD", done: true },
+      { text: "Packaging: brew, curl, npx", done: true },
+      { text: "Website and documentation", done: true },
+      { text: "Import from Postman", done: true },
+      { text: "Import from OpenAPI 3.x", done: true },
+      { text: "Copy JSON body response keybinding", done: true },
+      { text: "Empty state on fresh install", done: true },
+    ],
+    bugs: [
+      { text: "URL bar collapses/grows when container is too narrow", done: true },
+      { text: "Tabs should scroll horizontally instead of collapsing", done: true },
+      { text: "Cannot copy text anywhere in Noodle", done: true },
+    ],
+    polish: [
+      { text: "Recheck the keybindings overlay labels", done: true },
+    ],
+  },
+  {
+    version: "v0.2",
+    status: "next",
+    features: [
+      { text: "Select a default theme", done: false },
+      { text: "Collection switcher", done: false },
+      { text: "Validate HTTP input", done: false },
+    ],
+    bugs: [
+      { text: "Show error color when env variable doesn't exist in auth interpolation", done: false },
+      { text: "ctrl+e / ctrl+alt+e opens edit overlay on folders when it shouldn't", done: false },
+      { text: "Request status lost when switching tabs during active request", done: false },
+    ],
+  },
+  {
+    version: "v0.3",
+    features: [
+      { text: "Better message for upgrades (noodle update)", done: false },
+      { text: "Command palette (Ctrl+P)", done: false },
+      { text: "Make theme overlay reusable", done: false },
+    ],
+  },
+  {
+    version: "v0.4",
+    features: [
+      { text: "URL bar autocompletion", done: false },
+      { text: "Generate code from request (cURL, Python, JS)", done: false },
+      { text: "Search and filter in collections", done: false },
+      { text: "Import from cURL (paste in URL bar)", done: false },
+      { text: "Wrap/format JSON body", done: false },
+    ],
+  },
+  {
+    version: "v0.5",
+    features: [
+      { text: "JSON folding (collapse/expand nodes)", done: false },
+      { text: "JSONPath/jq query for response body", done: false },
+      { text: "Validate JSON body in real-time", done: false },
+      { text: "Beautify JSON keybinding", done: false },
+    ],
+  },
+  {
+    version: "v0.6",
+    features: [
+      { text: "Export collection to OpenAPI/Postman/Insomnia", done: false },
+      { text: "Import from Swagger", done: false },
+      { text: "Import from Insomnia", done: false },
+      { text: "Remember open tabs when switching folders", done: false },
+    ],
+  },
+  {
+    version: "v0.7",
+    features: [
+      { text: "Proxy support", done: false },
+      { text: "SSL/TLS config", done: false },
+      { text: "Cookie jar viewer", done: false },
+      { text: "OAuth 2.0", done: false },
+    ],
+  },
+  {
+    version: "v0.8",
+    features: [
+      { text: "Pre/post-request scripts in JavaScript", done: false },
+    ],
+  },
+  {
+    version: "v0.9",
+    features: [
+      { text: "Custom assertions (status, body, headers, timing)", done: false },
+      { text: "Request chaining (set variables across requests)", done: false },
+    ],
+  },
+  {
+    version: "v1.0",
+    status: "goal",
+    features: [
+      { text: "Collection runner (batch mode, results grid)", done: false },
+    ],
+  },
+  {
+    version: "v1.1",
+    features: [
+      { text: "Jump mode (Ctrl+O to focus any field)", done: false },
+    ],
+  },
+]
+---
+
+<BaseLayout title="Roadmap — Noodle" description="Noodle development roadmap and future plans">
+  <style is:global>
+    .roadmap-page {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .page-title {
+      margin-bottom: 3rem;
+    }
+
+    .page-title h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-title p {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .version-group {
+      margin-bottom: 2.5rem;
+      position: relative;
+      padding-left: 2rem;
+    }
+
+    .version-group::before {
+      content: '';
+      position: absolute;
+      left: 0.5rem;
+      top: 0.5rem;
+      bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .version-group:last-child::before {
+      display: none;
+    }
+
+    .version-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+
+    .version-header::before {
+      content: '';
+      position: absolute;
+      left: -1.75rem;
+      top: 50%;
+      width: 0.6rem;
+      height: 0.6rem;
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+
+    .version-header.done::before {
+      background: var(--green);
+    }
+
+    .version-header.next::before {
+      background: var(--accent);
+    }
+
+    .version-header.goal::before {
+      background: transparent;
+      border: 2px solid var(--accent);
+    }
+
+    .version-header .tag {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .version-header .label {
+      font-size: 0.72rem;
+    }
+
+    .version-header .label.done {
+      color: #a6e3a1;
+    }
+
+    .version-header .label.dev {
+      color: #b4befe;
+    }
+
+    .version-header .label.goal {
+      color: #cba6f7;
+    }
+
+    .version-header .count {
+      color: var(--overlay0);
+      font-size: 0.7rem;
+    }
+
+    .feature-list {
+      list-style: none;
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-list li {
+      padding: 0.2rem 0;
+      font-size: 0.8rem;
+      color: var(--subtext0);
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .feature-list li .check {
+      color: var(--green);
+      min-width: 1rem;
+    }
+
+    .feature-list li .todo {
+      color: var(--surface2);
+      min-width: 1rem;
+    }
+
+    .feature-list li.done {
+      color: var(--overlay1);
+    }
+
+    .sub-label {
+      color: var(--overlay0);
+      font-size: 0.72rem;
+      margin: 0.75rem 0 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    .empty-line {
+      height: 0.75rem;
+    }
+  </style>
+
+  <div class="roadmap-page">
+    <div class="page-title">
+      <h1>Roadmap</h1>
+      <p>Path to v1.0 and beyond</p>
+    </div>
+
+    {
+      versions.map((v) => (
+        <div class="version-group">
+          <div class="version-header {v.status || ''}">
+            <span class="tag">{v.version}</span>
+            {v.status === "done" && <span class="label done">done</span>}
+            {v.status === "next" && <span class="label dev">developing</span>}
+            {v.status === "goal" && <span class="label goal">goal</span>}
+            <span class="count">{v.features.length + (v.bugs?.length || 0)}{v.polish ? ` + ${v.polish.length}` : ''} items</span>
+          </div>
+
+          {v.features && (
+            <ul class="feature-list">
+              {v.features.map((f) => (
+                <li class={f.done ? "done" : ""}>
+                  <span class={f.done ? "check" : "todo"}>{f.done ? "✓" : "○"}</span>
+                  {f.text}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {v.bugs && (
+            <>
+              <div class="sub-label">bugs</div>
+              <ul class="feature-list">
+                {v.bugs.map((b) => (
+                  <li class={b.done ? "done" : ""}><span class={b.done ? "check" : "todo"} style={!b.done ? "color:#f38ba8" : ""}>{b.done ? "✓" : "●"}</span> {b.text}</li>
+                ))}
+              </ul>
+            </>
+          )}
+
+          {v.polish && (
+            <>
+              <div class="sub-label">polish</div>
+              <ul class="feature-list">
+                {v.polish.map((p) => (
+                  <li class={p.done ? "done" : ""}><span class={p.done ? "check" : "todo"} style={!p.done ? "color:#f9e2af" : ""}>{p.done ? "✓" : "✦"}</span> {p.text}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      ))
+    }
+  </div>
+</BaseLayout>
