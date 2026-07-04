@@ -2,12 +2,15 @@
 title: Using the Request Pane
 description: Edit and configure HTTP requests in the terminal
 ---
+import { Image } from 'astro:assets';
+import noodleOwl from '../../../../assets/noodle-owl.png';
+
 
 The request pane sits in the center of the TUI. It shows every detail of
 the selected request — URL, method, headers, params, auth, body, and
 settings.
 
-![Request pane](/noodle-owl.png)
+<Image src={noodleOwl} alt="Request pane" loading="eager" fetchpriority="high" />
 
 ## Browse Mode
 

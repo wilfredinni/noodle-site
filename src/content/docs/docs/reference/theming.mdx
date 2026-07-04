@@ -2,11 +2,14 @@
 title: Themes
 description: Customize the Noodle appearance
 ---
+import { Image } from 'astro:assets';
+import noodleRosepine from '../../../../assets/noodle-rosepine.png';
+
 
 Noodle ships with **32 built-in themes**. Press **Ctrl+T** to open the
 theme picker and browse available options.
 
-![Theming](/noodle-rosepine.png)
+<Image src={noodleRosepine} alt="Theming" loading="eager" fetchpriority="high" />
 
 Themes cover all UI elements: panes, borders, text, selection, sidebar
 badges, status bar, and dialog overlays.

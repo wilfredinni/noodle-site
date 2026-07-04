@@ -2,11 +2,14 @@
 title: Using Environments
 description: Manage and switch between environment contexts
 ---
+import { Image } from 'astro:assets';
+import noodelOpencodeEnvironment from '../../../../assets/noodel-opencode-environment.png';
+
 
 Environments let you switch between sets of variables — dev, staging,
 production — without editing your requests.
 
-![Environment editor](/noodel-opencode-environment.png)
+<Image src={noodelOpencodeEnvironment} alt="Environment editor" loading="eager" fetchpriority="high" />
 
 ## Cycling
 

@@ -1,6 +1,10 @@
+---
+import { Image } from "astro:assets"
+import logoImage from "../assets/logo.png"
+---
 <nav id="site-nav">
   <a href="/" class="logo">
-    <img src="/logo.png" alt="Noodle Logo" style="width: 24px; height: 24px;" />
+    <Image src={logoImage} alt="Noodle Logo" loading="eager" fetchpriority="high" style="width: 24px; height: 24px;" />
     noodle
   </a>
   <div class="nav-center">

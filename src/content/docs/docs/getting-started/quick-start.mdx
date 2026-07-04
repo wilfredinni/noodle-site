@@ -2,8 +2,11 @@
 title: Quick Start
 description: Send your first request with Noodle
 ---
+import { Image } from 'astro:assets';
+import noodleCatppuccin from '../../../../assets/noodle-catppuccin.png';
 
-![Quick Start](/noodle-catppuccin.png)
+
+<Image src={noodleCatppuccin} alt="Quick Start" loading="eager" fetchpriority="high" />
 
 Launch the TUI (no setup needed):
 
@@ -15,12 +18,12 @@ This opens an empty workspace. The default collection directory
 (`./collections`) is created automatically when you save your first
 request.
 
-![Noodle empty workspace](/noodle-empty.png)
+![Noodle empty workspace](../../../../assets/noodle-empty.png)
 
 Press **Ctrl+N** to open the new request overlay. Enter a name, method, and
 URL, then press **Ctrl+S** to save.
 
-![New request overlay](/new-request.png)
+![New request overlay](../../../../assets/new-request.png)
 
 Try it with a simple GET:
 
@@ -33,7 +36,7 @@ Request URL: https://httpbin.org/get
 Press **Ctrl+Return** to send. The response pane shows the status code,
 headers, body, and timing.
 
-![Request and response](/quickstart-response.png)
+![Request and response](../../../../assets/quickstart-response.png)
 
 ## What just happened?
 

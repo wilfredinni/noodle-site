@@ -2,11 +2,14 @@
 title: Using the Response Pane
 description: Read responses, browse history, and inspect headers
 ---
+import { Image } from 'astro:assets';
+import noodleOpencode from '../../../../assets/noodle-opencode.png';
+
 
 The response pane shows results after sending a request: status code,
 response time, headers, and body (auto-formatted if JSON).
 
-![Response pane](/noodle-opencode.png)
+<Image src={noodleOpencode} alt="Response pane" loading="eager" fetchpriority="high" />
 
 ## Navigation
 
