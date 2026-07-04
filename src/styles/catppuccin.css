@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap");
+
 /* Catppuccin Mocha — dark */
 :root {
   --sl-color-accent-low: #1e1e2e;
@@ -33,6 +35,10 @@
   --sl-color-purple: #cba6f7;
 
   --sl-color-hero: #b4befe;
+}
+
+.sl-markdown-content :is(h1, h2, h3) {
+  font-family: "JetBrains Mono", monospace;
 }
 
 /* Catppuccin Latte — light */
