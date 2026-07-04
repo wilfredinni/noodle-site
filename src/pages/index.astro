@@ -1,5 +1,6 @@
 ---
 // Landing page — outside Starlight, full control
+import { Image } from "astro:assets"
 import Nav from "../components/Nav.astro"
 ---
 
@@ -379,7 +380,7 @@ import Nav from "../components/Nav.astro"
 
       <div class="hero-visual" style="width: 100%; max-width: 950px; margin: -2.2rem auto 0;">
         <div class="terminal-mockup">
-          <img src="/noodle.png" alt="Noodle Terminal Interface" loading="lazy" style="width: 100%; height: auto;" />
+          <Image src="/noodle.png" width={1208} height={730} alt="Noodle Terminal Interface" loading="eager" fetchpriority="high" style="width: 100%; height: auto;" />
         </div>
       </div>
 
