@@ -49,6 +49,9 @@ export default defineConfig({
         },
       ],
       customCss: ["./src/styles/catppuccin.css"],
+      components: {
+        SiteTitle: "./src/components/SiteTitle.astro",
+      },
       social: [
         { icon: "github", label: "GitHub", href: "https://github.com/wilfredinni/noodle" },
       ],
