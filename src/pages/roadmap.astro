@@ -153,7 +153,7 @@ const versions = [
     }
 
     .version-group {
-      margin-bottom: 2.5rem;
+      margin-bottom: 0;
       position: relative;
       padding-left: 2rem;
     }
@@ -170,6 +170,38 @@ const versions = [
 
     .version-group:last-child::before {
       display: none;
+    }
+
+    .version-group details {
+      margin-bottom: 2.5rem;
+    }
+
+    .version-group details summary {
+      list-style: none;
+      cursor: pointer;
+    }
+
+    .version-group details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .version-group details .arrow {
+      color: var(--overlay0);
+      font-size: 0.6rem;
+      display: inline-block;
+      width: 1rem;
+    }
+
+    .version-group details .arrow.open {
+      display: none;
+    }
+
+    .version-group details[open] .arrow.closed {
+      display: none;
+    }
+
+    .version-group details[open] .arrow.open {
+      display: inline-block;
     }
 
     .version-header {
@@ -291,13 +323,18 @@ const versions = [
     {
       versions.map((v) => (
         <div class="version-group">
-          <div class="version-header {v.status || ''}">
-            <span class="tag">{v.version}</span>
-            {v.status === "done" && <span class="label done">done</span>}
-            {v.status === "next" && <span class="label dev">developing</span>}
-            {v.status === "goal" && <span class="label goal">goal</span>}
-            <span class="count">{v.features.length + (v.bugs?.length || 0)}{v.polish ? ` + ${v.polish.length}` : ''} items</span>
-          </div>
+          <details open={v.status !== "done"}>
+            <summary>
+              <div class="version-header {v.status || ''}">
+                <span class="arrow closed">▶</span>
+                <span class="arrow open">▼</span>
+                <span class="tag">{v.version}</span>
+                {v.status === "done" && <span class="label done">done</span>}
+                {v.status === "next" && <span class="label dev">developing</span>}
+                {v.status === "goal" && <span class="label goal">goal</span>}
+                <span class="count">{v.features.length + (v.bugs?.length || 0)}{v.polish ? ` + ${v.polish.length}` : ''} items</span>
+              </div>
+            </summary>
 
           {v.features && (
             <>
@@ -334,6 +371,7 @@ const versions = [
               </ul>
             </>
           )}
+          </details>
         </div>
       ))
     }
