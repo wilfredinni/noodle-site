@@ -265,6 +265,18 @@ const versions = [
       padding-left: 1.5rem;
     }
 
+    .sub-label.bugs {
+      color: #f38ba8;
+    }
+
+    .sub-label.polish {
+      color: #cba6f7;
+    }
+
+    .sub-label.features {
+      color: #89b4fa;
+    }
+
     .empty-line {
       height: 0.75rem;
     }
@@ -288,19 +300,22 @@ const versions = [
           </div>
 
           {v.features && (
-            <ul class="feature-list">
-              {v.features.map((f) => (
-                <li class={f.done ? "done" : ""}>
-                  <span class={f.done ? "check" : "todo"}>{f.done ? "✓" : "○"}</span>
-                  {f.text}
-                </li>
-              ))}
-            </ul>
+            <>
+              <div class="sub-label features">features</div>
+              <ul class="feature-list">
+                {v.features.map((f) => (
+                  <li class={f.done ? "done" : ""}>
+                    <span class={f.done ? "check" : "todo"}>{f.done ? "✓" : "○"}</span>
+                    {f.text}
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
 
           {v.bugs && (
             <>
-              <div class="sub-label">bugs</div>
+              <div class="sub-label bugs">bugs</div>
               <ul class="feature-list">
                 {v.bugs.map((b) => (
                   <li class={b.done ? "done" : ""}><span class={b.done ? "check" : "todo"} style={!b.done ? "color:#f38ba8" : ""}>{b.done ? "✓" : "●"}</span> {b.text}</li>
@@ -311,7 +326,7 @@ const versions = [
 
           {v.polish && (
             <>
-              <div class="sub-label">polish</div>
+              <div class="sub-label polish">polish</div>
               <ul class="feature-list">
                 {v.polish.map((p) => (
                   <li class={p.done ? "done" : ""}><span class={p.done ? "check" : "todo"} style={!p.done ? "color:#f9e2af" : ""}>{p.done ? "✓" : "✦"}</span> {p.text}</li>
