@@ -1,12 +1,29 @@
-# Starlight Starter Kit: Basics
+<p align="center">
+  <a href="https://noodlerest.dev/">Website</a> ·
+  <a href="https://noodlerest.dev/changelog/">Changelog</a> ·
+  <a href="https://noodlerest.dev/roadmap/">Roadmap</a> ·
+  <a href="https://noodlerest.dev/docs/getting-started/quick-start/">Quick Start</a> ·
+  <a href="https://noodlerest.dev/docs/">Docs</a>
+</p>
 
-[![Built with Starlight](https://astro.badg.es/v2/built-with-starlight/tiny.svg)](https://starlight.astro.build)
+# noodle
 
+Terminal REST client — inspect, send, and iterate on HTTP requests from YAML files on disk. Built with OpenTUI on Bun.
+
+## Development
+
+```bash
+bun install
+bun run dev
 ```
-bun create astro@latest -- --template starlight
-```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Build: `bun run build`
+
+## Tech Stack
+
+- **Framework:** [Astro](https://astro.build) with [Starlight](https://starlight.astro.build)
+- **Theme:** Catppuccin Mocha (dark) / Latte (light)
+- **Hosting:** Netlify
 
 ## 🚀 Project Structure
 
