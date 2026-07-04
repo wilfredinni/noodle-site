@@ -305,26 +305,26 @@ import Nav from "../components/Nav.astro"
           display: contents; /* Flatten grandchildren into grid items */
         }
 
+        .hero h1 {
+          grid-row: 1; /* Title first */
+          font-size: 1.65rem; /* Smaller title text */
+          text-align: center;
+          margin-bottom: 0; /* Removed bottom margin */
+        }
+
         .hero-visual {
-          grid-row: 1; /* Image first */
-          margin: 1rem auto 0 !important; /* Removed bottom margin */
+          grid-row: 2; /* Image second */
+          margin: 0 auto 0 !important; /* Set margins to 0 for tightness */
           max-width: 100%;
         }
 
         .hero p.lede {
-          grid-row: 2; /* Subtitle second */
+          grid-row: 3; /* Subtitle third */
           text-align: center;
           padding: 0 1.5rem;
           font-size: 0.82rem; /* Even smaller subtitle text */
           margin-top: -0.85rem !important; /* Pull subtitle even closer to the image */
-          margin-bottom: 0.25rem;
-        }
-
-        .hero h1 {
-          grid-row: 3; /* Title third */
-          font-size: 1.65rem; /* Smaller title text */
-          text-align: center;
-          margin-bottom: 1.25rem;
+          margin-bottom: 1.25rem; /* Space before actions */
         }
 
         .hero-actions {
