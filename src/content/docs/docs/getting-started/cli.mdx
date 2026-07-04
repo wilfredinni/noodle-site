@@ -3,31 +3,38 @@ title: CLI Commands
 description: Noodle command-line interface reference
 ---
 
-## Default Command
+## TUI (default)
 
-Launch the TUI:
+Launches the terminal interface. The collection directory is created
+automatically on first save.
 
 ```bash
-noodle
-noodle --collection ./collections --env production
-noodle -c ./my-requests -e staging
+noodle                                  # ./collections, no env
+noodle --collection ./api --env prod    # explicit collection + env
+noodle -c ./my-requests -e staging      # shorthand
 ```
 
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
-| `--collection` | `-c` | `./collections` | Path to collection directory |
-| `--env` | `-e` | `(none)` | Environment name to activate |
+| `--collection` | `-c` | `./collections` | Path to request directory |
+| `--env` | `-e` | — | Environment to activate. Exits with error if not found |
+
+`--help` and `--version` are available on every command.
 
 ## Import
 
+Converts an OpenAPI 3.0 or Postman collection into noodle `.yml` files.
+Format is auto-detected from file contents.
+
 ```bash
-noodle import ./api-spec.json
-noodle import ./postman_collection.json --format postman --output ./collections
+noodle import ./api-spec.json                           # auto-detect
+noodle import ./postman_collection.json -i postman      # force format
+noodle import ./spec.json -o ./my-apis                  # custom output dir
 ```
 
 | Argument | Description |
 |----------|-------------|
-| `source` | Path to OpenAPI or Postman file |
+| `source` | Path to spec file (JSON or YAML) |
 
 | Flag | Short | Default | Description |
 |------|-------|---------|-------------|
@@ -36,8 +43,8 @@ noodle import ./postman_collection.json --format postman --output ./collections
 
 ## Update
 
+Self-updates the binary. Homebrew installs redirect to `brew upgrade`.
+
 ```bash
 noodle update
 ```
-
-Checks GitHub for the latest release and updates the binary. Detects Homebrew installs and redirects to `brew upgrade`.
