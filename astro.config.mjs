@@ -3,7 +3,7 @@ import { defineConfig } from "astro/config"
 import starlight from "@astrojs/starlight"
 
 export default defineConfig({
-  site: "https://noodle.dev",
+  site: "https://noodlerest.dev",
   integrations: [
     starlight({
       title: "Noodle Docs",
