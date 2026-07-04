@@ -8,6 +8,10 @@ export default defineConfig({
     starlight({
       title: "Noodle Docs",
       description: "Terminal REST client — inspect, send, and iterate on HTTP requests from YAML files on disk.",
+      logo: {
+        src: "./src/assets/logo.png",
+        alt: "Noodle",
+      },
       favicon: "/favicon.ico",
       head: [
         {
