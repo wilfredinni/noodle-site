@@ -12,6 +12,9 @@ my-collection/
 ├── .environments/
 │   ├── production.env
 │   └── staging.env
+├── .noodle/
+│   └── ui-state.yml           # UI state (auto-generated)
+├── .timeline/                 # Response history (auto-generated)
 ├── settings.yml
 ├── users/
 │   ├── folder.yml
@@ -21,6 +24,11 @@ my-collection/
 ├── example.yml
 └── another-request.yml
 ```
+
+The `.noodle/` and `.timeline/` directories are created automatically.
+`.noodle/` stores UI state (last selected request, expanded folders, tab
+preferences). `.timeline/` stores response history — one file per request,
+pruned to the 50 most recent entries. Both are safe to commit or ignore.
 
 ## Request File
 
