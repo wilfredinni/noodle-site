@@ -167,9 +167,11 @@ import Nav from "../components/Nav.astro"
         display: flex;
         align-items: stretch;
         width: 100%;
+        min-width: 0; /* Flexbox shrink bugfix */
         max-width: 900px;
         border: 1px solid var(--border);
         background: var(--bg-elevated);
+        overflow: hidden;
         transition: border-color 0.2s;
       }
 
@@ -178,11 +180,14 @@ import Nav from "../components/Nav.astro"
       }
 
       .install-block code {
+        display: block; /* Ensure block behavior for overflow scroll */
         flex: 1;
+        min-width: 0; /* Prevent flex children from expanding due to nowrap text */
         padding: 1rem 1.25rem;
         font-family: var(--font-mono);
         font-size: 0.85rem;
         color: var(--fg);
+        text-align: left; /* Avoid center-alignment scroll cutoff bug */
         overflow-x: auto;
         white-space: nowrap;
       }
@@ -298,6 +303,8 @@ import Nav from "../components/Nav.astro"
         .hero-content {
           align-items: center;
           text-align: center;
+          width: 100%;
+          max-width: 100%;
         }
 
         .hero h1, .hero p.lede {
@@ -314,24 +321,27 @@ import Nav from "../components/Nav.astro"
           overflow-x: hidden;
         }
         .hero h1 {
-          font-size: 2.5rem;
+          font-size: 1.8rem;
         }
         .install-block {
-          flex-direction: column;
           max-width: 100%;
+          width: 100%;
         }
         .install-block code {
-          white-space: nowrap;
+          padding: 0.8rem 1rem;
+          font-size: 0.75rem;
+          min-width: 0;
           overflow-x: auto;
+          white-space: nowrap;
+        }
+        .copy-btn {
+          padding: 0 1rem;
+          font-size: 0.7rem;
+          flex-shrink: 0; /* Prevent the button from shrinking or clipping */
         }
         .hero-visual {
           margin: -2.2rem auto 0;
           max-width: 100%;
-        }
-        .copy-btn {
-          padding: 1rem;
-          border-left: none;
-          border-top: 1px solid var(--border);
         }
       }
     </style>
