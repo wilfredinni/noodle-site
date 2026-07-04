@@ -4,41 +4,49 @@ import config from "virtual:starlight/user-config"
 const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute
 ---
 
-<a href={siteTitleHref} class="site-title sl-flex">
-  {
-    config.logo && logos.dark && (
-      <>
-        <img
-          class:list={{ "light:sl-hidden print:hidden": !("src" in config.logo) }}
-          alt={config.logo.alt}
-          src={logos.dark.src}
-          width={logos.dark.width}
-          height={logos.dark.height}
-        />
-        {!("src" in config.logo) && (
+<div class="site-title-group">
+  <a href={siteTitleHref} class="site-title sl-flex">
+    {
+      config.logo && logos.dark && (
+        <>
           <img
-            class="dark:sl-hidden print:block"
+            class:list={{ "light:sl-hidden print:hidden": !("src" in config.logo) }}
             alt={config.logo.alt}
-            src={logos.light?.src}
-            width={logos.light?.width}
-            height={logos.light?.height}
+            src={logos.dark.src}
+            width={logos.dark.width}
+            height={logos.dark.height}
           />
-        )}
-      </>
-    )
-  }
-  <span class:list={{ "sr-only": config.logo?.replacesTitle }} translate="no">
-    {siteTitle}
-  </span>
-</a>
+          {!("src" in config.logo) && (
+            <img
+              class="dark:sl-hidden print:block"
+              alt={config.logo.alt}
+              src={logos.light?.src}
+              width={logos.light?.width}
+              height={logos.light?.height}
+            />
+          )}
+        </>
+      )
+    }
+    <span class:list={{ "sr-only": config.logo?.replacesTitle }} translate="no">
+      {siteTitle}
+    </span>
+  </a>
 
-<div class="site-nav-links">
-  <a href="/roadmap/">Roadmap</a>
-  <a href="/changelog/">Changelog</a>
+  <div class="site-nav-links">
+    <a href="/docs/">Docs</a>
+    <a href="/roadmap/">Roadmap</a>
+    <a href="/changelog/">Changelog</a>
+  </div>
 </div>
 
 <style>
   @layer starlight.core {
+    .site-title-group {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
     .site-title {
       align-items: center;
       gap: var(--sl-nav-gap);
@@ -49,10 +57,10 @@ const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute
       white-space: nowrap;
       min-width: 0;
     }
-    span {
+    .site-title span {
       overflow: hidden;
     }
-    img {
+    .site-title img {
       height: calc(var(--sl-nav-height) - 2 * var(--sl-nav-pad-y));
       width: auto;
       max-width: 100%;
@@ -62,10 +70,7 @@ const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute
     .site-nav-links {
       display: inline-flex;
       gap: 1rem;
-      margin-left: 1.5rem;
       align-items: center;
-      align-self: center;
-      height: 100%;
     }
     .site-nav-links a {
       color: var(--sl-color-gray-2);
