@@ -4,6 +4,7 @@ description: Send your first request with Noodle
 ---
 import { Image } from 'astro:assets';
 import noodleCatppuccin from '../../../../assets/noodle-catppuccin.png';
+import noodleEmpty from '../../../../assets/noodle-empty.png';
 
 
 <Image src={noodleCatppuccin} alt="Quick Start" loading="eager" fetchpriority="high" />
@@ -18,7 +19,7 @@ This opens an empty workspace. The default collection directory
 (`./collections`) is created automatically when you save your first
 request.
 
-![Noodle empty workspace](../../../../assets/noodle-empty.png)
+<Image src={noodleEmpty} alt="Noodle empty workspace" loading="eager" fetchpriority="high" />
 
 Press **Ctrl+N** to open the new request overlay. Enter a name, method, and
 URL, then press **Ctrl+S** to save.
