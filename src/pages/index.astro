@@ -170,7 +170,6 @@ import Nav from "../components/Nav.astro"
         max-width: 900px;
         border: 1px solid var(--border);
         background: var(--bg-elevated);
-        overflow: hidden;
         transition: border-color 0.2s;
       }
 
@@ -184,13 +183,8 @@ import Nav from "../components/Nav.astro"
         font-family: var(--font-mono);
         font-size: 0.85rem;
         color: var(--fg);
-        white-space: nowrap;
         overflow-x: auto;
-        scrollbar-width: none;
-      }
-
-      .install-block code::-webkit-scrollbar {
-        display: none;
+        white-space: nowrap;
       }
 
       .install-block .prompt {
@@ -315,11 +309,24 @@ import Nav from "../components/Nav.astro"
         }
 
       @media (max-width: 768px) {
+        .hero {
+          padding: 1rem 1rem 4rem;
+          overflow-x: hidden;
+        }
         .hero h1 {
           font-size: 2.5rem;
         }
         .install-block {
           flex-direction: column;
+          max-width: 100%;
+        }
+        .install-block code {
+          white-space: nowrap;
+          overflow-x: auto;
+        }
+        .hero-visual {
+          margin: -2.2rem auto 0;
+          max-width: 100%;
         }
         .copy-btn {
           padding: 1rem;
