@@ -6,9 +6,16 @@ description: Read responses, browse history, and inspect headers
 The response pane shows results after sending a request: status code,
 response time, headers, and body (auto-formatted if JSON).
 
-## Tabs
+## Navigation
 
-When the response pane is focused, switch views with **←**/**→**:
+| Key | Action |
+|-----|--------|
+| **←**/**→** | Switch tabs (Body / Headers / Timeline) |
+| **↑**/**↓** | Scroll active tab |
+| **PgUp**/**PgDn** | Page scroll |
+| **F2** | Expand response pane to full width |
+
+## Tabs
 
 | Tab | Content |
 |-----|---------|
@@ -16,20 +23,22 @@ When the response pane is focused, switch views with **←**/**→**:
 | **Headers** | Response headers sorted alphabetically |
 | **Timeline** | History of every send for this request |
 
-Scroll with **↑**/**↓**. Page-scroll with **PgUp**/**PgDn**.
-
 ## Timeline
 
-Every request send is stored on disk as a timeline entry. Navigate
-entries with **↑**/**↓**. Press **Return** to expand — shows full
-request and response snapshots side by side.
+Every request send is stored on disk as a timeline entry.
+
+| Key | Action |
+|-----|--------|
+| **↑**/**↓** | Navigate entries |
+| **Return** | Expand entry — shows full request and response snapshots |
 
 Entries with errors show `ERR` in red. Max 50 entries per request.
 
 ## Copy Body
 
-Press **Ctrl+B** to copy the response body to clipboard. Uses OSC52,
-works over SSH.
+| Key | Action |
+|-----|--------|
+| **Ctrl+B** | Copy response body to clipboard (OSC52, works over SSH) |
 
 ## Errors
 

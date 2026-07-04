@@ -1,14 +1,52 @@
 ---
 title: Using the Sidebar
-description: Browse requests and navigate your collection
+description: Browse, create, and manage requests and folders
 ---
 
-The sidebar lists requests and folders in your collection.
+The sidebar is the control center. Select a request or folder, then act
+on it.
 
 ## Navigation
 
 | Key | Action |
 |-----|--------|
 | **↑**/**↓** | Move between items |
-| **Return** | Select a request or toggle a folder open/closed |
+| **Return** | Select request or toggle folder open/closed |
 | **Tab** / **Shift+Tab** | Move focus to another pane |
+| **Escape** | Return focus to sidebar from anywhere |
+
+## Requests
+
+| Key | Action |
+|-----|--------|
+| **Ctrl+N** | New request — opens a modal for name, method, URL |
+| **Ctrl+K** | Clone selected request |
+| **Ctrl+E** | Edit request name, method, URL, or move to another folder |
+| **Ctrl+Alt+E** | Edit raw YAML in overlay |
+| **Ctrl+W** | Delete selected request with confirmation |
+| **Ctrl+Return** | Send the selected request |
+| **Ctrl+S** | Save current request to disk |
+
+## Folders
+
+| Key | Action |
+|-----|--------|
+| **Ctrl+Alt+N** | New folder |
+| **Ctrl+W** | Delete folder and all requests inside |
+| **←**/**→** | Switch folder pane tabs (General / Headers / Auth / Activity) |
+
+## Folder Pane
+
+When a folder is selected, the folder pane shows four tabs:
+
+- **General** — folder name and sort order
+- **Headers** — headers inherited by child requests
+- **Auth** — auth config inherited by child requests
+- **Activity** — per-request stats (OK%, avg time, last sent)
+
+Headers and auth set on a folder apply to all requests inside it.
+
+## Environment Editor
+
+Press **e** to open the environment editor. Press **e** again or
+**Escape** to return to the main view.
