@@ -41,6 +41,11 @@
   font-family: "JetBrains Mono", monospace;
 }
 
+.sl-markdown-content code:not(pre code) {
+  border: 1px solid var(--sl-color-gray-5);
+  font-family: "JetBrains Mono", monospace;
+}
+
 /* Catppuccin Latte — light */
 [data-theme="light"],
 .sl-theme-light {
