@@ -12,6 +12,11 @@ export default defineConfig({
         src: "./src/assets/logo.png",
         alt: "Noodle",
       },
+      expressiveCode: {
+        defaultProps: {
+          frame: false,
+        },
+      },
       favicon: "/favicon.ico",
       head: [
         {
