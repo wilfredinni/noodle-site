@@ -6,7 +6,7 @@ export default defineConfig({
   site: "https://noodlerest.dev",
   integrations: [
     starlight({
-      title: "Noodle Docs",
+      title: "Noodle",
       description: "Terminal REST client — inspect, send, and iterate on HTTP requests from YAML files on disk.",
       logo: {
         src: "./src/assets/logo.png",

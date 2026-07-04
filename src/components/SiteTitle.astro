@@ -29,15 +29,15 @@ const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute
       )
     }
     <span class:list={{ "sr-only": config.logo?.replacesTitle }} translate="no">
-      {siteTitle}
-    </span>
-  </a>
+    {siteTitle}
+  </span>
+</a>
 
-  <div class="site-nav-links">
-    <a href="/docs/">Docs</a>
-    <a href="/roadmap/">Roadmap</a>
-    <a href="/changelog/">Changelog</a>
-  </div>
+<div class="site-nav-links">
+  <a href="/docs/">Docs</a>
+  <a href="/roadmap/">Roadmap</a>
+  <a href="/changelog/">Changelog</a>
+</div>
 </div>
 
 <style>
