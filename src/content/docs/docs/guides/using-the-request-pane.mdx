@@ -1,0 +1,71 @@
+---
+title: Using the Request Pane
+description: Edit and configure HTTP requests in the terminal
+---
+
+The request pane sits in the center of the TUI. It shows every detail of
+the selected request — URL, method, headers, params, auth, body, and
+settings.
+
+## Browse Mode
+
+When the request pane is focused, arrow keys navigate between sections:
+
+| Key | Action |
+|-----|--------|
+| **↑**/**↓** | Move between sections (URL, headers, params, auth, body) |
+| **←**/**→** | Move between items within a section |
+| **Return** | Enter edit mode on the selected field |
+| **Space** | Toggle header/param enabled/disabled |
+
+Disabled fields are preserved but not sent with the request.
+
+## Edit Mode
+
+Press **Return** on any field to edit. A cursor appears.
+
+| Key | Action |
+|-----|--------|
+| **Return** | Commit the edit |
+| **Escape** | Cancel, revert field to saved value |
+| **Tab** | Move to next field |
+
+## Body Types
+
+Press **Ctrl+T** in the body section to cycle through types. Each type
+shows different fields:
+
+| Type | Fields shown |
+|------|-------------|
+| **none** | No body |
+| **json** | Raw text area |
+| **urlencoded** | Form entries (key/value) |
+| **multipart** | Form entries (text or file) |
+| **binary** | File path |
+
+For multipart entries, **Ctrl+T** toggles between text and file mode.
+
+## Creating and Managing Requests
+
+| Action | Keybinding |
+|--------|------------|
+| New request | **Ctrl+N** — set name, method, URL in a modal |
+| Save | **Ctrl+S** — writes the `.yml` file |
+| Clone | **Ctrl+K** — duplicates the request |
+| Delete | **Ctrl+W** — deletes with confirmation |
+| Edit in overlay | **Ctrl+E** — rename, change method/URL, move folder |
+| Edit YAML | **Ctrl+Alt+E** — edit raw YAML in overlay |
+| New folder | **Ctrl+Alt+N** — creates a folder |
+
+The collection directory is created automatically on first save.
+
+## Reverting
+
+| Key | Action |
+|-----|--------|
+| **Ctrl+D** | Revert current field to last saved value |
+| **Ctrl+R** | Revert all fields |
+
+## Sending
+
+Press **Ctrl+Return** to send. The response appears in the response pane.

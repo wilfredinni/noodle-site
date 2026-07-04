@@ -60,11 +60,11 @@ export default defineConfig({
         {
           label: "Guides",
           items: [
-            { label: "Collection Format", slug: "docs/guides/collections" },
-            { label: "Requests", slug: "docs/guides/requests" },
-            { label: "Environments", slug: "docs/guides/environments" },
-            { label: "Authentication", slug: "docs/guides/authentication" },
-            { label: "Response Handling", slug: "docs/guides/responses" },
+            { label: "Using the Sidebar", slug: "docs/guides/using-the-sidebar" },
+            { label: "Using the Request Pane", slug: "docs/guides/using-the-request-pane" },
+            { label: "Using the Response Pane", slug: "docs/guides/using-the-response-pane" },
+            { label: "Using Environments", slug: "docs/guides/using-environments" },
+            { label: "Using Folders", slug: "docs/guides/using-folders" },
           ],
         },
         {
@@ -80,6 +80,16 @@ export default defineConfig({
           items: [
             { label: "OpenAPI", slug: "docs/import/openapi" },
             { label: "Postman", slug: "docs/import/postman" },
+          ],
+        },
+        {
+          label: "Collection Reference",
+          items: [
+            { label: "Collection Format", slug: "docs/guides/collections" },
+            { label: "Request Format", slug: "docs/guides/request-format" },
+            { label: "Environments", slug: "docs/guides/environments" },
+            { label: "Authentication", slug: "docs/guides/authentication" },
+            { label: "Response Format", slug: "docs/guides/responses" },
           ],
         },
       ],

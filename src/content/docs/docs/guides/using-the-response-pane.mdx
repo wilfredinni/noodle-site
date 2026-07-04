@@ -1,0 +1,41 @@
+---
+title: Using the Response Pane
+description: Read responses, browse history, and inspect headers
+---
+
+The response pane shows results after sending a request: status code,
+response time, headers, and body (auto-formatted if JSON).
+
+## Tabs
+
+When the response pane is focused, switch views with **←**/**→**:
+
+| Tab | Content |
+|-----|---------|
+| **Body** | Response body with JSON syntax highlighting and line numbers |
+| **Headers** | Response headers sorted alphabetically |
+| **Timeline** | History of every send for this request |
+
+Scroll with **↑**/**↓**. Page-scroll with **PgUp**/**PgDn**.
+
+## Timeline
+
+Every request send is stored on disk as a timeline entry. Navigate
+entries with **↑**/**↓**. Press **Return** to expand — shows full
+request and response snapshots side by side.
+
+Entries with errors show `ERR` in red. Max 50 entries per request.
+
+## Copy Body
+
+Press **Ctrl+B** to copy the response body to clipboard. Uses OSC52,
+works over SSH.
+
+## Errors
+
+Errors display inline in the response pane for:
+
+- Unreachable servers
+- DNS failures
+- Timeouts
+- Malformed responses

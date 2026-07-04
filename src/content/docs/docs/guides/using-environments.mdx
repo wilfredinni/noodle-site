@@ -1,0 +1,43 @@
+---
+title: Using Environments
+description: Manage and switch between environment contexts
+---
+
+Environments let you switch between sets of variables — dev, staging,
+production — without editing your requests.
+
+## Cycling
+
+Press **Ctrl+P** to cycle through available environments. The active
+environment shows in the sidebar with a color badge.
+
+## Environment Editor
+
+Press **e** to open the full environment editor. The TUI splits into
+three sections:
+
+- **Sidebar** (left) — lists all `.env` files with color dots and
+  unsaved indicators
+- **Header** (top) — edit name and pick a color badge
+- **Main** — key/value grid
+
+### Keybindings
+
+| Key | Action |
+|-----|--------|
+| **↑**/**↓** | Navigate rows or sidebar items |
+| **Return** | Edit field or select environment |
+| **Tab** | Switch between key and value columns |
+| **Space** | Select/activate environment |
+| **Ctrl+S** | Save environment |
+| **Ctrl+N** | Create new environment |
+| **Ctrl+K** | Clone selected environment |
+| **Ctrl+W** | Delete environment (with confirmation) |
+| **e** | Return to main view |
+
+### Features
+
+- **Dirty tracking** — unsaved changes show a yellow bullet
+- **Color badges** — 17 theme colors available
+- **Disable variables** — checkbox toggles a `#` prefix
+- **Clone** — appends " - Copy" to the name

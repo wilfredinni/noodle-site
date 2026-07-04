@@ -1,0 +1,49 @@
+---
+title: Using Folders
+description: Organize requests with folders, overrides, and activity stats
+---
+
+Folders group requests and can apply shared headers and auth to
+everything inside them.
+
+## Folder Pane
+
+When a folder is selected in the sidebar, the folder pane shows four
+tabs. Switch with **←**/**→**:
+
+| Tab | Content |
+|-----|---------|
+| **General** | Folder name and sort order |
+| **Headers** | Headers inherited by child requests |
+| **Auth** | Auth inherited by child requests |
+| **Activity** | Per-request stats table |
+
+## Inheritance
+
+Headers and auth set on a folder apply to all requests inside it — no
+need to repeat config on every request.
+
+Set `auth: { type: inherit }` on a request to use the nearest parent
+folder's auth. Set `auth: { type: none }` to disable auth for a
+specific request.
+
+## Activity Tab
+
+Stats are computed from the request timeline:
+
+| Column | Description |
+|--------|-------------|
+| Method | HTTP method |
+| Name | Request name |
+| OK% | Success rate — green ≥90%, yellow ≥50%, red below |
+| Avg | Average response time |
+| Last | Number of calls + time since last send |
+
+Only requests with timeline entries show data.
+
+## Creating and Deleting
+
+| Action | Keybinding |
+|--------|------------|
+| New folder | **Ctrl+Alt+N** |
+| Delete folder | **Ctrl+W** — prompts for confirmation |
