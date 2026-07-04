@@ -3,13 +3,35 @@ title: Installation
 description: Install Noodle on macOS and Linux
 ---
 
-## Quick Install
+Get noodle on your machine in under a minute. Three ways, take your pick.
+
+## Quick install
 
 ```bash
 curl -LsSf https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.sh | sh
 ```
 
-This detects your OS and architecture, downloads the latest binary from GitHub Releases, and installs it to `/usr/local/bin`.
+Detects your OS and architecture, downloads the latest binary from GitHub
+Releases, and drops it at `~/.local/bin/noodle`.
+
+If `~/.local/bin` isn't on your `$PATH`, the script will let you know — just
+add this to your shell config (`~/.zshrc`, `~/.bashrc`, etc.):
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+**Custom install location?** Set `NOODLE_INSTALL_DIR`:
+
+```bash
+NOODLE_INSTALL_DIR=/usr/local/bin curl -LsSf ... | sh
+```
+
+**Need a specific version?** Pin it with `NOODLE_VERSION`:
+
+```bash
+NOODLE_VERSION=v0.1.0 curl -LsSf ... | sh
+```
 
 ## Homebrew
 
@@ -19,7 +41,7 @@ brew trust wilfredinni/noodle
 brew install noodle
 ```
 
-## From Source
+## From source
 
 Requires [Bun](https://bun.sh).
 
@@ -30,15 +52,31 @@ bun install
 bun run build:bin
 ```
 
-The binary is written to `./noodle`. Move it to a directory in your `$PATH`.
+The binary lands at `./noodle`. Move it somewhere on your `$PATH`.
 
-## Platform Support
+## Did it work?
 
-| Platform | Architecture | Support |
-|----------|-------------|---------|
-| macOS    | arm64       | ✅      |
-| Linux    | x86_64      | ✅      |
-| Linux    | arm64       | ✅      |
+```bash
+noodle --help
+```
+
+You should see the CLI usage output. To launch the TUI:
+
+```bash
+noodle
+```
+
+## Supported platforms
+
+Prebuilt binaries for these combos — others need to build from source.
+
+| Platform | Architecture | Binary |
+|----------|-------------|--------|
+| macOS    | arm64       | ✅     |
+| Linux    | x86_64      | ✅     |
+| Linux    | arm64       | ✅     |
+
+Running an Intel Mac? Build from source above.
 
 ## Updating
 
@@ -46,4 +84,5 @@ The binary is written to `./noodle`. Move it to a directory in your `$PATH`.
 noodle update
 ```
 
-If installed via Homebrew, `noodle update` redirects to `brew upgrade noodle`.
+Homebrew installs redirect to `brew upgrade noodle`. Everything else
+downloads and replaces the binary in-place.
