@@ -1,0 +1,144 @@
+---
+export interface Props {
+  title: string
+  description?: string
+}
+
+const { title, description } = Astro.props
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style is:global>
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #1e1e2e;
+        --bg-elevated: #181825;
+        --bg-card: rgba(49, 50, 68, 0.7);
+        --fg: #cdd6f4;
+        --muted: #a6adc8;
+        --accent: #b4befe;
+        --accent-glow: rgba(180, 190, 254, 0.3);
+        --accent-dim: #9399e8;
+        --border: #313244;
+        --border-hover: #45475a;
+        --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: var(--font-mono);
+        background: var(--bg);
+        color: var(--fg);
+        line-height: 1.6;
+        overflow-x: hidden;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.25rem 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 10;
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      nav .logo {
+        font-family: var(--font-mono);
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--fg);
+        text-decoration: none;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      nav .nav-links {
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+      }
+
+      nav .nav-links a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s;
+      }
+
+      nav .nav-links a:hover {
+        color: var(--fg);
+      }
+
+      footer {
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        margin-top: 4rem;
+      }
+
+      footer a {
+        color: var(--accent);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      footer a:hover {
+        color: var(--fg);
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/" class="logo">
+        <img src="/logo.png" alt="Noodle Logo" style="width: 24px; height: 24px;" />
+        noodle
+      </a>
+      <div class="nav-links">
+        <a href="/docs/getting-started/installation/">Docs</a>
+        <a href="/changelog/">Changelog</a>
+        <a href="https://github.com/wilfredinni/noodle" target="_blank">GitHub</a>
+      </div>
+    </nav>
+
+    <slot />
+
+    <footer>
+      <p>
+        MIT Licensed &middot;
+        <a href="https://github.com/wilfredinni/noodle">GitHub</a> &middot;
+        <a href="/changelog/">Changelog</a> &middot;
+        <a href="https://github.com/wilfredinni/noodle/issues">Issues</a>
+      </p>
+    </footer>
+  </body>
+</html>

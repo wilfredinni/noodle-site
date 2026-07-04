@@ -1,4 +1,6 @@
 ---
+import BaseLayout from "../layouts/BaseLayout.astro"
+
 const releases = [
   {
     tag: "v0.1.0",
@@ -24,232 +26,144 @@ const releases = [
 ]
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Changelog — Noodle</title>
-    <style is:global>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<BaseLayout title="Changelog — Noodle" description="Release history for noodle">
+  <style is:global>
+    .changelog-page {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
 
-      :root {
-        --base: #1e1e2e;
-        --mantle: #181825;
-        --crust: #11111b;
-        --surface0: #313244;
-        --surface1: #45475a;
-        --overlay0: #6c7086;
-        --overlay1: #7f849c;
-        --subtext0: #a6adc8;
-        --text: #cdd6f4;
-        --lavender: #b4befe;
-        --green: #a6e3a1;
-        --mauve: #cba6f7;
-        --blue: #89b4fa;
-        --yellow: #f9e2af;
-      }
+    .page-title {
+      margin-bottom: 3rem;
+    }
 
-      body {
-        background: var(--base);
-        color: var(--text);
-        font-family: "SF Mono", "Fira Code", "Cascadia Code", "JetBrains Mono", monospace;
-        line-height: 1.7;
-        -webkit-font-smoothing: antialiased;
-        font-size: 0.85rem;
-      }
+    .page-title h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
 
-      nav {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 1rem 1.5rem;
-        max-width: 800px;
-        margin: 0 auto;
-      }
+    .page-title p {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
 
-      nav a {
-        color: var(--subtext0);
-        text-decoration: none;
-        font-size: 0.85rem;
-      }
+    .release {
+      margin-bottom: 4rem;
+    }
 
-      nav a:hover {
-        color: var(--text);
-      }
+    .release:last-child {
+      margin-bottom: 0;
+    }
 
-      nav .logo {
-        font-weight: 700;
-        color: var(--text);
-      }
+    .release-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
 
-      .container {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 2rem 1.5rem 4rem;
-      }
+    .release-header .tag {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+    }
 
-      .page-title {
-        margin-bottom: 3rem;
-      }
+    .release-header .tag:hover {
+      text-decoration: underline;
+    }
 
-      .page-title h1 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-      }
+    .release-header .date {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
 
-      .page-title p {
-        color: var(--overlay1);
-        font-size: 0.8rem;
-      }
+    .release-body {
+      color: var(--muted);
+      line-height: 1.8;
+    }
 
-      .release {
-        margin-bottom: 4rem;
-      }
+    .release-body h2,
+    .release-body h3 {
+      color: var(--fg);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0.75rem;
+    }
 
-      .release:last-child {
-        margin-bottom: 0;
-      }
+    .release-body h2:first-child,
+    .release-body h3:first-child {
+      margin-top: 0;
+    }
 
-      .release-header {
-        display: flex;
-        align-items: baseline;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--surface1);
-      }
+    .release-body p {
+      margin-bottom: 0.75rem;
+    }
 
-      .release-header .tag {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--lavender);
-        text-decoration: none;
-      }
+    .release-body ul {
+      list-style: none;
+      margin: 0.5rem 0 1rem;
+    }
 
-      .release-header .tag:hover {
-        text-decoration: underline;
-      }
+    .release-body li {
+      margin-bottom: 0.4rem;
+      padding-left: 1.5rem;
+    }
 
-      .release-header .date {
-        color: var(--overlay0);
-        font-size: 0.75rem;
-      }
+    .release-body code {
+      background: var(--border);
+      padding: 0.1rem 0.4rem;
+      border-radius: 3px;
+      font-size: 0.78rem;
+      color: #f9e2af;
+    }
 
-      .release-body {
-        color: var(--subtext1);
-        line-height: 1.8;
-      }
+    .release-body a {
+      color: #89b4fa;
+      text-decoration: underline;
+    }
+  </style>
 
-      .release-body h2,
-      .release-body h3 {
-        color: var(--text);
-        font-size: 0.9rem;
-        font-weight: 600;
-        margin: 1.5rem 0 0.75rem;
-      }
-
-      .release-body h2:first-child,
-      .release-body h3:first-child {
-        margin-top: 0;
-      }
-
-      .release-body p {
-        margin-bottom: 0.75rem;
-      }
-
-      .release-body ul {
-        list-style: none;
-        margin: 0.5rem 0 1rem;
-      }
-
-      .release-body li {
-        margin-bottom: 0.4rem;
-        padding-left: 1.5rem;
-        position: relative;
-      }
-
-      .release-body code {
-        background: var(--surface0);
-        padding: 0.1rem 0.4rem;
-        border-radius: 3px;
-        font-size: 0.78rem;
-        color: var(--yellow);
-      }
-
-      .release-body a {
-        color: var(--blue);
-        text-decoration: underline;
-      }
-
-      footer {
-        text-align: center;
-        padding: 2rem;
-        border-top: 1px solid var(--surface1);
-        font-size: 0.78rem;
-        color: var(--overlay0);
-      }
-
-      footer a {
-        color: var(--overlay1);
-        text-decoration: none;
-      }
-
-      footer a:hover {
-        color: var(--text);
-      }
-    </style>
-  </head>
-  <body>
-    <nav>
-      <a href="/" class="logo">noodle</a>
-      <a href="https://github.com/wilfredinni/noodle" target="_blank">github</a>
-    </nav>
-
-    <div class="container">
-      <div class="page-title">
-        <h1>Changelog</h1>
-        <p>Release history for noodle</p>
-      </div>
-
-      {
-        releases.map((r) => (
-          <div class="release">
-            <div class="release-header">
-              <a href={r.url} class="tag" target="_blank">{r.tag}</a>
-              <span class="date">{r.date}</span>
-            </div>
-            <div class="release-body">
-              <p><strong>{r.name}</strong></p>
-              <br />
-              {r.body.split("\n").map((line) => {
-                if (line.startsWith("## ")) {
-                  return <h2>{line.slice(3)}</h2>
-                }
-                if (line.startsWith("- ")) {
-                  return <li>{line.slice(2)}</li>
-                }
-                if (line.startsWith("  - ")) {
-                  return <li style="padding-left:2.5rem">{line.slice(4)}</li>
-                }
-                if (line.trim() === "") {
-                  return <br />
-                }
-                return <p>{line}</p>
-              })}
-            </div>
-          </div>
-        ))
-      }
+  <div class="changelog-page">
+    <div class="page-title">
+      <h1>Changelog</h1>
+      <p>Release history for noodle</p>
     </div>
 
-    <footer>
-      <a href="/">noodle.dev</a>
-    </footer>
-  </body>
-</html>
+    {
+      releases.map((r) => (
+        <div class="release">
+          <div class="release-header">
+            <a href={r.url} class="tag" target="_blank">{r.tag}</a>
+            <span class="date">{r.date}</span>
+          </div>
+          <div class="release-body">
+            <p><strong>{r.name}</strong></p>
+            <br />
+            {r.body.split("\n").map((line) => {
+              if (line.startsWith("## ")) {
+                return <h2>{line.slice(3)}</h2>
+              }
+              if (line.startsWith("- ")) {
+                return <li>{line.slice(2)}</li>
+              }
+              if (line.startsWith("  - ")) {
+                return <li style="padding-left:2.5rem">{line.slice(4)}</li>
+              }
+              if (line.trim() === "") {
+                return <br />
+              }
+              return <p>{line}</p>
+            })}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</BaseLayout>
