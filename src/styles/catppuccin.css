@@ -1,4 +1,4 @@
-/* Catppuccin Mocha — Starlight theme override */
+/* Catppuccin Mocha — dark */
 :root {
   --sl-color-accent-low: #1e1e2e;
   --sl-color-accent: #b4befe;
@@ -33,4 +33,42 @@
   --sl-color-purple: #cba6f7;
 
   --sl-color-hero: #b4befe;
+}
+
+/* Catppuccin Latte — light */
+[data-theme="light"],
+.sl-theme-light {
+  --sl-color-accent-low: #e6e6f2;
+  --sl-color-accent: #7287fd;
+  --sl-color-accent-high: #1e1e2e;
+  --sl-color-white: #1e1e2e;
+  --sl-color-gray-1: #4c4f69;
+  --sl-color-gray-2: #5c5f77;
+  --sl-color-gray-3: #8c8fa1;
+  --sl-color-gray-4: #9ca0b0;
+  --sl-color-gray-5: #bcc0cc;
+  --sl-color-gray-6: #dce0e8;
+  --sl-color-black: #eff1f5;
+  --sl-color-bg: #eff1f5;
+  --sl-color-bg-nav: #e6e9ef;
+  --sl-color-bg-sidebar: #e6e9ef;
+  --sl-color-bg-inline-code: #dce0e8;
+  --sl-color-bg-accent: #7287fd;
+  --sl-color-hairline-light: #ccd0da;
+  --sl-color-hairline-shade: #bcc0cc;
+  --sl-color-border: #ccd0da;
+  --sl-color-border-accent: #7287fd;
+
+  --sl-color-orange-high: #fe640b;
+  --sl-color-orange: #fe640b;
+  --sl-color-green-high: #40a02b;
+  --sl-color-green: #40a02b;
+  --sl-color-blue-high: #1e66f5;
+  --sl-color-blue: #1e66f5;
+  --sl-color-red-high: #d20f39;
+  --sl-color-red: #d20f39;
+  --sl-color-purple-high: #8839ef;
+  --sl-color-purple: #8839ef;
+
+  --sl-color-hero: #7287fd;
 }
