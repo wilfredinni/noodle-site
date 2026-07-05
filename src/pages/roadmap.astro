@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro"
 
 const versions = [
   {
-    version: "v0.1.0",
+    version: "v0.1.x",
     status: "done",
     title: "Current release",
     features: [
@@ -40,7 +40,7 @@ const versions = [
     ],
   },
   {
-    version: "v0.2.0",
+    version: "v0.2.x",
     status: "done",
     features: [
       { text: "Select a default theme", done: false },
@@ -54,7 +54,7 @@ const versions = [
     ],
   },
   {
-    version: "v0.3.0",
+    version: "v0.3.x",
     features: [
       { text: "Better message for upgrades (noodle update)", done: false },
       { text: "Collection switcher", done: false },
@@ -63,26 +63,26 @@ const versions = [
     ],
   },
   {
-    version: "v0.4.0",
+    version: "v0.4.x",
     features: [
       { text: "URL bar autocompletion", done: false },
       { text: "Generate code from request (cURL, Python, JS)", done: false },
       { text: "Search and filter in collections", done: false },
       { text: "Import from cURL (paste in URL bar)", done: false },
-      { text: "Wrap/format JSON body", done: false },
     ],
   },
   {
-    version: "v0.5.0",
+    version: "v0.5.x",
     features: [
       { text: "JSON folding (collapse/expand nodes)", done: false },
+      { text: "Wrap/format JSON body", done: false },
       { text: "JSONPath/jq query for response body", done: false },
       { text: "Validate JSON body in real-time", done: false },
       { text: "Beautify JSON keybinding", done: false },
     ],
   },
   {
-    version: "v0.6.0",
+    version: "v0.6.x",
     features: [
       { text: "Export collection to OpenAPI/Postman/Insomnia", done: false },
       { text: "Import from Swagger", done: false },
@@ -91,7 +91,7 @@ const versions = [
     ],
   },
   {
-    version: "v0.7.0",
+    version: "v0.7.x",
     features: [
       { text: "Proxy support", done: false },
       { text: "SSL/TLS config", done: false },
@@ -100,29 +100,23 @@ const versions = [
     ],
   },
   {
-    version: "v0.8.0",
+    version: "v0.8.x",
     features: [
       { text: "Pre/post-request scripts in JavaScript", done: false },
     ],
   },
   {
-    version: "v0.9.0",
+    version: "v0.9.x",
     features: [
       { text: "Custom assertions (status, body, headers, timing)", done: false },
       { text: "Request chaining (set variables across requests)", done: false },
     ],
   },
   {
-    version: "v1.0.0",
+    version: "v1.0.x",
     status: "goal",
     features: [
       { text: "Collection runner (batch mode, results grid)", done: false },
-    ],
-  },
-  {
-    version: "v1.1.0",
-    features: [
-      { text: "Jump mode (Ctrl+O to focus any field)", done: false },
     ],
   },
 ]
