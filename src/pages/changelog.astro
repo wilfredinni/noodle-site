@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro"
 import { getCollection, render } from "astro:content"
 
 const entries = await getCollection("changelog")
-entries.sort((a, b) => b.data.date.localeCompare(a.data.date))
+entries.sort((a, b) => b.data.date.localeCompare(a.data.date) || b.data.tag.localeCompare(a.data.tag))
 
 const rendered = await Promise.all(
   entries.map(async (entry) => {
