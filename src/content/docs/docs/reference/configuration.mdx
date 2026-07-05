@@ -3,7 +3,7 @@ title: Configuration
 description: Global configuration file reference
 ---
 
-Noodle stores persistent settings in `~/.config/noodle/config.yml`. The file is optional — all fields fall back to defaults if missing.
+Noodle stores persistent settings in `~/.config/noodle/config.yml`. The file is optional: all fields fall back to defaults if missing.
 
 ```yaml
 theme: catppuccin
@@ -19,7 +19,7 @@ confirm_undo_all: true
 | `layout` | string | `stacked` | `stacked`, `side-by-side` | Pane arrangement |
 | `confirm_undo_all` | boolean | `true` | `true`, `false` | Show confirmation before `Ctrl+Z` undo-all |
 
-Partial files are fine — only the fields you include are overridden:
+Partial files are fine: only the fields you include are overridden:
 
 ```yaml
 theme: dracula

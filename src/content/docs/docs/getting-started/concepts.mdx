@@ -26,7 +26,7 @@ my-collection/
 Point Noodle at a collection directory with `--collection` (default:
 `./collections`) and it builds the TUI from whatever it finds on disk.
 
-Collections are version-control friendly — every request is a text file,
+Collections are version-control friendly: every request is a text file,
 every environment is a `.env` file. Commit them, share them, diff them.
 
 ## Request
@@ -46,12 +46,12 @@ Requests support headers, query parameters, body (JSON, form, text, binary),
 authentication, and settings like timeout.
 
 The request file is the source of truth. Edit it in the TUI or open it in
-your editor — both work.
+your editor: both work.
 
 ## Folder
 
 A **folder** is a subdirectory that groups related requests. Folders can
-optionally define **overrides** — headers and auth that propagate to all
+optionally define **overrides**: headers and auth that propagate to all
 child requests.
 
 ```
@@ -68,7 +68,7 @@ Folder overrides merge additively: a folder header only applies if the
 request doesn't already define the same key. Requests can opt out by
 setting their own auth explicitly.
 
-Folders are also how Noodle's **auth inheritance** works — set auth once
+Folders are also how Noodle's **auth inheritance** works: set auth once
 on a folder, and every request inside it picks it up.
 
 ## Environment
@@ -91,7 +91,7 @@ API_KEY=prod-xyz789
 _color=red
 ```
 
-The `_color` key is special — it sets the badge color in the sidebar.
+The `_color` key is special: it sets the badge color in the sidebar.
 All other keys are available as `$VARNAME` templates.
 
 Cycle between environments with **Ctrl+P** or open the environment editor
@@ -116,9 +116,9 @@ request across dev/staging/production.
 
 The TUI is split into three **panes**:
 
-- **Sidebar** — browse collection tree, select requests
-- **Request** — inspect and edit the selected request
-- **Response** — view response body, headers, and timing
+- **Sidebar**: browse collection tree, select requests
+- **Request**: inspect and edit the selected request
+- **Response**: view response body, headers, and timing
 
 Press **Ctrl+L** to toggle between stacked (vertical) and side-by-side
 layout.
@@ -128,9 +128,9 @@ layout.
 **Focus** determines which pane receives keyboard input. The active pane
 gets a cyan border.
 
-- **Tab** / **Shift+Tab** — cycle focus through sidebar → request → response
-- **Escape** — return to browse mode
-- **Return** — enter edit mode on the focused field
+- **Tab** / **Shift+Tab**: cycle focus through sidebar → request → response
+- **Escape**: return to browse mode
+- **Return**: enter edit mode on the focused field
 
 When focused on the request pane in browse mode, arrow keys navigate
 fields. Hit **Return** to edit a value, **Escape** to cancel, **Space**

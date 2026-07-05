@@ -27,7 +27,7 @@ my-collection/
 
 The `.noodle/` and `.timeline/` directories are created automatically.
 `.noodle/` stores UI state (last selected request, expanded folders, tab
-preferences). `.timeline/` stores response history — one file per request,
+preferences). `.timeline/` stores response history: one file per request,
 pruned to the 50 most recent entries. Both are safe to commit or ignore.
 
 ## Request File
@@ -97,7 +97,7 @@ When a folder is focused in the sidebar, the Folder Pane shows an
 |--------|-------------|
 | Method | HTTP method |
 | Name | Request name |
-| OK% | Success rate — green ≥90%, yellow ≥50%, red below |
+| OK% | Success rate: green ≥90%, yellow ≥50%, red below |
 | Avg | Average response time |
 | Last | Calls + time since last send |
 
