@@ -29,6 +29,7 @@ listed, reflecting your current custom keybinds.
 | `Ctrl+E` | Edit request in overlay |
 | `Ctrl+Alt+E` | Edit request YAML in overlay |
 | `Ctrl+B` | Copy response body |
+| `Ctrl+Z` | Undo all pending changes |
 | `Ctrl+Alt+N` | New folder |
 | `e` | Open environment editor |
 | `Ctrl+C` | Quit |
@@ -96,9 +97,39 @@ When the environment editor is open:
 
 ## Customization
 
-Keybindings can be customized in `~/.config/noodle/keybinds.yml`:
+Keybindings can be customized in `~/.config/noodle/keybinds.yml`. Navigation and edit mode keys (`tab`, `up`, `down`, `left`, `right`, `return`, `escape`, `shift+tab`) are fixed and cannot be overridden.
+
+Here is every customizable key with its default:
 
 ```yaml
-request_send: ctrl+enter
-env_cycle: ctrl+shift+p
+# Request
+request_send: ctrl+return
+request_save: ctrl+s
+request_new: ctrl+n
+request_clone: ctrl+k
+request_delete: ctrl+w
+request_edit_overlay: ctrl+e
+request_edit_yaml: ctrl+alt+e
+folder_new: ctrl+alt+n
+
+# Environment
+env_cycle: ctrl+p
+env_editor: e
+env_save: ctrl+s
+env_new: ctrl+n
+env_clone: ctrl+k
+env_delete: ctrl+w
+
+# App
+global_undo_all: ctrl+z
+help_toggle: f1
+theme_picker: ctrl+t
+layout_toggle: ctrl+l
+pane_expand: f2
+response_copy_body: ctrl+b
+
+# Browse
+browse_delete: ctrl+d
+browse_revert_all: ctrl+r
+browse_toggle_form_type: ctrl+t
 ```

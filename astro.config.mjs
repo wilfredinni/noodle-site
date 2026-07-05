@@ -79,8 +79,9 @@ export default defineConfig({
             { label: "Using the Response Pane", slug: "docs/guides/using-the-response-pane" },
             { label: "Using Environments", slug: "docs/guides/using-environments" },
             { label: "Using Folders", slug: "docs/guides/using-folders" },
-            { label: "Keybindings", slug: "docs/reference/keybindings" },
             { label: "Theming", slug: "docs/reference/theming" },
+            { label: "Keybindings", slug: "docs/reference/keybindings" },
+            { label: "Configuration", slug: "docs/reference/configuration" },
           ],
         },
         {
