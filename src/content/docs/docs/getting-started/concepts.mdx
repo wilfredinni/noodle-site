@@ -29,6 +29,9 @@ Point Noodle at a collection directory with `--collection` (default:
 Collections are version-control friendly: every request is a text file,
 every environment is a `.env` file. Commit them, share them, diff them.
 
+Press `Ctrl+O` to switch between previously-used collections at
+runtime.
+
 ## Request
 
 A **request** is a single `.yml` file representing one HTTP call. Every
@@ -94,7 +97,7 @@ _color=red
 The `_color` key is special: it sets the badge color in the sidebar.
 All other keys are available as `$VARNAME` templates.
 
-Cycle between environments with **Ctrl+P** or open the environment editor
+Cycle between environments with `Ctrl+U` or open the environment editor
 with **e**.
 
 ## Variable Substitution
@@ -135,3 +138,21 @@ gets a cyan border.
 When focused on the request pane in browse mode, arrow keys navigate
 fields. Hit **Return** to edit a value, **Escape** to cancel, **Space**
 to toggle a header or param on/off.
+
+## Command Palette
+
+Press `Ctrl+P` to open the command palette: a fuzzy-filtered list of
+every action in Noodle. Start typing to narrow results by section, then
+navigate with **↑**/**↓** and press **Return** to execute.
+
+The palette is organized into sections:
+
+| Section | Actions |
+|---------|---------|
+| Request | New, clone, save, delete, edit, send |
+| Collection | Switch collection, new folder |
+| Environment | Cycle, open editor, new, clone, delete |
+| App | Help, theme picker, toggle layout, expand pane, copy body, undo all |
+
+Use it to discover features, or as a faster alternative to remembering
+every keybinding. It always reflects your current custom keybinds.

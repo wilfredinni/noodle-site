@@ -3,12 +3,16 @@ title: Configuration
 description: Global configuration file reference
 ---
 
-Noodle stores persistent settings in `~/.config/noodle/config.yml`. The file is optional: all fields fall back to defaults if missing.
+Noodle stores persistent settings in `~/.config/noodle/config.yml`. The
+file is optional: all fields fall back to defaults if missing.
 
 ```yaml
 theme: catppuccin
 layout: stacked
 confirm_undo_all: true
+collections:
+  - /home/user/projects/my-api
+  - /home/user/projects/other-api
 ```
 
 ## Fields
@@ -18,6 +22,10 @@ confirm_undo_all: true
 | `theme` | string | `catppuccin` | Any built-in theme name | UI color theme |
 | `layout` | string | `stacked` | `stacked`, `side-by-side` | Pane arrangement |
 | `confirm_undo_all` | boolean | `true` | `true`, `false` | Show confirmation before `Ctrl+Z` undo-all |
+| `collections` | string[] | `[]` | List of absolute paths | Previously-used collection directories. Managed by the collection switcher (`Ctrl+O`); listed in most-recently-used order. |
+
+Noodle adds and reorders collections automatically when you switch to a
+new directory. No need to edit this by hand.
 
 Partial files are fine: only the fields you include are overridden:
 

@@ -103,6 +103,23 @@ When a folder is focused in the sidebar, the Folder Pane shows an
 
 Stats are computed from the request timeline.
 
+## Switching Collections
+
+Press `Ctrl+O` to switch between previously-used collection directories.
+The collection switcher shows a list of recently opened collections in
+most-recently-used order.
+
+When you switch, Noodle reloads the collection, environments, and UI
+state from the new directory. Unsaved changes in the current collection
+are preserved per-collection: switching away and back restores your
+drafts.
+
+Collections you open are persisted to `~/.config/noodle/config.json` so
+they appear in the switcher across sessions.
+
+You can also switch collections from the command palette (`Ctrl+P`)
+under the Collection section.
+
 ## settings.yml
 
 Collection-wide settings:
