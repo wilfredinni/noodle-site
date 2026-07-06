@@ -19,6 +19,16 @@ This opens an empty workspace. The default collection directory
 (`./collections`) is created automatically when you save your first
 request.
 
+To create a named collection, pass `--collection` with a new path:
+
+```bash
+noodle --collection ./my-api
+```
+
+Noodle creates the directory on first save. You can have as many
+collections as you want, each with its own requests and environments.
+Use `Ctrl+O` to switch between them at runtime.
+
 <Image src={noodleEmpty} alt="Noodle empty workspace" loading="eager" fetchpriority="high" />
 
 Press **Ctrl+N** to open the new request overlay. Enter a name, method, and
