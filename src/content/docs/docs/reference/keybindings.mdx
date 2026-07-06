@@ -16,7 +16,7 @@ listed, reflecting your current custom keybinds.
 | Key | Action |
 |-----|--------|
 | `Tab` / `Shift+Tab` | Cycle focus (sidebar → request → response) |
-| `Ctrl+Return` | Send request |
+| `Ctrl+Return` / `^J` | Send request |
 | `Ctrl+S` | Save request |
 | `Ctrl+N` | New request |
 | `Ctrl+K` | Clone request |
@@ -99,13 +99,13 @@ When the environment editor is open:
 
 ## Customization
 
-Keybindings can be customized in `~/.config/noodle/keybinds.yml`. Navigation and edit mode keys (`tab`, `up`, `down`, `left`, `right`, `return`, `escape`, `shift+tab`) are fixed and cannot be overridden.
+Keybindings can be customized in `~/.config/noodle/keybinds.yml`. Navigation and edit mode keys (`tab`, `up`, `down`, `left`, `right`, `return`, `escape`, `shift+tab`) and `request_send` are fixed and cannot be overridden.
 
 Here is every customizable key with its default:
 
 ```yaml
 # Request
-request_send: ctrl+return
+# request_send is fixed — cannot be overridden (default: ctrl+return, fallback: ctrl+j)
 request_save: ctrl+s
 request_new: ctrl+n
 request_clone: ctrl+k

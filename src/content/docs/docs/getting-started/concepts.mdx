@@ -145,14 +145,25 @@ Press `Ctrl+P` to open the command palette: a fuzzy-filtered list of
 every action in Noodle. Start typing to narrow results by section, then
 navigate with **↑**/**↓** and press **Return** to execute.
 
-The palette is organized into sections:
+The palette is contextual — it shows different commands depending on
+which view is active:
+
+**Main view** (working with requests):
 
 | Section | Actions |
 |---------|---------|
 | Request | New, clone, save, delete, edit, send |
+| Response | Copy body |
+| Environment | Cycle, open editor |
 | Collection | Switch collection, new folder |
-| Environment | Cycle, open editor, new, clone, delete |
-| App | Help, theme picker, toggle layout, expand pane, copy body, undo all |
+| App | Help, theme picker, toggle layout, expand pane, undo all |
+
+**Env editor view** (when **e** is pressed):
+
+| Section | Actions |
+|---------|---------|
+| Environment | Save, new, clone, delete, cycle |
+| App | Help, theme picker, undo all |
 
 Use it to discover features, or as a faster alternative to remembering
 every keybinding. It always reflects your current custom keybinds.
