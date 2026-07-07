@@ -93,7 +93,7 @@ import InstallationSection from "../components/InstallationSection.astro"
         flex-direction: column;
         align-items: center;
         gap: 3rem;
-        padding: 1.5rem 2rem 6rem;
+        padding: 1.5rem 2rem 4rem;
         max-width: 1200px;
         margin: 0 auto;
         position: relative;
@@ -262,6 +262,23 @@ import InstallationSection from "../components/InstallationSection.astro"
         height: auto;
       }
 
+      .hero-divider {
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        height: 0;
+      }
+
+      .hero-installation {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4rem 2rem 6rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        position: relative;
+        z-index: 2;
+      }
+
 
       /* ─── Footer ─── */
       footer {
@@ -297,9 +314,13 @@ import InstallationSection from "../components/InstallationSection.astro"
         .hero {
           display: grid;
           grid-template-columns: 1fr;
-          padding: 1rem 1rem 4rem;
+          padding: 1rem 1rem 2rem;
           overflow-x: hidden;
           gap: 1rem; /* Smaller gaps */
+        }
+
+        .hero-installation {
+          padding: 2rem 1rem 4rem;
         }
 
         .hero-content {
@@ -379,8 +400,12 @@ import InstallationSection from "../components/InstallationSection.astro"
           <Image src={noodleImage} alt="Noodle Terminal Interface" loading="eager" fetchpriority="high" style="width: 100%; height: auto;" />
         </div>
       </div>
+    </section>
 
-      <div class="hero-content" style="margin-top: -0.5rem; width: 100%; max-width: 1100px; margin-left: auto; margin-right: auto;">
+    <div class="hero-divider"></div>
+
+    <section class="hero-installation">
+      <div class="hero-content" style="width: 100%; max-width: 1100px; margin-left: auto; margin-right: auto;">
         <InstallationSection />
       </div>
     </section>
