@@ -361,20 +361,46 @@ import Nav from "../components/Nav.astro"
       }
 
       /* ─── Installation Widget Styles ─── */
+      .installation-two-columns {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 3.5rem;
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        align-items: start;
+        text-align: left;
+      }
+
+      .widget-description-side {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: 1.05rem;
+        line-height: 1.7;
+        padding-top: 5.25rem;
+      }
+
+      .widget-description-side p strong {
+        color: var(--fg);
+        font-weight: 500;
+      }
+
       .hero-actions-container {
         display: flex;
         flex-direction: column;
         align-items: center;
         width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
       }
 
       .hero-top-buttons {
         display: flex;
+        justify-content: center;
+        width: 100%;
         gap: 1rem;
         margin-bottom: 2rem;
-        width: auto;
       }
 
       .btn-primary, .btn-secondary {
@@ -392,14 +418,14 @@ import Nav from "../components/Nav.astro"
       }
 
       .btn-primary {
-        background-color: #f2cdcd; /* Catppuccin Flamingo */
-        color: #1e1e2e;
-        border: 1px solid #f2cdcd;
+        background-color: var(--accent);
+        color: var(--bg);
+        border: 1px solid var(--accent);
       }
 
       .btn-primary:hover {
-        background-color: #f5e0dc; /* Catppuccin Rosewater */
-        border-color: #f5e0dc;
+        background-color: var(--accent-dim);
+        border-color: var(--accent-dim);
       }
 
       .btn-secondary {
@@ -449,7 +475,6 @@ import Nav from "../components/Nav.astro"
       .tab-buttons {
         display: flex;
         gap: 0.5rem;
-        margin-left: 1rem;
       }
 
       .tab-btn {
@@ -476,7 +501,7 @@ import Nav from "../components/Nav.astro"
       .install-box {
         display: flex;
         align-items: stretch;
-        background-color: #11111b; /* Catppuccin crust */
+        background-color: var(--bg);
         border: 1px solid var(--border);
         overflow: hidden;
         transition: border-color 0.2s;
@@ -498,6 +523,8 @@ import Nav from "../components/Nav.astro"
 
       .install-box code {
         display: block;
+        flex: 1;
+        min-width: 0;
         padding: 0.85rem 1.25rem;
         font-family: var(--font-mono);
         font-size: 0.85rem;
@@ -559,11 +586,26 @@ import Nav from "../components/Nav.astro"
         font-family: var(--font-mono);
         font-size: 0.8rem;
         color: var(--muted);
-        text-align: center;
+        text-align: left;
+        width: 100%;
       }
+
+
+
+
 
       /* Responsive adjustments */
       @media (max-width: 768px) {
+        .installation-two-columns {
+          grid-template-columns: 1fr;
+          gap: 2.5rem;
+        }
+
+        .widget-description-side {
+          padding-top: 0;
+          font-size: 0.95rem;
+        }
+
         .hero-top-buttons {
           width: 100%;
           flex-direction: column;
@@ -629,60 +671,65 @@ import Nav from "../components/Nav.astro"
         </div>
       </div>
 
-      <div class="hero-content" style="margin-top: -0.5rem; width: 100%;">
-        <div class="hero-actions-container">
-          <!-- Action Buttons -->
-          <div class="hero-top-buttons">
-            <a href="/docs/getting-started/installation/" class="btn-primary">Quick start</a>
-            <a href="/docs/" class="btn-secondary">Read the docs</a>
-          </div>
+      <div class="hero-content" style="margin-top: -0.5rem; width: 100%; max-width: 1100px; margin-left: auto; margin-right: auto;">
+        <div class="installation-two-columns">
+          
+          <!-- Left Column: Actions and Widget -->
+          <div class="hero-actions-container">
+            <!-- Action Buttons -->
+            <div class="hero-top-buttons">
+              <a href="/docs/getting-started/installation/" class="btn-primary">Quick start</a>
+              <a href="/docs/" class="btn-secondary">Read the docs</a>
+            </div>
 
-          <!-- Installation Widget -->
-          <div class="install-widget">
-            <!-- Stable Install Section -->
-            <div class="install-section">
-              <div class="install-header">
-                <span class="label">Stable install</span>
-                <div class="tab-buttons">
-                  <button class="tab-btn active" data-tab="script">Script</button>
-                  <button class="tab-btn" data-tab="homebrew">Homebrew</button>
-                  <button class="tab-btn" data-tab="nix">Nix flake</button>
+            <!-- Installation Widget -->
+            <div class="install-widget">
+              <!-- Stable Install Section -->
+              <div class="install-section">
+                <div class="install-header">
+                  <div class="tab-buttons">
+                    <button class="tab-btn active" data-tab="script">Script</button>
+                    <button class="tab-btn" data-tab="homebrew">Homebrew</button>
+                  </div>
+                </div>
+                
+                <div class="install-box">
+                  <div class="tab-content active" id="tab-script">
+                    <code><span class="prompt">$</span> curl -LsSf https://noodlerest.dev/install.sh | sh</code>
+                  </div>
+                  <div class="tab-content" id="tab-homebrew">
+                    <code><span class="prompt">$</span> brew tap wilfredinni/noodle && brew install noodle</code>
+                  </div>
+                  <button class="copy-widget-btn" id="copy-stable-btn">Copy</button>
                 </div>
               </div>
-              
-              <div class="install-box">
-                <div class="tab-content active" id="tab-script">
-                  <code><span class="prompt">$</span> curl -LsSf https://noodlerest.dev/install.sh | sh</code>
+
+              <div class="widget-divider"></div>
+
+              <!-- AI Agent Skill Section -->
+              <div class="install-section">
+                <div class="install-header">
+                  <span class="label">AI Agent Skill</span>
                 </div>
-                <div class="tab-content" id="tab-homebrew">
-                  <code><span class="prompt">$</span> brew tap wilfredinni/noodle && brew install noodle</code>
+                
+                <div class="install-box">
+                  <code><span class="prompt">npx</span> skills add wilfredinni/noodle --skill noodle-use -g</code>
+                  <button class="copy-widget-btn" id="copy-skill-btn">Copy</button>
                 </div>
-                <div class="tab-content" id="tab-nix">
-                  <code><span class="prompt">$</span> nix profile install github:wilfredinni/noodle</code>
-                </div>
-                <button class="copy-widget-btn" id="copy-stable-btn">Copy</button>
               </div>
             </div>
 
-            <div class="widget-divider"></div>
-
-            <!-- AI Agent Skill Section -->
-            <div class="install-section">
-              <div class="install-header justify-between">
-                <span class="label">AI Agent Skill</span>
-                <a href="/docs/guides/ai-agent-skills/" class="preview-docs-link">Read the docs</a>
-              </div>
-              
-              <div class="install-box">
-                <code><span class="prompt">npx</span> skills add wilfredinni/noodle --skill noodle-use -g</code>
-                <button class="copy-widget-btn" id="copy-skill-btn">Copy</button>
-              </div>
-            </div>
+            <p class="install-footer-info">
+              Stable macOS/Linux &bull; no Electron, no account, no telemetry
+            </p>
           </div>
 
-          <p class="install-footer-info">
-            Stable macOS/Linux &bull; no Electron, no account, no telemetry
-          </p>
+          <!-- Right Column: Description Text -->
+          <div class="widget-description-side">
+            <p>Noodle is a <strong>REST client for the terminal</strong>. Your requests are stored locally as simple <strong>YAML files</strong> &mdash; easy to read, easy to <strong>version control</strong>.</p>
+            <p><strong>No proprietary formats.</strong> <strong>No accounts.</strong> <strong>No nonsense.</strong></p>
+          </div>
+
         </div>
       </div>
 
