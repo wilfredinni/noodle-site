@@ -1,0 +1,59 @@
+---
+title: AI Agent Skills
+description: Install the noodle-use skill to give your AI coding agent the ability to create, organize, and audit noodle collections.
+---
+
+AI agent skills are reusable instruction sets that extend what your coding agent can do. The `noodle-use` skill teaches agents to work with noodle collections by operating on `.yml` and `.env` files directly.
+
+## Installation
+
+Install the skill globally for your agent:
+
+```bash
+npx skills add wilfredinni/noodle --skill noodle-use -g
+```
+
+Supports OpenCode, Claude Code, Cursor, GitHub Copilot, and 70+ other agents.
+
+## What agents can do
+
+Once the skill is installed, ask your agent to:
+
+### Create
+
+Scaffold collections, add requests, set up folders with inheritable auth and headers, create environments, and register the collection path in `~/.config/noodle/config.yml` so it appears in noodle's workspace switcher.
+
+### Organize
+
+Rename, restructure, deduplicate headers across requests, flatten deep nesting, reorder folders — all while preserving timeline data and auth inheritance chains.
+
+### Evaluate
+
+Audit collections for:
+- **Security**: hardcoded tokens, HTTP vs HTTPS, tokens in URLs, missing auth
+- **REST practices**: correct HTTP methods, URL patterns, Content-Type headers
+- **Structure**: orphan requests, folder naming, nesting depth
+- **Environment hygiene**: declared but unused vars, missing vars across environments
+
+### Import
+
+Convert OpenAPI 3.0 and Postman collections to noodle format using `noodle import`.
+
+### Convert
+
+Convert formats noodle's CLI doesn't support by reading source files and writing noodle files directly:
+
+- **Insomnia exports** — maps resources, request groups, auth, environments
+- **Swagger 2.0 specs** — maps paths, security definitions, parameters
+
+## Example prompts
+
+- "Scaffold a noodle collection for the Stripe API with auth and a few endpoints"
+- "Audit my collection for security issues and REST best practices"
+- "Convert this Insomnia export to a noodle collection"
+- "How many requests are in the Stripe API collection?"
+- "What's the average response time for the login request on my Stripe collection?"
+- "Change the expand layout keybinding to Alt+I"
+- "Set Catppuccin as my theme"
+- "Order the folders on the Stripe collection from Z to A"
+- "Set up basic auth on the Posts folder for $basic_user and $basic_password"
