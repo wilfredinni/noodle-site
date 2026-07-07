@@ -359,6 +359,250 @@ import Nav from "../components/Nav.astro"
           flex-shrink: 0; /* Prevent the button from shrinking or clipping */
         }
       }
+
+      /* ─── Installation Widget Styles ─── */
+      .hero-actions-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .hero-top-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        width: auto;
+      }
+
+      .btn-primary, .btn-secondary {
+        font-family: var(--font-mono);
+        font-size: 0.95rem;
+        font-weight: 500;
+        padding: 0.65rem 1.75rem;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background-color: #f2cdcd; /* Catppuccin Flamingo */
+        color: #1e1e2e;
+        border: 1px solid #f2cdcd;
+      }
+
+      .btn-primary:hover {
+        background-color: #f5e0dc; /* Catppuccin Rosewater */
+        border-color: #f5e0dc;
+      }
+
+      .btn-secondary {
+        background-color: transparent;
+        color: var(--fg);
+        border: 1px solid var(--border);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--border-hover);
+        background-color: rgba(255, 255, 255, 0.02);
+      }
+
+      .install-widget {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        background-color: var(--bg-elevated);
+        border: 1px solid var(--border);
+        padding: 1.5rem;
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
+        text-align: left;
+      }
+
+      .install-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+
+      .install-header {
+        display: flex;
+        align-items: center;
+        font-family: var(--font-mono);
+      }
+
+      .install-header.justify-between {
+        justify-content: space-between;
+      }
+
+      .install-header .label {
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+
+      .tab-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-left: 1rem;
+      }
+
+      .tab-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        padding: 0.25rem 0.65rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .tab-btn:hover {
+        border-color: var(--border-hover);
+        color: var(--fg);
+      }
+
+      .tab-btn.active {
+        border-color: var(--accent);
+        color: var(--fg);
+      }
+
+      .install-box {
+        display: flex;
+        align-items: stretch;
+        background-color: #11111b; /* Catppuccin crust */
+        border: 1px solid var(--border);
+        overflow: hidden;
+        transition: border-color 0.2s;
+      }
+
+      .install-box:hover {
+        border-color: var(--border-hover);
+      }
+
+      .tab-content {
+        display: none;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .install-box code {
+        display: block;
+        padding: 0.85rem 1.25rem;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: var(--fg);
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .install-box .prompt {
+        color: var(--accent);
+        margin-right: 0.5rem;
+        user-select: none;
+      }
+
+      .copy-widget-btn {
+        background: rgba(255, 255, 255, 0.02);
+        border: none;
+        border-left: 1px solid var(--border);
+        color: var(--muted);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0 1.25rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .copy-widget-btn:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--fg);
+      }
+
+      .widget-divider {
+        height: 1px;
+        background-color: var(--border);
+        width: 100%;
+        opacity: 0.5;
+        margin: 0.25rem 0;
+      }
+
+      .preview-docs-link {
+        color: var(--accent);
+        font-size: 0.8rem;
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      .preview-docs-link:hover {
+        color: var(--fg);
+        text-decoration: underline;
+      }
+
+      .install-footer-info {
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .hero-top-buttons {
+          width: 100%;
+          flex-direction: column;
+        }
+
+        .btn-primary, .btn-secondary {
+          width: 100%;
+        }
+
+        .install-widget {
+          padding: 1rem;
+        }
+
+        .install-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+        }
+
+        .tab-buttons {
+          margin-left: 0;
+          width: 100%;
+        }
+
+        .tab-btn {
+          flex: 1;
+          text-align: center;
+        }
+
+        .install-box code {
+          padding: 0.75rem 1rem;
+          font-size: 0.75rem;
+        }
+
+        .copy-widget-btn {
+          padding: 0 1rem;
+          font-size: 0.7rem;
+        }
+      }
     </style>
   </head>
   <body>
@@ -385,19 +629,119 @@ import Nav from "../components/Nav.astro"
         </div>
       </div>
 
-      <div class="hero-content" style="margin-top: -0.5rem;">
-        <div class="hero-actions">
-          <div class="install-block">
-            <code><span class="prompt">$</span> curl -LsSf https://noodlerest.dev/install.sh | sh</code>
-            <button class="copy-btn" onclick="navigator.clipboard?.writeText('curl -LsSf https://noodlerest.dev/install.sh | sh'); const t=this.innerText; this.innerText='Copied!'; setTimeout(()=>this.innerText=t, 2000);">Copy</button>
+      <div class="hero-content" style="margin-top: -0.5rem; width: 100%;">
+        <div class="hero-actions-container">
+          <!-- Action Buttons -->
+          <div class="hero-top-buttons">
+            <a href="/docs/getting-started/installation/" class="btn-primary">Quick start</a>
+            <a href="/docs/" class="btn-secondary">Read the docs</a>
           </div>
 
-          <div class="secondary-links" style="justify-content: center;">
-            <a href="/docs/getting-started/installation/">Quick start →</a>
-            <a href="/docs/">Read the docs →</a>
+          <!-- Installation Widget -->
+          <div class="install-widget">
+            <!-- Stable Install Section -->
+            <div class="install-section">
+              <div class="install-header">
+                <span class="label">Stable install</span>
+                <div class="tab-buttons">
+                  <button class="tab-btn active" data-tab="script">Script</button>
+                  <button class="tab-btn" data-tab="homebrew">Homebrew</button>
+                  <button class="tab-btn" data-tab="nix">Nix flake</button>
+                </div>
+              </div>
+              
+              <div class="install-box">
+                <div class="tab-content active" id="tab-script">
+                  <code><span class="prompt">$</span> curl -LsSf https://noodlerest.dev/install.sh | sh</code>
+                </div>
+                <div class="tab-content" id="tab-homebrew">
+                  <code><span class="prompt">$</span> brew tap wilfredinni/noodle && brew install noodle</code>
+                </div>
+                <div class="tab-content" id="tab-nix">
+                  <code><span class="prompt">$</span> nix profile install github:wilfredinni/noodle</code>
+                </div>
+                <button class="copy-widget-btn" id="copy-stable-btn">Copy</button>
+              </div>
+            </div>
+
+            <div class="widget-divider"></div>
+
+            <!-- AI Agent Skill Section -->
+            <div class="install-section">
+              <div class="install-header justify-between">
+                <span class="label">AI Agent Skill</span>
+                <a href="/docs/guides/ai-agent-skills/" class="preview-docs-link">Read the docs</a>
+              </div>
+              
+              <div class="install-box">
+                <code><span class="prompt">npx</span> skills add wilfredinni/noodle --skill noodle-use -g</code>
+                <button class="copy-widget-btn" id="copy-skill-btn">Copy</button>
+              </div>
+            </div>
           </div>
+
+          <p class="install-footer-info">
+            Stable macOS/Linux &bull; no Electron, no account, no telemetry
+          </p>
         </div>
       </div>
+
+      <script>
+        // Interactive Tabs Logic
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            
+            tab.classList.add('active');
+            const targetId = `tab-${tab.getAttribute('data-tab')}`;
+            document.getElementById(targetId)?.classList.add('active');
+          });
+        });
+
+        // Copy Stable Command Logic
+        const copyStableBtn = document.getElementById('copy-stable-btn');
+        if (copyStableBtn) {
+          copyStableBtn.addEventListener('click', () => {
+            const activeContent = document.querySelector('.tab-content.active code');
+            if (activeContent) {
+              const promptSpan = activeContent.querySelector('.prompt');
+              let commandText = activeContent.textContent || '';
+              if (promptSpan) {
+                const promptText = promptSpan.textContent || '';
+                commandText = commandText.replace(promptText, '').trim();
+              }
+              navigator.clipboard?.writeText(commandText);
+              const originalText = copyStableBtn.textContent;
+              copyStableBtn.textContent = 'Copied!';
+              setTimeout(() => copyStableBtn.textContent = originalText, 2000);
+            }
+          });
+        }
+
+        // Copy Skill Command Logic
+        const copySkillBtn = document.getElementById('copy-skill-btn');
+        if (copySkillBtn) {
+          copySkillBtn.addEventListener('click', () => {
+            const codeEl = copySkillBtn.parentElement?.querySelector('code');
+            if (codeEl) {
+              const promptSpan = codeEl.querySelector('.prompt');
+              let commandText = codeEl.textContent || '';
+              if (promptSpan) {
+                const promptText = promptSpan.textContent || '';
+                commandText = commandText.replace(promptText, '').trim();
+              }
+              navigator.clipboard?.writeText(commandText);
+              const originalText = copySkillBtn.textContent;
+              copySkillBtn.textContent = 'Copied!';
+              setTimeout(() => copySkillBtn.textContent = originalText, 2000);
+            }
+          });
+        }
+      </script>
     </section>
 
 
