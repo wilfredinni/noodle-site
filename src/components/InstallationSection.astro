@@ -46,8 +46,8 @@
 
   <!-- Right Column: Description Text -->
   <div class="widget-description-side">
-    <p>Noodle is a <strong>REST client for the terminal</strong>. Your requests are stored locally as simple <strong>YAML files</strong> &mdash; easy to read, easy to <strong>version control</strong>.</p>
-    <p><strong>No proprietary formats.</strong> <strong>No accounts.</strong> <strong>No nonsense.</strong></p>
+    <p>Noodle is a <strong>REST client for the terminal</strong>. Your requests are stored locally as simple <strong>YAML files</strong>. Easy to read, easy to <strong>version control</strong>.</p>
+    <p><strong class="color-red">No proprietary formats.</strong> <strong class="color-yellow">No accounts.</strong> <strong class="color-green">No nonsense.</strong></p>
 
     <!-- Action Buttons -->
     <div class="hero-top-buttons">
@@ -89,6 +89,18 @@
   .widget-description-side p strong {
     color: var(--fg);
     font-weight: 500;
+  }
+
+  .widget-description-side p strong.color-red {
+    color: #f38ba8;
+  }
+
+  .widget-description-side p strong.color-yellow {
+    color: #f9e2af;
+  }
+
+  .widget-description-side p strong.color-green {
+    color: #a6e3a1;
   }
 
   .hero-actions-container {
