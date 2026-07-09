@@ -1,0 +1,33 @@
+---
+title: "Noodle v0.3.3: Array params, duplicate keys, BodyTypeSelector, env editor polish"
+tag: v0.3.3
+date: "2026-07-09"
+url: https://github.com/wilfredinni/noodle/releases/tag/v0.3.3
+---
+
+This release adds proper duplicate-key support for URL query parameters, refactors params from objects to arrays, extracts a reusable BodyTypeSelector, unifies the environment editor's edit model, and includes various UI fixes.
+
+## 🔧 Refactors
+
+- **Params as arrays**: Query parameters are now stored as arrays of `{ key, value, enabled }` entries instead of a `{ key: value }` object. This enables duplicate keys in URL params (`?key=a&key=b`). Full backward compatibility with the old object format on load
+- **Environment editor unification**: The variables pane in the env editor now shares the same edit-browse model as the request pane, giving it consistent navigation, inline editing, and toggle behavior
+- **BodyTypeSelector extraction**: Body type selection (none/json/form/text) extracted into its own component for reuse
+
+## 🐞 Fixes
+
+- **Duplicate-key params**: URL params with the same key now use `append()` instead of `set()`, and inline URL params are stripped before appending from the params block
+- **Disabled param/substitute handling**: Disabled params and disabled formData entries are now consistently skipped during variable substitution and sending
+- **Body editor focus highlight**: Body content area now highlights when focused in browse mode
+- **KeyValue display**: Enabled entries no longer show muted/dimmed color
+- **Auto-copy selection**: Mouse selection auto-copy now clears the selection afterward
+- **Keybinding send fallback**: `Ctrl+Return` documented as the primary send binding, with linefeed as an additional fallback
+
+## ✨ Improvements
+
+- **Body area flex sizing**: Body content area wrapped in a ScrollBox for proper flex layout
+- **Body type layout gap**: Added gap between the body type selector and the content area
+- **PageUp/PageDown scroll**: Body preview now responds to PageUp/PageDown keys in browse mode
+
+## ⚡ Performance
+
+- **Memoized formatBody**: JSON parse/stringify calls in body preview are now memoized to avoid redundant work on every render
