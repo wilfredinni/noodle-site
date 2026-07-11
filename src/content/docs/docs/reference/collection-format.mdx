@@ -1,0 +1,147 @@
+---
+title: Collection Format
+description: YAML request and folder file specifications
+---
+
+noodle collections are directories of `.yml` files on disk. This reference
+covers every field, type, and constraint.
+
+## Request File (`.yml`)
+
+One request per file. Extension must be `.yml` (not `.yaml`).
+
+| Field | Type | Required | Default | Description |
+|-------|------|----------|---------|-------------|
+| `name` | string | yes | — | Display name for the request |
+| `method` | string | yes | — | `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS` |
+| `url` | string | yes | — | Full URL, supports `$VAR` substitution |
+| `timeout` | number | yes | `0` | Request timeout in ms. `0` = no timeout |
+| `followRedirects` | boolean | no | `true` | Follow HTTP redirects |
+| `maxRedirects` | number | no | `5` | Max redirect chain length |
+| `body_type` | string | no | `none` | `none`, `json`, `multipart`, `urlencoded`, `binary` |
+| `headers` | map | no | `{}` | Request headers (omit if empty) |
+| `params` | array | no | `[]` | URL query parameters (omit if empty) |
+| `body` | string | no | — | Raw body content |
+| `form_data` | array | no | — | Multipart form entries |
+| `file_path` | string | no | — | Path to binary upload file |
+| `auth` | object | no | — | Auth config (omit for no auth) |
+
+### Headers
+
+Key-value map. Values can be simple strings (enabled) or objects with `value`
+and `enabled` fields:
+
+```yaml
+headers:
+  Content-Type: application/json
+  Authorization: { value: "Bearer $token", enabled: false }
+```
+
+### Params
+
+Array of `{ name, value, enabled }` entries. Each entry:
+- `name` — string, required
+- `value` — string, required
+- `enabled` — boolean, default `true`
+
+```yaml
+params:
+  - name: userId
+    value: $user_id
+  - name: _limit
+    value: "10"
+  - name: disabled_param
+    value: x
+    enabled: false
+```
+
+### Form Data
+
+Array for `multipart` body type. Each entry:
+- `name` — string, required
+- `value` — string, required
+- `type` — `text` (default) or `file`
+- `enabled` — boolean, default `true`
+
+```yaml
+body_type: multipart
+form_data:
+  - name: description
+    value: A photo
+  - name: file
+    value: ./photo.png
+    type: file
+```
+
+### Auth
+
+| Type | Fields | Description |
+|------|--------|-------------|
+| `none` | — | No auth (omit `auth` field entirely) |
+| `inherit` | — | Use nearest parent folder's auth |
+| `bearer` | `token` | Bearer token auth |
+| `basic` | `user`, `pass` | Basic auth |
+| `api_key` | `key`, `value`, `placement` | API key auth. `placement`: `header` or `query` |
+
+```yaml
+auth:
+  type: bearer
+  token: $api_token
+```
+
+### Minimal Request
+
+```yaml
+name: My Request
+method: GET
+url: $base_url/endpoint
+timeout: 0
+```
+
+## Folder File (`folder.yml`)
+
+Optional. Defines display name, sort order, and inheritable overrides.
+
+```yaml
+meta:
+  name: Users
+  seq: 1
+headers:
+  X-Custom: value
+auth:
+  type: bearer
+  token: $folder_token
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `meta` | object | no | Display metadata |
+| `meta.name` | string | no | Display name (defaults to directory name) |
+| `meta.seq` | number | no | Sort order (lower = first, undefined = last) |
+| `headers` | map | no | Inherited headers (merge additively) |
+| `auth` | object | no | Inherited auth |
+
+### Inheritance
+
+- **Headers**: Folder headers merge additively. Request's headers win on same key.
+- **Auth**: Requests with `type: inherit` use nearest ancestor folder's auth. Walk tree from child up.
+
+## Collection Settings (`settings.yml`)
+
+Single file at collection root:
+
+```yaml
+environment: development
+```
+
+Sets the default active environment. Must match a `.env` file in `.environments/`.
+
+## Hidden State (`.noodle/`)
+
+Auto-generated files managed by noodle:
+
+| File | Format | Purpose |
+|------|--------|---------|
+| `last-request` | Plain text | Last selected request ID |
+| `expanded-folders` | YAML list | Expanded folder paths in sidebar |
+| `ui-state/<requestId>.yml` | YAML | Per-request tab index state |

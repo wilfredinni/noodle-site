@@ -48,7 +48,7 @@ headers:
 |-------|------|----------|-------------|
 | `name` | string | yes | Display name in sidebar |
 | `method` | string | yes | HTTP method (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS`) |
-| `url` | string | yes | Request URL (supports `{{var}}` substitution) |
+| `url` | string | yes | Request URL (supports `$VAR` substitution) |
 | `headers` | array | no | Array of header objects |
 | `params` | array | no | Array of query parameter objects |
 | `auth` | object | no | Override collection/folder auth |
@@ -71,7 +71,7 @@ overrides:
       enabled: true
   auth:
     type: bearer
-    token: "{{folder_token}}"
+    token: $folder_token
 ```
 
 ### Fields

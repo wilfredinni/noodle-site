@@ -72,6 +72,37 @@ Below the body section, configure request behavior:
 | **Follow redirects** | Toggle automatic redirect following on/off |
 | **Max redirects** | Maximum number of redirects to follow |
 
+## Variable Autocompletion
+
+Type `$` in any text field to trigger the autocompletion popup:
+
+| Key | Action |
+|-----|--------|
+| **↑**/**↓** | Navigate suggestions |
+| **Tab** / **Return** | Accept selected suggestion |
+| **Escape** | Dismiss popup |
+
+The popup lists available environment variables filtered by your typed
+prefix. It appears at your cursor position and works in the URL bar,
+header values, param values, body editor, and auth fields.
+
+## Variable Highlighting
+
+All input fields display `$variable` references with color-coded states:
+- **Resolved** — variable exists in the active environment (theme primary color)
+- **Missing** — variable not found in any environment (theme error color)
+
+This helps you catch typos and missing environment variables before sending.
+
+## JSON Body Editor
+
+When `body_type` is `json`, the body field uses the [code editor](/guides/code-editor/)
+with Tree-sitter syntax highlighting, line numbers, and inline JSON validation.
+Invalid JSON shows an error notice above the body area with a readable error
+message.
+
+For multipart entries, **Ctrl+T** toggles between text and file mode.
+
 ## Auth
 
 Navigate to the auth section to set authentication:

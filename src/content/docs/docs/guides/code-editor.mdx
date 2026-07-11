@@ -1,0 +1,67 @@
+---
+title: Code Editor
+description: Syntax highlighting, code folding, and validation in noodle
+---
+
+noodle includes a built-in code editor with Tree-sitter syntax highlighting
+and code folding for JSON bodies and YAML request files.
+
+## JSON Body Editor
+
+When editing a JSON request body, noodle provides syntax highlighting with
+line numbers. Variable references (`$var`) are highlighted with color-coded
+states — resolved variables in your active theme's primary color, and missing
+variables in your theme's error color.
+
+Invalid JSON shows an inline validation notice with a user-friendly error
+message instead of raw stack traces.
+
+## YAML Editor Overlay
+
+Press **Ctrl+Alt+E** to edit the raw YAML of any request file. The YAML
+editor provides:
+
+- Syntax highlighting for YAML keys, values, strings, and comments
+- `$variable` highlighting (resolved and missing)
+- Code folding for nested blocks
+- Variable autocompletion
+
+## Code Folding
+
+Fold and unfold blocks of code to focus on what matters:
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+G` | Toggle fold at the current line |
+| `F5` | Fold all foldable regions |
+| `F6` | Unfold all regions |
+
+When you edit inside a folded region, the fold auto-expands. Fold state
+is preserved across content changes.
+
+## Line Operations
+
+`Shift+Return` inserts a newline in the code editor. Standard `Return`
+behavior (commit edit, send request, etc.) is preserved — use Shift+Return
+when you need multi-line input.
+
+## Autocompletion
+
+Type `$` in the code editor to trigger the variable autocompletion popup.
+Navigate suggestions with **up/down**, accept with **Tab** or **Return**,
+dismiss with **Escape**. The popup lists available environment variables
+filtered by your typed prefix.
+
+## Technical Details
+
+The code editor uses Tree-sitter for accurate syntax parsing:
+
+- **JSON**: `tree-sitter-json.wasm` parser with `highlights.scm` queries
+- **YAML**: `tree-sitter-yaml.wasm` parser with `highlights.scm` queries
+
+If Tree-sitter parsing fails (e.g., because the content contains `$variable`
+references that aren't valid JSON), noodle falls back to local tokenizers
+that understand `$var` syntax.
+
+Syntax highlight colors are synced with your active theme. Changing themes
+with `Ctrl+T` instantly updates the editor's colors.

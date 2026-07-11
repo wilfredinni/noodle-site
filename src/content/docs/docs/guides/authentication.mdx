@@ -10,7 +10,7 @@ description: Configure authentication for your requests
 ```yaml
 auth:
   type: bearer
-  token: "{{api_token}}"
+  token: $api_token
 ```
 
 ### Basic Auth
@@ -18,8 +18,8 @@ auth:
 ```yaml
 auth:
   type: basic
-  user: "{{username}}"
-  pass: "{{password}}"
+  user: $username
+  pass: $password
 ```
 
 ### API Key
@@ -28,7 +28,7 @@ auth:
 auth:
   type: api_key
   key: X-API-Key
-  value: "{{api_key}}"
+  value: $api_key
   placement: header
 ```
 

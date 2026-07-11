@@ -1,0 +1,90 @@
+---
+title: Timeline
+description: Response history format and queries
+---
+
+noodle stores response history for every request under `<collection>/.timeline/`.
+One file per request, mirroring the request ID structure.
+
+## Directory Layout
+
+```
+.collection/
+├── .timeline/
+│   ├── get-users.yml          # Timeline for request "get-users"
+│   └── users/
+│       └── login.yml          # Timeline for request "users/login"
+```
+
+## File Format
+
+Each timeline file is a YAML array of entries. Max 50 entries, newest first
+(prepended on save).
+
+```yaml
+- timestamp: 1783374564216
+  envName: development
+  request:
+    id: users/get-users
+    name: Get Users
+    method: GET
+    url: $base_url/users
+    headers: {}
+    params:
+      - name: page
+        value: "1"
+    auth:
+      type: inherit
+  response:
+    status: 200
+    statusText: OK
+    headers:
+      content-type: application/json
+    body: "[...]"
+    timeMs: 56.27
+    size: 27520
+```
+
+## Entry Structure
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `timestamp` | number | Unix timestamp in ms |
+| `envName` | string | Active environment name when sent |
+| `request` | object | Snapshot of the request at send time |
+| `response` | object | Response data (present on success) |
+| `error` | object | Error data (present on failure, instead of `response`) |
+
+### Response Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `status` | number | HTTP status code |
+| `statusText` | string | HTTP status text |
+| `headers` | map | Response headers |
+| `body` | string | Response body |
+| `timeMs` | number | Response time in milliseconds |
+| `size` | number | Response body size in bytes |
+
+### Error Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `message` | string | Error description |
+
+## Variable Resolution
+
+When viewing timeline entries, `$VAR` references in the stored request snapshot
+are resolved against the active environment. This means switching environments
+shows you what the request would send with the current env, not the env used
+at the time of sending.
+
+## Useful Queries
+
+Agents and scripts can analyze timeline data:
+
+- **Average response time**: Sum `response.timeMs` / count
+- **Success rate**: Count `response.status` in 2xx range / total count
+- **Recent errors**: Filter entries where `error` is present
+- **Response size trend**: Compare `response.size` across entries
+- **Environment usage**: Which `envName` was used per entry

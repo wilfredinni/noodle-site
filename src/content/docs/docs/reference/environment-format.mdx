@@ -1,0 +1,67 @@
+---
+title: Environment Format
+description: Dotenv environment file specification
+---
+
+Environment files use dotenv format and live under `<collection>/.environments/`.
+One `.env` file per environment.
+
+## File Format
+
+```ini
+_color=success
+base_url=https://api.example.com
+api_key=sk-placeholder
+# disabled_key=this_is_disabled
+```
+
+### Rules
+
+- **`KEY=value`**: Active variable, available for `$KEY` substitution
+- **`# KEY=value`**: Disabled variable. Prefix with `#` to exclude from substitution
+- **`_color=<name>`**: Sets sidebar badge color for this environment
+
+## Badge Colors
+
+| Color | Badge |
+|-------|-------|
+| `primary` | Cyan |
+| `secondary` | Blue |
+| `accent` | Purple |
+| `error` | Red |
+| `warning` | Yellow |
+| `success` | Green |
+| `info` | Light blue |
+
+### Convention
+
+| Environment | Recommended `_color` |
+|-------------|---------------------|
+| Production | `success` (green) |
+| Staging | `warning` (yellow) |
+| Development | `info` (blue) |
+
+## Variable Substitution
+
+All `$VARNAME` references in request files are resolved against the active
+environment. Variables are applied to:
+
+- `url`
+- `headers` values
+- `params` values
+- `body`
+- `form_data` values
+- `file_path`
+- `auth` fields (token, user, pass, key, value)
+
+Unresolved variables cause noodle to throw an error at send time.
+
+## Best Practices
+
+- Always keep the same set of variable names across all environments.
+  Different values, same keys.
+- Comment out (`#`) variables that don't apply to an environment — don't
+  delete the line.
+- Use placeholder values (e.g., `sk-placeholder`) in dev/staging. Keep real
+  secrets out of version control.
+- Put `_color` on the first line for visual clarity.

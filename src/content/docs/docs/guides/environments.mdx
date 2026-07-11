@@ -23,13 +23,13 @@ USER_EMAIL=admin@example.com
 
 ## Variable Interpolation
 
-Reference environment variables in your requests with `{{var}}` syntax:
+Reference environment variables in your requests with `$VARNAME` syntax:
 
 ```yaml
-url: "{{API_URL}}/users"
+url: $API_URL/users
 headers:
   - key: Authorization
-    value: "Bearer {{API_KEY}}"
+    value: Bearer $API_KEY
     enabled: true
 ```
 
