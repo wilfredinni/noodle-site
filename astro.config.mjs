@@ -82,6 +82,7 @@ export default defineConfig({
             { label: "Layout", slug: "docs/reference/layout" },
             { label: "Using the Sidebar", slug: "docs/guides/using-the-sidebar" },
             { label: "Using the Request Pane", slug: "docs/guides/using-the-request-pane" },
+            { label: "Code Editor", slug: "docs/guides/code-editor" },
             { label: "Using the Response Pane", slug: "docs/guides/using-the-response-pane" },
             { label: "Using Environments", slug: "docs/guides/using-environments" },
             { label: "Using Folders", slug: "docs/guides/using-folders" },
@@ -105,6 +106,14 @@ export default defineConfig({
             { label: "Environments", slug: "docs/guides/environments" },
             { label: "Authentication", slug: "docs/guides/authentication" },
             { label: "Response Format", slug: "docs/guides/responses" },
+            { label: "Timeline", slug: "docs/reference/timeline" },
+          ],
+        },
+        {
+          label: "File Format Reference",
+          items: [
+            { label: "Collection Files", slug: "docs/reference/collection-format" },
+            { label: "Environment Files", slug: "docs/reference/environment-format" },
           ],
         },
       ],
