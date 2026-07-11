@@ -9,26 +9,28 @@ Noodle supports the standard HTTP methods: `GET`, `POST`, `PUT`, `PATCH`, `DELET
 
 ## Headers
 
+Headers are key-value pairs. Values can be simple strings (enabled) or objects with `value` and `enabled` for disabled entries:
+
 ```yaml
 headers:
-  - key: Content-Type
-    value: application/json
-    enabled: true
-  - key: Authorization
-    value: Bearer $token
-    enabled: true
+  Content-Type: application/json
+  Authorization: Bearer $token
 ```
 
-Each header has a `key`, `value`, and `enabled` flag. Disabled headers are preserved but not sent.
+Disabled headers use the expanded form:
+```yaml
+headers:
+  X-Debug: { value: "true", enabled: false }
+```
 
 ## Query Parameters
 
 ```yaml
 params:
-  - key: page
+  - name: page
     value: "1"
     enabled: true
-  - key: limit
+  - name: limit
     value: "50"
     enabled: true
 ```

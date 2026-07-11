@@ -37,9 +37,7 @@ name: Get Users
 method: GET
 url: https://api.example.com/users
 headers:
-  - key: Accept
-    value: application/json
-    enabled: true
+  Accept: application/json
 ```
 
 ### Fields
@@ -63,15 +61,11 @@ Optional metadata for organizing collections:
 ```yaml
 name: Users API
 seq: 0
-overrides:
-  headers:
-    Accept:
-      key: Accept
-      value: application/json
-      enabled: true
-  auth:
-    type: bearer
-    token: $folder_token
+headers:
+  Accept: application/json
+auth:
+  type: bearer
+  token: $folder_token
 ```
 
 ### Fields
@@ -80,7 +74,8 @@ overrides:
 |-------|-------------|
 | `name` | Display name in sidebar. Falls back to directory name |
 | `seq` | Custom sort position. Folders without `seq` sort alphabetically |
-| `overrides` | Headers and auth inherited by child requests |
+| `headers` | Headers inherited by child requests |
+| `auth` | Auth inherited by child requests |
 
 ### Inheritance
 

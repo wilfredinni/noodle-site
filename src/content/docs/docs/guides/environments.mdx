@@ -28,9 +28,7 @@ Reference environment variables in your requests with `$VARNAME` syntax:
 ```yaml
 url: $API_URL/users
 headers:
-  - key: Authorization
-    value: Bearer $API_KEY
-    enabled: true
+  Authorization: Bearer $API_KEY
 ```
 
 ## Disabling Variables
