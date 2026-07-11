@@ -1,415 +1,324 @@
 ---
 // Landing page · outside Starlight, full control
+import BaseLayout from "../layouts/BaseLayout.astro"
 import { Image } from "astro:assets"
 import noodleImage from "../assets/noodle.png"
-import Nav from "../components/Nav.astro"
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Noodle · Terminal REST Client</title>
-    <meta
-      name="description"
-      content="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal."
-    />
-    <link rel="canonical" href="https://noodlerest.dev" />
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://noodlerest.dev" />
-    <meta property="og:title" content="Noodle · Terminal REST Client" />
-    <meta property="og:description" content="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal." />
-    <meta property="og:image" content="https://noodlerest.dev/noodle.png" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://noodlerest.dev" />
-    <meta name="twitter:title" content="Noodle · Terminal REST Client" />
-    <meta name="twitter:description" content="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal." />
-    <meta name="twitter:image" content="https://noodlerest.dev/noodle.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="manifest" href="/site.webmanifest" />
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style is:global>
-      *,
-      *::before,
-      *::after {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      :root {
-        --bg: #1e1e2e;
-        --bg-elevated: #181825;
-        --bg-card: rgba(49, 50, 68, 0.7);
-        --fg: #cdd6f4;
-        --muted: #a6adc8;
-        --accent: #b4befe;
-        --accent-glow: rgba(180, 190, 254, 0.3);
-        --accent-dim: #9399e8;
-        --border: #313244;
-        --border-hover: #45475a;
-        --font-body: 'Inter', system-ui, -apple-system, sans-serif;
-        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-      }
-
-      html {
-        scroll-behavior: smooth;
-      }
-
-      body {
-        font-family: var(--font-mono);
-        background: var(--bg);
-        color: var(--fg);
-        line-height: 1.6;
-        overflow-x: hidden;
-        -webkit-font-smoothing: antialiased;
-      }
-
-      .bg-glow {
-        position: fixed;
-        top: -20%;
-        left: -10%;
-        width: 120%;
-        height: 120%;
-        background: radial-gradient(circle at 50% 0%, rgba(46, 139, 148, 0.15) 0%, rgba(11, 16, 22, 0) 50%);
-        pointer-events: none;
-        z-index: -1;
-      }
-
-      nav {
-        position: relative;
-        z-index: 10;
-      }
-
-      /* ─── Hero (Centered Layout) ─── */
-      .hero {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3rem;
-        padding: 1.5rem 2rem 6rem;
-        max-width: 1200px;
-        margin: 0 auto;
-        position: relative;
-        z-index: 2;
-      }
-
-      .hero-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-      }
-
-      .hero-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.4rem 1rem;
-        border: 1px solid var(--border);
-        font-size: 0.8rem;
-        font-family: var(--font-mono);
-        color: var(--accent);
-        background: rgba(94, 231, 245, 0.05);
-        margin-bottom: 2rem;
-        transition: border-color 0.2s, background 0.2s;
-        text-decoration: none;
-      }
-
-      .hero-badge:hover {
-        border-color: var(--accent);
-        background: rgba(94, 231, 245, 0.1);
-      }
-
-      .hero h1 {
-        font-family: var(--font-mono);
-        font-size: clamp(2.2rem, 3.8vw, 3.2rem);
-        font-weight: 400;
-        letter-spacing: -0.04em;
-        line-height: 1.1;
-        text-align: center;
-        margin-bottom: 2rem;
-      }
-
-      .hero h1 .highlight {
-        background: linear-gradient(135deg, var(--fg) 20%, var(--accent) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        position: relative;
-      }
-
-      .hero p.lede {
-        font-size: 1.1rem;
-        color: var(--muted);
-        margin-bottom: 0;
-        line-height: 1.6;
-        font-weight: 400;
-      }
-
-      .hero-actions {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        width: 100%;
-      }
-
-      .install-block {
-        display: flex;
-        align-items: stretch;
-        width: 100%;
-        min-width: 0; /* Flexbox shrink bugfix */
-        max-width: 900px;
-        border: 1px solid var(--border);
-        background: var(--bg-elevated);
-        overflow: hidden;
-        transition: border-color 0.2s;
-      }
-
-      .install-block:hover {
-        border-color: var(--border-hover);
-      }
-
-      .install-block code {
-        display: block; /* Ensure block behavior for overflow scroll */
-        flex: 1;
-        min-width: 0; /* Prevent flex children from expanding due to nowrap text */
-        padding: 1rem 1.25rem;
-        font-family: var(--font-mono);
-        font-size: 0.85rem;
-        color: var(--fg);
-        text-align: left; /* Avoid center-alignment scroll cutoff bug */
-        overflow-x: auto;
-        white-space: nowrap;
-      }
-
-      .install-block .prompt {
-        color: var(--accent);
-        margin-right: 0.5rem;
-        user-select: none;
-      }
-
-      .copy-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 1.25rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: none;
-        border-left: 1px solid var(--border);
-        color: var(--muted);
-        font-family: var(--font-mono);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-weight: 600;
-      }
-
-      .copy-btn:hover {
-        background: rgba(255, 255, 255, 0.08);
-        color: var(--fg);
-      }
-
-      .secondary-links {
-        display: flex;
-        gap: 1.5rem;
-      }
-
-      .secondary-links a {
-        color: var(--muted);
-        text-decoration: none;
-        font-size: 0.95rem;
-        font-weight: 500;
-        transition: color 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .secondary-links a:hover {
-        color: var(--fg);
-      }
-
-      /* ─── Terminal Mockup ─── */
-      .hero-visual {
-        width: 100%;
-        position: relative;
-        display: flex; /* FORCE GRID FIX */
-        justify-content: center;
-        align-items: center;
-        margin-top: -2.5rem;
-      }
-
-
-      .terminal-mockup {
-        background: var(--bg-elevated);
-        border: 1px solid var(--border);
-        overflow: hidden;
-        width: 100%;
-      }
-
-      .terminal-mockup img {
-        width: 100%;
-        display: block;
-        height: auto;
-      }
-
-
-      /* ─── Footer ─── */
-      footer {
-        text-align: center;
-        padding: 3rem 2rem;
-        color: var(--muted);
-        font-size: 0.9rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-        margin-top: 4rem;
-      }
-
-      footer a {
-        color: var(--accent);
-        text-decoration: none;
-        transition: color 0.2s;
-      }
-
-      footer a:hover {
-        color: var(--fg);
-      }
-
-      /* Mobile responsiveness */
-      @media (max-width: 900px) {
-        .hero {
-          gap: 2.2rem;
-        }
-        .hero-visual {
-          margin: -0.7rem auto 0 !important; /* Keep a healthy spacing with the smaller gap */
-        }
-      }
-
-      @media (max-width: 768px) {
-        .hero {
-          display: grid;
-          grid-template-columns: 1fr;
-          padding: 1rem 1rem 4rem;
-          overflow-x: hidden;
-          gap: 1rem; /* Smaller gaps */
-        }
-
-        .hero-content {
-          display: contents; /* Flatten grandchildren into grid items */
-        }
-
-        .hero h1 {
-          grid-row: 1; /* Title first */
-          font-size: 1.65rem; /* Smaller title text */
-          text-align: center;
-          margin-bottom: 0; /* Removed bottom margin */
-        }
-
-        .hero-visual {
-          grid-row: 2; /* Image second */
-          margin: 0 auto 0 !important; /* Set margins to 0 for tightness */
-          max-width: 100%;
-        }
-
-        .hero p.lede {
-          grid-row: 3; /* Subtitle third */
-          text-align: center;
-          padding: 0 1.5rem;
-          font-size: 0.82rem; /* Even smaller subtitle text */
-          margin-top: -0.85rem !important; /* Pull subtitle even closer to the image */
-          margin-bottom: 1.25rem; /* Space before actions */
-        }
-
-        .hero-actions {
-          grid-row: 4; /* Actions last */
-          width: 100%;
-          max-width: 100%;
-          min-width: 0;
-          align-items: center;
-        }
-
-        .install-block {
-          max-width: 100%;
-          width: 100%;
-        }
-
-        .install-block code {
-          padding: 0.8rem 1rem;
-          font-size: 0.75rem;
-          min-width: 0;
-          overflow-x: auto;
-          white-space: nowrap;
-        }
-
-        .copy-btn {
-          padding: 0 1rem;
-          font-size: 0.7rem;
-          flex-shrink: 0; /* Prevent the button from shrinking or clipping */
-        }
-      }
-    </style>
-  </head>
-  <body>
-
-    <Nav />
-
-    <section class="hero">
-      <div class="hero-content">
-
-
-        <h1>
-          A delicious REST client<br />
-          for your <span class="highlight">terminal</span>
-        </h1>
-
-        <p class="lede">
-          Inspect, send, and iterate on HTTP requests from YAML files on disk.
-        </p>
+<BaseLayout title="Noodle · Terminal REST Client" description="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal.">
+  <div class="bg-glow"></div>
+  <main class="tui-container">
+    <div class="tui-panel hero-panel">
+      <div class="tui-panel-header">
+        <span>~/noodle/welcome</span>
+        <span class="tui-status">[OK]</span>
       </div>
-
-      <div class="hero-visual" style="width: 100%; max-width: 950px; margin: -2.2rem auto 0;">
-        <div class="terminal-mockup">
-          <Image src={noodleImage} alt="Noodle Terminal Interface" loading="eager" fetchpriority="high" style="width: 100%; height: auto;" />
-        </div>
+      <div class="tui-panel-content">
+         <h1><span class="prompt">$</span> noodle --info<span class="blinking-cursor">&nbsp;</span></h1>
+         <p class="lede">A delicious REST client that lives in your terminal.</p>
+         
+         <div class="install-pane">
+           <code>curl -LsSf https://noodlerest.dev/install.sh | sh</code>
+           <button class="copy-btn" onclick="navigator.clipboard?.writeText('curl -LsSf https://noodlerest.dev/install.sh | sh'); const t=this.innerText; this.innerText='COPIED'; setTimeout(()=>this.innerText=t, 2000);">COPY</button>
+         </div>
+         
+         <div class="secondary-links">
+           <a href="/docs/getting-started/installation/">[Quick Start]</a>
+           <a href="/docs/">[Read Docs]</a>
+         </div>
       </div>
-
-      <div class="hero-content" style="margin-top: -0.5rem;">
-        <div class="hero-actions">
-          <div class="install-block">
-            <code><span class="prompt">$</span> curl -LsSf https://noodlerest.dev/install.sh | sh</code>
-            <button class="copy-btn" onclick="navigator.clipboard?.writeText('curl -LsSf https://noodlerest.dev/install.sh | sh'); const t=this.innerText; this.innerText='Copied!'; setTimeout(()=>this.innerText=t, 2000);">Copy</button>
-          </div>
-
-          <div class="secondary-links" style="justify-content: center;">
-            <a href="/docs/getting-started/installation/">Quick start →</a>
-            <a href="/docs/">Read the docs →</a>
-          </div>
-        </div>
+    </div>
+    
+    <div class="tui-split">
+      <div class="tui-panel">
+         <div class="tui-panel-header">
+           <span>~/noodle/features</span>
+           <span class="tui-status" style="color: var(--color-orange)">[6 ITEMS]</span>
+         </div>
+         <div class="tui-panel-content">
+           <div class="feature-grid">
+             <div class="feature-card">
+               <div class="feature-title">📁 Git-Friendly YAML</div>
+               <div class="feature-desc">One file per request. No lock-in, easy version control.</div>
+             </div>
+             <div class="feature-card">
+               <div class="feature-title">🌳 Tree-Sitter Editor</div>
+               <div class="feature-desc">Full syntax highlighting & code folding for JSON and YAML.</div>
+             </div>
+             <div class="feature-card">
+               <div class="feature-title">✨ Autocompletion</div>
+               <div class="feature-desc">Smart popup menus for environment $vars across all inputs.</div>
+             </div>
+             <div class="feature-card">
+               <div class="feature-title">🔐 Deep Auth</div>
+               <div class="feature-desc">Bearer, Basic, API Key, and rich request body support.</div>
+             </div>
+             <div class="feature-card">
+               <div class="feature-title">📋 Native Clipboard</div>
+               <div class="feature-desc">Cross-platform integration + OSC 52 support over SSH.</div>
+             </div>
+             <div class="feature-card">
+               <div class="feature-title">🎨 Highly Custom</div>
+               <div class="feature-desc">30+ built-in themes (Catppuccin included) & keybindings.</div>
+             </div>
+           </div>
+         </div>
       </div>
-    </section>
+      
+      <div class="tui-panel image-panel">
+         <div class="tui-panel-header">
+           <span>demo.png</span>
+           <span class="tui-status" style="color: var(--color-blue)">[1920x1080]</span>
+         </div>
+         <div class="tui-panel-content">
+           <Image src={noodleImage} alt="Noodle Terminal Interface" loading="eager" fetchpriority="high" />
+         </div>
+      </div>
+    </div>
+  </main>
+</BaseLayout>
 
+<style>
+  /* Define extra colors specific to the landing page TUI styling */
+  :root {
+    --color-orange: #fab387;
+    --color-green: #a6e3a1;
+    --color-blue: #89b4fa;
+    --color-red: #f38ba8;
+    --color-purple: #cba6f7;
+  }
 
+  [data-theme="light"],
+  .sl-theme-light {
+    --color-orange: #fe640b;
+    --color-green: #40a02b;
+    --color-blue: #1e66f5;
+    --color-red: #d20f39;
+    --color-purple: #8839ef;
+  }
 
-    <footer>
-      <p>
-        MIT Licensed &middot;
-        <a href="https://github.com/wilfredinni/noodle">GitHub</a> &middot;
-        <a href="/roadmap/">Roadmap</a> &middot;
-        <a href="/changelog/">Changelog</a> &middot;
-        <a href="https://github.com/wilfredinni/noodle/issues">Issues</a>
-      </p>
-    </footer>
-  </body>
-</html>
+  .bg-glow {
+    position: fixed;
+    top: -20%;
+    left: -10%;
+    width: 120%;
+    height: 120%;
+    background: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, rgba(11, 16, 22, 0) 50%);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* ─── TUI Layout ─── */
+  .tui-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .tui-panel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  
+  .tui-panel:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 10px 30px var(--accent-glow);
+  }
+
+  .tui-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--border);
+    font-size: 0.85rem;
+    color: var(--fg);
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .tui-panel-header .tui-status {
+    color: var(--color-green);
+  }
+
+  .tui-panel-content {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Hero Specific */
+  .hero-panel h1 {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--fg);
+  }
+  
+  .hero-panel .prompt {
+    color: var(--color-green);
+    margin-right: 0.5rem;
+  }
+  
+  .blinking-cursor {
+    display: inline-block;
+    width: 12px;
+    background-color: var(--accent);
+    animation: blink 1s step-end infinite;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  .hero-panel .lede {
+    font-size: 1.1rem;
+    color: var(--muted);
+  }
+
+  /* Installation Pane */
+  .install-pane {
+    margin-top: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+  }
+  
+  .install-pane code {
+    flex: 1;
+    padding: 1rem;
+    font-size: 0.9rem;
+    overflow-x: auto;
+    white-space: nowrap;
+    color: var(--color-blue);
+  }
+  
+  .install-pane code::before {
+    content: "$ ";
+    color: var(--muted);
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.5rem;
+    background: var(--border);
+    border: none;
+    border-left: 1px solid var(--border);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .copy-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  /* Feature Split Grid */
+  .tui-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 900px) {
+    .tui-split {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Feature Grid */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .feature-card {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+    background: var(--bg);
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .feature-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .feature-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-title {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .feature-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* Image Panel */
+  .image-panel .tui-panel-content {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+  }
+  
+  .image-panel img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Links */
+  .secondary-links {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .secondary-links a {
+    color: var(--color-purple);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: color 0.2s;
+  }
+
+  .secondary-links a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+</style>
