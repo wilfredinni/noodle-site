@@ -8,27 +8,45 @@ import FeatureCard from "../components/FeatureCard.astro"
   <div class="bg-glow"></div>
   
   <main class="tui-container">
-    <!-- Restored TUI Welcome Panel Header -->
-    <div class="tui-panel hero-panel">
-      <div class="tui-panel-header">
-        <span>~/noodle/welcome</span>
-        <span class="tui-status">[OK]</span>
+    <!-- Split Column Hero Section (No TUI Panel Frame) -->
+    <header class="hero-grid">
+      <!-- Left Column: Typography, Install Command, and Links -->
+      <div class="hero-text">
+        <span class="hero-tag"># terminal rest client</span>
+        <h1>A delicious REST client that lives in your terminal.</h1>
+        <p class="lede">
+          Inspect, send, and iterate on HTTP requests from YAML files on disk. Noodle is offline, git-friendly, and keyboard-centric.
+        </p>
+        
+        <div class="install-pill">
+          <code>curl -LsSf https://noodlerest.dev/install.sh | sh</code>
+          <button class="copy-btn" onclick="navigator.clipboard?.writeText('curl -LsSf https://noodlerest.dev/install.sh | sh'); const t=this.innerText; this.innerText='COPIED'; setTimeout(()=>this.innerText=t, 2000);">COPY</button>
+        </div>
+        
+        <div class="hero-links">
+          <a href="/docs/getting-started/installation/">[Quick Start]</a>
+          <a href="/docs/">[Read Docs]</a>
+          <a href="https://github.com/wilfredinni/noodle" target="_blank">[GitHub]</a>
+        </div>
       </div>
-      <div class="tui-panel-content">
-         <h1><span class="prompt">$</span> noodle --info<span class="blinking-cursor">&nbsp;</span></h1>
-         <p class="lede">A delicious REST client that lives in your terminal.</p>
-         
-         <div class="install-pane">
-           <code>curl -LsSf https://noodlerest.dev/install.sh | sh</code>
-           <button class="copy-btn" onclick="navigator.clipboard?.writeText('curl -LsSf https://noodlerest.dev/install.sh | sh'); const t=this.innerText; this.innerText='COPIED'; setTimeout(()=>this.innerText=t, 2000);">COPY</button>
-         </div>
-         
-         <div class="secondary-links">
-           <a href="/docs/getting-started/installation/">[Quick Start]</a>
-           <a href="/docs/">[Read Docs]</a>
-         </div>
+      
+      <!-- Right Column: Floating Borderless Mock Request Code Window -->
+      <div class="hero-visual">
+        <div class="mock-code-window">
+          <div class="mock-file-label"># collections/get_user.yml</div>
+          <div class="mock-line"><span class="mock-key">name</span>: <span class="mock-value">Get Github Profile</span></div>
+          <div class="mock-line"><span class="mock-key">method</span>: <span class="mock-value">GET</span></div>
+          <div class="mock-line"><span class="mock-key">url</span>: <span class="mock-value">https://api.github.com/users/wilfredinni</span></div>
+          <div class="mock-line"><span class="mock-key">params</span>:</div>
+          <div class="mock-line">&nbsp;&nbsp;- <span class="mock-key">name</span>: <span class="mock-value">page</span></div>
+          <div class="mock-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="mock-key">value</span>: <span class="mock-value">1</span></div>
+          <div class="mock-line"><span class="mock-key">auth</span>:</div>
+          <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">type</span>: <span class="mock-value">bearer</span></div>
+          <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">token</span>: <span class="mock-value">$GITHUB_TOKEN</span></div>
+        </div>
+        <div class="visual-glow"></div>
       </div>
-    </div>
+    </header>
 
     <!-- Features Section (Unique Window-Style TUI Grid) -->
     <section class="features-section">
@@ -136,113 +154,89 @@ import FeatureCard from "../components/FeatureCard.astro"
   .tui-container {
     display: flex;
     flex-direction: column;
-    gap: 3.5rem;
-    padding: 2rem;
+    gap: 4.5rem;
+    padding: 3rem 2rem;
     max-width: 1200px;
     margin: 0 auto;
     position: relative;
     z-index: 2;
   }
 
-  /* Panels & Cards use retro solid block-shadows instead of soft glows */
-  .tui-panel {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 6px 6px 0 var(--border);
-    display: flex;
-    flex-direction: column;
-  }
-
-  .tui-panel-header {
-    display: flex;
-    justify-content: space-between;
+  /* ─── Split Column Hero ─── */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 4rem;
     align-items: center;
-    padding: 0.5rem 1rem;
-    background: var(--border);
-    font-size: 0.85rem;
-    color: var(--fg);
-    border-bottom: 1px solid var(--border);
-  }
-  
-  .tui-panel-header .tui-status {
-    color: var(--color-green);
+    padding-top: 1rem;
+    padding-bottom: 2rem;
   }
 
-  .tui-panel-content {
-    padding: 2rem;
+  .hero-text {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
   }
 
-  /* Hero Specific */
-  .hero-panel h1 {
-    font-size: clamp(1.5rem, 3vw, 2.5rem);
+  .hero-tag {
+    font-size: 0.95rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    color: var(--color-purple);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .hero-text h1 {
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.2;
     color: var(--fg);
   }
-  
-  .hero-panel .prompt {
-    color: var(--color-green);
-    margin-right: 0.5rem;
-  }
-  
-  .blinking-cursor {
-    display: inline-block;
-    width: 12px;
-    background-color: var(--accent);
-    animation: blink 1s step-end infinite;
-  }
-  
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-  }
 
-  .hero-panel .lede {
-    font-size: 1.15rem;
+  .hero-text .lede {
+    font-size: 1.2rem;
+    line-height: 1.6;
     color: var(--muted);
   }
 
-  /* Installation Pane */
-  .install-pane {
-    margin-top: 1rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: var(--bg);
-    overflow: hidden;
+  /* Install Pill */
+  .install-pill {
     display: flex;
     align-items: stretch;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-elevated);
+    overflow: hidden;
+    max-width: fit-content;
   }
   
-  .install-pane code {
-    flex: 1;
-    padding: 1rem;
-    font-size: 0.9rem;
-    overflow-x: auto;
+  .install-pill code {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
     white-space: nowrap;
+    overflow-x: auto;
     color: var(--color-blue);
+    display: flex;
+    align-items: center;
   }
   
-  .install-pane code::before {
+  .install-pill code::before {
     content: "$ ";
     color: var(--muted);
+    margin-right: 0.5rem;
   }
 
   .copy-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 1.5rem;
+    padding: 0 1.25rem;
     background: var(--border);
     border: none;
     border-left: 1px solid var(--border);
     color: var(--fg);
     font-family: var(--font-mono);
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s;
@@ -253,24 +247,78 @@ import FeatureCard from "../components/FeatureCard.astro"
     color: var(--bg);
   }
 
-  /* Links */
-  .secondary-links {
+  /* Hero Links */
+  .hero-links {
     display: flex;
     gap: 1.5rem;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
   }
 
-  .secondary-links a {
+  .hero-links a {
     color: var(--color-purple);
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: 700;
     transition: color 0.2s;
   }
 
-  .secondary-links a:hover {
+  .hero-links a:hover {
     color: var(--accent);
     text-decoration: underline;
+  }
+
+  /* Right Column Code Window */
+  .hero-visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .mock-code-window {
+    width: 100%;
+    background: rgba(30, 30, 46, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    z-index: 2;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+  }
+
+  .mock-file-label {
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  .mock-line {
+    color: var(--fg);
+  }
+
+  .mock-key {
+    color: var(--color-blue);
+    font-weight: bold;
+  }
+
+  .mock-value {
+    color: var(--color-green);
+  }
+
+  /* Soft glow effect behind the mock code window */
+  .visual-glow {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    z-index: 1;
+    filter: blur(20px);
+    pointer-events: none;
+    opacity: 0.6;
   }
 
   /* ─── Features Section ─── */
@@ -318,6 +366,20 @@ import FeatureCard from "../components/FeatureCard.astro"
 
   /* Responsive Adjustments */
   @media (max-width: 900px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      text-align: center;
+    }
+
+    .install-pill {
+      margin: 0 auto;
+    }
+
+    .hero-links {
+      justify-content: center;
+    }
+
     .section-header {
       grid-template-columns: 1fr;
       gap: 1rem;
@@ -326,15 +388,5 @@ import FeatureCard from "../components/FeatureCard.astro"
     .cards-grid {
       grid-template-columns: 1fr;
     }
-  }
-
-  /* Hover overrides for welcome panel */
-  .tui-panel:not(.hero-panel):hover {
-    border-color: var(--border-hover);
-    box-shadow: 0 10px 30px var(--accent-glow);
-  }
-  
-  .hero-panel {
-    transition: none;
   }
 </style>
