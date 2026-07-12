@@ -140,20 +140,28 @@ import themesImage from "../assets/themes.png"
 
     <!-- Skill Section -->
     <section class="skill-section">
-      <!-- Left Column: AI Skill Copy, Command -->
-      <div class="skill-text">
-        <span class="section-tag"># ai agent skill</span>
-        <h2>Supercharge your AI coding assistants.</h2>
-        <p class="lede">
-          Add Noodle to your agent's toolkit. Enable AI assistants to scaffold, edit, and audit collections natively.
-        </p>
-        
+      <!-- Split Section Header -->
+      <div class="section-header">
+        <div class="header-left">
+          <span class="section-tag"># ai agent skill</span>
+          <h2>Supercharge your AI coding assistants.</h2>
+        </div>
+        <div class="header-right">
+          <p>
+            Add Noodle to your agent's toolkit. Enable AI assistants to scaffold, edit, and audit collections natively.
+          </p>
+        </div>
+      </div>
+
+      <!-- Install Pill (Centered below header) -->
+      <div class="skill-command-wrapper">
         <div class="install-pill">
           <code>npx skills add wilfredinni/noodle --skill noodle-use -g</code>
           <button class="copy-btn" onclick="navigator.clipboard?.writeText('npx skills add wilfredinni/noodle --skill noodle-use -g'); const t=this.innerText; this.innerText='COPIED'; setTimeout(()=>this.innerText=t, 2000);">COPY</button>
         </div>
       </div>
       
+      <!-- Prompts Window (Full width below install command) -->
       <div class="skill-visual">
         <HeroCode filename="# example_prompts.txt">
           <div class="mock-line">&gt; "Scaffold a noodle collection for the Stripe API with auth and a few endpoints"</div>
@@ -166,6 +174,7 @@ import themesImage from "../assets/themes.png"
           <div class="mock-line">&gt; "Order the folders on the Stripe collection from Z to A"</div>
           <div class="mock-line">&gt; "Set up basic auth on the Posts folder for $basic_user and $basic_password"</div>
         </HeroCode>
+        <div class="visual-glow"></div>
       </div>
     </section>
   </main>
@@ -459,32 +468,17 @@ import themesImage from "../assets/themes.png"
 
   /* ─── Skill Section ─── */
   .skill-section {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 4rem;
-    align-items: center;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
     margin-top: 1.5rem;
   }
 
-  .skill-text {
+  .skill-command-wrapper {
     display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .skill-text h2 {
-    font-size: clamp(2rem, 4vw, 3.2rem);
-    font-weight: 800;
-    line-height: 1.2;
-    color: var(--fg);
-    text-align: left;
-  }
-
-  .skill-text .lede {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    color: var(--muted);
+    justify-content: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
   }
 
   .skill-visual {
@@ -567,12 +561,6 @@ import themesImage from "../assets/themes.png"
     
     .cards-grid {
       grid-template-columns: 1fr;
-    }
-
-    .skill-section {
-      grid-template-columns: 1fr;
-      gap: 2.5rem;
-      text-align: center;
     }
   }
 </style>
