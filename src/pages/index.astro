@@ -2,6 +2,8 @@
 // Landing page · outside Starlight, full control
 import BaseLayout from "../layouts/BaseLayout.astro"
 import FeatureCard from "../components/FeatureCard.astro"
+import HeroCode from "../components/HeroCode.astro"
+import exampleImage from "../assets/example.png"
 ---
 
 <BaseLayout title="Noodle · Terminal REST Client" description="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal.">
@@ -30,23 +32,67 @@ import FeatureCard from "../components/FeatureCard.astro"
         </div>
       </div>
       
-      <!-- Right Column: Floating Borderless Mock Request Code Window -->
+      <!-- Right Column: Floating Borderless Mock Request Code Window (Encapsulated Component) -->
       <div class="hero-visual">
-        <div class="mock-code-window">
-          <div class="mock-file-label"># collections/get_user.yml</div>
-          <div class="mock-line"><span class="mock-key">name</span>: <span class="mock-value">Get Github Profile</span></div>
-          <div class="mock-line"><span class="mock-key">method</span>: <span class="mock-value">GET</span></div>
-          <div class="mock-line"><span class="mock-key">url</span>: <span class="mock-value">https://api.github.com/users/wilfredinni</span></div>
-          <div class="mock-line"><span class="mock-key">params</span>:</div>
-          <div class="mock-line">&nbsp;&nbsp;- <span class="mock-key">name</span>: <span class="mock-value">page</span></div>
-          <div class="mock-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="mock-key">value</span>: <span class="mock-value">1</span></div>
-          <div class="mock-line"><span class="mock-key">auth</span>:</div>
-          <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">type</span>: <span class="mock-value">bearer</span></div>
-          <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">token</span>: <span class="mock-value">$GITHUB_TOKEN</span></div>
-        </div>
+        <HeroCode />
         <div class="visual-glow"></div>
       </div>
     </header>
+
+    <!-- Side-by-Side Comparison Demo Section (Fixed divided windows) -->
+    <section class="demo-section">
+      <div class="section-header">
+        <div class="header-left">
+          <span class="section-tag"># YAML to terminal workspace</span>
+          <h2>See how Noodle interprets your requests.</h2>
+        </div>
+        <div class="header-right">
+          <p>
+            On the left, a standard YAML configuration representing a POST request to create a comment. On the right, Noodle’s corresponding terminal workspace displaying the request tree, editor, and response panes in full detail.
+          </p>
+        </div>
+      </div>
+
+      <!-- Side-by-side terminal windows -->
+      <div class="demo-grid">
+        <!-- Left Window: Code Editor -->
+        <div class="demo-window code-window">
+          <div class="window-header">
+            <span>📄 collections/create_comment.yml</span>
+            <div class="window-controls"><span>-</span><span>□</span><span>×</span></div>
+          </div>
+          <div class="window-body editor-body">
+            <pre><code><span class="token-key">name</span>: <span class="token-value">Create Comment</span>
+<span class="token-key">method</span>: <span class="token-value">POST</span>
+<span class="token-key">url</span>: <span class="token-value">$base_url/comments</span>
+<span class="token-key">body_type</span>: <span class="token-value">json</span>
+<span class="token-key">timeout</span>: <span class="token-value">0</span>
+<span class="token-key">followRedirects</span>: <span class="token-value">true</span>
+<span class="token-key">maxRedirects</span>: <span class="token-value">5</span>
+<span class="token-key">headers</span>:
+  <span class="token-key">Content-Type</span>: <span class="token-value">application/json</span>
+<span class="token-key">body</span>: <span class="token-value">|-</span>
+  <span class="token-string">&#123;</span>
+    <span class="token-string">"postId": 1,</span>
+    <span class="token-string">"name": "test comment",</span>
+    <span class="token-string">"email": "test@example.com",</span>
+    <span class="token-string">"body": "comment body"</span>
+  <span class="token-string">&#125;</span></code></pre>
+          </div>
+        </div>
+        
+        <!-- Right Window: TUI Screen -->
+        <div class="demo-window tui-window">
+          <div class="window-header">
+            <span>💻 noodle workspace</span>
+            <div class="window-controls"><span>-</span><span>□</span><span>×</span></div>
+          </div>
+          <div class="window-body tui-body">
+            <img src={exampleImage.src} class="tui-screenshot" alt="Noodle TUI Interface" />
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- Features Section (Unique Window-Style TUI Grid) -->
     <section class="features-section">
@@ -273,40 +319,7 @@ import FeatureCard from "../components/FeatureCard.astro"
     display: flex;
     justify-content: center;
     align-items: center;
-  }
-
-  .mock-code-window {
     width: 100%;
-    background: rgba(30, 30, 46, 0.4);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    line-height: 1.6;
-    z-index: 2;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(12px);
-  }
-
-  .mock-file-label {
-    color: var(--muted);
-    margin-bottom: 0.75rem;
-    border-bottom: 1px dashed var(--border);
-    padding-bottom: 0.5rem;
-  }
-
-  .mock-line {
-    color: var(--fg);
-  }
-
-  .mock-key {
-    color: var(--color-blue);
-    font-weight: bold;
-  }
-
-  .mock-value {
-    color: var(--color-green);
   }
 
   /* Soft glow effect behind the mock code window */
@@ -319,6 +332,91 @@ import FeatureCard from "../components/FeatureCard.astro"
     filter: blur(20px);
     pointer-events: none;
     opacity: 0.6;
+  }
+
+  /* ─── Side-by-Side Comparison Demo ─── */
+  .demo-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.35fr;
+    gap: 2rem;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .demo-window {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 6px 6px 0 var(--border);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .window-header {
+    background: var(--border);
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+    color: var(--fg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .window-controls {
+    display: flex;
+    gap: 0.4rem;
+    color: var(--muted);
+    font-weight: bold;
+  }
+
+  .window-body {
+    padding: 1.5rem 2rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  /* Left Code Window */
+  .editor-body pre {
+    margin: 0;
+    line-height: 1.6;
+    font-size: 0.95rem;
+    font-family: var(--font-mono);
+  }
+
+  .token-key {
+    color: var(--color-blue);
+    font-weight: bold;
+  }
+
+  .token-value {
+    color: var(--color-green);
+  }
+
+  .token-string {
+    color: var(--color-orange);
+  }
+
+  /* Right TUI Image Window */
+  .tui-body {
+    padding: 0; /* Let image stretch edge-to-edge inside the frame body */
+    background: #000;
+    overflow: hidden;
+  }
+
+  .tui-screenshot {
+    width: 100%;
+    height: auto;
+    display: block;
   }
 
   /* ─── Features Section ─── */
@@ -378,6 +476,11 @@ import FeatureCard from "../components/FeatureCard.astro"
 
     .hero-links {
       justify-content: center;
+    }
+
+    .demo-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
     }
 
     .section-header {
