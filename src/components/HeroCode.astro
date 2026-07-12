@@ -1,0 +1,48 @@
+<div class="mock-code-window">
+  <div class="mock-file-label"># collections/get_user.yml</div>
+  <div class="mock-line"><span class="mock-key">name</span>: <span class="mock-value">Get Github Profile</span></div>
+  <div class="mock-line"><span class="mock-key">method</span>: <span class="mock-value">GET</span></div>
+  <div class="mock-line"><span class="mock-key">url</span>: <span class="mock-value">https://api.github.com/users/wilfredinni</span></div>
+  <div class="mock-line"><span class="mock-key">params</span>:</div>
+  <div class="mock-line">&nbsp;&nbsp;- <span class="mock-key">name</span>: <span class="mock-value">page</span></div>
+  <div class="mock-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="mock-key">value</span>: <span class="mock-value">1</span></div>
+  <div class="mock-line"><span class="mock-key">auth</span>:</div>
+  <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">type</span>: <span class="mock-value">bearer</span></div>
+  <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">token</span>: <span class="mock-value">$GITHUB_TOKEN</span></div>
+</div>
+
+<style>
+  .mock-code-window {
+    width: 100%;
+    background: rgba(30, 30, 46, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    z-index: 2;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+  }
+
+  .mock-file-label {
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  .mock-line {
+    color: var(--fg);
+  }
+
+  .mock-key {
+    color: var(--color-blue);
+    font-weight: bold;
+  }
+
+  .mock-value {
+    color: var(--color-green);
+  }
+</style>
