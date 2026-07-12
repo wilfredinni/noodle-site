@@ -48,7 +48,7 @@ import themesImage from "../assets/themes.png"
         <HeroCode />
       </div>
       <div class="yaml-right">
-        <span class="section-tag"># why noodle</span>
+        <span class="section-tag"># noodle is for you</span>
         <h2>Your requests are stored locally as simple YAML files, easy to read, easy to version control.</h2>
         <p>
           No heavy databases, no cloud synchronization lock-in, and no proprietary formats.
@@ -71,12 +71,12 @@ import themesImage from "../assets/themes.png"
           accent="var(--color-blue)"
         />
         <FeatureCard
-          filename="highlight.json"
-          tag="editor"
-          title="Tree-sitter highlighting"
-          desc="A full-featured code editor with Tree-sitter syntax highlighting, interactive code folding for JSON/YAML blocks, and inline JSON syntax validation."
-          cmd="Ctrl+G (Fold) · F5 (Fold All)"
-          accent="var(--color-green)"
+          filename="remote_copy.sh"
+          tag="ssh"
+          title="OSC 52 remote clipboard"
+          desc="Copy large response bodies directly to your system clipboard even when Noodle is running on remote headless servers over SSH."
+          cmd="Ctrl+Y (Copy Response Body)"
+          accent="var(--color-purple)"
         />
         <FeatureCard
           filename="variables.env"
@@ -85,14 +85,6 @@ import themesImage from "../assets/themes.png"
           desc="Type '$' in any input to trigger a prefix-filtered environment variable dropdown. Resolves variables dynamically with inline color-coded status checks."
           cmd="Type $ in any input field"
           accent="var(--color-orange)"
-        />
-        <FeatureCard
-          filename="remote_copy.sh"
-          tag="ssh"
-          title="OSC 52 remote clipboard"
-          desc="Copy large response bodies directly to your system clipboard even when Noodle is running on remote headless servers over SSH."
-          cmd="Ctrl+Y (Copy Response Body)"
-          accent="var(--color-purple)"
         />
         <FeatureCard
           filename="auth_payload.json"
@@ -109,6 +101,14 @@ import themesImage from "../assets/themes.png"
           desc="Personalize Noodle with over 30 built-in themes (including Catppuccin, Everforest, and Nord) and fully customizable keybindings."
           cmd="$ noodle --theme catppuccin"
           accent="var(--color-yellow)"
+        />
+        <FeatureCard
+          filename="highlight.json"
+          tag="editor"
+          title="Tree-sitter highlighting"
+          desc="A full-featured code editor with Tree-sitter syntax highlighting, interactive code folding for JSON/YAML blocks, and inline JSON syntax validation."
+          cmd="Ctrl+G (Fold) · F5 (Fold All)"
+          accent="var(--color-green)"
         />
       </div>
     </section>
