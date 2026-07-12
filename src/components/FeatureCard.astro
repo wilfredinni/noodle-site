@@ -12,10 +12,6 @@ const { title, tag, desc, cmd, filename, accent } = Astro.props
 ---
 
 <div class="tui-card" style={`--accent-color: ${accent};`}>
-  <div class="card-header">
-    <span>📄 {filename}</span>
-    <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
-  </div>
   <div class="card-body">
     <span class="card-tag">{tag}</span>
     <h3>{title}</h3>
@@ -44,25 +40,6 @@ const { title, tag, desc, cmd, filename, accent } = Astro.props
     transform: translate(-2px, -2px);
     border-color: var(--accent-color);
     box-shadow: 6px 6px 0 var(--accent-color);
-  }
-
-  .card-header {
-    background: var(--border);
-    padding: 0.4rem 0.75rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.75rem;
-    color: var(--fg);
-    border-bottom: 1px solid var(--border);
-    user-select: none;
-  }
-
-  .card-controls {
-    display: flex;
-    gap: 0.4rem;
-    color: var(--muted);
-    font-weight: bold;
   }
 
   .card-body {
