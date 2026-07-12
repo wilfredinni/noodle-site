@@ -133,6 +133,9 @@ import themesImage from "../assets/themes.png"
         <Image src={themesImage} class="themes-screenshot" alt="Noodle Themes Collection" loading="lazy" />
         <div class="visual-glow"></div>
       </div>
+      <p class="themes-legend">
+        Press <code>Ctrl+T</code> inside Noodle to open the interactive theme picker.
+      </p>
     </section>
   </main>
 </BaseLayout>
@@ -383,7 +386,7 @@ import themesImage from "../assets/themes.png"
   .themes-section {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 0.5rem;
     margin-top: 1.5rem;
   }
 
@@ -404,6 +407,23 @@ import themesImage from "../assets/themes.png"
     z-index: 2;
     position: relative;
     display: block;
+  }
+
+  .themes-legend {
+    text-align: right;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.4rem;
+    font-family: var(--font-mono);
+    opacity: 0.85;
+  }
+
+  .themes-legend code {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.15rem 0.35rem;
+    color: var(--color-purple);
   }
 
   .section-header {
