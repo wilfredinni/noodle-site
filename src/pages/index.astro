@@ -2,6 +2,7 @@
 // Landing page · outside Starlight, full control
 import BaseLayout from "../layouts/BaseLayout.astro"
 import FeatureCard from "../components/FeatureCard.astro"
+import HeroCode from "../components/HeroCode.astro"
 import { Image } from "astro:assets"
 import exampleImage from "../assets/example.png"
 ---
@@ -14,7 +15,7 @@ import exampleImage from "../assets/example.png"
     <!-- Left Column: Typography, Install Command, and Links -->
     <div class="hero-text">
       <span class="hero-tag"># terminal rest client</span>
-      <h1>A delicious REST client for your terminal.</h1>
+      <h1>A delicious REST client that lives in your terminal.</h1>
       <p class="lede">
         Inspect, send, and iterate on HTTP requests from YAML files on disk. Noodle is offline, git-friendly, and keyboard-centric.
       </p>
@@ -37,6 +38,23 @@ import exampleImage from "../assets/example.png"
       <div class="visual-glow"></div>
     </div>
   </header>
+
+  <!-- Full-width wrapper to let divider lines reach the screen edges -->
+  <div class="full-width-yaml-wrapper">
+    <!-- Centered section content inside -->
+    <section class="local-yaml-section">
+      <div class="yaml-left">
+        <HeroCode />
+      </div>
+      <div class="yaml-right">
+        <span class="section-tag"># local configuration</span>
+        <h2>Your requests are stored locally as simple YAML files, easy to read, easy to version control.</h2>
+        <p>
+          No heavy databases, no cloud synchronization lock-in, and no proprietary formats.
+        </p>
+      </div>
+    </section>
+  </div>
 
   <main class="tui-container">
     <!-- Features Section (Unique Window-Style TUI Grid) -->
@@ -300,6 +318,50 @@ import exampleImage from "../assets/example.png"
     opacity: 0.5;
   }
 
+  /* ─── Full-width YAML Section Wrapper ─── */
+  .full-width-yaml-wrapper {
+    width: 100%;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: transparent;
+  }
+
+  .local-yaml-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 2rem;
+  }
+
+  .yaml-left {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .yaml-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .yaml-right h2 {
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--fg);
+    text-align: left;
+  }
+
+  .yaml-right p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
   /* ─── Features Section ─── */
   .features-section {
     display: flex;
@@ -364,6 +426,13 @@ import exampleImage from "../assets/example.png"
     .hero-screenshot {
       border-right: 1px solid var(--border);
       border-radius: 8px;
+    }
+
+    .local-yaml-section {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      text-align: center;
+      padding: 3rem 2rem;
     }
 
     .section-header {

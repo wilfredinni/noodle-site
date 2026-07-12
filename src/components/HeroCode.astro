@@ -1,14 +1,16 @@
 <div class="mock-code-window">
-  <div class="mock-file-label"># collections/get_user.yml</div>
-  <div class="mock-line"><span class="mock-key">name</span>: <span class="mock-value">Get Github Profile</span></div>
+  <div class="mock-file-label"># collections/get_with_params.yml</div>
+  <div class="mock-line"><span class="mock-key">name</span>: <span class="mock-value">Get with Params</span></div>
   <div class="mock-line"><span class="mock-key">method</span>: <span class="mock-value">GET</span></div>
-  <div class="mock-line"><span class="mock-key">url</span>: <span class="mock-value">https://api.github.com/users/wilfredinni</span></div>
+  <div class="mock-line"><span class="mock-key">url</span>: <span class="mock-value">$base_url/posts</span></div>
+  <div class="mock-line"><span class="mock-key">headers</span>:</div>
+  <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">Content-Type</span>: <span class="mock-value">Aplication/Json</span></div>
   <div class="mock-line"><span class="mock-key">params</span>:</div>
-  <div class="mock-line">&nbsp;&nbsp;- <span class="mock-key">name</span>: <span class="mock-value">page</span></div>
-  <div class="mock-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="mock-key">value</span>: <span class="mock-value">1</span></div>
+  <div class="mock-line">&nbsp;&nbsp;- <span class="mock-key">name</span>: <span class="mock-value">userId</span></div>
+  <div class="mock-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="mock-key">value</span>: <span class="mock-value">$user_id</span></div>
   <div class="mock-line"><span class="mock-key">auth</span>:</div>
   <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">type</span>: <span class="mock-value">bearer</span></div>
-  <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">token</span>: <span class="mock-value">$GITHUB_TOKEN</span></div>
+  <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">token</span>: <span class="mock-value">$token</span></div>
 </div>
 
 <style>
