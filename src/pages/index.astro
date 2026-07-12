@@ -1,6 +1,7 @@
 ---
 // Landing page · outside Starlight, full control
 import BaseLayout from "../layouts/BaseLayout.astro"
+import FeatureCard from "../components/FeatureCard.astro"
 ---
 
 <BaseLayout title="Noodle · Terminal REST Client" description="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal.">
@@ -46,113 +47,54 @@ import BaseLayout from "../layouts/BaseLayout.astro"
 
       <!-- Feature TUI Card Grid (Window Style) -->
       <div class="cards-grid">
-        <!-- Card 1: Local / Git Friendly -->
-        <div class="tui-card" style="--accent-color: var(--color-blue);">
-          <div class="card-header">
-            <span>📄 collections.yml</span>
-            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
-          </div>
-          <div class="card-body">
-            <span class="card-tag">local</span>
-            <h3>Git-friendly YAML</h3>
-            <p class="card-desc">
-              Noodle stores every request as a single, clean YAML file on disk. No vendor lock-in, easy to version control, and ready to diff or edit with any editor.
-            </p>
-            <div class="card-cmd">
-              <code>$ cat collections/get_users.yml</code>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 2: Tree-sitter Editor -->
-        <div class="tui-card" style="--accent-color: var(--color-green);">
-          <div class="card-header">
-            <span>📄 highlight.json</span>
-            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
-          </div>
-          <div class="card-body">
-            <span class="card-tag">editor</span>
-            <h3>Tree-sitter highlighting</h3>
-            <p class="card-desc">
-              A full-featured code editor with Tree-sitter syntax highlighting, interactive code folding for JSON/YAML blocks, and inline JSON syntax validation.
-            </p>
-            <div class="card-cmd">
-              <code>Ctrl+G (Fold) · F5 (Fold All)</code>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 3: Autocomplete -->
-        <div class="tui-card" style="--accent-color: var(--color-orange);">
-          <div class="card-header">
-            <span>📄 variables.env</span>
-            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
-          </div>
-          <div class="card-body">
-            <span class="card-tag">variables</span>
-            <h3>Smart $var autocomplete</h3>
-            <p class="card-desc">
-              Type '$' in any input to trigger a prefix-filtered environment variable dropdown. Resolves variables dynamically with inline color-coded status checks.
-            </p>
-            <div class="card-cmd">
-              <code>Type $ in any input field</code>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 4: SSH Support -->
-        <div class="tui-card" style="--accent-color: var(--color-purple);">
-          <div class="card-header">
-            <span>📄 remote_copy.sh</span>
-            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
-          </div>
-          <div class="card-body">
-            <span class="card-tag">ssh</span>
-            <h3>OSC 52 remote clipboard</h3>
-            <p class="card-desc">
-              Copy large response bodies directly to your system clipboard even when Noodle is running on remote headless servers over SSH.
-            </p>
-            <div class="card-cmd">
-              <code>Ctrl+Y (Copy Response Body)</code>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 5: Auth & Body Types -->
-        <div class="tui-card" style="--accent-color: var(--color-red);">
-          <div class="card-header">
-            <span>📄 auth_payload.json</span>
-            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
-          </div>
-          <div class="card-body">
-            <span class="card-tag">requests</span>
-            <h3>Deep auth & payload types</h3>
-            <p class="card-desc">
-              Supports Bearer, Basic, and API Key auth out-of-the-box. Easily craft JSON, URL-encoded form data, multipart uploads, and binary payloads.
-            </p>
-            <div class="card-cmd">
-              <code>$ noodle --env development</code>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 6: Customization -->
-        <div class="tui-card" style="--accent-color: var(--color-yellow);">
-          <div class="card-header">
-            <span>📄 config.toml</span>
-            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
-          </div>
-          <div class="card-body">
-            <span class="card-tag">custom</span>
-            <h3>30+ themes & custom keys</h3>
-            <p class="card-desc">
-              Personalize Noodle with over 30 built-in themes (including Catppuccin, Everforest, and Nord) and fully customizable keybindings.
-            </p>
-            <div class="card-cmd">
-              <code>$ noodle --theme catppuccin</code>
-            </div>
-          </div>
-        </div>
+        <FeatureCard
+          filename="collections.yml"
+          tag="local"
+          title="Git-friendly YAML"
+          desc="Noodle stores every request as a single, clean YAML file on disk. No vendor lock-in, easy to version control, and ready to diff or edit with any editor."
+          cmd="$ cat collections/get_users.yml"
+          accent="var(--color-blue)"
+        />
+        <FeatureCard
+          filename="highlight.json"
+          tag="editor"
+          title="Tree-sitter highlighting"
+          desc="A full-featured code editor with Tree-sitter syntax highlighting, interactive code folding for JSON/YAML blocks, and inline JSON syntax validation."
+          cmd="Ctrl+G (Fold) · F5 (Fold All)"
+          accent="var(--color-green)"
+        />
+        <FeatureCard
+          filename="variables.env"
+          tag="variables"
+          title="Smart $var autocomplete"
+          desc="Type '$' in any input to trigger a prefix-filtered environment variable dropdown. Resolves variables dynamically with inline color-coded status checks."
+          cmd="Type $ in any input field"
+          accent="var(--color-orange)"
+        />
+        <FeatureCard
+          filename="remote_copy.sh"
+          tag="ssh"
+          title="OSC 52 remote clipboard"
+          desc="Copy large response bodies directly to your system clipboard even when Noodle is running on remote headless servers over SSH."
+          cmd="Ctrl+Y (Copy Response Body)"
+          accent="var(--color-purple)"
+        />
+        <FeatureCard
+          filename="auth_payload.json"
+          tag="requests"
+          title="Deep auth & payload types"
+          desc="Supports Bearer, Basic, and API Key auth out-of-the-box. Easily craft JSON, URL-encoded form data, multipart uploads, and binary payloads."
+          cmd="$ noodle --env development"
+          accent="var(--color-red)"
+        />
+        <FeatureCard
+          filename="config.toml"
+          tag="custom"
+          title="30+ themes & custom keys"
+          desc="Personalize Noodle with over 30 built-in themes (including Catppuccin, Everforest, and Nord) and fully customizable keybindings."
+          cmd="$ noodle --theme catppuccin"
+          accent="var(--color-yellow)"
+        />
       </div>
     </section>
   </main>
@@ -374,86 +316,6 @@ import BaseLayout from "../layouts/BaseLayout.astro"
     gap: 1.5rem;
   }
 
-  /* Window-style TUI Cards with Solid Block-Shadows */
-  .tui-card {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: 4px 4px 0 var(--border);
-    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-  }
-
-  .tui-card:hover {
-    transform: translate(-2px, -2px);
-    border-color: var(--accent-color);
-    box-shadow: 6px 6px 0 var(--accent-color);
-  }
-
-  .card-header {
-    background: var(--border);
-    padding: 0.4rem 0.75rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.75rem;
-    color: var(--fg);
-    border-bottom: 1px solid var(--border);
-    user-select: none;
-  }
-
-  .card-controls {
-    display: flex;
-    gap: 0.4rem;
-    color: var(--muted);
-    font-weight: bold;
-  }
-
-  .card-body {
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    flex-grow: 1;
-  }
-
-  .card-tag {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--accent-color);
-  }
-
-  .tui-card h3 {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: var(--fg);
-  }
-
-  .card-desc {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: var(--muted);
-    flex-grow: 1;
-  }
-
-  .card-cmd {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 0.6rem 0.85rem;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--fg);
-  }
-
-  .card-cmd code {
-    color: var(--fg);
-  }
-
   /* Responsive Adjustments */
   @media (max-width: 900px) {
     .section-header {
@@ -464,5 +326,15 @@ import BaseLayout from "../layouts/BaseLayout.astro"
     .cards-grid {
       grid-template-columns: 1fr;
     }
+  }
+
+  /* Hover overrides for welcome panel */
+  .tui-panel:not(.hero-panel):hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 10px 30px var(--accent-glow);
+  }
+  
+  .hero-panel {
+    transition: none;
   }
 </style>
