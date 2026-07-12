@@ -1,13 +1,13 @@
 ---
 // Landing page · outside Starlight, full control
 import BaseLayout from "../layouts/BaseLayout.astro"
-import { Image } from "astro:assets"
-import noodleImage from "../assets/noodle.png"
 ---
 
 <BaseLayout title="Noodle · Terminal REST Client" description="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal.">
   <div class="bg-glow"></div>
+  
   <main class="tui-container">
+    <!-- Restored TUI Welcome Panel Header -->
     <div class="tui-panel hero-panel">
       <div class="tui-panel-header">
         <span>~/noodle/welcome</span>
@@ -28,64 +28,145 @@ import noodleImage from "../assets/noodle.png"
          </div>
       </div>
     </div>
-    
-    <div class="tui-split">
-      <div class="tui-panel">
-         <div class="tui-panel-header">
-           <span>~/noodle/features</span>
-           <span class="tui-status" style="color: var(--color-orange)">[6 ITEMS]</span>
-         </div>
-         <div class="tui-panel-content">
-           <div class="feature-grid">
-             <div class="feature-card">
-               <div class="feature-title">📁 Git-Friendly YAML</div>
-               <div class="feature-desc">One file per request. No lock-in, easy version control.</div>
-             </div>
-             <div class="feature-card">
-               <div class="feature-title">🌳 Tree-Sitter Editor</div>
-               <div class="feature-desc">Full syntax highlighting & code folding for JSON and YAML.</div>
-             </div>
-             <div class="feature-card">
-               <div class="feature-title">✨ Autocompletion</div>
-               <div class="feature-desc">Smart popup menus for environment $vars across all inputs.</div>
-             </div>
-             <div class="feature-card">
-               <div class="feature-title">🔐 Deep Auth</div>
-               <div class="feature-desc">Bearer, Basic, API Key, and rich request body support.</div>
-             </div>
-             <div class="feature-card">
-               <div class="feature-title">📋 Native Clipboard</div>
-               <div class="feature-desc">Cross-platform integration + OSC 52 support over SSH.</div>
-             </div>
-             <div class="feature-card">
-               <div class="feature-title">🎨 Highly Custom</div>
-               <div class="feature-desc">30+ built-in themes (Catppuccin included) & keybindings.</div>
-             </div>
-           </div>
-         </div>
+
+    <!-- Features Section (Unique Window-Style TUI Grid) -->
+    <section class="features-section">
+      <!-- Split Section Header -->
+      <div class="section-header">
+        <div class="header-left">
+          <span class="section-tag"># why noodle</span>
+          <h2>Inspect, send, and iterate on requests. Keyboard-only.</h2>
+        </div>
+        <div class="header-right">
+          <p>
+            Noodle is built for developers who live in their terminal. No heavy GUI apps, no context switching, and no proprietary formats. Fully offline, git-friendly, and keyboard-centric.
+          </p>
+        </div>
       </div>
-      
-      <div class="tui-panel image-panel">
-         <div class="tui-panel-header">
-           <span>demo.png</span>
-           <span class="tui-status" style="color: var(--color-blue)">[1920x1080]</span>
-         </div>
-         <div class="tui-panel-content">
-           <Image src={noodleImage} alt="Noodle Terminal Interface" loading="eager" fetchpriority="high" />
-         </div>
+
+      <!-- Feature TUI Card Grid (Window Style) -->
+      <div class="cards-grid">
+        <!-- Card 1: Local / Git Friendly -->
+        <div class="tui-card" style="--accent-color: var(--color-blue);">
+          <div class="card-header">
+            <span>📄 collections.yml</span>
+            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
+          </div>
+          <div class="card-body">
+            <span class="card-tag">local</span>
+            <h3>Git-friendly YAML</h3>
+            <p class="card-desc">
+              Noodle stores every request as a single, clean YAML file on disk. No vendor lock-in, easy to version control, and ready to diff or edit with any editor.
+            </p>
+            <div class="card-cmd">
+              <code>$ cat collections/get_users.yml</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Tree-sitter Editor -->
+        <div class="tui-card" style="--accent-color: var(--color-green);">
+          <div class="card-header">
+            <span>📄 highlight.json</span>
+            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
+          </div>
+          <div class="card-body">
+            <span class="card-tag">editor</span>
+            <h3>Tree-sitter highlighting</h3>
+            <p class="card-desc">
+              A full-featured code editor with Tree-sitter syntax highlighting, interactive code folding for JSON/YAML blocks, and inline JSON syntax validation.
+            </p>
+            <div class="card-cmd">
+              <code>Ctrl+G (Fold) · F5 (Fold All)</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Autocomplete -->
+        <div class="tui-card" style="--accent-color: var(--color-orange);">
+          <div class="card-header">
+            <span>📄 variables.env</span>
+            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
+          </div>
+          <div class="card-body">
+            <span class="card-tag">variables</span>
+            <h3>Smart $var autocomplete</h3>
+            <p class="card-desc">
+              Type '$' in any input to trigger a prefix-filtered environment variable dropdown. Resolves variables dynamically with inline color-coded status checks.
+            </p>
+            <div class="card-cmd">
+              <code>Type $ in any input field</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: SSH Support -->
+        <div class="tui-card" style="--accent-color: var(--color-purple);">
+          <div class="card-header">
+            <span>📄 remote_copy.sh</span>
+            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
+          </div>
+          <div class="card-body">
+            <span class="card-tag">ssh</span>
+            <h3>OSC 52 remote clipboard</h3>
+            <p class="card-desc">
+              Copy large response bodies directly to your system clipboard even when Noodle is running on remote headless servers over SSH.
+            </p>
+            <div class="card-cmd">
+              <code>Ctrl+Y (Copy Response Body)</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5: Auth & Body Types -->
+        <div class="tui-card" style="--accent-color: var(--color-red);">
+          <div class="card-header">
+            <span>📄 auth_payload.json</span>
+            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
+          </div>
+          <div class="card-body">
+            <span class="card-tag">requests</span>
+            <h3>Deep auth & payload types</h3>
+            <p class="card-desc">
+              Supports Bearer, Basic, and API Key auth out-of-the-box. Easily craft JSON, URL-encoded form data, multipart uploads, and binary payloads.
+            </p>
+            <div class="card-cmd">
+              <code>$ noodle --env development</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6: Customization -->
+        <div class="tui-card" style="--accent-color: var(--color-yellow);">
+          <div class="card-header">
+            <span>📄 config.toml</span>
+            <div class="card-controls"><span>-</span><span>□</span><span>×</span></div>
+          </div>
+          <div class="card-body">
+            <span class="card-tag">custom</span>
+            <h3>30+ themes & custom keys</h3>
+            <p class="card-desc">
+              Personalize Noodle with over 30 built-in themes (including Catppuccin, Everforest, and Nord) and fully customizable keybindings.
+            </p>
+            <div class="card-cmd">
+              <code>$ noodle --theme catppuccin</code>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   </main>
 </BaseLayout>
 
 <style>
-  /* Define extra colors specific to the landing page TUI styling */
+  /* Define extra colors specific to Noodle's styling */
   :root {
     --color-orange: #fab387;
     --color-green: #a6e3a1;
     --color-blue: #89b4fa;
     --color-red: #f38ba8;
     --color-purple: #cba6f7;
+    --color-yellow: #f9e2af;
   }
 
   [data-theme="light"],
@@ -95,6 +176,7 @@ import noodleImage from "../assets/noodle.png"
     --color-blue: #1e66f5;
     --color-red: #d20f39;
     --color-purple: #8839ef;
+    --color-yellow: #df8e1d;
   }
 
   .bg-glow {
@@ -112,7 +194,7 @@ import noodleImage from "../assets/noodle.png"
   .tui-container {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 3.5rem;
     padding: 2rem;
     max-width: 1200px;
     margin: 0 auto;
@@ -120,20 +202,15 @@ import noodleImage from "../assets/noodle.png"
     z-index: 2;
   }
 
+  /* Panels & Cards use retro solid block-shadows instead of soft glows */
   .tui-panel {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: 6px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 6px 6px 0 var(--border);
     display: flex;
     flex-direction: column;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  
-  .tui-panel:hover {
-    border-color: var(--border-hover);
-    box-shadow: 0 10px 30px var(--accent-glow);
   }
 
   .tui-panel-header {
@@ -184,7 +261,7 @@ import noodleImage from "../assets/noodle.png"
   }
 
   .hero-panel .lede {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     color: var(--muted);
   }
 
@@ -234,74 +311,6 @@ import noodleImage from "../assets/noodle.png"
     color: var(--bg);
   }
 
-  /* Feature Split Grid */
-  .tui-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
-  }
-
-  @media (max-width: 900px) {
-    .tui-split {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* Feature Grid */
-  .feature-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-
-  .feature-card {
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1rem;
-    background: var(--bg);
-    transition: all 0.2s;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .feature-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-  }
-
-  .feature-icon {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .feature-title {
-    color: var(--accent);
-    font-weight: 700;
-    font-size: 0.95rem;
-  }
-
-  .feature-desc {
-    font-size: 0.85rem;
-    color: var(--muted);
-    line-height: 1.4;
-  }
-
-  /* Image Panel */
-  .image-panel .tui-panel-content {
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg);
-  }
-  
-  .image-panel img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-
   /* Links */
   .secondary-links {
     display: flex;
@@ -320,5 +329,139 @@ import noodleImage from "../assets/noodle.png"
   .secondary-links a:hover {
     color: var(--accent);
     text-decoration: underline;
+  }
+
+  /* ─── Features Section ─── */
+  .features-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .section-header {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 2.5rem;
+    align-items: end;
+  }
+
+  .section-tag {
+    font-size: 0.9rem;
+    color: var(--color-purple);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-header h2 {
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--fg);
+  }
+
+  .header-right p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  /* Cards Grid */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  /* Window-style TUI Cards with Solid Block-Shadows */
+  .tui-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 4px 4px 0 var(--border);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  .tui-card:hover {
+    transform: translate(-2px, -2px);
+    border-color: var(--accent-color);
+    box-shadow: 6px 6px 0 var(--accent-color);
+  }
+
+  .card-header {
+    background: var(--border);
+    padding: 0.4rem 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: var(--fg);
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+  }
+
+  .card-controls {
+    display: flex;
+    gap: 0.4rem;
+    color: var(--muted);
+    font-weight: bold;
+  }
+
+  .card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex-grow: 1;
+  }
+
+  .card-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-color);
+  }
+
+  .tui-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--fg);
+  }
+
+  .card-desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--muted);
+    flex-grow: 1;
+  }
+
+  .card-cmd {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.6rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg);
+  }
+
+  .card-cmd code {
+    color: var(--fg);
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 900px) {
+    .section-header {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
