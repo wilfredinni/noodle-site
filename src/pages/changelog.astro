@@ -15,73 +15,195 @@ const rendered = await Promise.all(
 
 <BaseLayout title="Changelog · Noodle" description="Release history for noodle">
   <style is:global>
-    .changelog-page {
+    /* Color accent overrides */
+    :root {
+      --color-orange: #fab387;
+      --color-green: #a6e3a1;
+      --color-blue: #89b4fa;
+      --color-red: #f38ba8;
+      --color-purple: #cba6f7;
+      --color-yellow: #f9e2af;
+    }
+
+    [data-theme="light"],
+    .sl-theme-light {
+      --color-orange: #fe640b;
+      --color-green: #40a02b;
+      --color-blue: #1e66f5;
+      --color-red: #d20f39;
+      --color-purple: #8839ef;
+      --color-yellow: #df8e1d;
+    }
+
+    .bg-glow {
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 120%;
+      height: 120%;
+      background: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, rgba(11, 16, 22, 0) 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .changelog-container {
       max-width: 800px;
       margin: 0 auto;
       padding: 2rem 1.5rem 4rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .changelog-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 3.5rem;
+    }
+
+    .changelog-header h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--fg);
+    }
+
+    .changelog-header .lede {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .section-tag {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-purple);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+    }
+
+    /* Install Pill */
+    .install-pill {
+      display: flex;
+      align-items: stretch;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-elevated);
+      overflow: hidden;
+      max-width: fit-content;
+      margin-top: 0.5rem;
+    }
+
+    .install-pill code {
+      padding: 0.6rem 1rem;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      color: var(--color-blue);
+      display: flex;
+      align-items: center;
+    }
+
+    .install-pill code::before {
+      content: "$ ";
+      color: var(--muted);
+      margin-right: 0.5rem;
+    }
+
+    .copy-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 1rem;
+      background: var(--border);
+      border: none;
+      border-left: 1px solid var(--border);
+      color: var(--fg);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    /* Mock Terminal Windows */
+    .changelog-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 2.5rem;
+    }
+
+    .mock-code-window {
+      width: 100%;
+      background: rgba(30, 30, 46, 0.4);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
       font-family: var(--font-mono);
       font-size: 0.85rem;
+      line-height: 1.6;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+      text-align: left;
     }
 
-    .page-title {
-      margin-bottom: 3rem;
+    .mock-window-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 0.75rem;
     }
 
-    .page-title h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
+    .mock-file-label {
+      color: var(--color-blue);
+      font-weight: bold;
     }
 
-    .page-title p {
+    .mock-window-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .mock-window-meta .date {
       color: var(--muted);
       font-size: 0.8rem;
     }
 
-    .release {
-      margin-bottom: 4rem;
-    }
-
-    .release:last-child {
-      margin-bottom: 0;
-    }
-
-    .release-header {
-      display: flex;
-      align-items: baseline;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .release-header .tag {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--accent);
+    .mock-window-meta .tag-link {
+      color: var(--color-purple);
       text-decoration: none;
+      font-weight: 700;
+      transition: color 0.2s;
     }
 
-    .release-header .tag:hover {
+    .mock-window-meta .tag-link:hover {
+      color: var(--accent);
       text-decoration: underline;
     }
 
-    .release-header .date {
-      color: var(--muted);
-      font-size: 0.75rem;
-    }
-
+    /* Scoped Markdown Body Styles */
     .release-body {
       color: var(--muted);
-      line-height: 1.8;
+      line-height: 1.7;
     }
 
     .release-body h2,
     .release-body h3 {
-      color: var(--fg);
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin: 1.5rem 0 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-blue);
+      margin: 1.5rem 0 0.5rem 0;
     }
 
     .release-body h2:first-child,
@@ -94,12 +216,24 @@ const rendered = await Promise.all(
     }
 
     .release-body ul {
+      list-style: none;
+      padding-left: 0;
       margin: 0.5rem 0 1rem;
-      padding-left: 1.5rem;
     }
 
     .release-body li {
+      position: relative;
+      padding-left: 1.25rem;
       margin-bottom: 0.4rem;
+    }
+
+    .release-body li::before {
+      content: "-";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--color-green);
+      font-weight: bold;
     }
 
     .release-body code {
@@ -107,33 +241,63 @@ const rendered = await Promise.all(
       padding: 0.1rem 0.4rem;
       border-radius: 3px;
       font-size: 0.78rem;
-      color: #f9e2af;
+      color: var(--color-yellow);
+      font-family: var(--font-mono);
     }
 
     .release-body a {
-      color: #89b4fa;
+      color: var(--color-blue);
       text-decoration: underline;
+    }
+
+    .release-body a:hover {
+      color: var(--accent);
+    }
+
+    @media (max-width: 600px) {
+      .mock-window-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+      .mock-window-meta {
+        width: 100%;
+        justify-content: space-between;
+      }
     }
   </style>
 
-  <div class="changelog-page">
-    <div class="page-title">
-      <h1>Changelog</h1>
-      <p>Release history for noodle</p>
-    </div>
+  <div class="bg-glow"></div>
 
-    {
-      rendered.map((r) => (
-        <div class="release">
-          <div class="release-header">
-            <a href={r.data.url} class="tag" target="_blank">{r.data.tag}</a>
-            <span class="date">{r.data.date}</span>
-          </div>
-          <div class="release-body">
-            <r.Content />
-          </div>
-        </div>
-      ))
-    }
+  <div class="changelog-container">
+    <header class="changelog-header">
+      <span class="section-tag"># release history</span>
+      <h1>Changelog</h1>
+      <p class="lede">Release history for noodle, the terminal REST client.</p>
+
+      <div class="install-pill">
+        <code>noodle update</code>
+        <button id="changelog-copy-install-btn" class="copy-btn" onclick="let el = this; navigator.clipboard?.writeText('noodle update'); el.textContent='COPIED'; setTimeout(()=>el.textContent='COPY', 2000);">COPY</button>
+      </div>
+    </header>
+
+    <main class="changelog-feed">
+      {
+        rendered.map((r) => (
+          <article class="mock-code-window">
+            <div class="mock-window-header">
+              <span class="mock-file-label"># changelog/{r.data.tag}.md</span>
+              <div class="mock-window-meta">
+                <span class="date">{r.data.date}</span>
+                <a href={r.data.url} class="tag-link" target="_blank" rel="noopener noreferrer">[GitHub Release]</a>
+              </div>
+            </div>
+            <div class="release-body">
+              <r.Content />
+            </div>
+          </article>
+        ))
+      }
+    </main>
   </div>
 </BaseLayout>
