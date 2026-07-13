@@ -3,6 +3,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro"
 import FeatureCard from "../components/FeatureCard.astro"
 import HeroCode from "../components/HeroCode.astro"
+import InteractiveTerminal from "../components/InteractiveTerminal.astro"
 import { Image } from "astro:assets"
 import exampleImage from "../assets/example.png"
 import themesImage from "../assets/themes.png"
@@ -163,17 +164,7 @@ import themesImage from "../assets/themes.png"
       
       <!-- Prompts Window (Full width below install command) -->
       <div class="skill-visual">
-        <HeroCode filename="# example_prompts.txt">
-          <div class="mock-line">&gt; "Scaffold a noodle collection for the Stripe API with auth and a few endpoints"</div>
-          <div class="mock-line">&gt; "Audit my collection for security issues and REST best practices"</div>
-          <div class="mock-line">&gt; "Convert this Insomnia export to a noodle collection"</div>
-          <div class="mock-line">&gt; "Change the expand layout keybinding to Alt+I"</div>
-          <div class="mock-line">&gt; "Set Catppuccin as my theme"</div>
-          <div class="mock-line">&gt; "How many requests are in the Stripe API collection?"</div>
-          <div class="mock-line">&gt; "What's the average response time for the login request on my Stripe collection?"</div>
-          <div class="mock-line">&gt; "Order the folders on the Stripe collection from Z to A"</div>
-          <div class="mock-line">&gt; "Set up basic auth on the Posts folder for $basic_user and $basic_password"</div>
-        </HeroCode>
+        <InteractiveTerminal />
         <div class="visual-glow"></div>
       </div>
     </section>
