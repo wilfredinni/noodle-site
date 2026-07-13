@@ -138,7 +138,6 @@
     flex-grow: 1;
     text-align: left;
     overflow-wrap: break-word;
-    word-break: break-all;
   }
 
   .terminal-body::-webkit-scrollbar {
@@ -160,57 +159,57 @@
     display: inline;
   }
 
-  :global(.prompt-line) {
+  .terminal-body :global(.prompt-line) {
     color: var(--color-blue);
     margin-bottom: 0.5rem;
   }
 
-  :global(.prompt-arrow) {
+  .terminal-body :global(.prompt-arrow) {
     color: var(--muted);
     font-weight: bold;
   }
 
-  :global(.log-line) {
+  .terminal-body :global(.log-line) {
     margin-bottom: 0.25rem;
     white-space: pre-wrap;
   }
 
-  :global(.log-line.cmd) {
+  .terminal-body :global(.log-line.cmd) {
     color: var(--color-blue);
     font-weight: bold;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
   }
 
-  :global(.log-line.agent) {
+  .terminal-body :global(.log-line.agent) {
     color: var(--color-purple);
   }
 
-  :global(.log-line.info) {
+  .terminal-body :global(.log-line.info) {
     color: var(--muted);
   }
 
-  :global(.log-line.success) {
+  .terminal-body :global(.log-line.success) {
     color: var(--color-green);
   }
 
-  :global(.log-line.success-final) {
+  .terminal-body :global(.log-line.success-final) {
     color: var(--color-green);
     font-weight: bold;
     margin-top: 0.5rem;
   }
 
-  :global(.log-line.warning-header) {
+  .terminal-body :global(.log-line.warning-header) {
     color: var(--color-yellow);
     font-weight: bold;
   }
 
-  :global(.log-line.warning) {
+  .terminal-body :global(.log-line.warning) {
     color: var(--color-yellow);
     opacity: 0.9;
   }
 
-  :global(.log-line.warning-final) {
+  .terminal-body :global(.log-line.warning-final) {
     color: var(--color-yellow);
     font-weight: bold;
     margin-top: 0.5rem;
