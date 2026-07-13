@@ -46,6 +46,35 @@ const { title, description } = Astro.props
         --border-hover: #45475a;
         --font-body: 'Inter', system-ui, -apple-system, sans-serif;
         --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+        /* Centralized Noodle accents */
+        --color-orange: #fab387;
+        --color-green: #a6e3a1;
+        --color-blue: #89b4fa;
+        --color-red: #f38ba8;
+        --color-purple: #cba6f7;
+        --color-yellow: #f9e2af;
+      }
+
+      [data-theme="light"],
+      .sl-theme-light {
+        --color-orange: #fe640b;
+        --color-green: #40a02b;
+        --color-blue: #1e66f5;
+        --color-red: #d20f39;
+        --color-purple: #8839ef;
+        --color-yellow: #df8e1d;
+      }
+
+      .bg-glow {
+        position: fixed;
+        top: -20%;
+        left: -10%;
+        width: 120%;
+        height: 120%;
+        background: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, rgba(11, 16, 22, 0) 50%);
+        pointer-events: none;
+        z-index: -1;
       }
 
       html {

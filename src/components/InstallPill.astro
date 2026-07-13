@@ -1,0 +1,128 @@
+---
+export interface Props {
+  command: string;
+}
+
+const { command } = Astro.props;
+---
+
+<div class="install-pill">
+  <code>{command}</code>
+  <button class="copy-btn" data-command={command}>COPY</button>
+</div>
+
+<style>
+  .install-pill {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-elevated);
+    overflow: hidden;
+    max-width: fit-content;
+  }
+
+  .install-pill code {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow-x: auto;
+    color: var(--color-blue);
+    display: flex;
+    align-items: center;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .install-pill code::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
+  }
+
+  .install-pill code::before {
+    content: "$ ";
+    color: var(--muted);
+    margin-right: 0.5rem;
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.25rem;
+    background: var(--border);
+    border: none;
+    border-left: 1px solid var(--border);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .copy-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  @media (max-width: 900px) {
+    .install-pill {
+      margin: 0 auto;
+      max-width: 100%;
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  // Clipboard copy logic
+  const copyButtons = document.querySelectorAll('.copy-btn');
+  copyButtons.forEach(btn => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const originalText = btn.textContent || 'COPY';
+    
+    btn.addEventListener('click', () => {
+      const command = btn.getAttribute('data-command');
+      if (command) {
+        const copyPromise = (navigator.clipboard && typeof navigator.clipboard.writeText === 'function')
+          ? navigator.clipboard.writeText(command)
+          : new Promise<void>((resolve, reject) => {
+              try {
+                const textarea = document.createElement('textarea');
+                textarea.value = command;
+                textarea.style.position = 'fixed';
+                textarea.style.top = '0';
+                textarea.style.left = '0';
+                textarea.style.opacity = '0';
+                textarea.setAttribute('readonly', '');
+                document.body.appendChild(textarea);
+                textarea.select();
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                if (successful) {
+                  resolve();
+                } else {
+                  reject(new Error('Fallback copy failed'));
+                }
+              } catch (err) {
+                reject(err);
+              }
+            });
+
+        copyPromise
+          .then(() => {
+            btn.textContent = 'COPIED';
+            if (timeoutId) {
+              clearTimeout(timeoutId);
+            }
+            timeoutId = setTimeout(() => {
+              btn.textContent = originalText;
+              timeoutId = null;
+            }, 2000);
+          })
+          .catch(err => {
+            console.error('Failed to copy: ', err);
+          });
+      }
+    });
+  });
+</script>

@@ -1,0 +1,128 @@
+---
+import HeroCode from "../HeroCode.astro"
+import InstallPill from "../InstallPill.astro"
+---
+
+<section class="skill-section" id="ai-skill">
+  <div class="skill-left">
+    <div class="skill-visual">
+      <HeroCode filename="# example prompts">
+        <div class="mock-line"><span class="mock-key">&gt;</span> Scaffold Stripe API collection</div>
+        <div class="mock-line"><span class="mock-key">&gt;</span> Audit my collection for security</div>
+        <div class="mock-line"><span class="mock-key">&gt;</span> Convert Insomnia export to Noodle</div>
+        <div class="mock-line"><span class="mock-key">&gt;</span> Set up basic auth on Posts folder</div>
+        <div class="mock-line"><span class="mock-key">&gt;</span> Change expand layout keybinding to Alt+I</div>
+        <div class="mock-line"><span class="mock-key">&gt;</span> Set Catppuccin as my theme</div>
+        <div class="mock-line"><span class="mock-key">&gt;</span> How many requests are in the Stripe collection?</div>
+        <div class="mock-line"><span class="mock-key">&gt;</span> What's the average login response time?</div>
+        <div class="mock-line"><span class="mock-key">&gt;</span> Sort folders from Z to A</div>
+        <div class="mock-line"><span class="mock-key">&gt;</span> Add a GET request for user profiles</div>
+        <div class="mock-line"><span class="mock-key">&gt;</span> Update variables in development env</div>
+      </HeroCode>
+      <div class="visual-glow"></div>
+    </div>
+  </div>
+
+  <div class="skill-right">
+    <span class="section-tag"># ai agent skill</span>
+    <h2>Supercharge your AI coding assistants.</h2>
+    <p>
+      Add Noodle to your agent's toolkit. Enable AI assistants to scaffold, edit, and audit collections natively.
+    </p>
+    <InstallPill command="npx skills add wilfredinni/noodle --skill noodle-use -g" />
+  </div>
+</section>
+
+<style>
+  .skill-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4rem;
+    align-items: center;
+    padding: 2.5rem 0;
+  }
+
+  .skill-left {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .skill-visual {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .skill-right {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .skill-right h2 {
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--fg);
+    text-align: left;
+  }
+
+  .skill-right p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .section-tag {
+    font-size: 0.9rem;
+    color: var(--color-purple);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .visual-glow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    z-index: 1;
+    filter: blur(20px);
+    pointer-events: none;
+    opacity: 0.5;
+  }
+
+  .mock-key {
+    color: var(--color-blue);
+    font-weight: bold;
+  }
+
+  .mock-line {
+    color: var(--fg);
+  }
+
+  @media (max-width: 900px) {
+    .skill-section {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
+      text-align: center;
+      padding: 3rem 0;
+    }
+
+    .skill-right h2 {
+      text-align: center;
+    }
+
+    .skill-left {
+      order: 2;
+    }
+
+    .skill-right {
+      order: 1;
+    }
+  }
+</style>
