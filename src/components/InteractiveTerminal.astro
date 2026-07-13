@@ -28,8 +28,7 @@
     </div>
     
     <div class="terminal-body">
-      <div id="terminal-content"></div>
-      <span class="terminal-cursor">█</span>
+      <div id="terminal-content"></div><span class="terminal-cursor">█</span>
     </div>
   </div>
 </div>
@@ -137,8 +136,6 @@
     color: var(--fg);
     overflow-y: auto;
     flex-grow: 1;
-    display: flex;
-    flex-direction: column;
     text-align: left;
   }
 
@@ -153,57 +150,65 @@
     border-radius: 3px;
   }
 
-  .prompt-line {
+  #terminal-content {
+    display: inline;
+  }
+
+  #terminal-content > :global(:last-child) {
+    display: inline;
+  }
+
+  :global(.prompt-line) {
     color: var(--color-blue);
     margin-bottom: 0.5rem;
   }
 
-  .prompt-arrow {
+  :global(.prompt-arrow) {
     color: var(--muted);
     font-weight: bold;
   }
 
-  .log-line {
+  :global(.log-line) {
     margin-bottom: 0.25rem;
     white-space: pre-wrap;
   }
 
-  .log-line.cmd {
+  :global(.log-line.cmd) {
     color: var(--color-blue);
     font-weight: bold;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
   }
 
-  .log-line.agent {
+  :global(.log-line.agent) {
     color: var(--color-purple);
   }
 
-  .log-line.info {
+  :global(.log-line.info) {
     color: var(--muted);
   }
 
-  .log-line.success {
+  :global(.log-line.success) {
     color: var(--color-green);
   }
 
-  .log-line.success-final {
+  :global(.log-line.success-final) {
     color: var(--color-green);
     font-weight: bold;
     margin-top: 0.5rem;
   }
 
-  .log-line.warning-header {
+  :global(.log-line.warning-header) {
     color: var(--color-yellow);
     font-weight: bold;
   }
 
-  .log-line.warning {
+  :global(.log-line.warning) {
     color: var(--color-yellow);
     opacity: 0.9;
   }
 
-  .log-line.warning-final {
+  :global(.log-line.warning-final) {
     color: var(--color-yellow);
     font-weight: bold;
     margin-top: 0.5rem;
@@ -216,7 +221,6 @@
     color: var(--color-purple);
     animation: blink 1s step-end infinite;
     margin-left: 2px;
-    margin-top: auto;
   }
 
   @keyframes blink {
