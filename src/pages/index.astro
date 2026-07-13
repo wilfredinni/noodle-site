@@ -209,8 +209,7 @@ import themesImage from "../assets/themes.png"
   .tui-container {
     display: flex;
     flex-direction: column;
-    gap: 4.5rem;
-    padding: 1.5rem 2rem 3rem 2rem;
+    padding: 0 2rem;
     max-width: 1200px;
     margin: 0 auto;
     position: relative;
@@ -278,6 +277,11 @@ import themesImage from "../assets/themes.png"
     color: var(--color-blue);
     display: flex;
     align-items: center;
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .install-pill code::-webkit-scrollbar {
+    display: none; /* Safari and Chrome */
   }
   
   .install-pill code::before {
@@ -372,7 +376,7 @@ import themesImage from "../assets/themes.png"
 
   .local-yaml-section {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 4rem;
     align-items: center;
     max-width: 1200px;
@@ -411,16 +415,16 @@ import themesImage from "../assets/themes.png"
     display: flex;
     flex-direction: column;
     gap: 2.5rem;
-    margin-top: 0;
+    padding: 2.5rem 0;
   }
 
   /* ─── Themes Section ─── */
   .themes-section {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 4rem;
     align-items: center;
-    margin-top: 1.5rem;
+    padding: 2.5rem 0;
   }
 
   .themes-left {
@@ -487,10 +491,10 @@ import themesImage from "../assets/themes.png"
   /* ─── Skill Section ─── */
   .skill-section {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 4rem;
     align-items: center;
-    margin-top: 1.5rem;
+    padding: 2.5rem 0;
   }
 
   .skill-left {
@@ -578,22 +582,28 @@ import themesImage from "../assets/themes.png"
       padding: 3rem 2rem;
     }
 
-    .themes-section {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-      text-align: center;
-    }
+     .features-section {
+       padding: 3rem 0;
+     }
 
-    .themes-left h2,
-    .yaml-right h2 {
-      text-align: center;
-    }
+     .themes-section {
+       grid-template-columns: 1fr;
+       gap: 2rem;
+       text-align: center;
+       padding: 3rem 0;
+     }
 
-    .skill-section {
-      grid-template-columns: 1fr;
-      gap: 2rem;
-      text-align: center;
-    }
+     .themes-left h2,
+     .yaml-right h2 {
+       text-align: center;
+     }
+
+     .skill-section {
+       grid-template-columns: 1fr;
+       gap: 2rem;
+       text-align: center;
+       padding: 3rem 0;
+     }
 
     .skill-right h2 {
       text-align: center;
