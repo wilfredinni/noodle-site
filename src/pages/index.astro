@@ -86,6 +86,30 @@ import themesImage from "../assets/themes.png"
           cmd="Press e to open Env Editor"
           accent="var(--color-orange)"
         />
+      </div>
+    </section>
+
+    <!-- Themes Section -->
+    <section class="themes-section">
+      <div class="themes-left">
+        <span class="section-tag"># personalization</span>
+        <h2>30+ built-in themes to match your workspace.</h2>
+        <p>
+          Noodle comes pre-packaged with over 30 beautiful themes (including Catppuccin, Everforest, Nord, and Tokyo Night). Give your terminal some personality and work in a space that feels uniquely yours.
+        </p>
+      </div>
+
+      <div class="themes-right">
+        <div class="themes-visual">
+          <Image src={themesImage} class="themes-screenshot" alt="Noodle Themes Collection" loading="lazy" />
+          <div class="visual-glow"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- More Features Section -->
+    <section class="features-section">
+      <div class="cards-grid">
         <FeatureCard
           filename="autocomplete.json"
           tag="autocomplete"
@@ -110,24 +134,6 @@ import themesImage from "../assets/themes.png"
           cmd="$ noodle import api.yaml"
           accent="var(--color-green)"
         />
-      </div>
-    </section>
-
-    <!-- Themes Section -->
-    <section class="themes-section">
-      <div class="themes-left">
-        <span class="section-tag"># personalization</span>
-        <h2>30+ built-in themes to match your workspace.</h2>
-        <p>
-          Noodle comes pre-packaged with over 30 beautiful themes (including Catppuccin, Everforest, Nord, and Tokyo Night). Give your terminal some personality and work in a space that feels uniquely yours.
-        </p>
-      </div>
-
-      <div class="themes-right">
-        <div class="themes-visual">
-          <Image src={themesImage} class="themes-screenshot" alt="Noodle Themes Collection" loading="lazy" />
-          <div class="visual-glow"></div>
-        </div>
       </div>
     </section>
 
