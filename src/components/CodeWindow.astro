@@ -1,0 +1,102 @@
+---
+export interface Props {
+  filename: string
+  showControls?: boolean
+  floating?: boolean
+}
+
+const { filename, showControls = false, floating = false } = Astro.props
+---
+
+<div class={`code-window ${floating ? 'floating-window' : 'solid-window'}`}>
+  <div class="window-header">
+    <span>📄 {filename}</span>
+    {showControls && (
+      <div class="window-controls">
+        <span>-</span>
+        <span>□</span>
+        <span>×</span>
+      </div>
+    )}
+  </div>
+  <div class="window-body">
+    <pre><code><slot /></code></pre>
+  </div>
+</div>
+
+<style>
+  .code-window {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    font-family: var(--font-mono);
+  }
+
+  .solid-window {
+    box-shadow: 6px 6px 0 var(--border);
+  }
+
+  .floating-window {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+    background: rgba(30, 30, 46, 0.4);
+  }
+
+  .window-header {
+    background: var(--border);
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+    color: var(--fg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+  }
+
+  .floating-window .window-header {
+    background: transparent;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .window-controls {
+    display: flex;
+    gap: 0.4rem;
+    color: var(--muted);
+    font-weight: bold;
+  }
+
+  .window-body {
+    padding: 1.5rem 2rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .window-body pre {
+    margin: 0;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Global scope for slot code tokens */
+  :global(.token-key) {
+    color: var(--color-blue);
+    font-weight: bold;
+  }
+
+  :global(.token-value) {
+    color: var(--color-green);
+  }
+
+  :global(.token-string) {
+    color: var(--color-orange);
+  }
+</style>

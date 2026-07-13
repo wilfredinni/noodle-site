@@ -1,0 +1,68 @@
+---
+export interface Props {
+  filename?: string
+}
+
+const { filename = "# collections/get_with_params.yml" } = Astro.props
+const hasSlot = Astro.slots.has('default')
+---
+
+<div class="mock-code-window">
+  <div class="mock-file-label">{filename}</div>
+  {hasSlot ? (
+    <slot />
+  ) : (
+    <>
+      <div class="mock-line"><span class="mock-key">name</span>: <span class="mock-value">Get with Params</span></div>
+      <div class="mock-line"><span class="mock-key">method</span>: <span class="mock-value">GET</span></div>
+      <div class="mock-line"><span class="mock-key">url</span>: <span class="mock-value">$base_url/posts</span></div>
+      <div class="mock-line"><span class="mock-key">headers</span>:</div>
+      <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">Content-Type</span>: <span class="mock-value">Aplication/Json</span></div>
+      <div class="mock-line"><span class="mock-key">params</span>:</div>
+      <div class="mock-line">&nbsp;&nbsp;- <span class="mock-key">name</span>: <span class="mock-value">userId</span></div>
+      <div class="mock-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="mock-key">value</span>: <span class="mock-value">$user_id</span></div>
+      <div class="mock-line"><span class="mock-key">auth</span>:</div>
+      <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">type</span>: <span class="mock-value">bearer</span></div>
+      <div class="mock-line">&nbsp;&nbsp;<span class="mock-key">token</span>: <span class="mock-value">$token</span></div>
+    </>
+  )}
+</div>
+
+<style>
+  .mock-code-window {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    background: rgba(30, 30, 46, 0.4);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1.6;
+    z-index: 2;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+    text-align: left;
+  }
+
+  .mock-file-label {
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+    border-bottom: 1px dashed var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  .mock-line {
+    color: var(--fg);
+  }
+
+  .mock-key {
+    color: var(--color-blue);
+    font-weight: bold;
+  }
+
+  .mock-value {
+    color: var(--color-green);
+  }
+</style>

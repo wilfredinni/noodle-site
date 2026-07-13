@@ -1,0 +1,87 @@
+---
+export interface Props {
+  title: string
+  tag: string
+  desc: string
+  cmd: string
+  filename: string
+  accent: string
+}
+
+const { title, tag, desc, cmd, filename, accent } = Astro.props
+---
+
+<div class="tui-card" style={`--accent-color: ${accent};`}>
+  <div class="card-body">
+    <span class="card-tag">{tag}</span>
+    <h3>{title}</h3>
+    <p class="card-desc">
+      {desc}
+    </p>
+    <div class="card-cmd">
+      <code>{cmd}</code>
+    </div>
+  </div>
+</div>
+
+<style>
+  .tui-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 4px 4px 0 var(--border);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  .tui-card:hover {
+    transform: translate(-2px, -2px);
+    border-color: var(--accent-color);
+    box-shadow: 6px 6px 0 var(--accent-color);
+  }
+
+  .card-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex-grow: 1;
+  }
+
+  .card-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--accent-color);
+  }
+
+  .tui-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--fg);
+  }
+
+  .card-desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--muted);
+    flex-grow: 1;
+  }
+
+  .card-cmd {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.6rem 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--fg);
+  }
+
+  .card-cmd code {
+    color: var(--fg);
+  }
+</style>
