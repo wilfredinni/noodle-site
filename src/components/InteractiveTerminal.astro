@@ -28,7 +28,7 @@
     </div>
     
     <div class="terminal-body">
-      <div id="terminal-content"></div><span class="terminal-cursor">█</span>
+      <div class="terminal-content"></div><span class="terminal-cursor">█</span>
     </div>
   </div>
 </div>
@@ -137,6 +137,8 @@
     overflow-y: auto;
     flex-grow: 1;
     text-align: left;
+    overflow-wrap: break-word;
+    word-break: break-all;
   }
 
   .terminal-body::-webkit-scrollbar {
@@ -150,11 +152,11 @@
     border-radius: 3px;
   }
 
-  #terminal-content {
+  .terminal-content {
     display: inline;
   }
 
-  #terminal-content > :global(:last-child) {
+  .terminal-content > :global(:last-child) {
     display: inline;
   }
 
@@ -275,87 +277,97 @@
     activeTimeouts = [];
   }
 
-  function runScenario(key) {
-    clearActiveTimeouts();
-    
-    const container = document.getElementById('terminal-content');
-    if (!container) return;
-    container.innerHTML = '';
-    
-    const scenario = scenarios[key];
-    if (!scenario) return;
-    
-    // Create prompt line
-    const promptEl = document.createElement('div');
-    promptEl.className = 'prompt-line';
-    promptEl.innerHTML = '<span class="prompt-arrow">&gt; </span><span class="prompt-text"></span>';
-    container.appendChild(promptEl);
-    const promptTextSpan = promptEl.querySelector('.prompt-text');
-    
-    let charIdx = 0;
-    
-    function typeChar() {
-      if (charIdx < scenario.prompt.length) {
-        promptTextSpan.textContent += scenario.prompt.charAt(charIdx);
-        charIdx++;
-        const delay = 30 + Math.random() * 40; // 30-70ms
-        activeTimeouts.push(setTimeout(typeChar, delay));
-      } else {
-        // Delay before outputting execution logs
-        activeTimeouts.push(setTimeout(runLogs, 400));
-      }
+  document.querySelectorAll('.interactive-terminal-container').forEach(container => {
+    const tabBtns = container.querySelectorAll('.tab-btn');
+    const terminalContentEl = container.querySelector('.terminal-content');
+    let activeTimeouts = [];
+
+    function clearActiveTimeouts() {
+      activeTimeouts.forEach(t => clearTimeout(t));
+      activeTimeouts = [];
     }
-    
-    typeChar();
-    
-    function runLogs() {
-      let logIdx = 0;
+
+    function runScenario(key) {
+      clearActiveTimeouts();
       
-      function printNextLog() {
-        if (logIdx < scenario.logs.length) {
-          const log = scenario.logs[logIdx];
-          const logEl = document.createElement('div');
-          logEl.className = `log-line ${log.class}`;
-          logEl.textContent = log.text;
-          container.appendChild(logEl);
-          
-          // Scroll to bottom
-          const body = container.parentElement;
-          if (body) {
-            body.scrollTop = body.scrollHeight;
-          }
-          
-          logIdx++;
-          
-          // Adjust delays: commands print fast, execution logs take longer
-          let delay = 350;
-          if (log.class === 'cmd') delay = 150;
-          else if (log.class.includes('final')) delay = 500;
-          
-          activeTimeouts.push(setTimeout(printNextLog, delay));
+      if (!terminalContentEl) return;
+      terminalContentEl.innerHTML = '';
+      
+      const scenario = scenarios[key];
+      if (!scenario) return;
+      
+      // Create prompt line
+      const promptEl = document.createElement('div');
+      promptEl.className = 'prompt-line';
+      promptEl.innerHTML = '<span class="prompt-arrow">&gt; </span><span class="prompt-text"></span>';
+      terminalContentEl.appendChild(promptEl);
+      const promptTextSpan = promptEl.querySelector('.prompt-text');
+      
+      let charIdx = 0;
+      
+      function typeChar() {
+        if (charIdx < scenario.prompt.length) {
+          promptTextSpan.textContent += scenario.prompt.charAt(charIdx);
+          charIdx++;
+          const delay = 30 + Math.random() * 40; // 30-70ms
+          activeTimeouts.push(setTimeout(typeChar, delay));
+        } else {
+          // Delay before outputting execution logs
+          activeTimeouts.push(setTimeout(runLogs, 400));
         }
       }
       
-      printNextLog();
+      typeChar();
+      
+      function runLogs() {
+        let logIdx = 0;
+        
+        function printNextLog() {
+          if (logIdx < scenario.logs.length) {
+            const log = scenario.logs[logIdx];
+            const logEl = document.createElement('div');
+            logEl.className = `log-line ${log.class}`;
+            logEl.textContent = log.text;
+            terminalContentEl.appendChild(logEl);
+            
+            // Scroll to bottom
+            const body = terminalContentEl.parentElement;
+            if (body) {
+              body.scrollTop = body.scrollHeight;
+            }
+            
+            logIdx++;
+            
+            // Adjust delays: commands print fast, execution logs take longer
+            let delay = 350;
+            if (log.class === 'cmd') delay = 150;
+            else if (log.class.includes('final')) delay = 500;
+            
+            activeTimeouts.push(setTimeout(printNextLog, delay));
+          }
+        }
+        
+        printNextLog();
+      }
     }
-  }
 
-  // Set up tabs click handlers
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.tab-btn').forEach(b => {
-        b.classList.remove('active');
-        b.setAttribute('aria-selected', 'false');
+    // Set up tabs click handlers
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => {
+          b.classList.remove('active');
+          b.setAttribute('aria-selected', 'false');
+        });
+        
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected', 'true');
+        
+        const scenarioKey = btn.getAttribute('data-scenario');
+        runScenario(scenarioKey);
       });
-      
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected', 'true');
-      
-      const scenarioKey = btn.getAttribute('data-scenario');
-      runScenario(scenarioKey);
     });
-  });
 
-  // Auto-run first scenario on load
-  runScenario('scaffold');
+    // Auto-run first scenario on load
+    runScenario('scaffold');
+  });
 </script>
