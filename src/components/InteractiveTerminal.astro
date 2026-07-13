@@ -270,12 +270,6 @@
     }
   };
 
-  let activeTimeouts = [];
-
-  function clearActiveTimeouts() {
-    activeTimeouts.forEach(t => clearTimeout(t));
-    activeTimeouts = [];
-  }
 
   document.querySelectorAll('.interactive-terminal-container').forEach(container => {
     const tabBtns = container.querySelectorAll('.tab-btn');
