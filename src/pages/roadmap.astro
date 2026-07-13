@@ -119,255 +119,430 @@ const versions = [
     ],
   },
 ]
+
+const doneCount = versions.filter(v => v.status === "done").length
+const totalCount = versions.length
 ---
 
 <BaseLayout title="Roadmap · Noodle" description="Noodle development roadmap and future plans">
   <style is:global>
-    .roadmap-page {
-      max-width: 800px;
+    /* Color accent overrides */
+    :root {
+      --color-orange: #fab387;
+      --color-green: #a6e3a1;
+      --color-blue: #89b4fa;
+      --color-red: #f38ba8;
+      --color-purple: #cba6f7;
+      --color-yellow: #f9e2af;
+    }
+
+    [data-theme="light"],
+    .sl-theme-light {
+      --color-orange: #fe640b;
+      --color-green: #40a02b;
+      --color-blue: #1e66f5;
+      --color-red: #d20f39;
+      --color-purple: #8839ef;
+      --color-yellow: #df8e1d;
+    }
+
+    .roadmap-container {
+      max-width: 1100px;
       margin: 0 auto;
       padding: 2rem 1.5rem 4rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ── Header ── */
+    .roadmap-header {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      margin-bottom: 5rem;
+      margin-top: 1rem;
+    }
+
+    .roadmap-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .roadmap-header h1 {
+      font-size: clamp(1.6rem, 3.2vw, 2.5rem);
+      font-weight: 400;
+      line-height: 1.3;
+      color: var(--fg);
+    }
+
+    .roadmap-header .lede {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .roadmap-header-right {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .roadmap-stats-window {
+      max-width: 100%;
+      width: 100%;
+    }
+
+    .section-tag {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-purple);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: block;
+    }
+
+    .mock-key {
+      color: var(--color-blue);
+      font-weight: bold;
+    }
+
+    .mock-value {
+      color: var(--color-green);
+    }
+
+    .mock-line {
+      color: var(--fg);
+    }
+
+    /* ── Mock Windows ── */
+    .mock-code-window {
+      width: 100%;
+      background: rgba(30, 30, 46, 0.4);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
       font-family: var(--font-mono);
       font-size: 0.85rem;
+      line-height: 1.6;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(12px);
+      text-align: left;
     }
 
-    .page-title {
-      margin-bottom: 3rem;
+    .mock-window-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 0.75rem;
     }
 
-    .page-title h1 {
-      font-size: 1.5rem;
+    .mock-file-label {
+      color: var(--color-blue);
+      font-weight: bold;
+    }
+
+    .status-badge {
+      font-size: 0.75rem;
       font-weight: 700;
+      font-family: var(--font-mono);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .status-badge.done {
+      color: var(--color-green);
+      border: 1px solid var(--color-green);
+    }
+
+    .status-badge.goal {
+      color: var(--color-purple);
+      border: 1px solid var(--color-purple);
+    }
+
+    .status-badge.upcoming {
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    /* ── Feed ── */
+    .roadmap-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    .roadmap-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 2.5rem;
+    }
+
+    .roadmap-meta {
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+    }
+
+    .roadmap-meta .version-tag {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--fg);
+      margin: 0;
+    }
+
+    .roadmap-meta .version-tag.done {
+      color: var(--color-green);
+    }
+
+    .roadmap-meta .version-tag.goal {
+      color: var(--color-purple);
+    }
+
+    .roadmap-meta .meta-status {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* ── Feature lists inside cards ── */
+    .feature-group {
+      margin-bottom: 1rem;
+    }
+
+    .feature-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .feature-group-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       margin-bottom: 0.5rem;
     }
 
-    .page-title p {
+    .feature-group-label.features { color: var(--color-blue); }
+    .feature-group-label.bugs { color: var(--color-red); }
+    .feature-group-label.polish { color: var(--color-purple); }
+
+    .feature-items {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .feature-items li {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      font-size: 0.82rem;
       color: var(--muted);
-      font-size: 0.8rem;
+      line-height: 1.5;
     }
 
-    .version-group {
-      margin-bottom: 0;
-      position: relative;
-      padding-left: 2rem;
+    .feature-items li.done {
+      color: var(--overlay0, #6c7086);
     }
 
-    .version-group::before {
-      content: '';
-      position: absolute;
-      left: 0.5rem;
-      top: 0.5rem;
-      bottom: 0;
-      width: 1px;
-      background: var(--border);
+    .feat-icon {
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      min-width: 0.9rem;
     }
 
-    .version-group:last-child::before {
-      display: none;
+    .feat-icon.check { color: var(--color-green); }
+    .feat-icon.todo  { color: var(--surface2, #45475a); }
+    .feat-icon.bug   { color: var(--color-red); }
+    .feat-icon.polish-icon { color: var(--color-purple); }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .roadmap-header {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        margin-top: 0;
+        margin-bottom: 4rem;
+      }
+
+      .roadmap-header-left {
+        align-items: center;
+        text-align: center;
+      }
+
+      .roadmap-header-right {
+        order: 2;
+      }
+
+      .roadmap-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+
+      .roadmap-meta {
+        position: static;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 1rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.75rem;
+      }
+
+      .roadmap-meta .version-tag {
+        font-size: 1.25rem;
+      }
     }
 
-    .version-group details {
-      margin-bottom: 2.5rem;
+    /* ── Folding ── */
+    .roadmap-details {
+      width: 100%;
     }
 
-    .version-group details summary {
+    .roadmap-details summary {
       list-style: none;
       cursor: pointer;
     }
 
-    .version-group details summary::-webkit-details-marker {
+    .roadmap-details summary::-webkit-details-marker {
       display: none;
     }
 
-    .version-group details .arrow {
-      color: var(--overlay0);
+    .roadmap-details .mock-window-header {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .roadmap-details .mock-window-header:hover .mock-file-label {
+      color: var(--accent);
+      transition: color 0.2s;
+    }
+
+    .toggle-arrow {
       font-size: 0.6rem;
+      color: var(--muted);
+      transition: transform 0.2s;
       display: inline-block;
-      width: 1rem;
+      margin-right: 0.4rem;
     }
 
-    .version-group details .arrow.open {
-      display: none;
+    .roadmap-details[open] .toggle-arrow {
+      transform: rotate(90deg);
     }
 
-    .version-group details[open] .arrow.closed {
-      display: none;
-    }
-
-    .version-group details[open] .arrow.open {
-      display: inline-block;
-    }
-
-    .version-header {
-      display: flex;
-      align-items: baseline;
-      gap: 0.75rem;
-      margin-bottom: 0.75rem;
-      position: relative;
-    }
-
-    .version-header::before {
-      content: '';
-      position: absolute;
-      left: -1.75rem;
-      top: 50%;
-      width: 0.6rem;
-      height: 0.6rem;
-      border-radius: 50%;
-      transform: translateY(-50%);
-    }
-
-    .version-header.done::before {
-      background: var(--green);
-    }
-
-    .version-header.next::before {
-      background: var(--accent);
-    }
-
-    .version-header.goal::before {
-      background: transparent;
-      border: 2px solid var(--accent);
-    }
-
-    .version-header .tag {
-      font-size: 1rem;
-      font-weight: 700;
-    }
-
-    .version-header .label {
-      font-size: 0.72rem;
-    }
-
-    .version-header .label.done {
-      color: #a6e3a1;
-    }
-
-    .version-header .label.dev {
-      color: #b4befe;
-    }
-
-    .version-header .label.goal {
-      color: #cba6f7;
-    }
-
-    .version-header .count {
-      color: var(--overlay0);
-      font-size: 0.7rem;
-    }
-
-    .feature-list {
-      list-style: none;
-      margin-bottom: 0.5rem;
-    }
-
-    .feature-list li {
-      padding: 0.2rem 0;
-      font-size: 0.8rem;
-      color: var(--subtext0);
-      display: flex;
-      align-items: baseline;
-      gap: 0.5rem;
-    }
-
-    .feature-list li .check {
-      color: var(--green);
-      min-width: 1rem;
-    }
-
-    .feature-list li .todo {
-      color: var(--surface2);
-      min-width: 1rem;
-    }
-
-    .feature-list li.done {
-      color: var(--overlay1);
-    }
-
-    .sub-label {
-      color: var(--overlay0);
-      font-size: 0.72rem;
-      margin: 0.75rem 0 0.25rem;
-      padding-left: 1.5rem;
-    }
-
-    .sub-label.bugs {
-      color: #f38ba8;
-    }
-
-    .sub-label.polish {
-      color: #cba6f7;
-    }
-
-    .sub-label.features {
-      color: #89b4fa;
-    }
-
-    .empty-line {
-      height: 0.75rem;
+    .roadmap-details-body {
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px dashed var(--border);
     }
   </style>
 
-  <div class="roadmap-page">
-    <div class="page-title">
-      <h1>Roadmap</h1>
-      <p>Path to v1.0 and beyond</p>
-    </div>
+  <div class="bg-glow"></div>
 
-    {
-      versions.map((v) => (
-        <div class="version-group">
-          <details open={v.status !== "done"}>
-            <summary>
-              <div class="version-header {v.status || ''}">
-                <span class="arrow closed">▶</span>
-                <span class="arrow open">▼</span>
-                <span class="tag">{v.version}</span>
-                {v.status === "done" && <span class="label done">done</span>}
-                {v.status === "next" && <span class="label dev">developing</span>}
-                {v.status === "goal" && <span class="label goal">goal</span>}
-                <span class="count">{v.features.length + (v.bugs?.length || 0)}{v.polish ? ` + ${v.polish.length}` : ''} items</span>
-              </div>
-            </summary>
-
-          {v.features && (
-            <>
-              <div class="sub-label features">features</div>
-              <ul class="feature-list">
-                {v.features.map((f) => (
-                  <li class={f.done ? "done" : ""}>
-                    <span class={f.done ? "check" : "todo"}>{f.done ? "✓" : "○"}</span>
-                    {f.text}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-
-          {v.bugs && (
-            <>
-              <div class="sub-label bugs">bugs</div>
-              <ul class="feature-list">
-                {v.bugs.map((b) => (
-                  <li class={b.done ? "done" : ""}><span class={b.done ? "check" : "todo"} style={!b.done ? "color:#f38ba8" : ""}>{b.done ? "✓" : "●"}</span> {b.text}</li>
-                ))}
-              </ul>
-            </>
-          )}
-
-          {v.polish && (
-            <>
-              <div class="sub-label polish">polish</div>
-              <ul class="feature-list">
-                {v.polish.map((p) => (
-                  <li class={p.done ? "done" : ""}><span class={p.done ? "check" : "todo"} style={!p.done ? "color:#f9e2af" : ""}>{p.done ? "✓" : "✦"}</span> {p.text}</li>
-                ))}
-              </ul>
-            </>
-          )}
-          </details>
+  <div class="roadmap-container">
+    <header class="roadmap-header">
+      <div class="roadmap-header-left">
+        <span class="section-tag"># product roadmap</span>
+        <h1>Roadmap</h1>
+        <p class="lede">The path from v0.1 to v1.0 and beyond. Track what's shipped, what's in progress, and what's coming next.</p>
+      </div>
+      <div class="roadmap-header-right">
+        <div class="mock-code-window roadmap-stats-window">
+          <div class="mock-window-header">
+            <span class="mock-file-label"># system/roadmap_metadata.yml</span>
+          </div>
+          <div class="mock-line"><span class="mock-key">current_version</span>: <span class="mock-value">v0.4.x</span></div>
+          <div class="mock-line"><span class="mock-key">next_milestone</span>: <span class="mock-value">v0.5.x</span></div>
+          <div class="mock-line"><span class="mock-key">milestones_done</span>: <span class="mock-value">{doneCount}/{totalCount}</span></div>
+          <div class="mock-line"><span class="mock-key">goal</span>: <span class="mock-value">v1.0.x</span></div>
+          <div class="mock-line"><span class="mock-key">status</span>: <span class="mock-value">active</span></div>
         </div>
-      ))
-    }
+      </div>
+    </header>
+
+    <main class="roadmap-feed">
+      {versions.map((v) => (
+        <div class="roadmap-row">
+          <aside class="roadmap-meta">
+            <h2 class={`version-tag ${v.status || "upcoming"}`}>{v.version}</h2>
+            <span class="meta-status">
+              {v.status === "done" ? "released" : v.status === "goal" ? "goal" : "upcoming"}
+            </span>
+          </aside>
+        <div class="roadmap-content">
+            <article class="mock-code-window">
+              <details class="roadmap-details" open={v.status !== "done"}>
+                <summary>
+                  <div class="mock-window-header">
+                    <span class="mock-file-label">
+                      <span class="toggle-arrow">▶</span>
+                      # roadmap/{v.version}.md
+                    </span>
+                    <span class={`status-badge ${v.status || "upcoming"}`}>
+                      {v.status === "done" ? "✓ done" : v.status === "goal" ? "◎ goal" : "○ upcoming"}
+                    </span>
+                  </div>
+                </summary>
+
+                <div class="roadmap-details-body">
+                  {v.features && (
+                    <div class="feature-group">
+                      <div class="feature-group-label features">features</div>
+                      <ul class="feature-items">
+                        {v.features.map((f) => (
+                          <li class={f.done ? "done" : ""}>
+                            <span class={`feat-icon ${f.done ? "check" : "todo"}`}>{f.done ? "✓" : "○"}</span>
+                            {f.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {v.bugs && (
+                    <div class="feature-group">
+                      <div class="feature-group-label bugs">bugs</div>
+                      <ul class="feature-items">
+                        {v.bugs.map((b) => (
+                          <li class={b.done ? "done" : ""}>
+                            <span class={`feat-icon ${b.done ? "check" : "bug"}`}>{b.done ? "✓" : "●"}</span>
+                            {b.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {v.polish && (
+                    <div class="feature-group">
+                      <div class="feature-group-label polish">polish</div>
+                      <ul class="feature-items">
+                        {v.polish.map((p) => (
+                          <li class={p.done ? "done" : ""}>
+                            <span class={`feat-icon ${p.done ? "check" : "polish-icon"}`}>{p.done ? "✓" : "✦"}</span>
+                            {p.text}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </details>
+            </article>
+          </div>
+        </div>
+      ))}
+    </main>
   </div>
 </BaseLayout>
