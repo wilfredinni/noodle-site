@@ -47,7 +47,7 @@ const rendered = await Promise.all(
     }
 
     .changelog-container {
-      max-width: 800px;
+      max-width: 1000px;
       margin: 0 auto;
       padding: 2rem 1.5rem 4rem;
       position: relative;
@@ -135,8 +135,39 @@ const rendered = await Promise.all(
     .changelog-feed {
       display: flex;
       flex-direction: column;
+      gap: 3.5rem;
+    }
+
+    .changelog-row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
       gap: 2.5rem;
     }
+
+    .changelog-meta {
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+    }
+
+    .changelog-meta .version-tag {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--fg);
+      margin: 0;
+    }
+
+    .changelog-meta .date {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+
 
     .mock-code-window {
       width: 100%;
@@ -156,39 +187,28 @@ const rendered = await Promise.all(
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
       gap: 0.75rem;
       margin-bottom: 1.25rem;
       border-bottom: 1px dashed var(--border);
       padding-bottom: 0.75rem;
     }
 
-    .mock-file-label {
-      color: var(--color-blue);
-      font-weight: bold;
-    }
-
-    .mock-window-meta {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .mock-window-meta .date {
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
-
-    .mock-window-meta .tag-link {
+    .mock-window-header .tag-link {
       color: var(--color-purple);
       text-decoration: none;
       font-weight: 700;
+      font-size: 0.8rem;
       transition: color 0.2s;
     }
 
-    .mock-window-meta .tag-link:hover {
+    .mock-window-header .tag-link:hover {
       color: var(--accent);
       text-decoration: underline;
+    }
+
+    .mock-file-label {
+      color: var(--color-blue);
+      font-weight: bold;
     }
 
     /* Scoped Markdown Body Styles */
@@ -255,14 +275,20 @@ const rendered = await Promise.all(
     }
 
     @media (max-width: 600px) {
-      .mock-window-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
+      .changelog-row {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
       }
-      .mock-window-meta {
-        width: 100%;
-        justify-content: space-between;
+      .changelog-meta {
+        position: static;
+        flex-direction: row;
+        align-items: baseline;
+        gap: 1rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 1rem;
+      }
+      .changelog-meta .version-tag {
+        font-size: 1.25rem;
       }
     }
   </style>
@@ -284,18 +310,23 @@ const rendered = await Promise.all(
     <main class="changelog-feed">
       {
         rendered.map((r) => (
-          <article class="mock-code-window">
-            <div class="mock-window-header">
-              <span class="mock-file-label"># changelog/{r.data.tag}.md</span>
-              <div class="mock-window-meta">
-                <span class="date">{r.data.date}</span>
-                <a href={r.data.url} class="tag-link" target="_blank" rel="noopener noreferrer">[GitHub Release]</a>
-              </div>
+          <div class="changelog-row">
+            <aside class="changelog-meta">
+              <h2 class="version-tag">{r.data.tag}</h2>
+              <time class="date">{r.data.date}</time>
+            </aside>
+            <div class="changelog-content">
+              <article class="mock-code-window">
+                <div class="mock-window-header">
+                  <span class="mock-file-label"># changelog/{r.data.tag}.md</span>
+                  <a href={r.data.url} class="tag-link" target="_blank" rel="noopener noreferrer">[GitHub Release]</a>
+                </div>
+                <div class="release-body">
+                  <r.Content />
+                </div>
+              </article>
             </div>
-            <div class="release-body">
-              <r.Content />
-            </div>
-          </article>
+          </div>
         ))
       }
     </main>
