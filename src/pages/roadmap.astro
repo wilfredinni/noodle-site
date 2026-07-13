@@ -231,6 +231,10 @@ const totalCount = versions.length
       text-align: left;
     }
 
+    .mock-code-window:has(.roadmap-details:not([open])) {
+      padding: 0.75rem 1.5rem;
+    }
+
     .mock-window-header {
       display: flex;
       justify-content: space-between;
@@ -247,27 +251,16 @@ const totalCount = versions.length
       font-weight: bold;
     }
 
-    .status-badge {
-      font-size: 0.75rem;
-      font-weight: 700;
-      font-family: var(--font-mono);
-      padding: 0.15rem 0.5rem;
-      border-radius: 4px;
-    }
-
-    .status-badge.done {
-      color: var(--color-green);
-      border: 1px solid var(--color-green);
-    }
-
-    .status-badge.goal {
+    .mock-window-header .tag-link {
       color: var(--color-purple);
-      border: 1px solid var(--color-purple);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.8rem;
+      transition: color 0.2s;
     }
 
-    .status-badge.upcoming {
+    .mock-window-header .tag-link.upcoming {
       color: var(--muted);
-      border: 1px solid var(--border);
     }
 
     /* ── Feed ── */
@@ -494,10 +487,10 @@ const totalCount = versions.length
                   <div class="mock-window-header">
                     <span class="mock-file-label">
                       <span class="toggle-arrow">▶</span>
-                      # roadmap/{v.version}.md
+                      #roadmap/{v.version}.md
                     </span>
-                    <span class={`status-badge ${v.status || "upcoming"}`}>
-                      {v.status === "done" ? "✓ done" : v.status === "goal" ? "◎ goal" : "○ upcoming"}
+                    <span class={`tag-link${!v.status ? " upcoming" : ""}`}>
+                      {v.status === "done" ? "[done]" : v.status === "goal" ? "[goal]" : "[upcoming]"}
                     </span>
                   </div>
                 </summary>
