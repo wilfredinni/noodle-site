@@ -146,6 +146,17 @@ const totalCount = versions.length
       --color-yellow: #df8e1d;
     }
 
+    .bg-glow {
+      position: fixed;
+      top: -20%;
+      left: -10%;
+      width: 120%;
+      height: 120%;
+      background: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, rgba(11, 16, 22, 0) 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
     .roadmap-container {
       max-width: 1100px;
       margin: 0 auto;
@@ -214,6 +225,11 @@ const totalCount = versions.length
 
     .mock-line {
       color: var(--fg);
+    }
+
+    .lede a {
+      color: var(--fg);
+      text-decoration: none;
     }
 
     /* ── Mock Windows ── */
@@ -435,7 +451,9 @@ const totalCount = versions.length
       <div class="roadmap-header-left">
         <span class="section-tag"># product roadmap</span>
         <h1>Roadmap</h1>
-        <p class="lede">The path from v0.1 to v1.0 and beyond. Track what's shipped, what's in progress, and what's coming next.</p>
+        <p class="lede">The path from v0.1 to v1.0 and beyond. Track what's shipped, what's in progress, and what's coming next.
+            For detailed information, you can <a href="/roadmap">view the changelog</a>.
+        </p>
       </div>
       <div class="roadmap-header-right">
         <div class="mock-code-window roadmap-stats-window">
