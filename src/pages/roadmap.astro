@@ -422,6 +422,15 @@ const totalCount = versions.length
     .roadmap-details .mock-window-header {
       cursor: pointer;
       user-select: none;
+      border-bottom: none;
+      padding-bottom: 0;
+      margin-bottom: 0;
+    }
+
+    .roadmap-details[open] .mock-window-header {
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 0.75rem;
+      margin-bottom: 0;
     }
 
     .roadmap-details .mock-window-header:hover .mock-file-label {
@@ -443,8 +452,6 @@ const totalCount = versions.length
 
     .roadmap-details-body {
       margin-top: 1.25rem;
-      padding-top: 1.25rem;
-      border-top: 1px dashed var(--border);
     }
   </style>
 
