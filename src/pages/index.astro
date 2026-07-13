@@ -3,7 +3,6 @@
 import BaseLayout from "../layouts/BaseLayout.astro"
 import FeatureCard from "../components/FeatureCard.astro"
 import HeroCode from "../components/HeroCode.astro"
-import CodeWindow from "../components/CodeWindow.astro"
 import { Image } from "astro:assets"
 import exampleImage from "../assets/example.png"
 import themesImage from "../assets/themes.png"
@@ -30,7 +29,7 @@ import themesImage from "../assets/themes.png"
       <div class="hero-links">
         <a href="/docs/getting-started/installation/">[Quick Start]</a>
         <a href="/docs/">[Read Docs]</a>
-        <a href="https://github.com/wilfredinni/noodle" target="_blank">[GitHub]</a>
+        <a href="#ai-skill">[Skill]</a>
       </div>
     </div>
     
@@ -133,18 +132,22 @@ import themesImage from "../assets/themes.png"
     </section>
 
     <!-- Skill Section -->
-    <section class="skill-section">
+    <section class="skill-section" id="ai-skill">
       <div class="skill-left">
         <div class="skill-visual">
-          <CodeWindow filename="noodle-agent@workspace:~" showControls={true}>
-<span class="token-string">$ noodle-use scaffold --source stripe.json</span>{"\n"}
-🤖 Target detected: Stripe OpenAPI v3{"\n"}
-🏗️ Building folder structure...{"\n"}
-✨ Created folder stripe/{"\n"}
-📝 Created stripe/folder.yml (Base URL: https://api.stripe.com){"\n"}
-📝 Created stripe/charges/create_charge.yml{"\n"}
-🎉 Success: Scaffolded Stripe collection (2 folders, 5 requests)
-          </CodeWindow>
+          <HeroCode filename="# example prompts">
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"Scaffold Stripe API collection"</span></div>
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"Audit my collection for security"</span></div>
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"Convert Insomnia export to Noodle"</span></div>
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"Set up basic auth on Posts folder"</span></div>
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"Change expand layout keybinding to Alt+I"</span></div>
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"Set Catppuccin as my theme"</span></div>
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"How many requests are in the Stripe collection?"</span></div>
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"What's the average login response time?"</span></div>
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"Sort folders from Z to A"</span></div>
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"Add a GET request for user profiles"</span></div>
+            <div class="mock-line"><span class="mock-key">&gt;</span> <span class="mock-value">"Update variables in development env"</span></div>
+          </HeroCode>
           <div class="visual-glow"></div>
         </div>
       </div>
