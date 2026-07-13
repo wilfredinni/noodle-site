@@ -222,17 +222,13 @@ const totalCount = versions.length
       background: rgba(30, 30, 46, 0.4);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 1.5rem;
+      padding: 0.75rem 1.5rem;
       font-family: var(--font-mono);
       font-size: 0.85rem;
       line-height: 1.6;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(12px);
       text-align: left;
-    }
-
-    .mock-code-window:has(.roadmap-details:not([open])) {
-      padding: 0.75rem 1.5rem;
     }
 
     .mock-window-header {
@@ -294,18 +290,7 @@ const totalCount = versions.length
       margin: 0;
     }
 
-    .roadmap-meta .version-tag.done {
-      color: var(--color-green);
-    }
 
-    .roadmap-meta .version-tag.goal {
-      color: var(--color-purple);
-    }
-
-    .roadmap-meta .meta-status {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
 
     /* ── Feature lists inside cards ── */
     .feature-group {
@@ -426,11 +411,6 @@ const totalCount = versions.length
       margin-bottom: 0;
     }
 
-    .roadmap-details .mock-window-header:hover .mock-file-label {
-      color: var(--accent);
-      transition: color 0.2s;
-    }
-
     .toggle-arrow {
       font-size: 0.6rem;
       color: var(--muted);
@@ -475,10 +455,7 @@ const totalCount = versions.length
       {versions.map((v) => (
         <div class="roadmap-row">
           <aside class="roadmap-meta">
-            <h2 class={`version-tag ${v.status || "upcoming"}`}>{v.version}</h2>
-            <span class="meta-status">
-              {v.status === "done" ? "released" : v.status === "goal" ? "goal" : "upcoming"}
-            </span>
+            <h2 class="version-tag">{v.version}</h2>
           </aside>
         <div class="roadmap-content">
             <article class="mock-code-window">
