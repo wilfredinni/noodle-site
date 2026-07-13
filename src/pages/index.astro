@@ -10,7 +10,7 @@ import themesImage from "../assets/themes.png"
 
 <BaseLayout title="Noodle · Terminal REST Client" description="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal.">
   <div class="bg-glow"></div>
-  
+
   <!-- Full-width hero outside the container (aligned left, bleeds right) -->
   <header class="full-width-hero">
     <!-- Left Column: Typography, Install Command, and Links -->
@@ -20,22 +20,25 @@ import themesImage from "../assets/themes.png"
       <p class="lede">
         Inspect, send, and iterate on HTTP requests from YAML files on disk. Noodle is offline, git-friendly, and keyboard-centric.
       </p>
-      
+
       <div class="install-pill">
         <code>curl -LsSf https://noodlerest.dev/install.sh | sh</code>
         <button class="copy-btn" onclick="navigator.clipboard?.writeText('curl -LsSf https://noodlerest.dev/install.sh | sh'); const t=this.innerText; this.innerText='COPIED'; setTimeout(()=>this.innerText=t, 2000);">COPY</button>
       </div>
-      
+
       <div class="hero-links">
         <a href="/docs/getting-started/installation/">[Quick Start]</a>
         <a href="/docs/">[Read Docs]</a>
         <a href="#ai-skill">[Skill]</a>
       </div>
     </div>
-    
+
     <!-- Right Column: TUI Screenshot visual (Bleeds to right edge of screen) -->
     <div class="hero-visual">
-      <Image src={exampleImage} class="hero-screenshot" alt="Noodle TUI Workspace" loading="eager" fetchpriority="high" />
+      <div class="visual-wrapper">
+        <Image src={exampleImage} class="hero-screenshot" alt="Noodle TUI Workspace" loading="eager" fetchpriority="high" />
+        <span class="image-caption">Noodle default theme Catppuccin</span>
+      </div>
       <div class="visual-glow"></div>
     </div>
   </header>
@@ -101,7 +104,10 @@ import themesImage from "../assets/themes.png"
 
       <div class="themes-right">
         <div class="themes-visual">
-          <Image src={themesImage} class="themes-screenshot" alt="Noodle Themes Collection" loading="lazy" />
+          <div class="visual-wrapper">
+            <Image src={themesImage} class="themes-screenshot" alt="Noodle Themes Collection" loading="lazy" />
+            <span class="image-caption">Catppuccin theme shown</span>
+          </div>
           <div class="visual-glow"></div>
         </div>
       </div>
@@ -282,7 +288,7 @@ import themesImage from "../assets/themes.png"
     overflow: hidden;
     max-width: fit-content;
   }
-  
+
   .install-pill code {
     padding: 0.75rem 1.25rem;
     font-size: 0.85rem;
@@ -297,7 +303,7 @@ import themesImage from "../assets/themes.png"
   .install-pill code::-webkit-scrollbar {
     display: none; /* Safari and Chrome */
   }
-  
+
   .install-pill code::before {
     content: "$ ";
     color: var(--muted);
@@ -319,7 +325,7 @@ import themesImage from "../assets/themes.png"
     cursor: pointer;
     transition: all 0.2s;
   }
-  
+
   .copy-btn:hover {
     background: var(--accent);
     color: var(--bg);
@@ -353,6 +359,23 @@ import themesImage from "../assets/themes.png"
     align-items: center;
     width: 100%;
     min-width: 0;
+  }
+
+  .visual-wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .image-caption {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    opacity: 0.7;
+    margin-top: 0.5rem;
+    padding-left: 0.25rem;
   }
 
   .hero-screenshot {
@@ -637,6 +660,14 @@ import themesImage from "../assets/themes.png"
       min-height: auto;
       margin-top: 2.5rem;
       margin-bottom: 2.5rem;
+    }
+
+    .visual-wrapper {
+      align-items: center;
+    }
+
+    .image-caption {
+      padding-left: 0;
     }
 
     .install-pill {
