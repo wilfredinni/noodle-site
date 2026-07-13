@@ -47,7 +47,7 @@ const rendered = await Promise.all(
     }
 
     .changelog-container {
-      max-width: 1000px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 2rem 1.5rem 4rem;
       position: relative;
@@ -123,11 +123,14 @@ const rendered = await Promise.all(
       border-radius: 6px;
       background: var(--bg-elevated);
       overflow: hidden;
-      max-width: fit-content;
+      width: 100%;
+      max-width: 360px;
+      min-width: fit-content;
       margin-top: 0.5rem;
     }
 
     .install-pill code {
+      flex: 1;
       padding: 0.6rem 1rem;
       font-size: 0.85rem;
       white-space: nowrap;
@@ -355,7 +358,10 @@ const rendered = await Promise.all(
       <div class="header-left">
         <span class="section-tag"># release history</span>
         <h1>Changelog</h1>
-        <p class="lede">Release history for noodle, the terminal REST client.</p>
+        <p class="lede">
+            Here you can find the full release history for Noodle, the delicious, free, and open-source terminal REST client
+            for your terminal.
+        </p>
 
         <div class="install-pill">
           <code>noodle update</code>
@@ -364,11 +370,13 @@ const rendered = await Promise.all(
       </div>
       <div class="header-right">
         <div class="mock-code-window release-stats-window">
-          <div class="mock-file-label"># system/release_metadata.yml</div>
+          <div class="mock-window-header">
+            <span class="mock-file-label"># system/release_metadata.yml</span>
+          </div>
           <div class="mock-line"><span class="mock-key">latest_version</span>: <span class="mock-value">v0.4.1</span></div>
           <div class="mock-line"><span class="mock-key">release_date</span>: <span class="mock-value">2026-07-11</span></div>
           <div class="mock-line"><span class="mock-key">total_releases</span>: <span class="mock-value">9</span></div>
-          <div class="mock-line"><span class="mock-key">license</span>: <span class="mock-value">MIT</span></div>
+          <div class="mock-line"><span class="mock-key">license</span>: <span class="mock-value">Apache-2.0</span></div>
           <div class="mock-line"><span class="mock-key">status</span>: <span class="mock-value">stable</span></div>
         </div>
       </div>
