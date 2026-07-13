@@ -388,6 +388,7 @@ import themesImage from "../assets/themes.png"
     display: flex;
     justify-content: center;
     width: 100%;
+    min-width: 0;
   }
 
   .yaml-right {
@@ -501,6 +502,7 @@ import themesImage from "../assets/themes.png"
     display: flex;
     justify-content: center;
     width: 100%;
+    min-width: 0;
   }
 
   .skill-visual {
@@ -509,6 +511,7 @@ import themesImage from "../assets/themes.png"
     justify-content: center;
     align-items: center;
     width: 100%;
+    min-width: 0;
   }
 
   .skill-right {
@@ -576,7 +579,7 @@ import themesImage from "../assets/themes.png"
     }
 
     .local-yaml-section {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: 2rem;
       text-align: center;
       padding: 3rem 2rem;
@@ -587,7 +590,7 @@ import themesImage from "../assets/themes.png"
      }
 
      .themes-section {
-       grid-template-columns: 1fr;
+       grid-template-columns: minmax(0, 1fr);
        gap: 2rem;
        text-align: center;
        padding: 3rem 0;
@@ -599,7 +602,7 @@ import themesImage from "../assets/themes.png"
      }
 
      .skill-section {
-       grid-template-columns: 1fr;
+       grid-template-columns: minmax(0, 1fr);
        gap: 2rem;
        text-align: center;
        padding: 3rem 0;

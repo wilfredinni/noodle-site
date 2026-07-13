@@ -31,6 +31,8 @@ const hasSlot = Astro.slots.has('default')
 <style>
   .mock-code-window {
     width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
     background: rgba(30, 30, 46, 0.4);
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -41,6 +43,7 @@ const hasSlot = Astro.slots.has('default')
     z-index: 2;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(12px);
+    text-align: left;
   }
 
   .mock-file-label {
