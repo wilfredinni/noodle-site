@@ -228,3 +228,134 @@
     50% { background: var(--color-purple); color: var(--color-purple); }
   }
 </style>
+
+<script>
+  const scenarios = {
+    scaffold: {
+      prompt: "Scaffold a Stripe API collection with auth and a few endpoints",
+      logs: [
+        { text: "$ noodle-use scaffold --source stripe.json", class: "cmd" },
+        { text: "🤖 Target detected: Stripe OpenAPI v3", class: "agent" },
+        { text: "🏗️  Building folder structure...", class: "info" },
+        { text: "✨ Created folder stripe/", class: "success" },
+        { text: "📝 Created stripe/folder.yml (Base URL: https://api.stripe.com)", class: "success" },
+        { text: "📝 Created stripe/charges/create_charge.yml", class: "success" },
+        { text: "📝 Created stripe/customers/create_customer.yml", class: "success" },
+        { text: "🎉 Success: Scaffolded Stripe collection (2 folders, 5 requests)", class: "success-final" }
+      ]
+    },
+    audit: {
+      prompt: "Audit my collection for security issues",
+      logs: [
+        { text: "$ noodle-use audit ./collections/", class: "cmd" },
+        { text: "🤖 Scanning 14 request files...", class: "agent" },
+        { text: "⚠️ Warning in collections/auth/login.yml:", class: "warning-header" },
+        { text: "   - Plaintext password variable found. Recommended: Use dotenv.", class: "warning" },
+        { text: "⚠️ Warning in collections/users/delete.yml:", class: "warning-header" },
+        { text: "   - Missing Authorization header inheritance.", class: "warning" },
+        { text: "🔒 Audit complete: 0 errors, 2 warnings.", class: "warning-final" }
+      ]
+    },
+    import: {
+      prompt: "Convert this Insomnia export to noodle",
+      logs: [
+        { text: "$ noodle-use import ./insomnia_export.json", class: "cmd" },
+        { text: "🤖 Reading Insomnia v4 collection...", class: "agent" },
+        { text: "🔄 Migrating environment variables -> .env", class: "info" },
+        { text: "🔄 Converting 3 groups to folders...", class: "info" },
+        { text: "✨ Successfully created 18 request files!", class: "success-final" }
+      ]
+    }
+  };
+
+  let activeTimeouts = [];
+
+  function clearActiveTimeouts() {
+    activeTimeouts.forEach(t => clearTimeout(t));
+    activeTimeouts = [];
+  }
+
+  function runScenario(key) {
+    clearActiveTimeouts();
+    
+    const container = document.getElementById('terminal-content');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const scenario = scenarios[key];
+    if (!scenario) return;
+    
+    // Create prompt line
+    const promptEl = document.createElement('div');
+    promptEl.className = 'prompt-line';
+    promptEl.innerHTML = '<span class="prompt-arrow">&gt; </span><span class="prompt-text"></span>';
+    container.appendChild(promptEl);
+    const promptTextSpan = promptEl.querySelector('.prompt-text');
+    
+    let charIdx = 0;
+    
+    function typeChar() {
+      if (charIdx < scenario.prompt.length) {
+        promptTextSpan.textContent += scenario.prompt.charAt(charIdx);
+        charIdx++;
+        const delay = 30 + Math.random() * 40; // 30-70ms
+        activeTimeouts.push(setTimeout(typeChar, delay));
+      } else {
+        // Delay before outputting execution logs
+        activeTimeouts.push(setTimeout(runLogs, 400));
+      }
+    }
+    
+    typeChar();
+    
+    function runLogs() {
+      let logIdx = 0;
+      
+      function printNextLog() {
+        if (logIdx < scenario.logs.length) {
+          const log = scenario.logs[logIdx];
+          const logEl = document.createElement('div');
+          logEl.className = `log-line ${log.class}`;
+          logEl.textContent = log.text;
+          container.appendChild(logEl);
+          
+          // Scroll to bottom
+          const body = container.parentElement;
+          if (body) {
+            body.scrollTop = body.scrollHeight;
+          }
+          
+          logIdx++;
+          
+          // Adjust delays: commands print fast, execution logs take longer
+          let delay = 350;
+          if (log.class === 'cmd') delay = 150;
+          else if (log.class.includes('final')) delay = 500;
+          
+          activeTimeouts.push(setTimeout(printNextLog, delay));
+        }
+      }
+      
+      printNextLog();
+    }
+  }
+
+  // Set up tabs click handlers
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.setAttribute('aria-selected', 'false');
+      });
+      
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+      
+      const scenarioKey = btn.getAttribute('data-scenario');
+      runScenario(scenarioKey);
+    });
+  });
+
+  // Auto-run first scenario on load
+  runScenario('scaffold');
+</script>
