@@ -205,6 +205,26 @@ const totalCount = versions.length
       width: 100%;
     }
 
+    /* Roadmap Links */
+    .roadmap-links {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .roadmap-links a {
+      color: var(--color-purple);
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: color 0.2s;
+    }
+
+    .roadmap-links a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
     .section-tag {
       font-size: 0.9rem;
       font-weight: 700;
@@ -280,6 +300,10 @@ const totalCount = versions.length
       display: flex;
       flex-direction: column;
       gap: 3rem;
+    }
+
+    .roadmap-feed.hide-completed .roadmap-row[data-status="done"] {
+      display: none;
     }
 
     .roadmap-row {
@@ -380,6 +404,11 @@ const totalCount = versions.length
         order: 2;
       }
 
+      .roadmap-header-left .roadmap-links {
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+
       .roadmap-row {
         grid-template-columns: 1fr;
         gap: 1rem;
@@ -452,8 +481,17 @@ const totalCount = versions.length
         <span class="section-tag"># product roadmap</span>
         <h1>Roadmap</h1>
         <p class="lede">The path from v0.1 to v1.0 and beyond. Track what's shipped, what's in progress, and what's coming next.
-            For detailed information, you can <a href="/roadmap">view the changelog</a>.
+            For detailed information, you can <a href="/changelog">view the changelog</a>.
         </p>
+        <div class="roadmap-links">
+          <a href="#" id="toggle-completed-btn" onclick="
+            const feed = document.querySelector('.roadmap-feed');
+            const isHidden = feed.classList.toggle('hide-completed');
+            this.textContent = isHidden ? '[Show Completed]' : '[Hide Completed]';
+            return false;
+          ">[Show Completed]</a>
+          <a href="/changelog">[Changelog]</a>
+        </div>
       </div>
       <div class="roadmap-header-right">
         <div class="mock-code-window roadmap-stats-window">
@@ -469,9 +507,9 @@ const totalCount = versions.length
       </div>
     </header>
 
-    <main class="roadmap-feed">
+    <main class="roadmap-feed hide-completed">
       {versions.map((v) => (
-        <div class="roadmap-row">
+        <div class="roadmap-row" data-status={v.status || "upcoming"}>
           <aside class="roadmap-meta">
             <h2 class="version-tag">{v.version}</h2>
           </aside>
