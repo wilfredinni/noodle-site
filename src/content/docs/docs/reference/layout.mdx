@@ -2,25 +2,34 @@
 title: Layout
 description: TUI layout modes and navigation
 ---
-import { Image } from 'astro:assets';
-import noodleAura from '../../../../assets/noodle-aura.png';
 
+import { Image } from "astro:assets";
+import noodleAura from "../../../../assets/noodle-aura.png";
 
 ## Panes
 
-The Noodle TUI has three panes:
+The main Noodle view has four panes:
 
-<Image src={noodleAura} alt="Three-pane layout" loading="eager" fetchpriority="high" />
+<Image
+  src={noodleAura}
+  alt="Noodle main layout"
+  loading="eager"
+  fetchpriority="high"
+/>
 
-| Pane | Description |
-|------|-------------|
-| **Sidebar** | Collection tree with folders and requests |
-| **Request** | Request detail view with inline editing |
+| Pane         | Description                                        |
+| ------------ | -------------------------------------------------- |
+| **Sidebar**  | Collection tree with folders and requests          |
+| **URL bar**  | Edit and inspect the selected request URL          |
+| **Request**  | Request detail view with inline editing            |
 | **Response** | Response rendering (idle / sending / done / error) |
 
 ## Focus
 
-Press **Tab** / **Shift+Tab** to cycle focus. The active pane gets a cyan border with a `▸` prefix in its title.
+Press **Tab** / **Shift+Tab** to cycle focus through sidebar → URL bar →
+request → response. The active pane gets a cyan border with a `▸` prefix in
+its title. Folder view has sidebar and folder panes; the environment editor
+has environment sidebar, header, and variable panes.
 
 ## Layout Modes
 

@@ -2,41 +2,46 @@
 title: Using the Sidebar
 description: Browse, create, and manage requests and folders
 ---
-import { Image } from 'astro:assets';
-import noodleCatppuccin from '../../../../assets/noodle-catppuccin.png';
 
+import { Image } from "astro:assets";
+import noodleCatppuccin from "../../../../assets/noodle-catppuccin.png";
 
 The sidebar is the control center. Select a request or folder, then act
 on it.
 
-<Image src={noodleCatppuccin} alt="Sidebar" loading="eager" fetchpriority="high" />
+<Image
+  src={noodleCatppuccin}
+  alt="Sidebar"
+  loading="eager"
+  fetchpriority="high"
+/>
 
 ## Navigation
 
-| Key | Action |
-|-----|--------|
-| **↑**/**↓** | Move between items |
-| **→** | Expand folder |
-| **←** | Collapse folder |
-| **Space** | Toggle folder open/closed |
-| **Return** | Select request |
-| **Tab** / **Shift+Tab** | Move focus to another pane |
-| **Escape** | Return focus to sidebar from anywhere |
+| Key                     | Action                                |
+| ----------------------- | ------------------------------------- |
+| **↑**/**↓**             | Move between items                    |
+| **→**                   | Expand folder                         |
+| **←**                   | Collapse folder                       |
+| **Space**               | Toggle folder open/closed             |
+| **Return**              | Select request                        |
+| **Tab** / **Shift+Tab** | Move focus to another pane            |
+| **Escape**              | Return focus to sidebar from anywhere |
 
 ## Requests
 
 Requests show a method badge (GET/POST/etc.) and a dirty indicator
 (●) when there are unsaved changes.
 
-| Key | Action |
-|-----|--------|
-| **Ctrl+N** | New request: opens a modal for name, method, URL |
-| **Ctrl+K** | Clone selected request |
-| **Ctrl+E** | Edit request name, method, URL, or move to another folder |
-| **Ctrl+Alt+E** | Edit raw YAML in [code editor](/guides/code-editor/) |
-| **Ctrl+W** | Delete selected request with confirmation |
-| **Ctrl+Return** | Send the selected request |
-| **Ctrl+S** | Save current request to disk |
+| Key             | Action                                                        |
+| --------------- | ------------------------------------------------------------- |
+| **Ctrl+N**      | New request: opens a modal for name, method, URL              |
+| **Ctrl+K**      | Clone selected request                                        |
+| **Ctrl+E**      | Edit request name, method, URL, or move to another folder     |
+| **Ctrl+Alt+E**  | Edit raw YAML in the [code editor](/docs/guides/code-editor/) |
+| **Ctrl+W**      | Delete selected request with confirmation                     |
+| **Ctrl+Return** | Send the selected request                                     |
+| **Ctrl+S**      | Save current request to disk                                  |
 
 ## Collection Switcher
 
@@ -46,11 +51,12 @@ to `~/.config/noodle/config.yml`.
 
 ## Folders
 
-| Key | Action |
-|-----|--------|
-| **Ctrl+Alt+N** | New folder |
-| **Ctrl+W** | Delete folder and all requests inside |
-| **←**/**→** | Switch folder pane tabs (General / Headers / Auth / Activity) |
+| Key            | Action                                                        |
+| -------------- | ------------------------------------------------------------- |
+| **Ctrl+Alt+N** | New folder                                                    |
+| **Ctrl+W**     | Delete folder and all requests inside                         |
+| **←**/**→**    | Switch folder pane tabs (General / Headers / Auth / Activity) |
+| **Ctrl+Alt+E** | Edit raw `folder.yml` in the code editor                      |
 
 ## Folder Pane
 

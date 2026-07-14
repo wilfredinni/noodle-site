@@ -5,6 +5,9 @@ description: Configure authentication for your requests
 
 ## Auth Types
 
+Choose an auth type from the request or folder **Auth** tab. Use environment
+variables for credentials so the same request works across environments.
+
 ### Bearer Token
 
 ```yaml
@@ -36,13 +39,13 @@ auth:
 
 ## Inheritance
 
-Auth can be defined at multiple levels:
+Auth can be defined on a folder or a request. A request with `type: inherit`
+uses the nearest parent folder's auth configuration. Request auth overrides
+folder auth; use `type: none` to opt out for one request.
 
-- **Collection**: In `settings.yml`
-- **Folder**: In `folder.yml`
-- **Request**: In the request file
-
-Noodle resolves auth by walking up the folder hierarchy. A request-level `auth` with `type: inherit` uses the nearest parent's auth config.
+See [Using Folders](/docs/guides/using-folders/) for the interactive workflow
+and [Collection Format](/docs/reference/collection-format/#auth) for the
+canonical auth field schema.
 
 ## Disabling Auth
 

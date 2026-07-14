@@ -117,9 +117,10 @@ request across dev/staging/production.
 
 ## Pane
 
-The TUI is split into three **panes**:
+The main TUI is split into four **panes**:
 
 - **Sidebar**: browse collection tree, select requests
+- **URL bar**: inspect and edit the selected request URL
 - **Request**: inspect and edit the selected request
 - **Response**: view response body, headers, and timing
 
@@ -131,7 +132,7 @@ layout.
 **Focus** determines which pane receives keyboard input. The active pane
 gets a cyan border.
 
-- **Tab** / **Shift+Tab**: cycle focus through sidebar → request → response
+- **Tab** / **Shift+Tab**: cycle focus through sidebar → URL bar → request → response
 - **Escape**: return to browse mode
 - **Return**: enter edit mode on the focused field
 
@@ -150,20 +151,20 @@ which view is active:
 
 **Main view** (working with requests):
 
-| Section | Actions |
-|---------|---------|
-| Request | New, clone, save, delete, edit, send |
-| Response | Copy body |
-| Environment | Cycle, open editor |
-| Collection | Switch collection, new folder |
-| App | Help, theme picker, toggle layout, expand pane, undo all |
+| Section     | Actions                                                  |
+| ----------- | -------------------------------------------------------- |
+| Request     | New, clone, save, delete, edit, send                     |
+| Response    | Copy body                                                |
+| Environment | Cycle, open editor                                       |
+| Collection  | Switch collection, new folder                            |
+| App         | Help, theme picker, toggle layout, expand pane, undo all |
 
 **Env editor view** (when **e** is pressed):
 
-| Section | Actions |
-|---------|---------|
+| Section     | Actions                         |
+| ----------- | ------------------------------- |
 | Environment | Save, new, clone, delete, cycle |
-| App | Help, theme picker, undo all |
+| App         | Help, theme picker, undo all    |
 
 Use it to discover features, or as a faster alternative to remembering
 every keybinding. It always reflects your current custom keybinds.

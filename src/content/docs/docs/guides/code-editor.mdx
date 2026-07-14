@@ -18,23 +18,31 @@ message instead of raw stack traces.
 
 ## YAML Editor Overlay
 
-Press **Ctrl+Alt+E** to edit the raw YAML of any request file. The YAML
-editor provides:
+Press **Ctrl+Alt+E** to edit the raw YAML of the selected request or
+`folder.yml`. The editor validates the appropriate file type before saving.
+It provides:
 
 - Syntax highlighting for YAML keys, values, strings, and comments
 - `$variable` highlighting (resolved and missing)
 - Code folding for nested blocks
 - Variable autocompletion
 
+## Editing pairs
+
+Typing an opening `{`, `[`, `(`, quote, or `<` inserts its closing pair and
+keeps the cursor between them. With a selection, the editor wraps the selected
+text. Typing a closing character over an existing one moves past it instead of
+inserting another.
+
 ## Code Folding
 
 Fold and unfold blocks of code to focus on what matters:
 
-| Key | Action |
-|-----|--------|
+| Key      | Action                          |
+| -------- | ------------------------------- |
 | `Ctrl+G` | Toggle fold at the current line |
-| `F5` | Fold all foldable regions |
-| `F6` | Unfold all regions |
+| `F5`     | Fold all foldable regions       |
+| `F6`     | Unfold all regions              |
 
 When you edit inside a folded region, the fold auto-expands. Fold state
 is preserved across content changes.

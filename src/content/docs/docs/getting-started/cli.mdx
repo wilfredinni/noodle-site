@@ -1,6 +1,6 @@
 ---
 title: CLI Commands
-description: Noodle command-line interface reference
+description: Interactive and automation command reference
 ---
 
 ## TUI (default)
@@ -14,10 +14,10 @@ noodle --collection ./api --env prod    # explicit collection + env
 noodle -c ./my-requests -e staging      # shorthand
 ```
 
-| Flag | Short | Default | Description |
-|------|-------|---------|-------------|
-| `--collection` | `-c` | `./collections` | Path to request directory |
-| `--env` | `-e` |: | Environment to activate. Exits with error if not found |
+| Flag           | Short | Default         | Description                                            |
+| -------------- | ----- | --------------- | ------------------------------------------------------ |
+| `--collection` | `-c`  | `./collections` | Path to request directory                              |
+| `--env`        | `-e`  | :               | Environment to activate. Exits with error if not found |
 
 `--help` and `--version` are available on every command.
 
@@ -32,14 +32,14 @@ noodle import ./postman_collection.json -i postman      # force format
 noodle import ./spec.json -o ./my-apis                  # custom output dir
 ```
 
-| Argument | Description |
-|----------|-------------|
+| Argument | Description                      |
+| -------- | -------------------------------- |
 | `source` | Path to spec file (JSON or YAML) |
 
-| Flag | Short | Default | Description |
-|------|-------|---------|-------------|
-| `--format` | `-i` | auto-detect | `openapi` or `postman` |
-| `--output` | `-o` | `./collections` | Output directory |
+| Flag       | Short | Default         | Description            |
+| ---------- | ----- | --------------- | ---------------------- |
+| `--format` | `-i`  | auto-detect     | `openapi` or `postman` |
+| `--output` | `-o`  | `./collections` | Output directory       |
 
 ## Update
 
@@ -48,3 +48,56 @@ Self-updates the binary. Homebrew installs redirect to `brew upgrade`.
 ```bash
 noodle update
 ```
+
+## Automation commands
+
+Use automation commands in scripts and agent workflows. They do not open the
+TUI. Collection paths are filesystem paths, and request IDs are
+collection-relative paths without the `.yml` extension (for example,
+`users/list`).
+
+| Command                                                                           | Purpose                                                       |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `noodle workspace list`                                                           | List collections registered in the global config.             |
+| `noodle collection create <name> [-o <dir>]`                                      | Create and register a starter collection.                     |
+| `noodle collection list <path>`                                                   | Print a collection tree.                                      |
+| `noodle collection inspect <path>`                                                | Show collection metadata, environments, and its tree.         |
+| `noodle collection audit <path> [--fix]`                                          | Validate collection files; `--fix` canonicalizes valid files. |
+| `noodle collection run <path> [-e <env>]`                                         | Run every request and fail if any request fails.              |
+| `noodle request create <id> --url <url> [--method <method>] [--collection <dir>]` | Create a minimal request.                                     |
+| `noodle request run <id> [--collection <dir>] [-e <env>]`                         | Run one saved request.                                        |
+| `noodle environment set <key> <value> --env <name> [--collection <dir>]`          | Set and enable an environment variable.                       |
+
+`request run` and `collection run` use `--env` when supplied. Otherwise,
+they use the environment named by the collection's `settings.yml`.
+
+### JSON output and exit status
+
+Every automation command accepts `--json`. It writes exactly one JSON object
+to stdout:
+
+```json
+{ "status": "success", "data": {}, "errors": [] }
+```
+
+Successful commands exit with status `0`. Invalid input and failed request or
+collection runs exit nonzero. Without `--json`, commands print concise,
+human-readable results; interactive terminals also show progress and status
+colors (honoring `NO_COLOR`).
+
+### Example workflow
+
+```bash
+noodle collection create demo
+noodle request create users/list \
+  --url https://api.example.com/users \
+  --collection ./demo
+noodle environment set base_url https://api.example.com \
+  --env development \
+  --collection ./demo
+noodle collection audit ./demo
+noodle collection run ./demo --env development --json
+```
+
+For safety, request IDs cannot be absolute paths or contain traversal,
+backslashes, hidden segments, or empty path segments.

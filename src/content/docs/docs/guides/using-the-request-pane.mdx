@@ -2,26 +2,31 @@
 title: Using the Request Pane
 description: Edit and configure HTTP requests in the terminal
 ---
-import { Image } from 'astro:assets';
-import noodleOwl from '../../../../assets/noodle-owl.png';
 
+import { Image } from "astro:assets";
+import noodleOwl from "../../../../assets/noodle-owl.png";
 
 The request pane sits in the center of the TUI. It shows every detail of
 the selected request: URL, method, headers, params, auth, body, and
 settings.
 
-<Image src={noodleOwl} alt="Request pane" loading="eager" fetchpriority="high" />
+<Image
+  src={noodleOwl}
+  alt="Request pane"
+  loading="eager"
+  fetchpriority="high"
+/>
 
 ## Browse Mode
 
 When the request pane is focused, arrow keys navigate between sections:
 
-| Key | Action |
-|-----|--------|
+| Key         | Action                                                   |
+| ----------- | -------------------------------------------------------- |
 | **↑**/**↓** | Move between sections (URL, headers, params, auth, body) |
-| **←**/**→** | Move between items within a section |
-| **Return** | Enter edit mode on the selected field |
-| **Space** | Toggle header/param enabled/disabled |
+| **←**/**→** | Move between items within a section                      |
+| **Return**  | Enter edit mode on the selected field                    |
+| **Space**   | Toggle header/param enabled/disabled                     |
 
 Disabled fields are preserved but not sent with the request.
 
@@ -30,35 +35,35 @@ Disabled fields are preserved but not sent with the request.
 Headers and query params are lists of key/value pairs. Both work the
 same way:
 
-| Action | Key |
-|--------|-----|
-| Add new row | Arrow down past the last row |
-| Toggle enabled | **Space** |
-| Edit value | **Return** to enter edit mode |
-| Delete row | **Ctrl+D** in browse mode |
+| Action         | Key                           |
+| -------------- | ----------------------------- |
+| Add new row    | Arrow down past the last row  |
+| Toggle enabled | **Space**                     |
+| Edit value     | **Return** to enter edit mode |
+| Delete row     | **Ctrl+D** in browse mode     |
 
 ## Edit Mode
 
 Press **Return** on any field to edit. A cursor appears.
 
-| Key | Action |
-|-----|--------|
-| **Return** | Commit the edit |
+| Key        | Action                              |
+| ---------- | ----------------------------------- |
+| **Return** | Commit the edit                     |
 | **Escape** | Cancel, revert field to saved value |
-| **Tab** | Move to next field |
+| **Tab**    | Move to next field                  |
 
 ## Body Types
 
 Press **Ctrl+T** in the body section to cycle through types. Each type
 shows different fields:
 
-| Type | Fields shown |
-|------|-------------|
-| **none** | No body |
-| **json** | Raw text area |
-| **urlencoded** | Form entries (key/value) |
-| **multipart** | Form entries (text or file) |
-| **binary** | File path |
+| Type           | Fields shown                |
+| -------------- | --------------------------- |
+| **none**       | No body                     |
+| **json**       | Raw text area               |
+| **urlencoded** | Form entries (key/value)    |
+| **multipart**  | Form entries (text or file) |
+| **binary**     | File path                   |
 
 For multipart entries, **Ctrl+T** toggles between text and file mode.
 
@@ -66,21 +71,21 @@ For multipart entries, **Ctrl+T** toggles between text and file mode.
 
 Below the body section, configure request behavior:
 
-| Setting | Description |
-|---------|-------------|
-| **Timeout** | Request timeout in milliseconds. `0` means no timeout |
-| **Follow redirects** | Toggle automatic redirect following on/off |
-| **Max redirects** | Maximum number of redirects to follow |
+| Setting              | Description                                           |
+| -------------------- | ----------------------------------------------------- |
+| **Timeout**          | Request timeout in milliseconds. `0` means no timeout |
+| **Follow redirects** | Toggle automatic redirect following on/off            |
+| **Max redirects**    | Maximum number of redirects to follow                 |
 
 ## Variable Autocompletion
 
 Type `$` in any text field to trigger the autocompletion popup:
 
-| Key | Action |
-|-----|--------|
-| **↑**/**↓** | Navigate suggestions |
+| Key                  | Action                     |
+| -------------------- | -------------------------- |
+| **↑**/**↓**          | Navigate suggestions       |
 | **Tab** / **Return** | Accept selected suggestion |
-| **Escape** | Dismiss popup |
+| **Escape**           | Dismiss popup              |
 
 The popup lists available environment variables filtered by your typed
 prefix. It appears at your cursor position and works in the URL bar,
@@ -89,6 +94,7 @@ header values, param values, body editor, and auth fields.
 ## Variable Highlighting
 
 All input fields display `$variable` references with color-coded states:
+
 - **Resolved** — variable exists in the active environment (theme primary color)
 - **Missing** — variable not found in any environment (theme error color)
 
@@ -96,7 +102,7 @@ This helps you catch typos and missing environment variables before sending.
 
 ## JSON Body Editor
 
-When `body_type` is `json`, the body field uses the [code editor](/guides/code-editor/)
+When `body_type` is `json`, the body field uses the [code editor](/docs/guides/code-editor/)
 with Tree-sitter syntax highlighting, line numbers, and inline JSON validation.
 Invalid JSON shows an error notice above the body area with a readable error
 message.
@@ -107,36 +113,36 @@ For multipart entries, **Ctrl+T** toggles between text and file mode.
 
 Navigate to the auth section to set authentication:
 
-| Auth type | Fields |
-|-----------|--------|
-| **None** | No auth |
-| **Bearer** | Token field |
-| **Basic** | Username and password |
+| Auth type   | Fields                                     |
+| ----------- | ------------------------------------------ |
+| **None**    | No auth                                    |
+| **Bearer**  | Token field                                |
+| **Basic**   | Username and password                      |
 | **API Key** | Key, value, and placement (header / query) |
 
 Press **Return** on the type field to cycle through options.
 
 ## Creating and Managing Requests
 
-| Action | Keybinding |
-|--------|------------|
-| New request | **Ctrl+N**: set name, method, URL in a modal |
-| Save | **Ctrl+S**: writes the `.yml` file |
-| Clone | **Ctrl+K**: duplicates the request |
-| Delete | **Ctrl+W**: deletes with confirmation |
+| Action          | Keybinding                                         |
+| --------------- | -------------------------------------------------- |
+| New request     | **Ctrl+N**: set name, method, URL in a modal       |
+| Save            | **Ctrl+S**: writes the `.yml` file                 |
+| Clone           | **Ctrl+K**: duplicates the request                 |
+| Delete          | **Ctrl+W**: deletes with confirmation              |
 | Edit in overlay | **Ctrl+E**: rename, change method/URL, move folder |
-| Edit YAML | **Ctrl+Alt+E**: edit raw YAML in overlay |
-| New folder | **Ctrl+Alt+N**: creates a folder |
-| Expand pane | **F2**: expand request pane to full width |
+| Edit YAML       | **Ctrl+Alt+E**: edit raw YAML in overlay           |
+| New folder      | **Ctrl+Alt+N**: creates a folder                   |
+| Expand pane     | **F2**: expand request pane to full width          |
 
 The collection directory is created automatically on first save.
 
 ## Reverting
 
-| Key | Action |
-|-----|--------|
-| **Ctrl+D** | Revert current field to last saved value |
-| **Ctrl+R** | Revert all fields in this request |
+| Key        | Action                                                                  |
+| ---------- | ----------------------------------------------------------------------- |
+| **Ctrl+D** | Revert current field to last saved value                                |
+| **Ctrl+R** | Revert all fields in this request                                       |
 | **Ctrl+Z** | Undo all pending changes across all requests, folders, and environments |
 
 ## Sending

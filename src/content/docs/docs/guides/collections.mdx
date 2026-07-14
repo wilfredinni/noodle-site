@@ -1,9 +1,10 @@
 ---
 title: Collections
-description: Organize requests with the collection file format
+description: Create, switch, and organize request collections
 ---
 
-A collection is a directory of `.yml` files, one per request.
+A collection is a directory of `.yml` request files. It is the unit you open,
+share, version, inspect, and run.
 
 ## Directory Structure
 
@@ -12,113 +13,65 @@ my-collection/
 ├── .environments/
 │   ├── production.env
 │   └── staging.env
-├── .noodle/
-│   └── ui-state.yml           # UI state (auto-generated)
-├── .timeline/                 # Response history (auto-generated)
+├── .noodle/                  # UI state (auto-generated)
+├── .timeline/                # Response history (auto-generated)
 ├── settings.yml
 ├── users/
 │   ├── folder.yml
 │   ├── list.yml
-│   ├── create.yml
-│   └── delete.yml
-├── example.yml
-└── another-request.yml
+│   └── create.yml
+└── health.yml
 ```
 
-The `.noodle/` and `.timeline/` directories are created automatically.
-`.noodle/` stores UI state (last selected request, expanded folders, tab
-preferences). `.timeline/` stores response history: one file per request,
-pruned to the 50 most recent entries. Both are safe to commit or ignore.
+The `.noodle/` and `.timeline/` directories are created automatically. They
+store local UI state and response history, and can be committed or ignored to
+suit your workflow. The [Timeline](/docs/reference/timeline/) reference
+explains the stored history format.
 
-## Request File
+For the complete request, folder, and settings schema, see the
+[Collection Format](/docs/reference/collection-format/) reference.
 
-```yaml
-name: Get Users
-method: GET
-url: https://api.example.com/users
-headers:
-  Accept: application/json
+## Starting a collection
+
+Create a collection from the TUI by saving a request, or create one directly
+for automation:
+
+```bash
+noodle collection create my-api
+noodle request create health \
+  --url https://api.example.com/health \
+  --collection ./my-api
 ```
 
-### Fields
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | yes | Display name in sidebar |
-| `method` | string | yes | HTTP method (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS`) |
-| `url` | string | yes | Request URL (supports `$VAR` substitution) |
-| `headers` | array | no | Array of header objects |
-| `params` | array | no | Array of query parameter objects |
-| `auth` | object | no | Override collection/folder auth |
-| `body_type` | string | no | `none`, `json`, `urlencoded`, `multipart`, or `binary` |
-| `body` | string | no | Raw body content |
-| `timeout` | number | no | Request timeout in ms |
-
-## folder.yml
-
-Optional metadata for organizing collections:
-
-```yaml
-name: Users API
-seq: 0
-headers:
-  Accept: application/json
-auth:
-  type: bearer
-  token: $folder_token
-```
-
-### Fields
-
-| Field | Description |
-|-------|-------------|
-| `name` | Display name in sidebar. Falls back to directory name |
-| `seq` | Custom sort position. Folders without `seq` sort alphabetically |
-| `headers` | Headers inherited by child requests |
-| `auth` | Auth inherited by child requests |
-
-### Inheritance
-
-Requests inherit headers and auth from their parent folder. Set
-`auth: { type: inherit }` on a request to use the nearest parent's auth
-config. Set `auth: { type: none }` to disable auth for a specific request.
-
-### Activity Tab
-
-When a folder is focused in the sidebar, the Folder Pane shows an
-**Activity** tab with per-request stats:
-
-| Column | Description |
-|--------|-------------|
-| Method | HTTP method |
-| Name | Request name |
-| OK% | Success rate: green ≥90%, yellow ≥50%, red below |
-| Avg | Average response time |
-| Last | Calls + time since last send |
-
-Stats are computed from the request timeline.
+The default TUI collection is `./collections`. A new collection directory is
+created when you first save a request.
 
 ## Switching Collections
 
-Press `Ctrl+O` to switch between previously-used collection directories.
-The collection switcher shows a list of recently opened collections in
-most-recently-used order.
+Press `Ctrl+O` to switch between previously used collection directories. The
+collection switcher lists them in most-recently-used order. When you switch,
+Noodle reloads the collection, environments, and UI state; unsaved drafts are
+preserved per collection.
 
-When you switch, Noodle reloads the collection, environments, and UI
-state from the new directory. Unsaved changes in the current collection
-are preserved per-collection: switching away and back restores your
-drafts.
+Opened collections are stored in `~/.config/noodle/config.yml`. You can also
+switch collections from the Collection section of the command palette
+(`Ctrl+P`).
 
-Collections you open are persisted to `~/.config/noodle/config.json` so
-they appear in the switcher across sessions.
+## Organizing a collection
 
-You can also switch collections from the command palette (`Ctrl+P`)
-under the Collection section.
+Use folders to group related requests. A `folder.yml` can give a folder a
+name and sort order, and can apply shared headers or authentication to its
+children. The [Using Folders](/docs/guides/using-folders/) guide covers the
+TUI workflow; the [Collection Format](/docs/reference/collection-format/)
+reference defines inheritance and file fields.
 
-## settings.yml
+## Default environment
 
-Collection-wide default environment:
+Set a collection-wide default in `settings.yml`:
 
 ```yaml
 environment: production
 ```
+
+This selects the environment when you open the collection and when automation
+run commands are used without `--env`.

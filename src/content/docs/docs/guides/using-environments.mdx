@@ -2,14 +2,22 @@
 title: Using Environments
 description: Manage and switch between environment contexts
 ---
-import { Image } from 'astro:assets';
-import noodelOpencodeEnvironment from '../../../../assets/noodel-opencode-environment.png';
 
+import { Image } from "astro:assets";
+import noodelOpencodeEnvironment from "../../../../assets/noodel-opencode-environment.png";
 
 Environments let you switch between sets of variables: dev, staging,
 production: without editing your requests.
 
-<Image src={noodelOpencodeEnvironment} alt="Environment editor" loading="eager" fetchpriority="high" />
+For the dotenv syntax, disabled variables, badge colors, and substitution
+rules, see [Environment Format](/docs/reference/environment-format/).
+
+<Image
+  src={noodelOpencodeEnvironment}
+  alt="Environment editor"
+  loading="eager"
+  fetchpriority="high"
+/>
 
 ## Cycling
 
@@ -31,18 +39,18 @@ three sections:
 All env editor actions are also available in the command palette (`Ctrl+P`)
 when the env editor is open.
 
-| Key | Action |
-|-----|--------|
-| **↑**/**↓** | Navigate rows or sidebar items |
-| **Return** | Edit field or select environment |
-| **Tab** | Switch between key and value columns |
-| **Space** | Select/activate environment |
-| **Ctrl+D** | Delete current variable row |
-| **Ctrl+S** | Save environment |
-| **Ctrl+N** | Create new environment |
-| **Ctrl+K** | Clone selected environment |
-| **Ctrl+W** | Delete environment (with confirmation) |
-| **e** | Return to main view |
+| Key         | Action                                 |
+| ----------- | -------------------------------------- |
+| **↑**/**↓** | Navigate rows or sidebar items         |
+| **Return**  | Edit field or select environment       |
+| **Tab**     | Switch between key and value columns   |
+| **Space**   | Select/activate environment            |
+| **Ctrl+D**  | Delete current variable row            |
+| **Ctrl+S**  | Save environment                       |
+| **Ctrl+N**  | Create new environment                 |
+| **Ctrl+K**  | Clone selected environment             |
+| **Ctrl+W**  | Delete environment (with confirmation) |
+| **e**       | Return to main view                    |
 
 ### Features
 

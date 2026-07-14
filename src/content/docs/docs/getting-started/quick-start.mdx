@@ -2,12 +2,17 @@
 title: Quick Start
 description: Send your first request with Noodle
 ---
-import { Image } from 'astro:assets';
-import noodleCatppuccin from '../../../../assets/noodle-catppuccin.png';
-import noodleEmpty from '../../../../assets/noodle-empty.png';
 
+import { Image } from "astro:assets";
+import noodleCatppuccin from "../../../../assets/noodle-catppuccin.png";
+import noodleEmpty from "../../../../assets/noodle-empty.png";
 
-<Image src={noodleCatppuccin} alt="Quick Start" loading="eager" fetchpriority="high" />
+<Image
+  src={noodleCatppuccin}
+  alt="Quick Start"
+  loading="eager"
+  fetchpriority="high"
+/>
 
 Launch the TUI (no setup needed):
 
@@ -29,7 +34,12 @@ Noodle creates the directory on first save. You can have as many
 collections as you want, each with its own requests and environments.
 Use `Ctrl+O` to switch between them at runtime.
 
-<Image src={noodleEmpty} alt="Noodle empty workspace" loading="eager" fetchpriority="high" />
+<Image
+  src={noodleEmpty}
+  alt="Noodle empty workspace"
+  loading="eager"
+  fetchpriority="high"
+/>
 
 Press **Ctrl+N** to open the new request overlay. Enter a name, method, and
 URL, then press **Ctrl+S** to save.
@@ -57,6 +67,6 @@ or share it with your team.
 
 ## Next Steps
 
-- Add [environment variables](/guides/environments/) with `$VARNAME` syntax
-- Configure [authentication](/guides/authentication/) for your APIs
-- Explore the [keybindings](/reference/keybindings/) reference
+- Add [environment variables](/docs/guides/using-environments/) with `$VARNAME` syntax
+- Configure [authentication](/docs/guides/authentication/) for your APIs
+- Explore the [keybindings](/docs/reference/keybindings/) reference
