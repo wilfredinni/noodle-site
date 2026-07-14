@@ -12,13 +12,17 @@ import InstallPill from "../InstallPill.astro"
       Inspect, send, and iterate on HTTP requests from YAML files on disk. Noodle is offline, git-friendly, and keyboard-centric.
     </p>
 
-    <InstallPill command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
-
-    <div class="hero-links">
-      <a href="/docs/getting-started/installation/">[Quick Start]</a>
-      <a href="/docs/">[Read Docs]</a>
-      <a href="#ai-skill">[Skill]</a>
+    <div class="hero-actions">
+      <a class="hero-primary" href="/docs/getting-started/installation/">Install Noodle</a>
+      <a class="hero-secondary-link" href="/docs/">Read Docs</a>
     </div>
+
+    <div class="hero-command">
+      <span class="command-label">or install with curl</span>
+      <InstallPill command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
+    </div>
+
+    <a class="hero-tertiary" href="#ai-skill">AI Skill →</a>
   </div>
 
   <div class="hero-visual">
@@ -73,23 +77,81 @@ import InstallPill from "../InstallPill.astro"
     color: var(--muted);
   }
 
-  .hero-links {
+  .hero-actions {
     display: flex;
-    gap: 1.5rem;
-    margin-top: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
   }
 
-  .hero-links a {
-    color: var(--color-purple);
-    text-decoration: none;
-    font-size: 1rem;
+  .hero-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-green);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
     font-weight: 700;
-    transition: color 0.2s;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    border: 1px solid var(--color-green);
+    border-radius: 6px;
+    box-shadow: 3px 3px 0 color-mix(in srgb, var(--color-green) 45%, #000);
+    transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
   }
 
-  .hero-links a:hover {
-    color: var(--accent);
-    text-decoration: underline;
+  .hero-primary:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 color-mix(in srgb, var(--color-green) 45%, #000);
+    background: color-mix(in srgb, var(--color-green) 90%, white);
+  }
+
+  .hero-secondary-link {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .hero-secondary-link:hover {
+    color: var(--fg);
+    border-bottom-color: var(--border-hover);
+  }
+
+  .hero-command {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 100%;
+  }
+
+  .command-label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .hero-tertiary {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    width: fit-content;
+    opacity: 0.85;
+    transition: color 0.15s, opacity 0.15s;
+  }
+
+  .hero-tertiary:hover {
+    color: var(--color-purple);
+    opacity: 1;
   }
 
   .hero-visual {
@@ -164,8 +226,16 @@ import InstallPill from "../InstallPill.astro"
       padding-left: 0;
     }
 
-    .hero-links {
+    .hero-actions {
       justify-content: center;
+    }
+
+    .hero-command {
+      align-items: center;
+    }
+
+    .hero-tertiary {
+      margin: 0 auto;
     }
 
     .hero-screenshot {
