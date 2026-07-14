@@ -17,9 +17,16 @@ import CtaSection from "../components/landing/CtaSection.astro"
   <YamlSection />
 
   <main class="tui-container">
-    <!-- Features Section (Unique Window-Style TUI Grid) -->
-    <section class="features-section">
-      <!-- Feature TUI Card Grid (Window Style) -->
+    <!-- Primary features — denser product beat -->
+    <section class="features-section features-primary" aria-labelledby="features-heading">
+      <header class="section-head">
+        <span class="section-tag"># features</span>
+        <h2 id="features-heading">Built for the request loop.</h2>
+        <p class="section-lede">
+          Compose, organize, and parameterize without leaving the terminal.
+        </p>
+      </header>
+
       <div class="cards-grid">
         <FeatureCard
           filename="request.yml"
@@ -50,33 +57,38 @@ import CtaSection from "../components/landing/CtaSection.astro"
 
     <ThemesSection />
 
-    <!-- More Features Section -->
-    <section class="features-section">
-      <div class="cards-grid">
-        <FeatureCard
-          filename="autocomplete.json"
-          tag="autocomplete"
-          title="Powerful Env Autocomplete"
-          desc="Autocomplete for params, headers, variables, and JSON/YAML bodies. Context-aware suggestions are generated dynamically as you type in any field."
-          cmd="Type $ for variables autocomplete"
-          accent="var(--color-red)"
-        />
-        <FeatureCard
-          filename="timeline.log"
-          tag="history"
-          title="Persistent Response Timeline"
-          desc="Every response saved per-request, up to 50 entries deep. Review, compare, and replay past responses from the timeline tab. Never lose a result."
-          cmd="Find it in the Request pane"
-          accent="var(--color-yellow)"
-        />
-        <FeatureCard
-          filename="openapi.json"
-          tag="import"
-          title="OpenAPI & Postman Import"
-          desc="Migrate collections in seconds. Imports OpenAPI 3.0 specs and Postman 2.1 exports into version-controllable YAML files. Auto-detects format."
-          cmd="$ noodle import api.yaml"
-          accent="var(--color-green)"
-        />
+    <!-- Secondary capabilities — lighter density so themes stays the peak -->
+    <section class="features-section features-secondary" aria-labelledby="more-features-heading">
+      <header class="section-head section-head-inline">
+        <span class="section-tag"># also included</span>
+        <h2 id="more-features-heading">Power tools when you need them.</h2>
+      </header>
+
+      <div class="features-strip">
+        <article class="strip-item" style="--accent-color: var(--color-red);">
+          <span class="strip-tag">autocomplete</span>
+          <h3>Powerful Env Autocomplete</h3>
+          <p>
+            Context-aware suggestions for params, headers, variables, and JSON/YAML bodies as you type.
+          </p>
+          <code class="strip-cmd">Type $ for variables</code>
+        </article>
+        <article class="strip-item" style="--accent-color: var(--color-yellow);">
+          <span class="strip-tag">history</span>
+          <h3>Persistent Response Timeline</h3>
+          <p>
+            Every response saved per-request, up to 50 deep. Review, compare, and replay from the timeline tab.
+          </p>
+          <code class="strip-cmd">Request pane → Timeline</code>
+        </article>
+        <article class="strip-item" style="--accent-color: var(--color-green);">
+          <span class="strip-tag">import</span>
+          <h3>OpenAPI & Postman Import</h3>
+          <p>
+            Migrate collections in seconds into version-controllable YAML. Auto-detects OpenAPI 3.0 and Postman 2.1.
+          </p>
+          <code class="strip-cmd">$ noodle import api.yaml</code>
+        </article>
       </div>
     </section>
 
@@ -96,31 +108,146 @@ import CtaSection from "../components/landing/CtaSection.astro"
     margin: 0 auto;
     position: relative;
     z-index: 2;
+    gap: 0;
   }
 
-  /* ─── Features Section ─── */
-  .features-section {
+  /* Shared section chrome */
+  .section-head {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
-    padding: 2.5rem 0;
+    gap: 0.75rem;
+    max-width: 40rem;
+    margin-bottom: 0.25rem;
   }
 
-  /* Cards Grid */
+  .section-head-inline {
+    max-width: none;
+    margin-bottom: 0;
+  }
+
+  .section-tag {
+    font-size: 0.9rem;
+    color: var(--color-purple);
+    display: block;
+  }
+
+  .section-head h2,
+  .section-head-inline h2 {
+    font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--fg);
+  }
+
+  .section-lede {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 36rem;
+  }
+
+  /* ─── Features: primary (tight product beat) ─── */
+  .features-primary {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 3.5rem 0 2rem;
+  }
+
   .cards-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
 
-  /* Responsive Adjustments */
-  @media (max-width: 900px) {
-     .features-section {
-       padding: 3rem 0;
-     }
+  /* ─── Features: secondary (lighter strip after themes) ─── */
+  .features-secondary {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 2rem 0 3.5rem;
+  }
 
-    .cards-grid {
+  .features-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .strip-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    padding: 1.2rem 1.25rem;
+    min-width: 0;
+    background: color-mix(in srgb, var(--bg-card) 85%, var(--bg));
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 3px 3px 0 var(--border);
+    border-top: 2px solid var(--accent-color);
+  }
+
+  .strip-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-color);
+  }
+
+  .strip-item h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--fg);
+    line-height: 1.3;
+  }
+
+  .strip-item p {
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--muted);
+    flex-grow: 1;
+  }
+
+  .strip-cmd {
+    display: inline-block;
+    width: fit-content;
+    max-width: 100%;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.4rem 0.65rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (max-width: 900px) {
+    .features-primary {
+      padding: 2.5rem 0 1.5rem;
+      gap: 1.5rem;
+    }
+
+    .features-secondary {
+      padding: 1.5rem 0 2.5rem;
+    }
+
+    .cards-grid,
+    .features-strip {
       grid-template-columns: 1fr;
+    }
+
+    .section-head,
+    .section-head-inline {
+      text-align: center;
+      align-items: center;
+    }
+
+    .section-lede {
+      text-align: center;
     }
   }
 </style>
