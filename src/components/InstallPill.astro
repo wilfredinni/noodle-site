@@ -8,8 +8,9 @@ const { command } = Astro.props;
 
 <div class="install-pill">
   <code>{command}</code>
-  <button class="copy-btn" data-command={command}>COPY</button>
+  <button class="copy-btn" data-command={command} aria-label="Copy install command" aria-describedby="copy-status">COPY</button>
 </div>
+<p class="copy-status" id="copy-status" aria-live="polite"></p>
 
 <style>
   .install-pill {
@@ -61,6 +62,16 @@ const { command } = Astro.props;
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
+  .copy-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   .copy-btn:hover {
     background: var(--accent);
     color: var(--bg);
@@ -98,6 +109,7 @@ const { command } = Astro.props;
   copyButtons.forEach(btn => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
     const originalText = btn.textContent || 'COPY';
+    const status = document.getElementById('copy-status');
     
     btn.addEventListener('click', () => {
       const command = btn.getAttribute('data-command');
@@ -130,16 +142,19 @@ const { command } = Astro.props;
         copyPromise
           .then(() => {
             btn.textContent = 'COPIED';
+            status && (status.textContent = 'Install command copied.');
             if (timeoutId) {
               clearTimeout(timeoutId);
             }
             timeoutId = setTimeout(() => {
               btn.textContent = originalText;
+              status && (status.textContent = '');
               timeoutId = null;
             }, 2000);
           })
           .catch(err => {
             console.error('Failed to copy: ', err);
+            status && (status.textContent = 'Could not copy automatically. Select the command and copy it manually.');
           });
       }
     });

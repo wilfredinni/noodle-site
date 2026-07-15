@@ -6,18 +6,16 @@ import InstallPill from "../InstallPill.astro"
 
 <header class="full-width-hero">
   <div class="hero-text">
-    <span class="hero-tag"># terminal rest client</span>
-    <h1>A delicious REST client that lives in your terminal.</h1>
+    <h1>Readable requests. Versioned workflows. No lock-in.</h1>
     <p class="lede">
-      Inspect, send, and iterate on HTTP requests from YAML files on disk. Noodle is offline, git-friendly, and keyboard-centric.
+      Write, send, and inspect HTTP requests from YAML files in your repository. Noodle stays local, works with Git, and belongs in your terminal.
     </p>
 
     <InstallPill command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
 
     <div class="hero-links">
-      <a href="/docs/getting-started/installation/">[Quick Start]</a>
-      <a href="/docs/">[Read Docs]</a>
-      <a href="#ai-skill">[Skill]</a>
+      <a class="hero-link-primary" href="/docs/getting-started/quick-start/">Quick Start</a>
+      <a href="/docs/">Read the docs</a>
     </div>
   </div>
 
@@ -26,7 +24,6 @@ import InstallPill from "../InstallPill.astro"
       <Image src={exampleImage} class="hero-screenshot" alt="Noodle TUI Workspace" loading="eager" fetchpriority="high" />
       <span class="image-caption">Noodle default theme Catppuccin</span>
     </div>
-    <div class="visual-glow"></div>
   </div>
 </header>
 
@@ -52,20 +49,11 @@ import InstallPill from "../InstallPill.astro"
     padding-right: 1rem;
   }
 
-  .hero-tag {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: var(--color-purple);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
   .hero-text h1 {
     font-size: clamp(2rem, 4vw, 3.2rem);
     font-weight: 800;
     line-height: 1.2;
     color: var(--fg);
-    max-width: 18ch;
   }
 
   .hero-text .lede {
@@ -77,21 +65,39 @@ import InstallPill from "../InstallPill.astro"
 
   .hero-links {
     display: flex;
+    align-items: center;
     gap: 1.5rem;
     margin-top: 0.5rem;
   }
 
   .hero-links a {
-    color: var(--color-purple);
+    color: var(--muted);
     text-decoration: none;
     font-size: 1rem;
-    font-weight: 700;
+    font-weight: 600;
     transition: color 0.2s;
   }
 
+  .hero-links .hero-link-primary {
+    color: var(--bg);
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    padding: 0.45rem 0.75rem;
+    box-shadow: 3px 3px 0 var(--accent-dim);
+  }
+
   .hero-links a:hover {
-    color: var(--accent);
-    text-decoration: underline;
+    color: var(--fg);
+  }
+
+  .hero-links .hero-link-primary:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent-dim);
+    box-shadow: 2px 2px 0 var(--accent-dim);
+    color: var(--bg);
+    transform: translate(1px, 1px);
+    text-decoration: none;
   }
 
   .hero-links a:active {
@@ -137,17 +143,6 @@ import InstallPill from "../InstallPill.astro"
     -webkit-mask-image: linear-gradient(to right, var(--mask-ink) 70%, transparent 100%);
     mask-image: linear-gradient(to right, var(--mask-ink) 70%, transparent 100%);
     display: block;
-  }
-
-  .visual-glow {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
-    z-index: 1;
-    filter: blur(20px);
-    pointer-events: none;
-    opacity: 0.5;
   }
 
   @media (max-width: 900px) {
