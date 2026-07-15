@@ -13,6 +13,14 @@ import InstallPill from "../InstallPill.astro"
 
     <InstallPill command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
 
+    <p class="hero-proof">
+      <a href="https://github.com/wilfredinni/noodle" target="_blank" rel="noopener noreferrer">Open source</a>
+      <span aria-hidden="true">·</span>
+      <a href="/docs/getting-started/concepts/">Offline</a>
+      <span aria-hidden="true">·</span>
+      <a href="/docs/guides/collections/">Git-friendly</a>
+    </p>
+
     <div class="hero-links">
       <a class="hero-link-primary" href="/docs/getting-started/quick-start/">Quick Start</a>
       <a href="/docs/">Read the docs</a>
@@ -68,6 +76,25 @@ import InstallPill from "../InstallPill.astro"
     align-items: center;
     gap: 1.5rem;
     margin-top: 0.5rem;
+  }
+
+  .hero-proof {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: -0.75rem;
+  }
+
+  .hero-proof a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .hero-proof a:hover {
+    color: var(--fg);
+    text-decoration: underline;
   }
 
   .hero-links a {
@@ -168,6 +195,11 @@ import InstallPill from "../InstallPill.astro"
     .hero-links {
       justify-content: center;
       flex-wrap: wrap;
+    }
+
+    .hero-proof {
+      justify-content: center;
+      margin-top: -0.5rem;
     }
 
     .hero-screenshot {
