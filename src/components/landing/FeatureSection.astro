@@ -1,0 +1,117 @@
+---
+interface Props {
+  tag: string
+  title: string
+  summary: string
+  titlePosition?: "left" | "right"
+}
+
+const { tag, title, summary, titlePosition = "left" } = Astro.props
+---
+
+<section class:list={["feature-section", { "feature-section--title-right": titlePosition === "right" }]}>
+  <header class="feature-section__header">
+    <div class="feature-section__intro">
+      <span class="feature-section__tag">{tag}</span>
+      <h2>{title}</h2>
+    </div>
+    <p class="feature-section__summary">{summary}</p>
+  </header>
+  <div class="feature-section__cards">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .feature-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+    padding: 2.5rem 0;
+  }
+
+  .feature-section__header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 4rem;
+    align-items: end;
+  }
+
+  .feature-section__intro {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+    width: 100%;
+    text-align: left;
+  }
+
+  .feature-section__tag {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-purple);
+    font-size: 0.9rem;
+  }
+
+  .feature-section__intro h2 {
+    margin: 0;
+    color: var(--fg);
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1.3;
+    text-align: left;
+  }
+
+  .feature-section__summary {
+    margin: 0;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .feature-section--title-right .feature-section__intro {
+    order: 2;
+  }
+
+  .feature-section--title-right .feature-section__summary {
+    order: 1;
+  }
+
+  .feature-section__cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 900px) {
+    .feature-section {
+      padding: 3rem 0;
+    }
+
+    .feature-section__header {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .feature-section__intro,
+    .feature-section--title-right .feature-section__intro {
+      order: initial;
+      align-items: center;
+      text-align: center;
+    }
+
+    .feature-section--title-right .feature-section__summary {
+      order: initial;
+    }
+
+    .feature-section__intro h2,
+    .feature-section__summary {
+      text-align: center;
+    }
+
+    .feature-section__cards {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

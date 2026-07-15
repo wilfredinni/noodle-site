@@ -7,6 +7,7 @@ import YamlSection from "../components/landing/YamlSection.astro"
 import ThemesSection from "../components/landing/ThemesSection.astro"
 import SkillSection from "../components/landing/SkillSection.astro"
 import CtaSection from "../components/landing/CtaSection.astro"
+import FeatureSection from "../components/landing/FeatureSection.astro"
 ---
 
 <BaseLayout title="Noodle · Terminal REST Client" description="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal.">
@@ -17,13 +18,11 @@ import CtaSection from "../components/landing/CtaSection.astro"
   <YamlSection />
 
   <main class="tui-container">
-    <section class="features-section">
-      <div class="features-intro">
-        <span class="section-tag"># build requests</span>
-        <h2>Everything you need to create and organize HTTP requests.</h2>
-        <p>Compose requests, share configuration through folders, and switch environments without leaving the terminal.</p>
-      </div>
-      <div class="cards-grid">
+    <FeatureSection
+      tag="# build requests"
+      title="Build requests. Keep them organized."
+      summary="Compose requests, share configuration through folders, and switch environments without leaving the terminal. Reuse the same collection across local development, staging, and production."
+    >
         <FeatureCard
           filename="request.yml"
           tag="requests"
@@ -48,18 +47,16 @@ import CtaSection from "../components/landing/CtaSection.astro"
           cmd="Press e to open Env Editor"
           accent="var(--color-orange)"
         />
-      </div>
-    </section>
+    </FeatureSection>
 
     <ThemesSection />
 
-    <section class="features-section">
-      <div class="features-intro">
-        <span class="section-tag"># iterate with confidence</span>
-        <h2>Run requests, inspect results, and bring existing API work with you.</h2>
-        <p>Automate dependable workflows, keep response history close, and import the collections your team already uses.</p>
-      </div>
-      <div class="cards-grid">
+    <FeatureSection
+      tag="# iterate with confidence"
+      title="Run, inspect, import, and iterate."
+      summary="Automate dependable workflows, keep response history close, and import the collections your team already uses. Keep every API workflow moving from terminal to team."
+      titlePosition="right"
+    >
         <FeatureCard
           filename="automation.json"
           tag="automation"
@@ -84,18 +81,15 @@ import CtaSection from "../components/landing/CtaSection.astro"
           cmd="$ noodle import api.yaml"
           accent="var(--color-green)"
         />
-      </div>
-    </section>
+    </FeatureSection>
 
     <SkillSection />
 
-    <section class="features-section">
-      <div class="features-intro">
-        <span class="section-tag"># refine your workflow</span>
-        <h2>Stay keyboard-first and keep every collection healthy.</h2>
-        <p>Edit raw files with confidence, make navigation your own, and validate collections before you share or run them.</p>
-      </div>
-      <div class="cards-grid">
+    <FeatureSection
+      tag="# refine your workflow"
+      title="Edit quickly. Keep collections clean."
+      summary="Edit raw files with confidence, make navigation your own, and validate collections before you share or run them. Keep every request clean, consistent, and ready for the next change."
+    >
         <FeatureCard
           filename="request.yml"
           tag="editor"
@@ -120,8 +114,7 @@ import CtaSection from "../components/landing/CtaSection.astro"
           cmd="$ noodle collection audit ./api --fix"
           accent="var(--color-orange)"
         />
-      </div>
-    </section>
+    </FeatureSection>
 
     <CtaSection />
   </main>
@@ -139,66 +132,4 @@ import CtaSection from "../components/landing/CtaSection.astro"
     z-index: 2;
   }
 
-  /* ─── Features Section ─── */
-  .features-section {
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-    padding: 2.5rem 0;
-  }
-
-  .features-intro {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    max-width: 700px;
-  }
-
-  .features-intro h2 {
-    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
-    font-weight: 400;
-    line-height: 1.3;
-    color: var(--fg);
-    text-align: left;
-  }
-
-  .features-intro p {
-    font-size: 1rem;
-    line-height: 1.6;
-    color: var(--muted);
-  }
-
-  .section-tag {
-    font-size: 0.9rem;
-    color: var(--color-purple);
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  /* Cards Grid */
-  .cards-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
-  }
-
-  /* Responsive Adjustments */
-  @media (max-width: 900px) {
-    .features-section {
-       padding: 3rem 0;
-     }
-
-    .features-intro {
-      align-items: center;
-      text-align: center;
-    }
-
-    .features-intro h2 {
-      text-align: center;
-    }
-
-    .cards-grid {
-      grid-template-columns: 1fr;
-    }
-  }
 </style>
