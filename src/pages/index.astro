@@ -17,9 +17,12 @@ import CtaSection from "../components/landing/CtaSection.astro"
   <YamlSection />
 
   <main class="tui-container">
-    <!-- Features Section (Unique Window-Style TUI Grid) -->
     <section class="features-section">
-      <!-- Feature TUI Card Grid (Window Style) -->
+      <div class="features-intro">
+        <span class="section-tag"># build requests</span>
+        <h2>Everything you need to create and organize HTTP requests.</h2>
+        <p>Compose requests, share configuration through folders, and switch environments without leaving the terminal.</p>
+      </div>
       <div class="cards-grid">
         <FeatureCard
           filename="request.yml"
@@ -50,8 +53,12 @@ import CtaSection from "../components/landing/CtaSection.astro"
 
     <ThemesSection />
 
-    <!-- More Features Section -->
     <section class="features-section">
+      <div class="features-intro">
+        <span class="section-tag"># iterate with confidence</span>
+        <h2>Run requests, inspect results, and bring existing API work with you.</h2>
+        <p>Automate dependable workflows, keep response history close, and import the collections your team already uses.</p>
+      </div>
       <div class="cards-grid">
         <FeatureCard
           filename="automation.json"
@@ -83,6 +90,11 @@ import CtaSection from "../components/landing/CtaSection.astro"
     <SkillSection />
 
     <section class="features-section">
+      <div class="features-intro">
+        <span class="section-tag"># refine your workflow</span>
+        <h2>Stay keyboard-first and keep every collection healthy.</h2>
+        <p>Edit raw files with confidence, make navigation your own, and validate collections before you share or run them.</p>
+      </div>
       <div class="cards-grid">
         <FeatureCard
           filename="request.yml"
@@ -135,6 +147,34 @@ import CtaSection from "../components/landing/CtaSection.astro"
     padding: 2.5rem 0;
   }
 
+  .features-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 700px;
+  }
+
+  .features-intro h2 {
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--fg);
+    text-align: left;
+  }
+
+  .features-intro p {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+
+  .section-tag {
+    font-size: 0.9rem;
+    color: var(--color-purple);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
   /* Cards Grid */
   .cards-grid {
     display: grid;
@@ -144,9 +184,18 @@ import CtaSection from "../components/landing/CtaSection.astro"
 
   /* Responsive Adjustments */
   @media (max-width: 900px) {
-     .features-section {
+    .features-section {
        padding: 3rem 0;
      }
+
+    .features-intro {
+      align-items: center;
+      text-align: center;
+    }
+
+    .features-intro h2 {
+      text-align: center;
+    }
 
     .cards-grid {
       grid-template-columns: 1fr;
