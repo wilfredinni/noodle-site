@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-14T00:00:00.000Z",
+  "title": "Design System: Noodle",
+  "extensions": {
+    "colorMeta": {
+      "background": { "role": "neutral", "displayName": "Mocha Ground", "canonical": "#1e1e2e", "tonalRamp": ["#181825", "#1e1e2e", "#242438", "#2a2b40", "#313244", "#45475a", "#6c7086", "#cdd6f4"] },
+      "foreground": { "role": "neutral", "displayName": "Lavender Ink", "canonical": "#cdd6f4", "tonalRamp": ["#313244", "#45475a", "#6c7086", "#9399b2", "#a6adc8", "#bac2de", "#cdd6f4", "#f5f7ff"] },
+      "primary": { "role": "primary", "displayName": "Lavender Signal", "canonical": "#b4befe", "tonalRamp": ["#23253f", "#41456e", "#5d639e", "#7a82ca", "#9399e8", "#b4befe", "#d1d7ff", "#eff1ff"] },
+      "blue": { "role": "secondary", "displayName": "Sky Syntax", "canonical": "#89b4fa", "tonalRamp": ["#1c2941", "#30476f", "#45679e", "#5f87ca", "#74a0e8", "#89b4fa", "#b8d4ff", "#e5f1ff"] },
+      "green": { "role": "tertiary", "displayName": "Greenlight", "canonical": "#a6e3a1", "tonalRamp": ["#203d2b", "#37633f", "#538957", "#74ae72", "#90ce8c", "#a6e3a1", "#c5f2c1", "#e5ffe2"] },
+      "purple": { "role": "secondary", "displayName": "Orchid Marker", "canonical": "#cba6f7", "tonalRamp": ["#312542", "#533d70", "#76579e", "#9873ca", "#b58de8", "#cba6f7", "#e0c8ff", "#f4eaff"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Terminal Display", "purpose": "Hero statements that establish the product promise." },
+      "headline": { "displayName": "Workbench Headline", "purpose": "Section and CTA statements." },
+      "body": { "displayName": "Readable Mono", "purpose": "Supporting explanation and long-form product copy." },
+      "label": { "displayName": "Command Label", "purpose": "Short control labels, tags, and command metadata." }
+    },
+    "shadows": [
+      { "name": "terminal-offset", "value": "4px 4px 0 var(--border)", "purpose": "Default structural depth for feature cards." },
+      { "name": "accent-offset", "value": "6px 6px 0 var(--accent-color)", "purpose": "Feature-card hover feedback." }
+    ],
+    "motion": [
+      { "name": "interface-transition", "value": "0.2s", "purpose": "Color, border, and transform feedback for interactive elements." }
+    ],
+    "breakpoints": [
+      { "name": "navigation-mobile", "value": "768px" },
+      { "name": "content-stack", "value": "900px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Install Control",
+      "kind": "custom",
+      "refersTo": "install-control",
+      "description": "Copyable terminal install command used in the hero.",
+      "html": "<div class=\"ds-install\"><code><span>$ </span>curl -LsSf noodle.dev/install.sh | sh</code><button type=\"button\">COPY</button></div>",
+      "css": ".ds-install{display:flex;overflow:hidden;max-width:100%;background:var(--bg-elevated,#181825);border:1px solid var(--border,#313244);border-radius:6px;color:var(--color-blue,#89b4fa);font:400 .85rem 'JetBrains Mono',monospace}.ds-install code{min-width:0;overflow:auto;padding:.75rem 1.25rem;white-space:nowrap}.ds-install code span{color:var(--muted,#a6adc8)}.ds-install button{border:0;border-left:1px solid var(--border,#313244);background:var(--border,#313244);color:var(--fg,#cdd6f4);padding:0 1.25rem;font:700 .75rem 'JetBrains Mono',monospace;cursor:pointer;transition:background .2s,color .2s}.ds-install button:hover,.ds-install button:focus-visible{background:var(--accent,#b4befe);color:var(--bg,#1e1e2e);outline:2px solid var(--accent,#b4befe);outline-offset:-2px}"
+    },
+    {
+      "name": "Feature Card",
+      "kind": "card",
+      "refersTo": "feature-card",
+      "description": "A semantic feature panel with terminal depth and category color.",
+      "html": "<article class=\"ds-card\"><span class=\"ds-card__tag\">automation</span><h3>Automation-ready CLI</h3><p>Run collections from scripts or agent workflows.</p><code>$ noodle collection run ./api --json</code></article>",
+      "css": ".ds-card{--ds-accent:var(--color-purple,#cba6f7);padding:1.25rem;background:var(--bg-elevated,#181825);border:1px solid var(--border,#313244);border-radius:6px;box-shadow:4px 4px 0 var(--border,#313244);color:var(--fg,#cdd6f4);font-family:'JetBrains Mono',monospace;transition:border-color .2s,box-shadow .2s,transform .2s}.ds-card:hover{transform:translate(-2px,-2px);border-color:var(--ds-accent);box-shadow:6px 6px 0 var(--ds-accent)}.ds-card:focus-within{outline:2px solid var(--ds-accent);outline-offset:3px}.ds-card__tag{display:block;color:var(--ds-accent);font-size:.75rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase}.ds-card h3{margin:.75rem 0;color:var(--fg,#cdd6f4);font-size:1.2rem}.ds-card p{margin:0 0 .75rem;color:var(--muted,#a6adc8);font-size:.9rem;line-height:1.6}.ds-card code{display:block;padding:.6rem .85rem;background:var(--bg,#1e1e2e);border:1px solid var(--border,#313244);border-radius:4px;font-size:.8rem}"
+    },
+    {
+      "name": "Navigation Install Link",
+      "kind": "nav",
+      "refersTo": "nav-install",
+      "description": "Compact outlined install action in the sticky navigation.",
+      "html": "<a class=\"ds-nav-install\" href=\"#install\">Install</a>",
+      "css": ".ds-nav-install{display:inline-flex;align-items:center;border:1px solid var(--border,#313244);border-radius:4px;color:var(--muted,#a6adc8);padding:.4rem .6rem;font:500 .85rem 'JetBrains Mono',monospace;text-decoration:none;transition:color .2s,border-color .2s}.ds-nav-install:hover{border-color:var(--border-hover,#45475a);color:var(--fg,#cdd6f4)}.ds-nav-install:focus-visible{outline:2px solid var(--accent,#b4befe);outline-offset:3px}"
+    },
+    {
+      "name": "Terminal Link CTA",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Text-led primary action for installation and quick-start paths.",
+      "html": "<a class=\"ds-terminal-link\" href=\"#install\">[Install Noodle]</a>",
+      "css": ".ds-terminal-link{color:var(--color-green,#a6e3a1);font:700 1.1rem 'JetBrains Mono',monospace;text-decoration:none;transition:color .2s}.ds-terminal-link:hover{color:var(--fg,#cdd6f4);text-decoration:underline}.ds-terminal-link:focus-visible{outline:2px solid var(--accent,#b4befe);outline-offset:4px}"
+    },
+    {
+      "name": "Section Marker",
+      "kind": "chip",
+      "refersTo": "label",
+      "description": "A sparse terminal-style marker for a major content group.",
+      "html": "<span class=\"ds-section-marker\"># build requests</span>",
+      "css": ".ds-section-marker{color:var(--color-purple,#cba6f7);font:700 .9rem 'JetBrains Mono',monospace}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The version-controlled workbench",
+    "overview": "Noodle’s site should feel like the interface around a well-kept local repository: capable, inspectable, and immediately useful. The Catppuccin Mocha surface, concise monospace language, and syntax-color accents make terminal work feel polished without pretending it needs a cloud workspace. The system rejects the visual logic of commercial REST clients that hide work in proprietary formats or cloud accounts.",
+    "keyCharacteristics": ["Dark Catppuccin Mocha surfaces with high-contrast lavender foreground text.", "JetBrains Mono leads the visual voice.", "Small radii, crisp one-pixel rules, and solid offset shadows create terminal-like tactility.", "Color communicates feature category and code semantics.", "Responsive layouts collapse to one focused column before content becomes cramped."],
+    "rules": [
+      { "name": "The Syntax-Has-a-Job Rule", "body": "Use blue, green, orange, red, purple, and yellow to distinguish real categories or states. Never add color merely to make a surface feel more animated.", "section": "colors" },
+      { "name": "The Command-Line Rule", "body": "Code, commands, and feature names are literal. Avoid marketing-style type treatments, gradient text, excessive tracking, and decorative all-caps copy.", "section": "typography" },
+      { "name": "The Crisp-Depth Rule", "body": "Borders and solid offset shadows may work together because the shadow is structural and hard-edged. Do not replace them with diffuse, oversized drop shadows.", "section": "elevation" }
+    ],
+    "dos": ["Do preserve the Catppuccin Mocha background and use Lavender Ink for high-emphasis text.", "Do use real terminal screenshots, YAML, commands, release history, and product behavior as the page’s evidence.", "Do keep controls compact: 4px radii for nav controls and 6px for cards or command housings."],
+    "donts": ["Don't make Noodle resemble commercial REST clients that confine work to cloud-based workspaces, proprietary request formats, or lock-in-heavy account systems.", "Don't introduce soft ghost-card shadows, glassy decorative panels, giant radii, gradient text, or generic SaaS metrics.", "Don't replace the workbench-like terminal voice with a generic editorial or enterprise-software aesthetic."]
+  }
+}
