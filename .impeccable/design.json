@@ -17,6 +17,8 @@
       "body": { "displayName": "Readable Mono", "purpose": "Supporting explanation and long-form product copy." },
       "lead": { "displayName": "Hero Lead", "purpose": "One supporting explanation in the landing-page opening." },
       "marker": { "displayName": "Terminal Marker", "purpose": "Sparse, short transition labels and proof labels." },
+      "command": { "displayName": "Compact Command", "purpose": "Inline commands and compact navigation actions." },
+      "wordmark": { "displayName": "Noodle Wordmark", "purpose": "The navigation wordmark only." },
       "label": { "displayName": "Command Label", "purpose": "Short control labels, tags, and command metadata." }
     },
     "shadows": [

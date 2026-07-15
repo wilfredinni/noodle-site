@@ -8,22 +8,22 @@ import logoImage from "../assets/logo.png"
       <Image src={logoImage} alt="Noodle Logo" loading="eager" fetchpriority="high" style="width: 24px; height: 24px;" />
       noodle
     </a>
-    <div class="nav-center">
+    <div class="nav-center" id="primary-navigation">
       <a href="/">Home</a>
       <a href="/changelog/">Changelog</a>
       <a href="/roadmap/">Roadmap</a>
       <a href="/docs/getting-started/quick-start/">Quick Start</a>
       <a href="/docs/">Docs</a>
-      <a href="https://github.com/wilfredinni/noodle" target="_blank" class="mobile-only">GitHub</a>
+      <a href="https://github.com/wilfredinni/noodle" target="_blank" rel="noopener noreferrer" class="mobile-only">GitHub <span class="sr-only">(opens in a new tab)</span></a>
       <a href="/docs/getting-started/installation/" class="mobile-only mobile-install-btn">Install</a>
     </div>
     <div class="nav-right">
-      <a href="https://github.com/wilfredinni/noodle" target="_blank" aria-label="GitHub">
+      <a href="https://github.com/wilfredinni/noodle" target="_blank" rel="noopener noreferrer" aria-label="Noodle on GitHub (opens in a new tab)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
       </a>
       <a href="/docs/getting-started/installation/" class="nav-install-btn">Install</a>
       
-      <button class="hamburger-btn" id="menu-toggle" aria-label="Toggle menu">
+      <button class="hamburger-btn" id="menu-toggle" type="button" aria-label="Open navigation menu" aria-controls="primary-navigation" aria-expanded="false">
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
@@ -90,6 +90,12 @@ import logoImage from "../assets/logo.png"
     color: var(--fg);
   }
 
+  nav a:focus-visible,
+  .hamburger-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+
   nav .nav-right a:hover {
     border-color: var(--border-hover);
   }
@@ -143,6 +149,18 @@ import logoImage from "../assets/logo.png"
     cursor: pointer;
     padding: 0;
     z-index: 12;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .hamburger-line {
@@ -201,12 +219,32 @@ import logoImage from "../assets/logo.png"
 </style>
 
 <script>
-  const toggleBtn = document.getElementById("menu-toggle");
-  const nav = document.getElementById("site-nav");
+  const toggleBtn = document.querySelector<HTMLButtonElement>("#menu-toggle");
+  const nav = document.querySelector<HTMLElement>("#site-nav");
 
   if (toggleBtn && nav) {
+    const closeMenu = () => {
+      nav.classList.remove("menu-open");
+      toggleBtn.setAttribute("aria-expanded", "false");
+      toggleBtn.setAttribute("aria-label", "Open navigation menu");
+    };
+
     toggleBtn.addEventListener("click", () => {
-      nav.classList.toggle("menu-open");
+      const isOpen = nav.classList.toggle("menu-open");
+      toggleBtn.setAttribute("aria-expanded", String(isOpen));
+      toggleBtn.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu");
+    });
+
+    nav.querySelectorAll(".nav-center a").forEach((link) => link.addEventListener("click", closeMenu));
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (nav.classList.contains("menu-open") && event.target instanceof Node && !nav.contains(event.target)) {
+        closeMenu();
+      }
     });
   }
 </script>

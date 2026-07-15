@@ -43,6 +43,16 @@ typography:
     fontSize: "0.9rem"
     fontWeight: 700
     lineHeight: 1.4
+  command:
+    fontFamily: "JetBrains Mono, Fira Code, monospace"
+    fontSize: "0.85rem"
+    fontWeight: 500
+    lineHeight: 1.4
+  wordmark:
+    fontFamily: "JetBrains Mono, Fira Code, monospace"
+    fontSize: "1.25rem"
+    fontWeight: 700
+    letterSpacing: "0.05em"
   label:
     fontFamily: "JetBrains Mono, Fira Code, monospace"
     fontSize: "0.75rem"
@@ -140,6 +150,8 @@ The palette is Catppuccin Mocha used as a practical code-editor environment: lav
 - **Body** (400, 1rem, 1.6): Explanations, with a comfortable reading measure around 65–75 characters when layout permits.
 - **Lead** (400, 1.2rem, 1.6): The hero’s supporting explanation; use once per landing-page opening.
 - **Marker** (700, 0.9rem, 1.4): Short terminal-flavored transitions and proof labels; use sparingly.
+- **Command** (500, 0.85rem, 1.4): Compact inline commands and nav actions.
+- **Wordmark** (700, 1.25rem, 0.05em): The Noodle wordmark only.
 - **Label** (700, 0.75rem, 0.05em): Commands, tags, and compact control labels; uppercase is allowed only for short labels such as `COPY`.
 
 **The Command-Line Rule.** Code, commands, and feature names are literal. Avoid marketing-style type treatments, gradient text, excessive tracking, and decorative all-caps copy.
