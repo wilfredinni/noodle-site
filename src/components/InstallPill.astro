@@ -101,6 +101,12 @@ const { command } = Astro.props;
       padding: 0 0.9rem;
     }
   }
+
+  @media (pointer: coarse) {
+    .copy-btn {
+      min-height: 44px;
+    }
+  }
 </style>
 
 <script>
@@ -116,28 +122,7 @@ const { command } = Astro.props;
       if (command) {
         const copyPromise = (navigator.clipboard && typeof navigator.clipboard.writeText === 'function')
           ? navigator.clipboard.writeText(command)
-          : new Promise<void>((resolve, reject) => {
-              try {
-                const textarea = document.createElement('textarea');
-                textarea.value = command;
-                textarea.style.position = 'fixed';
-                textarea.style.top = '0';
-                textarea.style.left = '0';
-                textarea.style.opacity = '0';
-                textarea.setAttribute('readonly', '');
-                document.body.appendChild(textarea);
-                textarea.select();
-                const successful = document.execCommand('copy');
-                document.body.removeChild(textarea);
-                if (successful) {
-                  resolve();
-                } else {
-                  reject(new Error('Fallback copy failed'));
-                }
-              } catch (err) {
-                reject(err);
-              }
-            });
+          : Promise.reject(new Error('Clipboard API unavailable'));
 
         copyPromise
           .then(() => {
@@ -152,8 +137,15 @@ const { command } = Astro.props;
               timeoutId = null;
             }, 2000);
           })
-          .catch(err => {
-            console.error('Failed to copy: ', err);
+          .catch(() => {
+            const code = btn.previousElementSibling;
+            if (code) {
+              const range = document.createRange();
+              range.selectNodeContents(code);
+              const selection = window.getSelection();
+              selection?.removeAllRanges();
+              selection?.addRange(range);
+            }
             status && (status.textContent = 'Could not copy automatically. Select the command and copy it manually.');
           });
       }

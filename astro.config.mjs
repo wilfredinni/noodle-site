@@ -15,7 +15,7 @@ export default defineConfig({
       },
       expressiveCode: {
         defaultProps: {
-          frame: false,
+          frame: "none",
         },
       },
       favicon: "/favicon.ico",

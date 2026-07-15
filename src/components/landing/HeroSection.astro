@@ -183,6 +183,14 @@ import InstallPill from "../InstallPill.astro"
     }
   }
 
+  @media (pointer: coarse) {
+    .hero-links a {
+      align-items: center;
+      display: inline-flex;
+      min-height: 44px;
+    }
+  }
+
   @media (max-width: 520px) {
     .full-width-hero {
       padding-left: 1.25rem;

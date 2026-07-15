@@ -134,9 +134,10 @@ import logoImage from "../assets/logo.png"
   .hamburger-btn {
     display: none;
     flex-direction: column;
-    justify-content: space-between;
-    width: 20px;
-    height: 14px;
+    justify-content: center;
+    gap: 4px;
+    width: 44px;
+    height: 44px;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -192,6 +193,12 @@ import logoImage from "../assets/logo.png"
       align-items: center;
       transform: none;
       z-index: 9;
+    }
+
+    nav .nav-center a {
+      align-items: center;
+      display: flex;
+      min-height: 44px;
     }
 
     nav.menu-open .nav-center {
