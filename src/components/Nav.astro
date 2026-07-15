@@ -8,12 +8,12 @@ import logoImage from "../assets/logo.png"
       <Image src={logoImage} alt="Noodle Logo" loading="eager" fetchpriority="high" style="width: 24px; height: 24px;" />
       noodle
     </a>
-    <div class="nav-center">
+    <div class="nav-center" id="primary-navigation">
       <a href="/">Home</a>
+      <a href="/docs/">Docs</a>
+      <a href="/docs/getting-started/quick-start/">Quick Start</a>
       <a href="https://github.com/wilfredinni/noodle/releases" target="_blank" rel="noopener noreferrer">Releases</a>
       <a href="https://app.notion.com/p/39128d9edba9809da834f351332baf57?v=39228d9edba98042ad07000cdbe5d751" target="_blank" rel="noopener noreferrer">Roadmap</a>
-      <a href="/docs/getting-started/quick-start/">Quick Start</a>
-      <a href="/docs/">Docs</a>
       <a href="https://github.com/wilfredinni/noodle" target="_blank" class="mobile-only">GitHub</a>
       <a href="/docs/getting-started/installation/" class="mobile-only mobile-install-btn">Install</a>
     </div>
@@ -23,7 +23,7 @@ import logoImage from "../assets/logo.png"
       </a>
       <a href="/docs/getting-started/installation/" class="nav-install-btn">Install</a>
       
-      <button class="hamburger-btn" id="menu-toggle" aria-label="Toggle menu">
+      <button class="hamburger-btn" id="menu-toggle" aria-label="Open navigation menu" aria-controls="primary-navigation" aria-expanded="false">
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
         <span class="hamburger-line"></span>
@@ -37,7 +37,7 @@ import logoImage from "../assets/logo.png"
     width: 100%;
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 20;
     backdrop-filter: blur(12px);
     background: color-mix(in srgb, var(--bg) 75%, transparent);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -73,6 +73,7 @@ import logoImage from "../assets/logo.png"
     font-size: 0.9rem;
     font-weight: 500;
     transition: color 0.2s;
+    padding: 0.35rem 0;
   }
 
   nav .nav-right a {
@@ -135,14 +136,16 @@ import logoImage from "../assets/logo.png"
   .hamburger-btn {
     display: none;
     flex-direction: column;
-    justify-content: space-between;
-    width: 20px;
-    height: 14px;
+    justify-content: center;
+    gap: 4px;
+    width: 44px;
+    height: 44px;
     background: transparent;
     border: none;
     cursor: pointer;
     padding: 0;
     z-index: 12;
+    border-radius: 4px;
   }
 
   .hamburger-line {
@@ -187,11 +190,17 @@ import logoImage from "../assets/logo.png"
       background: var(--bg-elevated);
       border-bottom: 1px solid var(--border);
       flex-direction: column;
-      padding: 1.5rem;
+      padding: 1rem 1.5rem 1.5rem;
       gap: 1.25rem;
       align-items: center;
       transform: none;
       z-index: 9;
+    }
+
+    nav .nav-center a {
+      align-items: center;
+      display: flex;
+      min-height: 44px;
     }
 
     nav.menu-open .nav-center {
@@ -205,8 +214,24 @@ import logoImage from "../assets/logo.png"
   const nav = document.getElementById("site-nav");
 
   if (toggleBtn && nav) {
+    const closeMenu = () => {
+      nav.classList.remove("menu-open");
+      toggleBtn.setAttribute("aria-expanded", "false");
+      toggleBtn.setAttribute("aria-label", "Open navigation menu");
+    };
+
     toggleBtn.addEventListener("click", () => {
-      nav.classList.toggle("menu-open");
+      const isOpen = nav.classList.toggle("menu-open");
+      toggleBtn.setAttribute("aria-expanded", String(isOpen));
+      toggleBtn.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu");
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!nav.contains(event.target as Node)) closeMenu();
     });
   }
 </script>

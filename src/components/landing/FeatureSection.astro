@@ -67,6 +67,7 @@ const { tag, title, summary, titlePosition = "left" } = Astro.props
     color: var(--muted);
     font-size: 1rem;
     line-height: 1.6;
+    max-width: 62ch;
   }
 
   .feature-section--title-right .feature-section__intro {
@@ -79,7 +80,7 @@ const { tag, title, summary, titlePosition = "left" } = Astro.props
 
   .feature-section__cards {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
     gap: 1.5rem;
   }
 
@@ -110,8 +111,5 @@ const { tag, title, summary, titlePosition = "left" } = Astro.props
       text-align: center;
     }
 
-    .feature-section__cards {
-      grid-template-columns: 1fr;
-    }
   }
 </style>

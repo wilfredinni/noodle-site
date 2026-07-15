@@ -23,7 +23,7 @@ const { title, description } = Astro.props
     <link rel="icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style is:global>
       *,
       *::before,
@@ -44,7 +44,8 @@ const { title, description } = Astro.props
         --accent-dim: #9399e8;
         --border: #313244;
         --border-hover: #45475a;
-        --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+        --shadow-strong: rgba(0, 0, 0, 0.35);
+        --mask-ink: #000;
         --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
         /* Centralized Noodle accents */
@@ -58,6 +59,17 @@ const { title, description } = Astro.props
 
       [data-theme="light"],
       .sl-theme-light {
+        --bg: #eff1f5;
+        --bg-elevated: #e6e9ef;
+        --bg-card: #dce0e8;
+        --fg: #4c4f69;
+        --muted: #5c5f77;
+        --accent: #7287fd;
+        --accent-glow: transparent;
+        --accent-dim: #5f6cf0;
+        --border: #ccd0da;
+        --border-hover: #bcc0cc;
+        --shadow-strong: rgba(76, 79, 105, 0.2);
         --color-orange: #fe640b;
         --color-green: #40a02b;
         --color-blue: #1e66f5;
@@ -66,19 +78,9 @@ const { title, description } = Astro.props
         --color-yellow: #df8e1d;
       }
 
-      .bg-glow {
-        position: fixed;
-        top: -20%;
-        left: -10%;
-        width: 120%;
-        height: 120%;
-        background: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, rgba(11, 16, 22, 0) 50%);
-        pointer-events: none;
-        z-index: -1;
-      }
-
       html {
         scroll-behavior: smooth;
+        background: var(--bg);
       }
 
       body {
@@ -90,23 +92,68 @@ const { title, description } = Astro.props
         -webkit-font-smoothing: antialiased;
       }
 
-      footer {
+      :is(h1, h2, h3) {
+        text-wrap: balance;
+      }
+
+      p {
+        text-wrap: pretty;
+      }
+
+      a,
+      button {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--color-blue);
+        outline-offset: 3px;
+      }
+
+      .site-footer {
         text-align: center;
-        padding: 3rem 2rem;
+        padding: 2rem 1.25rem;
         color: var(--muted);
-        font-size: 0.9rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.75rem;
+        border-top: 1px solid var(--border);
         margin-top: 4rem;
       }
 
-      footer a {
+      .footer-line {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0.25rem 0.6rem;
+      }
+
+      .site-footer a {
         color: var(--accent);
         text-decoration: none;
         transition: color 0.2s;
       }
 
-      footer a:hover {
+      .site-footer a:hover {
         color: var(--fg);
+      }
+
+      .footer-separator {
+        color: var(--border-hover);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
       }
     </style>
   </head>
@@ -115,14 +162,18 @@ const { title, description } = Astro.props
 
     <slot />
 
-    <footer>
-      <p>
-        MIT Licensed &middot;
-        <a href="https://github.com/wilfredinni/noodle">GitHub</a> &middot;
-        <a href="https://app.notion.com/p/39128d9edba9809da834f351332baf57?v=39228d9edba98042ad07000cdbe5d751">Roadmap</a> &middot;
-        <a href="https://github.com/wilfredinni/noodle/releases">Releases</a> &middot;
+    <footer class="site-footer">
+      <nav class="footer-line" aria-label="Footer navigation">
+        <a href="https://github.com/wilfredinni/noodle">GitHub</a>
+        <span class="footer-separator" aria-hidden="true">·</span>
+        <a href="https://app.notion.com/p/39128d9edba9809da834f351332baf57?v=39228d9edba98042ad07000cdbe5d751">Roadmap</a>
+        <span class="footer-separator" aria-hidden="true">·</span>
+        <a href="https://github.com/wilfredinni/noodle/releases">Releases</a>
+        <span class="footer-separator" aria-hidden="true">·</span>
         <a href="https://github.com/wilfredinni/noodle/issues">Issues</a>
-      </p>
+        <span class="footer-separator" aria-hidden="true">·</span>
+        <span>Apache-2.0</span>
+      </nav>
     </footer>
   </body>
 </html>

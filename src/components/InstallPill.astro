@@ -8,8 +8,9 @@ const { command } = Astro.props;
 
 <div class="install-pill">
   <code>{command}</code>
-  <button class="copy-btn" data-command={command}>COPY</button>
+  <button class="copy-btn" data-command={command} aria-label="Copy install command" aria-describedby="copy-status">COPY</button>
 </div>
+<p class="copy-status" id="copy-status" aria-live="polite"></p>
 
 <style>
   .install-pill {
@@ -58,11 +59,26 @@ const { command } = Astro.props;
     font-size: 0.75rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .copy-status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .copy-btn:hover {
     background: var(--accent);
+    color: var(--bg);
+  }
+
+  .copy-btn:active {
+    background: var(--accent-dim);
     color: var(--bg);
   }
 
@@ -73,6 +89,24 @@ const { command } = Astro.props;
       width: 100%;
     }
   }
+
+  @media (max-width: 520px) {
+    .install-pill code {
+      padding: 0.75rem 0.9rem;
+      font-size: 0.75rem;
+    }
+
+    .copy-btn {
+      min-width: 4.5rem;
+      padding: 0 0.9rem;
+    }
+  }
+
+  @media (pointer: coarse) {
+    .copy-btn {
+      min-height: 44px;
+    }
+  }
 </style>
 
 <script>
@@ -81,48 +115,38 @@ const { command } = Astro.props;
   copyButtons.forEach(btn => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
     const originalText = btn.textContent || 'COPY';
+    const status = document.getElementById('copy-status');
     
     btn.addEventListener('click', () => {
       const command = btn.getAttribute('data-command');
       if (command) {
         const copyPromise = (navigator.clipboard && typeof navigator.clipboard.writeText === 'function')
           ? navigator.clipboard.writeText(command)
-          : new Promise<void>((resolve, reject) => {
-              try {
-                const textarea = document.createElement('textarea');
-                textarea.value = command;
-                textarea.style.position = 'fixed';
-                textarea.style.top = '0';
-                textarea.style.left = '0';
-                textarea.style.opacity = '0';
-                textarea.setAttribute('readonly', '');
-                document.body.appendChild(textarea);
-                textarea.select();
-                const successful = document.execCommand('copy');
-                document.body.removeChild(textarea);
-                if (successful) {
-                  resolve();
-                } else {
-                  reject(new Error('Fallback copy failed'));
-                }
-              } catch (err) {
-                reject(err);
-              }
-            });
+          : Promise.reject(new Error('Clipboard API unavailable'));
 
         copyPromise
           .then(() => {
             btn.textContent = 'COPIED';
+            status && (status.textContent = 'Install command copied.');
             if (timeoutId) {
               clearTimeout(timeoutId);
             }
             timeoutId = setTimeout(() => {
               btn.textContent = originalText;
+              status && (status.textContent = '');
               timeoutId = null;
             }, 2000);
           })
-          .catch(err => {
-            console.error('Failed to copy: ', err);
+          .catch(() => {
+            const code = btn.previousElementSibling;
+            if (code) {
+              const range = document.createRange();
+              range.selectNodeContents(code);
+              const selection = window.getSelection();
+              selection?.removeAllRanges();
+              selection?.addRange(range);
+            }
+            status && (status.textContent = 'Could not copy automatically. Select the command and copy it manually.');
           });
       }
     });

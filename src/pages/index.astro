@@ -1,127 +1,54 @@
 ---
-// Landing page · outside Starlight, full control
 import BaseLayout from "../layouts/BaseLayout.astro"
 import FeatureCard from "../components/FeatureCard.astro"
 import HeroSection from "../components/landing/HeroSection.astro"
 import YamlSection from "../components/landing/YamlSection.astro"
-import ThemesSection from "../components/landing/ThemesSection.astro"
 import SkillSection from "../components/landing/SkillSection.astro"
+import ExtrasSection from "../components/landing/ExtrasSection.astro"
 import CtaSection from "../components/landing/CtaSection.astro"
 import FeatureSection from "../components/landing/FeatureSection.astro"
 ---
 
 <BaseLayout title="Noodle · Terminal REST Client" description="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal.">
-  <div class="bg-glow"></div>
-
   <HeroSection />
-
   <YamlSection />
 
   <main class="tui-container">
     <FeatureSection
-      tag="# build requests"
-      title="Build requests. Keep them organized."
-      summary="Compose requests, share configuration through folders, and switch environments without leaving the terminal. Reuse the same collection across local development, staging, and production."
+      tag="The workflow"
+      title="Write it. Version it. Run it."
+      summary="Noodle keeps the request itself, its shared configuration, and its repeatable checks in files your team can review and run anywhere."
     >
-        <FeatureCard
-          filename="request.yml"
-          tag="requests"
-          title="Compose & Send HTTP Requests"
-          desc="Craft full requests with URL, headers, params, body, and auth — then send with Ctrl+Enter. JSON, form data, multipart, binary. See response instantly."
-          cmd="Send with Ctrl+Enter/J"
-          accent="var(--color-blue)"
-        />
-        <FeatureCard
-          filename="folder.yml"
-          tag="folders"
-          title="Folder Hierarchies & Inheritance"
-          desc="Group requests logically. Custom headers and authentication cascade from parent folders down to child requests. Override per-request when needed."
-          cmd="Edit a folder to add Auth"
-          accent="var(--color-purple)"
-        />
-        <FeatureCard
-          filename="environments.env"
-          tag="variables"
-          title="Built-in Environment Editor"
-          desc="Manage dotenv variables without leaving the terminal. Type '$' in any input for instant autocomplete across URLs, headers, auth, and JSON/YAML bodies."
-          cmd="Press e to open Env Editor"
-          accent="var(--color-orange)"
-        />
-    </FeatureSection>
-
-    <ThemesSection />
-
-    <FeatureSection
-      tag="# iterate with confidence"
-      title="Run, inspect, import, and iterate."
-      summary="Automate dependable workflows, keep response history close, and import the collections your team already uses. Keep every API workflow moving from terminal to team."
-      titlePosition="right"
-    >
-        <FeatureCard
-          filename="automation.json"
-          tag="automation"
-          title="Automation-Ready CLI"
-          desc="Create, audit, and run collections from scripts or agent workflows. Get concise terminal summaries or one structured JSON result for reliable automation."
-          cmd="$ noodle collection run ./api --json"
-          accent="var(--color-red)"
-        />
-        <FeatureCard
-          filename="timeline.log"
-          tag="history"
-          title="Persistent Response Timeline"
-          desc="Every response saved per-request, up to 50 entries deep. Review, compare, and replay past responses from the timeline tab. Never lose a result."
-          cmd="Find it in the Request pane"
-          accent="var(--color-yellow)"
-        />
-        <FeatureCard
-          filename="openapi.json"
-          tag="import"
-          title="OpenAPI & Postman Import"
-          desc="Migrate collections in seconds. Imports OpenAPI 3.0 specs and Postman 2.1 exports into version-controllable YAML files. Auto-detects format."
-          cmd="$ noodle import api.yaml"
-          accent="var(--color-green)"
-        />
+      <FeatureCard
+        tag="Requests"
+        title="Compose a real request"
+        desc="Define the URL, headers, params, body, and auth in one readable request file—then send it without leaving the terminal."
+        cmd="Send with Ctrl+Enter/J"
+        accent="var(--color-blue)"
+      />
+      <FeatureCard
+        tag="Shared context"
+        title="Keep context beside code"
+        desc="Share auth and headers through folders, switch environments, and review every request as plain YAML in Git."
+        cmd="Edit a folder to add Auth"
+        accent="var(--color-purple)"
+      />
+      <FeatureCard
+        tag="Automation"
+        title="Run and audit with confidence"
+        desc="Use the CLI in scripts or agent workflows, inspect response history, and audit collections before you share or ship them."
+        cmd="$ noodle collection run ."
+        accent="var(--color-green)"
+      />
     </FeatureSection>
 
     <SkillSection />
-
-    <FeatureSection
-      tag="# refine your workflow"
-      title="Edit quickly. Keep collections clean."
-      summary="Edit raw files with confidence, make navigation your own, and validate collections before you share or run them. Keep every request clean, consistent, and ready for the next change."
-    >
-        <FeatureCard
-          filename="request.yml"
-          tag="editor"
-          title="Code Editor & Validation"
-          desc="Edit request and folder YAML with Tree-sitter highlighting, code folding, auto-closing pairs, and clear inline validation errors."
-          cmd="Ctrl+Alt+E to edit raw YAML"
-          accent="var(--color-blue)"
-        />
-        <FeatureCard
-          filename="keybinds.yml"
-          tag="workflow"
-          title="Keyboard-First Workflow"
-          desc="Move through panes, edit fields, and discover every action from the command palette. Make the workflow your own with custom keybindings."
-          cmd="Ctrl+P for command palette"
-          accent="var(--color-purple)"
-        />
-        <FeatureCard
-          filename="audit.log"
-          tag="quality"
-          title="Collection Audits"
-          desc="Validate request, folder, settings, and environment files before sharing or running a collection. Normalize valid files when needed."
-          cmd="$ noodle collection audit ./api --fix"
-          accent="var(--color-orange)"
-        />
-    </FeatureSection>
-
+    <ExtrasSection />
     <CtaSection />
   </main>
 </BaseLayout>
 
 <style>
-  /* ─── TUI Layout ─── */
   .tui-container {
     display: flex;
     flex-direction: column;
@@ -132,4 +59,9 @@ import FeatureSection from "../components/landing/FeatureSection.astro"
     z-index: 2;
   }
 
+  @media (max-width: 520px) {
+    .tui-container {
+      padding: 0 1.25rem;
+    }
+  }
 </style>
