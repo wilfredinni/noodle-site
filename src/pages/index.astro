@@ -19,27 +19,24 @@ import FeatureSection from "../components/landing/FeatureSection.astro"
       summary="Noodle keeps the request itself, its shared configuration, and its repeatable checks in files your team can review and run anywhere."
     >
       <FeatureCard
-        filename="request.yml"
-        tag="1 · write"
+        tag="Requests"
         title="Compose a real request"
         desc="Define the URL, headers, params, body, and auth in one readable request file—then send it without leaving the terminal."
         cmd="Send with Ctrl+Enter/J"
         accent="var(--color-blue)"
       />
       <FeatureCard
-        filename="folder.yml"
-        tag="2 · version"
+        tag="Shared context"
         title="Keep context beside code"
         desc="Share auth and headers through folders, switch environments, and review every request as plain YAML in Git."
         cmd="Edit a folder to add Auth"
         accent="var(--color-purple)"
       />
       <FeatureCard
-        filename="automation.json"
-        tag="3 · run"
+        tag="Automation"
         title="Run and audit with confidence"
         desc="Use the CLI in scripts or agent workflows, inspect response history, and audit collections before you share or ship them."
-        cmd="$ noodle collection run ./api --json"
+        cmd="$ noodle collection run ."
         accent="var(--color-green)"
       />
     </FeatureSection>
