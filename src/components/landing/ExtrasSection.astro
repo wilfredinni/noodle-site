@@ -1,0 +1,88 @@
+<section class="extras-section" aria-labelledby="extras-title">
+  <header class="extras-header">
+    <p>Also included</p>
+    <h2 id="extras-title">The rest of the workflow, covered.</h2>
+  </header>
+
+  <div class="extras-list">
+    <article>
+      <h3>Import what you already have</h3>
+      <p>Bring OpenAPI 3.0 specs and Postman 2.1 exports into version-controllable YAML files.</p>
+    </article>
+    <article>
+      <h3>Revisit every response</h3>
+      <p>Keep a per-request timeline to compare, inspect, and replay the work that got you here.</p>
+    </article>
+    <article>
+      <h3>Make the terminal yours</h3>
+      <p>Choose from 30+ built-in themes and adapt Noodle to the space where you do your best work.</p>
+    </article>
+  </div>
+</section>
+
+<style>
+  .extras-section {
+    padding: 4.5rem 0 2.5rem;
+  }
+
+  .extras-header {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .extras-header p {
+    color: var(--color-purple);
+    font-size: 0.9rem;
+  }
+
+  .extras-header h2 {
+    color: var(--fg);
+    font-size: clamp(1.4rem, 2.5vw, 2.2rem);
+    font-weight: 400;
+    line-height: 1.3;
+  }
+
+  .extras-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 2rem;
+    gap: 2rem;
+    border-top: 1px solid var(--border);
+    padding-top: 1.5rem;
+  }
+
+  .extras-list article {
+    min-width: 0;
+  }
+
+  .extras-list h3 {
+    color: var(--fg);
+    font-size: 1rem;
+    line-height: 1.4;
+    margin-bottom: 0.65rem;
+  }
+
+  .extras-list p {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 34ch;
+  }
+
+  @media (max-width: 680px) {
+    .extras-section {
+      padding-top: 3.5rem;
+    }
+
+    .extras-header {
+      gap: 0.5rem;
+    }
+
+    .extras-list {
+      gap: 1.5rem;
+    }
+  }
+</style>
