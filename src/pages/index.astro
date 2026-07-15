@@ -4,8 +4,6 @@ import BaseLayout from "../layouts/BaseLayout.astro"
 import FeatureCard from "../components/FeatureCard.astro"
 import HeroSection from "../components/landing/HeroSection.astro"
 import YamlSection from "../components/landing/YamlSection.astro"
-import ThemesSection from "../components/landing/ThemesSection.astro"
-import SkillSection from "../components/landing/SkillSection.astro"
 import CtaSection from "../components/landing/CtaSection.astro"
 import FeatureSection from "../components/landing/FeatureSection.astro"
 ---
@@ -18,10 +16,18 @@ import FeatureSection from "../components/landing/FeatureSection.astro"
   <YamlSection />
 
   <main class="tui-container">
+    <aside class="adoption-proof" aria-label="Open-source project proof">
+      <p class="proof-statement"><span>Open source. Local by default.</span> Follow the work before you install.</p>
+      <div class="proof-links">
+        <a href="/changelog/">Read the release history <span aria-hidden="true">→</span></a>
+        <a href="https://github.com/wilfredinni/noodle" target="_blank" rel="noopener noreferrer">Inspect the source <span aria-hidden="true">↗</span><span class="sr-only"> (opens in a new tab)</span></a>
+      </div>
+    </aside>
+
     <FeatureSection
-      tag="# build requests"
-      title="Build requests. Keep them organized."
-      summary="Compose requests, share configuration through folders, and switch environments without leaving the terminal. Reuse the same collection across local development, staging, and production."
+      tag="# everyday API work"
+      title="Compose requests, keep context close."
+      summary="Start with readable request files, organize shared configuration through folders, and switch environments without moving your work into a hosted workspace."
     >
         <FeatureCard
           filename="request.yml"
@@ -49,12 +55,10 @@ import FeatureSection from "../components/landing/FeatureSection.astro"
         />
     </FeatureSection>
 
-    <ThemesSection />
-
     <FeatureSection
-      tag="# iterate with confidence"
-      title="Run, inspect, import, and iterate."
-      summary="Automate dependable workflows, keep response history close, and import the collections your team already uses. Keep every API workflow moving from terminal to team."
+      tag="# keep the workflow moving"
+      title="Run, inspect, and bring your team along."
+      summary="Automate repeatable checks, keep useful response history nearby, and bring existing OpenAPI or Postman collections into plain files you can own."
       titlePosition="right"
     >
         <FeatureCard
@@ -83,39 +87,6 @@ import FeatureSection from "../components/landing/FeatureSection.astro"
         />
     </FeatureSection>
 
-    <SkillSection />
-
-    <FeatureSection
-      tag="# refine your workflow"
-      title="Edit quickly. Keep collections clean."
-      summary="Edit raw files with confidence, make navigation your own, and validate collections before you share or run them. Keep every request clean, consistent, and ready for the next change."
-    >
-        <FeatureCard
-          filename="request.yml"
-          tag="editor"
-          title="Code Editor & Validation"
-          desc="Edit request and folder YAML with Tree-sitter highlighting, code folding, auto-closing pairs, and clear inline validation errors."
-          cmd="Ctrl+Alt+E to edit raw YAML"
-          accent="var(--color-blue)"
-        />
-        <FeatureCard
-          filename="keybinds.yml"
-          tag="workflow"
-          title="Keyboard-First Workflow"
-          desc="Move through panes, edit fields, and discover every action from the command palette. Make the workflow your own with custom keybindings."
-          cmd="Ctrl+P for command palette"
-          accent="var(--color-purple)"
-        />
-        <FeatureCard
-          filename="audit.log"
-          tag="quality"
-          title="Collection Audits"
-          desc="Validate request, folder, settings, and environment files before sharing or running a collection. Normalize valid files when needed."
-          cmd="$ noodle collection audit ./api --fix"
-          accent="var(--color-orange)"
-        />
-    </FeatureSection>
-
     <CtaSection />
   </main>
 </BaseLayout>
@@ -130,6 +101,71 @@ import FeatureSection from "../components/landing/FeatureSection.astro"
     margin: 0 auto;
     position: relative;
     z-index: 2;
+  }
+
+  .adoption-proof {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 2rem;
+    align-items: center;
+    justify-content: space-between;
+    margin: 2rem 0;
+    padding: 1rem 0;
+    border-top: 1px dashed var(--border);
+    border-bottom: 1px dashed var(--border);
+  }
+
+  .proof-statement {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .proof-statement span {
+    color: var(--color-green);
+    font-weight: 700;
+  }
+
+  .proof-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.5rem;
+  }
+
+  .proof-links a {
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .proof-links a:hover {
+    color: var(--fg);
+    text-decoration: underline;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 900px) {
+    .adoption-proof {
+      margin: 2rem 0;
+      text-align: center;
+      justify-content: center;
+    }
+
+    .proof-links {
+      justify-content: center;
+    }
   }
 
 </style>

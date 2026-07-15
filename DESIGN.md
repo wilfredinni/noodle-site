@@ -33,6 +33,16 @@ typography:
     fontSize: "1rem"
     fontWeight: 400
     lineHeight: 1.6
+  lead:
+    fontFamily: "JetBrains Mono, Fira Code, monospace"
+    fontSize: "1.2rem"
+    fontWeight: 400
+    lineHeight: 1.6
+  marker:
+    fontFamily: "JetBrains Mono, Fira Code, monospace"
+    fontSize: "0.9rem"
+    fontWeight: 700
+    lineHeight: 1.4
   label:
     fontFamily: "JetBrains Mono, Fira Code, monospace"
     fontSize: "0.75rem"
@@ -128,6 +138,8 @@ The palette is Catppuccin Mocha used as a practical code-editor environment: lav
 - **Headline** (400, `clamp(1.4rem, 2.5vw, 2.2rem)`, 1.3): Section-level statements and the closing CTA.
 - **Card Title** (700, 1.2rem, normal): Feature names and concise product claims.
 - **Body** (400, 1rem, 1.6): Explanations, with a comfortable reading measure around 65–75 characters when layout permits.
+- **Lead** (400, 1.2rem, 1.6): The hero’s supporting explanation; use once per landing-page opening.
+- **Marker** (700, 0.9rem, 1.4): Short terminal-flavored transitions and proof labels; use sparingly.
 - **Label** (700, 0.75rem, 0.05em): Commands, tags, and compact control labels; uppercase is allowed only for short labels such as `COPY`.
 
 **The Command-Line Rule.** Code, commands, and feature names are literal. Avoid marketing-style type treatments, gradient text, excessive tracking, and decorative all-caps copy.

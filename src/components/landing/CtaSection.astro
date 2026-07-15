@@ -2,14 +2,14 @@
 ---
 
 <section class="cta-section">
-  <span class="section-tag"># get started</span>
-  <h2>Build your next collection today.</h2>
+  <span class="section-tag">Ready when your API is</span>
+  <h2>Install Noodle. Keep your requests yours.</h2>
   <p>
-    Noodle is free, open-source, and runs entirely in your terminal. Get up and running in less than 10 seconds.
+    Noodle is free, open source, and runs entirely in your terminal. Start with the installer, then use the Quick Start when you want a guided first request.
   </p>
   <div class="cta-links">
     <a href="/docs/getting-started/installation/">[Install Noodle]</a>
-    <a href="https://github.com/wilfredinni/noodle" target="_blank" rel="noopener noreferrer">[Star on GitHub]</a>
+    <a href="/docs/getting-started/quick-start/">[Open Quick Start]</a>
   </div>
 </section>
 
@@ -34,7 +34,7 @@
   }
 
   .cta-section p {
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1.6;
     color: var(--muted);
     max-width: 600px;
@@ -48,7 +48,7 @@
 
   .cta-links a {
     font-family: var(--font-mono);
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
     text-decoration: none;
     transition: color 0.2s;
@@ -70,6 +70,11 @@
   .cta-links a:last-child:hover {
     color: var(--fg);
     text-decoration: underline;
+  }
+
+  .cta-links a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
   }
 
   .section-tag {

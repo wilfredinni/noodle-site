@@ -15,6 +15,8 @@
       "display": { "displayName": "Terminal Display", "purpose": "Hero statements that establish the product promise." },
       "headline": { "displayName": "Workbench Headline", "purpose": "Section and CTA statements." },
       "body": { "displayName": "Readable Mono", "purpose": "Supporting explanation and long-form product copy." },
+      "lead": { "displayName": "Hero Lead", "purpose": "One supporting explanation in the landing-page opening." },
+      "marker": { "displayName": "Terminal Marker", "purpose": "Sparse, short transition labels and proof labels." },
       "label": { "displayName": "Command Label", "purpose": "Short control labels, tags, and command metadata." }
     },
     "shadows": [
