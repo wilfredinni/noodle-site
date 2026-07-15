@@ -23,7 +23,7 @@ const { title, description } = Astro.props
     <link rel="icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style is:global>
       *,
       *::before,
@@ -44,7 +44,8 @@ const { title, description } = Astro.props
         --accent-dim: #9399e8;
         --border: #313244;
         --border-hover: #45475a;
-        --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+        --shadow-strong: rgba(0, 0, 0, 0.35);
+        --mask-ink: #000;
         --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
         /* Centralized Noodle accents */
@@ -66,19 +67,9 @@ const { title, description } = Astro.props
         --color-yellow: #df8e1d;
       }
 
-      .bg-glow {
-        position: fixed;
-        top: -20%;
-        left: -10%;
-        width: 120%;
-        height: 120%;
-        background: radial-gradient(circle at 50% 0%, var(--accent-glow) 0%, rgba(11, 16, 22, 0) 50%);
-        pointer-events: none;
-        z-index: -1;
-      }
-
       html {
         scroll-behavior: smooth;
+        background: var(--bg);
       }
 
       body {
@@ -88,6 +79,24 @@ const { title, description } = Astro.props
         line-height: 1.6;
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
+      }
+
+      :is(h1, h2, h3) {
+        text-wrap: balance;
+      }
+
+      p {
+        text-wrap: pretty;
+      }
+
+      a,
+      button {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--color-blue);
+        outline-offset: 3px;
       }
 
       footer {
@@ -107,6 +116,21 @@ const { title, description } = Astro.props
 
       footer a:hover {
         color: var(--fg);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
       }
     </style>
   </head>
