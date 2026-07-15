@@ -41,7 +41,7 @@ import CtaSection from "../components/landing/CtaSection.astro"
           filename="environments.env"
           tag="variables"
           title="Built-in Environment Editor"
-          desc="Type '$' in any input for instant environment variable autocompletion. Easily manage and update variables with the built-in dotenv environment editor."
+          desc="Manage dotenv variables without leaving the terminal. Type '$' in any input for instant autocomplete across URLs, headers, auth, and JSON/YAML bodies."
           cmd="Press e to open Env Editor"
           accent="var(--color-orange)"
         />
@@ -54,11 +54,11 @@ import CtaSection from "../components/landing/CtaSection.astro"
     <section class="features-section">
       <div class="cards-grid">
         <FeatureCard
-          filename="autocomplete.json"
-          tag="autocomplete"
-          title="Powerful Env Autocomplete"
-          desc="Autocomplete for params, headers, variables, and JSON/YAML bodies. Context-aware suggestions are generated dynamically as you type in any field."
-          cmd="Type $ for variables autocomplete"
+          filename="automation.json"
+          tag="automation"
+          title="Automation-Ready CLI"
+          desc="Create, audit, and run collections from scripts or agent workflows. Get concise terminal summaries or one structured JSON result for reliable automation."
+          cmd="$ noodle collection run ./api --json"
           accent="var(--color-red)"
         />
         <FeatureCard
@@ -81,6 +81,35 @@ import CtaSection from "../components/landing/CtaSection.astro"
     </section>
 
     <SkillSection />
+
+    <section class="features-section">
+      <div class="cards-grid">
+        <FeatureCard
+          filename="request.yml"
+          tag="editor"
+          title="Code Editor & Validation"
+          desc="Edit request and folder YAML with Tree-sitter highlighting, code folding, auto-closing pairs, and clear inline validation errors."
+          cmd="Ctrl+Alt+E to edit raw YAML"
+          accent="var(--color-blue)"
+        />
+        <FeatureCard
+          filename="keybinds.yml"
+          tag="workflow"
+          title="Keyboard-First Workflow"
+          desc="Move through panes, edit fields, and discover every action from the command palette. Make the workflow your own with custom keybindings."
+          cmd="Ctrl+P for command palette"
+          accent="var(--color-purple)"
+        />
+        <FeatureCard
+          filename="audit.log"
+          tag="quality"
+          title="Collection Audits"
+          desc="Validate request, folder, settings, and environment files before sharing or running a collection. Normalize valid files when needed."
+          cmd="$ noodle collection audit ./api --fix"
+          accent="var(--color-orange)"
+        />
+      </div>
+    </section>
 
     <CtaSection />
   </main>
