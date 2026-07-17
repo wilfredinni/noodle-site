@@ -72,7 +72,12 @@ Each timeline file is a YAML array of entries. Max 50 entries, newest first
 |-------|------|-------------|
 | `message` | string | Error description |
 
-## Variable Resolution
+## Security
+
+Sensitive authentication values (tokens, passwords, API keys) are **masked**
+when stored in timeline files. The snapshot stored on disk replaces
+credential values with `***`, so timeline history is safe to commit even
+in public repositories.
 
 When viewing timeline entries, `$VAR` references in the stored request snapshot
 are resolved against the active environment. This means switching environments

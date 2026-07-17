@@ -20,19 +20,25 @@ Launch the TUI (no setup needed):
 noodle
 ```
 
-This opens an empty workspace. The default collection directory
-(`./collections`) is created automatically when you save your first
-request.
+This opens an empty workspace in read-only mode. Initialize it from the
+command palette (`Ctrl+P`) or save your first request to bootstrap the
+collection directory.
 
-To create a named collection, pass `--collection` with a new path:
+To create a named collection, use `noodle collection create`:
+
+```bash
+noodle collection create my-api
+```
+
+This creates the directory, adds collection markers, and registers it.
+Open it and start sending:
 
 ```bash
 noodle --collection ./my-api
 ```
 
-Noodle creates the directory on first save. You can have as many
-collections as you want, each with its own requests and environments.
-Use `Ctrl+O` to switch between them at runtime.
+You can have as many collections as you want, each with its own requests
+and environments. Use `Ctrl+O` to switch between them at runtime.
 
 <Image
   src={noodleEmpty}

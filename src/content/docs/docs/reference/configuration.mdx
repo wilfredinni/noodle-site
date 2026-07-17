@@ -25,7 +25,8 @@ collections:
 | `collections` | string[] | `[]` | List of absolute paths | Previously-used collection directories. Managed by the collection switcher (`Ctrl+O`); listed in most-recently-used order. |
 
 Noodle adds and reorders collections automatically when you switch to a
-new directory. No need to edit this by hand.
+new directory. No need to edit this by hand. Use `noodle workspace audit --fix`
+to remove stale paths that no longer exist on disk.
 
 Partial files are fine: only the fields you include are overridden:
 

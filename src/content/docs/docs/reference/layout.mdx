@@ -17,19 +17,22 @@ The main Noodle view has four panes:
   fetchpriority="high"
 />
 
-| Pane         | Description                                        |
-| ------------ | -------------------------------------------------- |
-| **Sidebar**  | Collection tree with folders and requests          |
-| **URL bar**  | Edit and inspect the selected request URL          |
-| **Request**  | Request detail view with inline editing            |
-| **Response** | Response rendering (idle / sending / done / error) |
+| Pane         | Description                                                         |
+| ------------ | ------------------------------------------------------------------- |
+| **Sidebar**  | Collection tree with folders and requests                           |
+| **URL bar**  | Edit and inspect the request URL. **Tab** switches between method
+                 selector and URL field within the URL bar.               |
+| **Request**  | Request detail view with inline editing                             |
+| **Response** | Response rendering (idle / sending / done / error)                  |
 
 ## Focus
 
 Press **Tab** / **Shift+Tab** to cycle focus through sidebar → URL bar →
 request → response. The active pane gets a cyan border with a `▸` prefix in
-its title. Folder view has sidebar and folder panes; the environment editor
-has environment sidebar, header, and variable panes.
+its title. When the URL bar is focused, **Tab** cycles between the HTTP
+method selector and the URL text field. Folder view has sidebar and folder
+panes; the environment editor has environment sidebar, header, and variable
+panes.
 
 ## Layout Modes
 
@@ -42,7 +45,11 @@ Press **F2** to expand the focused pane to full width.
 
 ## Editing
 
-The request pane has two modes:
+The request pane has two editing modes:
 
-- **Browse**: navigate between fields with arrow keys
+- **Field browse**: navigate between fields with arrow keys
 - **Edit**: modify a field value (enter via `Return`, exit via `Escape`)
+
+When the collection directory is read-only (browse or empty mode), the
+request pane is view-only. Initialize the directory from the command
+palette to enable editing.
