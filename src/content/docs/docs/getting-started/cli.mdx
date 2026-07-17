@@ -55,11 +55,17 @@ noodle import ./spec.json -o ./my-apis                  # custom output dir
 
 ## Update
 
-Self-updates the binary. Homebrew installs redirect to `brew upgrade`.
+Self-updates the binary and verifies the release SHA-256 checksum before
+replacing it. Homebrew installs run `brew upgrade noodle` instead.
 
 ```bash
 noodle update
+noodle update --force       # bypass the one-hour release-check cache
+noodle update --json        # emit one JSON result envelope
 ```
+
+Non-Homebrew installs cache the latest release check for one hour. Set
+`GH_TOKEN` or `GITHUB_TOKEN` when the GitHub API needs authentication.
 
 ## Automation commands
 
