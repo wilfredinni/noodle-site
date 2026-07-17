@@ -32,6 +32,24 @@ every environment is a `.env` file. Commit them, share them, diff them.
 Press `Ctrl+O` to switch between previously-used collections at
 runtime.
 
+### Collection Modes
+
+When you open a directory, Noodle determines its mode:
+
+- **Collection mode**: the directory has collection markers
+  (`.environments/` or `settings.yml`). Full editing, sending, and
+  saving is available.
+- **Browse mode**: the directory contains request `.yml` files but no
+  collection markers. Requests are visible and inspectable, but editing
+  and sending are blocked. Initialize it from the command palette to
+  enable collection mode.
+- **Empty mode**: the directory is empty. Same read-only restrictions as
+  browse mode. Initialize via command palette or save your first request
+  to bootstrap the collection.
+
+Use `noodle collection init <path>` to bootstrap collection markers
+from the CLI without opening the TUI.
+
 ## Request
 
 A **request** is a single `.yml` file representing one HTTP call. Every
@@ -120,7 +138,8 @@ request across dev/staging/production.
 The main TUI is split into four **panes**:
 
 - **Sidebar**: browse collection tree, select requests
-- **URL bar**: inspect and edit the selected request URL
+- **URL bar**: inspect and edit the selected request URL. Press **Tab**
+  to switch between method selector and URL field.
 - **Request**: inspect and edit the selected request
 - **Response**: view response body, headers, and timing
 
@@ -151,13 +170,13 @@ which view is active:
 
 **Main view** (working with requests):
 
-| Section     | Actions                                                  |
-| ----------- | -------------------------------------------------------- |
-| Request     | New, clone, save, delete, edit, send                     |
-| Response    | Copy body                                                |
-| Environment | Cycle, open editor                                       |
-| Collection  | Switch collection, new folder                            |
-| App         | Help, theme picker, toggle layout, expand pane, undo all |
+| Section     | Actions                                                            |
+| ----------- | ------------------------------------------------------------------ |
+| Request     | New, clone, save, delete, edit, send                               |
+| Response    | Copy body                                                          |
+| Environment | Cycle, open editor                                                 |
+| Collection  | Switch collection, reload collection, new folder, initialize       |
+| App         | Help, theme picker, toggle layout, expand pane, undo all, about    |
 
 **Env editor view** (when **e** is pressed):
 

@@ -41,9 +41,9 @@ listed, reflecting your current custom keybinds.
 | `e`                  | Open environment editor                              |
 | `Ctrl+C`             | Quit                                                 |
 
-## Browse Mode
+## Field Browse Mode
 
-When the request pane is focused (not editing):
+When the request pane is focused (field-level, not editing):
 
 | Key       | Action                      |
 | --------- | --------------------------- |
@@ -54,6 +54,28 @@ When the request pane is focused (not editing):
 | `Ctrl+T`  | Toggle form entry text/file |
 | `Ctrl+D`  | Revert current field        |
 | `Ctrl+R`  | Revert all fields           |
+
+## Read-only Modes
+
+When a collection directory has no collection markers (browse mode) or
+is empty (empty mode), you can inspect requests and use global UI actions
+but cannot edit or send. These keybindings are **unavailable** in
+read-only modes:
+
+| Key            | Action       |
+| -------------- | ------------ |
+| `Ctrl+Return`  | Send request |
+| `Ctrl+S`       | Save request |
+| `Ctrl+N`       | New request  |
+| `Ctrl+K`       | Clone request|
+| `Ctrl+W`       | Delete request|
+| `Ctrl+Alt+N`   | New folder   |
+| `Ctrl+E`       | Edit request  |
+| `Ctrl+Alt+E`   | Edit YAML     |
+| `e`            | Env editor    |
+
+Use the command palette (`Ctrl+P`) to initialize the directory before
+editing or sending.
 
 ## Edit Mode
 

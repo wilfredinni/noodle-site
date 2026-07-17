@@ -5,19 +5,31 @@ description: Interactive and automation command reference
 
 ## TUI (default)
 
-Launches the terminal interface. The collection directory is created
-automatically on first save.
+Launches the terminal interface.
 
 ```bash
-noodle                                  # ./collections, no env
+noodle                                  # first registered collection, or ./collections
+noodle .                                # open current directory
 noodle --collection ./api --env prod    # explicit collection + env
 noodle -c ./my-requests -e staging      # shorthand
 ```
 
+A positional `<path>` overrides `--collection`; supplying both is invalid.
+Without either, Noodle uses the first existing collection registered in
+`~/.config/noodle/config.yml`, falling back to `./collections`.
+
+### Path modes
+
+Existing collection roots open in full collection mode. Directories that
+contain request `.yml` files but no collection markers (`.environments/`,
+`settings.yml`) open in read-only **browse** mode. Empty directories open in
+read-only **empty** mode. Use the command palette (`Ctrl+P`) to initialize
+browse or empty directories before editing or sending.
+
 | Flag           | Short | Default         | Description                                            |
 | -------------- | ----- | --------------- | ------------------------------------------------------ |
 | `--collection` | `-c`  | `./collections` | Path to request directory                              |
-| `--env`        | `-e`  | :               | Environment to activate. Exits with error if not found |
+| `--env`        | `-e`  | —               | Environment to activate. Exits with error if not found |
 
 `--help` and `--version` are available on every command.
 
@@ -59,7 +71,9 @@ collection-relative paths without the `.yml` extension (for example,
 | Command                                                                           | Purpose                                                       |
 | --------------------------------------------------------------------------------- | ------------------------------------------------------------- |
 | `noodle workspace list`                                                           | List collections registered in the global config.             |
+| `noodle workspace audit [--fix]`                                                  | Validate registered collections; `--fix` removes stale paths. |
 | `noodle collection create <name> [-o <dir>]`                                      | Create and register a starter collection.                     |
+| `noodle collection init <path>`                                                   | Bootstrap collection markers in an existing directory.        |
 | `noodle collection list <path>`                                                   | Print a collection tree.                                      |
 | `noodle collection inspect <path>`                                                | Show collection metadata, environments, and its tree.         |
 | `noodle collection audit <path> [--fix]`                                          | Validate collection files; `--fix` canonicalizes valid files. |
