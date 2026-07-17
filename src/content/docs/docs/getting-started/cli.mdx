@@ -8,7 +8,7 @@ description: Interactive and automation command reference
 Launches the terminal interface.
 
 ```bash
-noodle                                  # first registered collection, or ./collections
+noodle                                  # first registered collection, or current directory
 noodle .                                # open current directory
 noodle --collection ./api --env prod    # explicit collection + env
 noodle -c ./my-requests -e staging      # shorthand
@@ -16,7 +16,7 @@ noodle -c ./my-requests -e staging      # shorthand
 
 A positional `<path>` overrides `--collection`; supplying both is invalid.
 Without either, Noodle uses the first existing collection registered in
-`~/.config/noodle/config.yml`, falling back to `./collections`.
+`~/.config/noodle/config.yml`, falling back to the current directory.
 
 ### Path modes
 
