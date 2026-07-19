@@ -42,13 +42,18 @@ const formatDate = (date: Date) => {
 
     <h1 class="post-title">{post.data.title}</h1>
 
+
+    <article class="post-content">
+      <Content />
+    </article>
+
     {post.data.author && (
-      <div class="author-card">
+      <div class="author-bio-card">
         {post.data.author.picture && (
-          <Image src={post.data.author.picture} alt={post.data.author.name} width={40} height={40} loading="eager" fetchpriority="high" class="author-pic" />
+          <Image src={post.data.author.picture} alt={post.data.author.name} width={72} height={72} class="bio-avatar" />
         )}
-        <div class="author-details">
-          <span class="author-name">
+        <div class="bio-content">
+          <span class="bio-name">
             {post.data.author.url ? (
               <a href={post.data.author.url} target="_blank" rel="noopener noreferrer">
                 {post.data.author.name}
@@ -58,15 +63,28 @@ const formatDate = (date: Date) => {
             )}
           </span>
           {post.data.author.title && (
-            <span class="author-title">{post.data.author.title}</span>
+            <span class="bio-subtitle">{post.data.author.title}</span>
           )}
+          <div class="bio-buttons">
+            {post.data.author.url && (
+              <a href={post.data.author.url} target="_blank" rel="noopener noreferrer" class="bio-btn">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                </svg>
+                GitHub
+              </a>
+            )}
+            <a href="mailto:carlos.w.montecinos@gmail.com" class="bio-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              Email
+            </a>
+          </div>
         </div>
       </div>
     )}
-
-    <article class="post-content">
-      <Content />
-    </article>
   </main>
 </BaseLayout>
 
@@ -113,51 +131,7 @@ const formatDate = (date: Date) => {
     text-wrap: balance;
   }
 
-  .author-card {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--border);
-    width: 100%;
-    margin-bottom: 2.5rem;
-  }
 
-  .author-pic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid var(--border);
-    background: var(--bg-elevated);
-  }
-
-  .author-details {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .author-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--fg);
-  }
-
-  .author-name a {
-    color: inherit;
-    text-decoration: none;
-    border-bottom: 1px dashed var(--border-hover);
-    transition: color 0.2s, border-color 0.2s;
-  }
-
-  .author-name a:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-  }
-
-  .author-title {
-    font-size: 0.75rem;
-    color: var(--muted);
-  }
 
   /* Markdown Body Prose Styles */
   .post-content {
@@ -266,6 +240,104 @@ const formatDate = (date: Date) => {
 
     .post-container {
       padding: 4rem 1.25rem 4rem;
+    }
+  }
+
+  .author-bio-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 4rem;
+  }
+
+  .bio-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    object-fit: cover;
+  }
+
+  .bio-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .bio-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--fg);
+  }
+
+  .bio-name a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--border-hover);
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .bio-name a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .bio-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .bio-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.65rem;
+  }
+
+  .bio-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+    font-weight: 500;
+  }
+
+  .bio-btn:hover {
+    color: var(--fg);
+    border-color: var(--border-hover);
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  .bio-btn svg {
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .bio-btn:hover svg {
+    color: var(--fg);
+  }
+
+  @media (max-width: 600px) {
+    .author-bio-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.25rem;
+    }
+
+    .bio-avatar {
+      width: 56px;
+      height: 56px;
     }
   }
 </style>
