@@ -19,7 +19,7 @@ import autocompleteImage from "../../assets/autocomplete.png";
 import findRequestImage from "../../assets/findrequest.png";
 import timelineImage from "../../assets/timeline.png";
 
-When I released Noodle 0.1.0, the idea was deliberately small: keep API requests as YAML files on disk, and make them pleasant to work with from the terminal. That part has not changed. What has changed is how much less friction there is between opening a collection and getting useful work done.
+When I released Noodle `0.1.0`, the idea was deliberately small: keep API requests as YAML files on disk, and make them pleasant to work with from the terminal. Noodle is now at `0.5.0`, and that part has not changed. What has changed is how much less friction there is between opening a collection and getting useful work done.
 
 Since launch, Noodle has grown from a focused request editor into a more complete workspace for exploring APIs, moving between projects, and keeping the details close at hand. This is a quick look at the improvements that have mattered most in day-to-day use.
 
@@ -92,6 +92,16 @@ Sending a request is only half the loop. The response pane now keeps a [timeline
 For JSON responses, you can filter the body with JSONPath right in Noodle. With the response pane focused, press `/` to start filtering. It is useful for quickly narrowing a large payload to the field or set of records you are investigating, without copying the response into another tool.
 
 There have also been many quieter improvements in this area: better handling for large response bodies, more reliable clipboard support, and keyboard behavior that stays inside the modal you are using. They are not flashy features, but they are the kind that make a terminal app feel dependable after hours of use.
+
+## What is next on the road to v1
+
+There is still a lot I want to add, and the roadmap is organized around making Noodle more useful across the full API workflow. These are the current goals, not promises, so the order may change as people use the app and share feedback.
+
+- **v0.6.0: Export and import.** Export collections to OpenAPI, Postman, and Insomnia formats, add Swagger and Insomnia import, and remember open tabs when switching folders.
+- **v0.7.0: Networking and auth.** Add proxy support, SSL/TLS configuration, a cookie jar viewer, and OAuth 2.0.
+- **v0.8.0: Scripting.** Support JavaScript before and after requests for the cases that need a little logic around an API call.
+- **v0.9.0: Testing.** Add custom assertions for status, body, headers, and timing, plus request chaining for passing variables between requests.
+- **v1.0.0: Automation.** Build on the automation CLI with a collection runner that can run requests in batch and show the results in a clear grid.
 
 ## Still built around files
 
