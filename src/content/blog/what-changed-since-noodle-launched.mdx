@@ -1,0 +1,94 @@
+---
+title: What Changed Since Noodle Launched
+description: A look at how Noodle grew from its 0.1.0 launch into a more capable terminal workspace for everyday API work.
+date: 2026-07-20
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+import { Image } from "astro:assets";
+import commandImage from "../../assets/command.png";
+import collectionSwitcherImage from "../../assets/collection-switcher.png";
+import autocompleteImage from "../../assets/autocomplete.png";
+import findRequestImage from "../../assets/findrequest.png";
+import timelineImage from "../../assets/timeline.png";
+
+When I released Noodle 0.1.0, the idea was deliberately small: keep API requests as YAML files on disk, and make them pleasant to work with from the terminal. That part has not changed. What has changed is how much less friction there is between opening a collection and getting useful work done.
+
+Since launch, Noodle has grown from a focused request editor into a more complete workspace for exploring APIs, moving between projects, and keeping the details close at hand. This is a quick look at the improvements that have mattered most in day-to-day use.
+
+## Finding your way around
+
+The first thing I wanted to improve was navigation. A terminal tool should not make you remember where every action lives.
+
+Noodle now has a command palette for the actions you use most, including creating and editing requests, switching environments, opening help, and working with collections. It is the place I reach for when I know what I want to do but do not want to think about the shortcut.
+
+<Image
+  src={commandImage}
+  alt="Noodle command palette showing grouped actions"
+  loading="lazy"
+/>
+
+Collections are remembered too, so moving between projects does not mean repeatedly typing paths. The collection switcher keeps recently used collections close, which has been especially useful when I am bouncing between an API I am building and a separate service I need to inspect.
+
+<Image
+  src={collectionSwitcherImage}
+  alt="Noodle collection switcher listing recent collections"
+  loading="lazy"
+/>
+
+And once a collection gets bigger, finding the right request matters. The request finder searches fuzzily across the collection and can match URLs after environment variables have been resolved. That small detail makes a real difference when a request file has a good name but the endpoint is what you actually remember.
+
+<Image
+  src={findRequestImage}
+  alt="Noodle request finder searching requests in a collection"
+  loading="lazy"
+/>
+
+## Editing without losing flow
+
+YAML is still the source of truth in Noodle. I like that requests stay readable, portable, and easy to keep in version control. But editing plain text should not mean giving up helpful feedback.
+
+The editor now understands YAML and JSON, with syntax highlighting, folding, and validation that catches mistakes before a request is saved. Environment variables are highlighted consistently, and typing `$` brings up completion in request fields, the JSON body editor, and the YAML editor. It removes a surprising amount of repetitive typing when a collection has a handful of base URLs, tokens, or IDs.
+
+<Image
+  src={autocompleteImage}
+  alt="Noodle variable autocomplete in the request editor"
+  loading="lazy"
+/>
+
+The goal was not to turn Noodle into a full IDE. It was to make the moments spent editing requests feel calm and direct, without breaking the file-based workflow that made the tool useful in the first place.
+
+## Moving requests in and out
+
+Real API work rarely begins with a perfectly organized collection. Sometimes it begins with a cURL command copied from documentation, a browser, or a teammate's message.
+
+Noodle can now import cURL commands into new requests, carrying over the practical parts such as headers, authentication, query parameters, bodies, forms, file uploads, redirects, and timeouts. In the other direction, the command palette can generate code snippets for the selected request and, when needed, interpolate the active environment first.
+
+I also added non-interactive collection and request commands for creating, inspecting, auditing, and running collections. That makes the same YAML files useful in scripts and automation, not just in the TUI. For people who work with coding agents, the Noodle skill documents the collection format and workflows so an agent can create, organize, and evaluate requests with the same files.
+
+## Working through responses
+
+Sending a request is only half the loop. The response pane now keeps a timeline of request activity, with detail views for returning to a previous exchange when you need to compare what changed.
+
+<Image
+  src={timelineImage}
+  alt="Noodle response timeline showing previous request activity"
+  loading="lazy"
+/>
+
+For JSON responses, you can filter the body with JSONPath right in Noodle. It is useful for quickly narrowing a large payload to the field or set of records you are investigating, without copying the response into another tool.
+
+There have also been many quieter improvements in this area: better handling for large response bodies, more reliable clipboard support, and keyboard behavior that stays inside the modal you are using. They are not flashy features, but they are the kind that make a terminal app feel dependable after hours of use.
+
+## Still built around files
+
+Noodle is more capable than it was at launch, but the core idea is still the same. Your requests live as YAML files in your collection. You can inspect them, edit them, share them, and run them without putting your API work behind a proprietary workspace.
+
+If you have an API you are working on, give Noodle a try with a real request or collection. I would love to hear what feels useful, what gets in your way, and what you would want to see next. Feedback and issues are always welcome on [GitHub](https://github.com/wilfredinni/noodle).
