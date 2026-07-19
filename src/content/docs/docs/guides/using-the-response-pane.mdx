@@ -48,6 +48,14 @@ so switching environments updates the displayed request snapshots inline.
 |-----|--------|
 | **Ctrl+B** | Copy response body to clipboard (OSC52, works over SSH) |
 
+## Filter JSON with JSONPath
+
+When the response pane is focused and the body contains valid JSON, press
+**/** to enter a JSONPath expression. Noodle replaces the displayed body
+with the matching values and reports invalid expressions inline. The same
+action is available as **Filter Response with JSONPath** in the command
+palette.
+
 ## Errors
 
 Errors display inline in the response pane for:
