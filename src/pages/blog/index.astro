@@ -1,0 +1,272 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { getCollection } from "astro:content"
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+)
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+}
+---
+
+<BaseLayout title="Blog · Noodle" description="The latest updates, guides, and announcements from the Noodle terminal REST client team.">
+  <div class="blog-header-section">
+    <div class="blog-header-inner">
+      <span class="blog-subtitle">Changelog & Updates</span>
+      <h1 class="blog-title">Inside Noodle</h1>
+      <p class="blog-desc">
+        Updates, architecture, and feature deep-dives from the creators of the terminal REST client.
+      </p>
+    </div>
+  </div>
+
+  <main class="blog-container">
+    {posts.length === 0 ? (
+      <div class="empty-state">
+        <p>No blog posts found. Check back soon!</p>
+      </div>
+    ) : (
+      <div class="blog-grid">
+        {posts.map((post) => (
+          <article class="blog-card">
+            <a href={`/blog/${post.id}/`} class="card-link">
+              <div class="card-glow"></div>
+              <div class="card-content">
+                <div class="post-meta">
+                  <time datetime={post.data.date.toISOString()}>
+                    {formatDate(post.data.date)}
+                  </time>
+                  {post.data.author && (
+                    <span class="post-author">· By {post.data.author.name}</span>
+                  )}
+                </div>
+                <h2 class="post-title">{post.data.title}</h2>
+                {post.data.description && (
+                  <p class="post-excerpt">{post.data.description}</p>
+                )}
+                <div class="post-footer">
+                  <div class="post-tags">
+                    {post.data.tags.map((tag) => (
+                      <span class="tag-badge">{tag}</span>
+                    ))}
+                  </div>
+                  <span class="read-more">
+                    Read post
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  .blog-header-section {
+    padding: 6rem 2rem 4rem;
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid var(--border);
+    background: radial-gradient(circle at top, rgba(180, 190, 254, 0.05), transparent 60%);
+  }
+
+  .blog-header-inner {
+    width: 100%;
+    max-width: 1200px;
+    text-align: center;
+  }
+
+  .blog-subtitle {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  .blog-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 1rem 0 1.5rem;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+  }
+
+  .blog-desc {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .blog-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 6rem 2rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 2rem;
+  }
+
+  .blog-card {
+    position: relative;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+  }
+
+  .card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+  }
+
+  .card-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30px 30px, rgba(180, 190, 254, 0.15), transparent 120px);
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+
+  .blog-card:hover .card-glow {
+    opacity: 1;
+  }
+
+  .card-content {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 280px;
+  }
+
+  .post-meta {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .post-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--fg);
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    transition: color 0.3s;
+  }
+
+  .blog-card:hover .post-title {
+    color: var(--accent);
+  }
+
+  .post-excerpt {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    flex-grow: 1;
+  }
+
+  .post-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border);
+  }
+
+  .post-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .tag-badge {
+    font-size: 0.75rem;
+    background: var(--bg-elevated);
+    color: var(--muted);
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-weight: 600;
+  }
+
+  .read-more {
+    font-size: 0.85rem;
+    color: var(--accent);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: gap 0.2s;
+  }
+
+  .read-more svg {
+    transition: transform 0.2s;
+  }
+
+  .blog-card:hover .read-more {
+    color: var(--accent-dim);
+  }
+
+  .blog-card:hover .read-more svg {
+    transform: translateX(3px);
+  }
+
+  @media (max-width: 768px) {
+    .blog-title {
+      font-size: 2.25rem;
+    }
+
+    .blog-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .card-content {
+      padding: 1.75rem;
+      min-height: auto;
+    }
+  }
+</style>

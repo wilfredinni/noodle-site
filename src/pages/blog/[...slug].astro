@@ -1,0 +1,315 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { getCollection, render } from "astro:content"
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog")
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }))
+}
+
+const { post } = Astro.props
+const { Content } = await render(post)
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+}
+---
+
+<BaseLayout title={`${post.data.title} · Noodle Blog`} description={post.data.description}>
+  <div class="post-header-section">
+    <div class="post-header-inner">
+      <a href="/blog/" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back to blog
+      </a>
+
+      <div class="post-meta">
+        <time datetime={post.data.date.toISOString()}>
+          {formatDate(post.data.date)}
+        </time>
+        {post.data.tags && post.data.tags.length > 0 && (
+          <span class="meta-separator">·</span>
+          <div class="meta-tags">
+            {post.data.tags.map((tag) => (
+              <span class="post-tag">#{tag}</span>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <h1 class="post-title">{post.data.title}</h1>
+
+      {post.data.author && (
+        <div class="author-card">
+          {post.data.author.picture && (
+            <img src={post.data.author.picture} alt={post.data.author.name} class="author-pic" />
+          )}
+          <div class="author-details">
+            <span class="author-name">
+              {post.data.author.url ? (
+                <a href={post.data.author.url} target="_blank" rel="noopener noreferrer">
+                  {post.data.author.name}
+                </a>
+              ) : (
+                post.data.author.name
+              )}
+            </span>
+            {post.data.author.title && (
+              <span class="author-title">{post.data.author.title}</span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+
+  <main class="post-container">
+    <article class="post-content">
+      <Content />
+    </article>
+  </main>
+</BaseLayout>
+
+<style>
+  .post-header-section {
+    padding: 6rem 2rem 4rem;
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid var(--border);
+    background: radial-gradient(circle at top, rgba(180, 190, 254, 0.03), transparent 60%);
+  }
+
+  .post-header-inner {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .back-link {
+    font-size: 0.9rem;
+    color: var(--muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 2.5rem;
+    transition: color 0.2s;
+    font-weight: 500;
+  }
+
+  .back-link:hover {
+    color: var(--fg);
+  }
+
+  .back-link svg {
+    transition: transform 0.2s;
+  }
+
+  .back-link:hover svg {
+    transform: translateX(-3px);
+  }
+
+  .post-meta {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-separator {
+    color: var(--border-hover);
+  }
+
+  .meta-tags {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .post-tag {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .post-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--fg);
+    margin-bottom: 2rem;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .author-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    width: 100%;
+  }
+
+  .author-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+  }
+
+  .author-details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .author-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .author-name a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--border-hover);
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .author-name a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .author-title {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .post-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem;
+  }
+
+  /* Markdown Body Prose Styles */
+  .post-content {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--fg);
+  }
+
+  .post-content :global(p) {
+    margin-bottom: 1.75rem;
+    text-wrap: pretty;
+  }
+
+  .post-content :global(h2) {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 3rem 0 1.25rem;
+    color: var(--fg);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+
+  .post-content :global(h3) {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 2.25rem 0 1rem;
+    color: var(--fg);
+  }
+
+  .post-content :global(ul), 
+  .post-content :global(ol) {
+    margin: 0 0 1.75rem 1.5rem;
+  }
+
+  .post-content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .post-content :global(strong) {
+    color: var(--fg);
+    font-weight: 700;
+  }
+
+  .post-content :global(a) {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--accent);
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .post-content :global(a:hover) {
+    color: var(--accent-dim);
+    border-color: var(--accent-dim);
+  }
+
+  .post-content :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    padding: 0.15em 0.3em;
+    border-radius: 4px;
+    color: var(--color-orange);
+  }
+
+  .post-content :global(pre) {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+  }
+
+  .post-content :global(pre code) {
+    background: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    color: inherit;
+    font-size: 0.9rem;
+  }
+
+  .post-content :global(blockquote) {
+    border-inline-start: 4px solid var(--accent);
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    margin: 0 0 2rem 0;
+    color: var(--muted);
+    font-style: italic;
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+    border-radius: 0 8px 8px 0;
+  }
+
+  @media (max-width: 768px) {
+    .post-header-section {
+      padding: 4rem 1.25rem 3rem;
+    }
+
+    .post-title {
+      font-size: 2rem;
+    }
+
+    .post-container {
+      padding: 2.5rem 1.25rem 4rem;
+    }
+  }
+</style>
