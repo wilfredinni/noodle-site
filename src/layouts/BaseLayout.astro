@@ -47,6 +47,8 @@ const { title, description } = Astro.props
         --shadow-strong: rgba(0, 0, 0, 0.35);
         --mask-ink: #000;
         --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+        --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        --accent-text: var(--bg);
 
         /* Centralized Noodle accents */
         --color-orange: #fab387;
@@ -74,8 +76,9 @@ const { title, description } = Astro.props
         --color-green: #40a02b;
         --color-blue: #1e66f5;
         --color-red: #d20f39;
-        --color-purple: #8839ef;
+        --color-purple: #7c24ec; /* Darkened for WCAG AA contrast (4.51:1) */
         --color-yellow: #df8e1d;
+        --accent-text: #11111b; /* Dark text for high contrast on light theme accent */
       }
 
       html {
@@ -90,6 +93,16 @@ const { title, description } = Astro.props
         line-height: 1.6;
         overflow-x: hidden;
         -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .content-wrapper {
+        flex: 1 0 auto;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
       }
 
       :is(h1, h2, h3) {
@@ -160,7 +173,9 @@ const { title, description } = Astro.props
   <body>
     <Nav />
 
-    <slot />
+    <div class="content-wrapper">
+      <slot />
+    </div>
 
     <footer class="site-footer">
       <nav class="footer-line" aria-label="Footer navigation">

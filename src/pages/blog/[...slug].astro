@@ -1,0 +1,353 @@
+---
+import { getCollection, render } from "astro:content"
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { Image } from "astro:assets"
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog")
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }))
+}
+
+const { post } = Astro.props
+const { Content } = await render(post)
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })
+}
+---
+
+<BaseLayout title={`${post.data.title} · Noodle Blog`} description={post.data.description}>
+  <main class="post-container">
+
+    <div class="post-meta">
+      <time datetime={post.data.date.toISOString()}>
+        {formatDate(post.data.date)}
+      </time>
+      {post.data.tags && post.data.tags.length > 0 && (
+        <span class="meta-separator">·</span>
+        <div class="meta-tags">
+          {post.data.tags.map((tag) => (
+            <span class="post-tag">#{tag}</span>
+          ))}
+        </div>
+      )}
+    </div>
+
+    <h1 class="post-title">{post.data.title}</h1>
+
+
+    <article class="post-content">
+      <Content />
+    </article>
+
+    {post.data.author && (
+      <div class="author-bio-card">
+        {post.data.author.picture && (
+          <Image src={post.data.author.picture} alt={post.data.author.name} width={72} height={72} class="bio-avatar" />
+        )}
+        <div class="bio-content">
+          <span class="bio-name">
+            {post.data.author.url ? (
+              <a href={post.data.author.url} target="_blank" rel="noopener noreferrer">
+                {post.data.author.name}
+              </a>
+            ) : (
+              post.data.author.name
+            )}
+          </span>
+          {post.data.author.title && (
+            <span class="bio-subtitle">{post.data.author.title}</span>
+          )}
+          <div class="bio-buttons">
+            {post.data.author.url && (
+              <a href={post.data.author.url} target="_blank" rel="noopener noreferrer" class="bio-btn">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                </svg>
+                GitHub
+              </a>
+            )}
+            <a href="mailto:carlos.w.montecinos@gmail.com" class="bio-btn">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              Email
+            </a>
+          </div>
+        </div>
+      </div>
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  .post-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 6rem 2rem 6rem;
+  }
+
+
+  .post-meta {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .meta-separator {
+    color: var(--border-hover);
+  }
+
+  .meta-tags {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .post-tag {
+    color: var(--color-purple);
+    font-weight: 600;
+  }
+
+  .post-title {
+    font-size: 2.75rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--fg);
+    margin-bottom: 2rem;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+
+
+  /* Markdown Body Prose Styles */
+  .post-content {
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--fg);
+  }
+
+  .post-content :global(p) {
+    margin-bottom: 1.75rem;
+    text-wrap: pretty;
+    max-width: 70ch;
+  }
+
+  .post-content :global(h2) {
+    font-family: var(--font-mono);
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 3.5rem 0 1.25rem;
+    color: var(--fg);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .post-content :global(h3) {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 2.5rem 0 1rem;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+  }
+
+  .post-content :global(ul), 
+  .post-content :global(ol) {
+    margin: 0 0 1.75rem 1.5rem;
+    max-width: 70ch;
+  }
+
+  .post-content :global(li) {
+    margin-bottom: 0.5rem;
+  }
+
+  .post-content :global(strong) {
+    color: var(--fg);
+    font-weight: 700;
+  }
+
+  .post-content :global(a) {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px dashed var(--accent);
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .post-content :global(a:hover) {
+    color: var(--accent-dim);
+    border-color: var(--accent-dim);
+  }
+
+  .post-content :global(img) {
+    max-width: 70ch;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: block;
+    margin: 2rem 0;
+  }
+
+  .post-content :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    padding: 0.15em 0.3em;
+    border-radius: 4px;
+    color: var(--color-orange);
+  }
+
+  .post-content :global(pre) {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+  }
+
+  .post-content :global(pre code) {
+    background: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+    color: inherit;
+    font-size: 0.9rem;
+  }
+
+  .post-content :global(blockquote) {
+    border-inline-start: 4px solid var(--accent);
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    color: var(--muted);
+    font-style: italic;
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+    border-radius: 0 8px 8px 0;
+    max-width: 70ch;
+  }
+
+  @media (max-width: 768px) {
+    .post-title {
+      font-size: 2rem;
+    }
+
+    .post-container {
+      padding: 4rem 1.25rem 4rem;
+    }
+  }
+
+  .author-bio-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 4rem;
+  }
+
+  .bio-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    object-fit: cover;
+  }
+
+  .bio-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .bio-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--fg);
+  }
+
+  .bio-name a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px dashed var(--border-hover);
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .bio-name a:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .bio-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .bio-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.65rem;
+  }
+
+  .bio-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+    font-weight: 500;
+  }
+
+  .bio-btn:hover {
+    color: var(--fg);
+    border-color: var(--border-hover);
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+
+  .bio-btn svg {
+    color: var(--muted);
+    transition: color 0.2s;
+  }
+
+  .bio-btn:hover svg {
+    color: var(--fg);
+  }
+
+  @media (max-width: 600px) {
+    .author-bio-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1.25rem;
+    }
+
+    .bio-avatar {
+      width: 56px;
+      height: 56px;
+    }
+  }
+</style>

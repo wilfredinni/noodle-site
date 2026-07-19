@@ -1,0 +1,208 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { getCollection } from "astro:content"
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+)
+
+const formatTerminalDate = (date: Date) => {
+  return date.toISOString().split("T")[0]
+}
+---
+
+<BaseLayout title="Blog · Noodle" description="The latest updates, guides, and announcements from the Noodle terminal REST client team.">
+  <main class="blog-container">
+    <header class="blog-header">
+      <span class="section-tag"># blog</span>
+      <h1 class="blog-title">Inside Noodle</h1>
+      <p class="blog-desc">
+        Updates, architecture, and feature deep-dives from the creators of the terminal REST client.
+      </p>
+    </header>
+
+    {posts.length === 0 ? (
+      <div class="empty-state">
+        <p>No blog posts found. Check back soon!</p>
+      </div>
+    ) : (
+      <div class="blog-list-rows">
+        {posts.map((post) => (
+          <article class="blog-post-row">
+            <a href={`/blog/${post.id}/`} class="post-row-link">
+              <span class="post-date">[{formatTerminalDate(post.data.date)}]</span>
+              <h2 class="post-title">{post.data.title}</h2>
+              <div class="post-meta-right">
+                {post.data.tags.slice(0, 2).map((tag) => (
+                  <span class="post-tag">#{tag}</span>
+                ))}
+                <span class="post-arrow" aria-hidden="true">→</span>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  .blog-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 6rem 2rem 6rem;
+  }
+
+  .blog-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 3rem;
+  }
+
+  .section-tag {
+    font-size: 0.9rem;
+    color: var(--color-purple);
+    display: block;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-mono);
+  }
+
+  .blog-title {
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    margin: 0;
+    color: var(--fg);
+    letter-spacing: -0.03em;
+    font-family: var(--font-mono);
+    line-height: 1.1;
+  }
+
+  .blog-desc {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 60ch;
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 6rem 2rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+  }
+
+  /* Log Row Layout (Inspired by herdr.dev but themed for Noodle) */
+  .blog-list-rows {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .blog-post-row {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .blog-post-row:first-child {
+    border-top: 1px solid var(--border);
+  }
+
+  .post-row-link {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .post-row-link:hover,
+  .post-row-link:focus-visible {
+    outline: none;
+  }
+
+  .post-date {
+    font-family: var(--font-mono);
+    color: var(--muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .post-title {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--fg);
+    margin: 0;
+    line-height: 1.4;
+    flex-grow: 1;
+    transition: color 0.2s;
+  }
+
+  .post-row-link:hover .post-title,
+  .post-row-link:focus-visible .post-title {
+    color: var(--accent);
+  }
+
+  .post-meta-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-left: auto;
+  }
+
+  .post-tag {
+    font-family: var(--font-mono);
+    color: var(--color-purple);
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .post-arrow {
+    color: var(--muted);
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: transform 0.2s, color 0.2s;
+  }
+
+  .post-row-link:hover .post-arrow,
+  .post-row-link:focus-visible .post-arrow {
+    color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 650px) {
+    .post-row-link {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 1rem 0;
+    }
+
+    .post-row-link:hover,
+    .post-row-link:focus-visible {
+      /* no padding change */
+    }
+
+    .post-meta-right {
+      margin-left: 0;
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .blog-container {
+      padding: 4rem 1.25rem 4rem;
+    }
+
+    .blog-title {
+      font-size: 2.5rem;
+    }
+  }
+</style>
