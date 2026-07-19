@@ -5,10 +5,6 @@ import { getCollection } from "astro:content"
 const posts = (await getCollection("blog")).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 )
-
-const formatTerminalDate = (date: Date) => {
-  return date.toISOString().split("T")[0]
-}
 ---
 
 <BaseLayout title="Blog · Noodle" description="The latest updates, guides, and announcements from the Noodle terminal REST client team.">
@@ -30,7 +26,6 @@ const formatTerminalDate = (date: Date) => {
         {posts.map((post) => (
           <article class="blog-post-row">
             <a href={`/blog/${post.id}/`} class="post-row-link">
-              <span class="post-date">[{formatTerminalDate(post.data.date)}]</span>
               <h2 class="post-title">{post.data.title}</h2>
               <div class="post-meta-right">
                 {post.data.tags.slice(0, 2).map((tag) => (
@@ -126,12 +121,6 @@ const formatTerminalDate = (date: Date) => {
     outline: none;
   }
 
-  .post-date {
-    font-family: var(--font-mono);
-    color: var(--muted);
-    font-size: 0.9rem;
-    white-space: nowrap;
-  }
 
   .post-title {
     font-family: var(--font-mono);
