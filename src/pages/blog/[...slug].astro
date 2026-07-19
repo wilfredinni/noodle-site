@@ -194,6 +194,16 @@ const formatDate = (date: Date) => {
     border-color: var(--accent-dim);
   }
 
+  .post-content :global(img) {
+    max-width: 70ch;
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    display: block;
+    margin: 2rem 0;
+  }
+
   .post-content :global(code) {
     font-family: var(--font-mono);
     font-size: 0.9em;
