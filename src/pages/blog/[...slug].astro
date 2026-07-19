@@ -25,13 +25,6 @@ const formatDate = (date: Date) => {
 
 <BaseLayout title={`${post.data.title} · Noodle Blog`} description={post.data.description}>
   <main class="post-container">
-    <a href="/blog/" class="back-link">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="19" y1="12" x2="5" y2="12"></line>
-        <polyline points="12 19 5 12 12 5"></polyline>
-      </svg>
-      Back to blog
-    </a>
 
     <div class="post-meta">
       <time datetime={post.data.date.toISOString()}>
@@ -85,29 +78,6 @@ const formatDate = (date: Date) => {
     padding: 6rem 2rem 6rem;
   }
 
-  .back-link {
-    font-size: 0.9rem;
-    color: var(--muted);
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 2.5rem;
-    transition: color 0.2s;
-    font-weight: 500;
-  }
-
-  .back-link:hover {
-    color: var(--fg);
-  }
-
-  .back-link svg {
-    transition: transform 0.2s;
-  }
-
-  .back-link:hover svg {
-    transform: translateX(-3px);
-  }
 
   .post-meta {
     font-size: 0.85rem;
@@ -129,7 +99,7 @@ const formatDate = (date: Date) => {
   }
 
   .post-tag {
-    color: var(--accent);
+    color: var(--color-purple);
     font-weight: 600;
   }
 

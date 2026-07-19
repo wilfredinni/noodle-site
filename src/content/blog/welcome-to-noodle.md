@@ -4,7 +4,7 @@ description: We are excited to launch the official blog for Noodle, a terminal R
 date: 2026-07-19
 author:
   name: Carlos Montecinos
-  title: Creator
+  title: Developer
   url: https://github.com/wilfredinni
   picture: https://github.com/wilfredinni.png
 tags:
