@@ -4,6 +4,9 @@ import starlight from "@astrojs/starlight";
 
 export default defineConfig({
   site: "https://noodlerest.dev",
+  image: {
+    domains: ["github.com", "avatars.githubusercontent.com"],
+  },
   integrations: [
     starlight({
       title: "Noodle",

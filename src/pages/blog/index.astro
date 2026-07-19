@@ -6,64 +6,37 @@ const posts = (await getCollection("blog")).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 )
 
-const formatDate = (date: Date) => {
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
+const formatTerminalDate = (date: Date) => {
+  return date.toISOString().split("T")[0]
 }
 ---
 
 <BaseLayout title="Blog · Noodle" description="The latest updates, guides, and announcements from the Noodle terminal REST client team.">
-  <div class="blog-header-section">
-    <div class="blog-header-inner">
-      <span class="blog-subtitle">Changelog & Updates</span>
+  <main class="blog-container">
+    <header class="blog-header">
+      <span class="section-tag"># blog</span>
       <h1 class="blog-title">Inside Noodle</h1>
       <p class="blog-desc">
         Updates, architecture, and feature deep-dives from the creators of the terminal REST client.
       </p>
-    </div>
-  </div>
+    </header>
 
-  <main class="blog-container">
     {posts.length === 0 ? (
       <div class="empty-state">
         <p>No blog posts found. Check back soon!</p>
       </div>
     ) : (
-      <div class="blog-grid">
+      <div class="blog-list-rows">
         {posts.map((post) => (
-          <article class="blog-card">
-            <a href={`/blog/${post.id}/`} class="card-link">
-              <div class="card-glow"></div>
-              <div class="card-content">
-                <div class="post-meta">
-                  <time datetime={post.data.date.toISOString()}>
-                    {formatDate(post.data.date)}
-                  </time>
-                  {post.data.author && (
-                    <span class="post-author">· By {post.data.author.name}</span>
-                  )}
-                </div>
-                <h2 class="post-title">{post.data.title}</h2>
-                {post.data.description && (
-                  <p class="post-excerpt">{post.data.description}</p>
-                )}
-                <div class="post-footer">
-                  <div class="post-tags">
-                    {post.data.tags.map((tag) => (
-                      <span class="tag-badge">{tag}</span>
-                    ))}
-                  </div>
-                  <span class="read-more">
-                    Read post
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                      <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                  </span>
-                </div>
+          <article class="blog-post-row">
+            <a href={`/blog/${post.id}/`} class="post-row-link">
+              <span class="post-date">[{formatTerminalDate(post.data.date)}]</span>
+              <h2 class="post-title">{post.data.title}</h2>
+              <div class="post-meta-right">
+                {post.data.tags.slice(0, 2).map((tag) => (
+                  <span class="post-tag">#{tag}</span>
+                ))}
+                <span class="post-arrow" aria-hidden="true">→</span>
               </div>
             </a>
           </article>
@@ -74,49 +47,45 @@ const formatDate = (date: Date) => {
 </BaseLayout>
 
 <style>
-  .blog-header-section {
-    padding: 6rem 2rem 4rem;
-    display: flex;
-    justify-content: center;
-    border-bottom: 1px solid var(--border);
-    background: radial-gradient(circle at top, rgba(180, 190, 254, 0.05), transparent 60%);
-  }
-
-  .blog-header-inner {
+  .blog-container {
     width: 100%;
-    max-width: 1200px;
-    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 6rem 2rem 6rem;
   }
 
-  .blog-subtitle {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
+  .blog-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 3rem;
+  }
+
+  .section-tag {
+    font-size: 0.9rem;
+    color: var(--color-purple);
+    display: block;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-mono);
   }
 
   .blog-title {
-    font-size: 3rem;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
     font-weight: 800;
-    margin: 1rem 0 1.5rem;
+    margin: 0;
     color: var(--fg);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.03em;
+    font-family: var(--font-mono);
+    line-height: 1.1;
   }
 
   .blog-desc {
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     color: var(--muted);
-    max-width: 600px;
-    margin: 0 auto;
+    max-width: 60ch;
+    margin: 0;
     line-height: 1.6;
-  }
-
-  .blog-container {
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 4rem 2rem 6rem;
   }
 
   .empty-state {
@@ -128,145 +97,112 @@ const formatDate = (date: Date) => {
     color: var(--muted);
   }
 
-  .blog-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 2rem;
-  }
-
-  .blog-card {
-    position: relative;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s;
-  }
-
-  .blog-card:hover {
-    transform: translateY(-4px);
-    border-color: var(--accent);
-  }
-
-  .card-link {
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    height: 100%;
-  }
-
-  .card-glow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 30px 30px, rgba(180, 190, 254, 0.15), transparent 120px);
-    opacity: 0;
-    transition: opacity 0.3s;
-    pointer-events: none;
-  }
-
-  .blog-card:hover .card-glow {
-    opacity: 1;
-  }
-
-  .card-content {
-    padding: 2.5rem;
+  /* Log Row Layout (Inspired by herdr.dev but themed for Noodle) */
+  .blog-list-rows {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    min-height: 280px;
+    width: 100%;
   }
 
-  .post-meta {
-    font-size: 0.8rem;
-    color: var(--muted);
-    margin-bottom: 1rem;
+  .blog-post-row {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .blog-post-row:first-child {
+    border-top: 1px solid var(--border);
+  }
+
+  .post-row-link {
     display: flex;
-    gap: 0.5rem;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .post-row-link:hover,
+  .post-row-link:focus-visible {
+    outline: none;
+  }
+
+  .post-date {
+    font-family: var(--font-mono);
+    color: var(--muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
   }
 
   .post-title {
-    font-size: 1.4rem;
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--fg);
-    margin-bottom: 1rem;
-    line-height: 1.3;
-    transition: color 0.3s;
-  }
-
-  .blog-card:hover .post-title {
-    color: var(--accent);
-  }
-
-  .post-excerpt {
-    color: var(--muted);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 2rem;
+    margin: 0;
+    line-height: 1.4;
     flex-grow: 1;
+    transition: color 0.2s;
   }
 
-  .post-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px dashed var(--border);
-  }
-
-  .post-tags {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .tag-badge {
-    font-size: 0.75rem;
-    background: var(--bg-elevated);
-    color: var(--muted);
-    padding: 0.2rem 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    font-weight: 600;
-  }
-
-  .read-more {
-    font-size: 0.85rem;
+  .post-row-link:hover .post-title,
+  .post-row-link:focus-visible .post-title {
     color: var(--accent);
-    font-weight: 600;
+  }
+
+  .post-meta-right {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
-    transition: gap 0.2s;
+    gap: 1.5rem;
+    margin-left: auto;
   }
 
-  .read-more svg {
-    transition: transform 0.2s;
+  .post-tag {
+    font-family: var(--font-mono);
+    color: var(--color-purple);
+    font-size: 0.9rem;
+    white-space: nowrap;
   }
 
-  .blog-card:hover .read-more {
-    color: var(--accent-dim);
+  .post-arrow {
+    color: var(--muted);
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: transform 0.2s, color 0.2s;
   }
 
-  .blog-card:hover .read-more svg {
-    transform: translateX(3px);
+  .post-row-link:hover .post-arrow,
+  .post-row-link:focus-visible .post-arrow {
+    color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 650px) {
+    .post-row-link {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 1rem 0;
+    }
+
+    .post-row-link:hover,
+    .post-row-link:focus-visible {
+      /* no padding change */
+    }
+
+    .post-meta-right {
+      margin-left: 0;
+      width: 100%;
+      justify-content: space-between;
+    }
   }
 
   @media (max-width: 768px) {
+    .blog-container {
+      padding: 4rem 1.25rem 4rem;
+    }
+
     .blog-title {
-      font-size: 2.25rem;
-    }
-
-    .blog-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .card-content {
-      padding: 1.75rem;
-      min-height: auto;
+      font-size: 2.5rem;
     }
   }
 </style>

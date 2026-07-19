@@ -1,6 +1,7 @@
 ---
-import BaseLayout from "../../layouts/BaseLayout.astro"
 import { getCollection, render } from "astro:content"
+import BaseLayout from "../../layouts/BaseLayout.astro"
+import { Image } from "astro:assets"
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog")
@@ -23,57 +24,53 @@ const formatDate = (date: Date) => {
 ---
 
 <BaseLayout title={`${post.data.title} · Noodle Blog`} description={post.data.description}>
-  <div class="post-header-section">
-    <div class="post-header-inner">
-      <a href="/blog/" class="back-link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="19" y1="12" x2="5" y2="12"></line>
-          <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-        Back to blog
-      </a>
+  <main class="post-container">
+    <a href="/blog/" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back to blog
+    </a>
 
-      <div class="post-meta">
-        <time datetime={post.data.date.toISOString()}>
-          {formatDate(post.data.date)}
-        </time>
-        {post.data.tags && post.data.tags.length > 0 && (
-          <span class="meta-separator">·</span>
-          <div class="meta-tags">
-            {post.data.tags.map((tag) => (
-              <span class="post-tag">#{tag}</span>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <h1 class="post-title">{post.data.title}</h1>
-
-      {post.data.author && (
-        <div class="author-card">
-          {post.data.author.picture && (
-            <img src={post.data.author.picture} alt={post.data.author.name} class="author-pic" />
-          )}
-          <div class="author-details">
-            <span class="author-name">
-              {post.data.author.url ? (
-                <a href={post.data.author.url} target="_blank" rel="noopener noreferrer">
-                  {post.data.author.name}
-                </a>
-              ) : (
-                post.data.author.name
-              )}
-            </span>
-            {post.data.author.title && (
-              <span class="author-title">{post.data.author.title}</span>
-            )}
-          </div>
+    <div class="post-meta">
+      <time datetime={post.data.date.toISOString()}>
+        {formatDate(post.data.date)}
+      </time>
+      {post.data.tags && post.data.tags.length > 0 && (
+        <span class="meta-separator">·</span>
+        <div class="meta-tags">
+          {post.data.tags.map((tag) => (
+            <span class="post-tag">#{tag}</span>
+          ))}
         </div>
       )}
     </div>
-  </div>
 
-  <main class="post-container">
+    <h1 class="post-title">{post.data.title}</h1>
+
+    {post.data.author && (
+      <div class="author-card">
+        {post.data.author.picture && (
+          <Image src={post.data.author.picture} alt={post.data.author.name} width={40} height={40} loading="eager" fetchpriority="high" class="author-pic" />
+        )}
+        <div class="author-details">
+          <span class="author-name">
+            {post.data.author.url ? (
+              <a href={post.data.author.url} target="_blank" rel="noopener noreferrer">
+                {post.data.author.name}
+              </a>
+            ) : (
+              post.data.author.name
+            )}
+          </span>
+          {post.data.author.title && (
+            <span class="author-title">{post.data.author.title}</span>
+          )}
+        </div>
+      </div>
+    )}
+
     <article class="post-content">
       <Content />
     </article>
@@ -81,20 +78,11 @@ const formatDate = (date: Date) => {
 </BaseLayout>
 
 <style>
-  .post-header-section {
-    padding: 6rem 2rem 4rem;
-    display: flex;
-    justify-content: center;
-    border-bottom: 1px solid var(--border);
-    background: radial-gradient(circle at top, rgba(180, 190, 254, 0.03), transparent 60%);
-  }
-
-  .post-header-inner {
+  .post-container {
     width: 100%;
     max-width: 800px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    margin: 0 auto;
+    padding: 6rem 2rem 6rem;
   }
 
   .back-link {
@@ -162,6 +150,7 @@ const formatDate = (date: Date) => {
     padding-top: 1.5rem;
     border-top: 1px solid var(--border);
     width: 100%;
+    margin-bottom: 2.5rem;
   }
 
   .author-pic {
@@ -200,15 +189,9 @@ const formatDate = (date: Date) => {
     color: var(--muted);
   }
 
-  .post-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 4rem 2rem 6rem;
-  }
-
   /* Markdown Body Prose Styles */
   .post-content {
+    font-family: var(--font-sans);
     font-size: 1.05rem;
     line-height: 1.8;
     color: var(--fg);
@@ -217,27 +200,33 @@ const formatDate = (date: Date) => {
   .post-content :global(p) {
     margin-bottom: 1.75rem;
     text-wrap: pretty;
+    max-width: 70ch;
   }
 
   .post-content :global(h2) {
+    font-family: var(--font-mono);
     font-size: 1.6rem;
     font-weight: 700;
-    margin: 3rem 0 1.25rem;
+    margin: 3.5rem 0 1.25rem;
     color: var(--fg);
     border-bottom: 1px solid var(--border);
     padding-bottom: 0.5rem;
+    letter-spacing: -0.02em;
   }
 
   .post-content :global(h3) {
+    font-family: var(--font-mono);
     font-size: 1.25rem;
     font-weight: 700;
-    margin: 2.25rem 0 1rem;
+    margin: 2.5rem 0 1rem;
     color: var(--fg);
+    letter-spacing: -0.02em;
   }
 
   .post-content :global(ul), 
   .post-content :global(ol) {
     margin: 0 0 1.75rem 1.5rem;
+    max-width: 70ch;
   }
 
   .post-content :global(li) {
@@ -291,25 +280,22 @@ const formatDate = (date: Date) => {
 
   .post-content :global(blockquote) {
     border-inline-start: 4px solid var(--accent);
-    padding: 0.5rem 0 0.5rem 1.5rem;
-    margin: 0 0 2rem 0;
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
     color: var(--muted);
     font-style: italic;
     background: color-mix(in srgb, var(--accent) 5%, transparent);
     border-radius: 0 8px 8px 0;
+    max-width: 70ch;
   }
 
   @media (max-width: 768px) {
-    .post-header-section {
-      padding: 4rem 1.25rem 3rem;
-    }
-
     .post-title {
       font-size: 2rem;
     }
 
     .post-container {
-      padding: 2.5rem 1.25rem 4rem;
+      padding: 4rem 1.25rem 4rem;
     }
   }
 </style>
