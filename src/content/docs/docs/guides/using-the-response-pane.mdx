@@ -39,6 +39,10 @@ Every request send is stored on disk as a timeline entry.
 
 Entries with errors show `ERR` in red. Max 50 entries per request.
 
+Large request and response bodies remain available in timeline details. Noodle
+stores bodies larger than 10 KB as compressed sidecars next to the timeline
+YAML, rather than truncating them.
+
 Timeline entries resolve `$VAR` references against the active environment,
 so switching environments updates the displayed request snapshots inline.
 

@@ -12,6 +12,8 @@ One file per request, mirroring the request ID structure.
 .collection/
 ├── .timeline/
 │   ├── get-users.yml          # Timeline for request "get-users"
+│   ├── get-users.yml.bodies/  # Compressed bodies larger than 10 KB
+│   │   └── <entry-id>-response.gz
 │   └── users/
 │       └── login.yml          # Timeline for request "users/login"
 ```
@@ -19,7 +21,9 @@ One file per request, mirroring the request ID structure.
 ## File Format
 
 Each timeline file is a YAML array of entries. Max 50 entries, newest first
-(prepended on save).
+(prepended on save). Request and response bodies larger than 10 KB are stored
+in a sibling `.yml.bodies/` directory as gzip-compressed sidecars, so the full
+body remains available without bloating the YAML file.
 
 ```yaml
 - timestamp: 1783374564216
@@ -50,6 +54,7 @@ Each timeline file is a YAML array of entries. Max 50 entries, newest first
 | Field | Type | Description |
 |-------|------|-------------|
 | `timestamp` | number | Unix timestamp in ms |
+| `id` | string | Unique entry ID used to name body sidecars |
 | `envName` | string | Active environment name when sent |
 | `request` | object | Snapshot of the request at send time |
 | `response` | object | Response data (present on success) |
@@ -62,7 +67,8 @@ Each timeline file is a YAML array of entries. Max 50 entries, newest first
 | `status` | number | HTTP status code |
 | `statusText` | string | HTTP status text |
 | `headers` | map | Response headers |
-| `body` | string | Response body |
+| `body` | string | Response body, when it is stored inline |
+| `bodyRef` | object | Reference to a gzip sidecar for a body larger than 10 KB |
 | `timeMs` | number | Response time in milliseconds |
 | `size` | number | Response body size in bytes |
 
@@ -74,15 +80,32 @@ Each timeline file is a YAML array of entries. Max 50 entries, newest first
 
 ## Security
 
-Sensitive authentication values (tokens, passwords, API keys) are **masked**
-when stored in timeline files. The snapshot stored on disk replaces
-credential values with `***`, so timeline history is safe to commit even
-in public repositories.
+Timeline entries contain the substituted request data used to send the
+request. Detail views mask configured bearer, basic, and header API-key auth
+for display, but the files on disk are **not** secret-redacted storage.
+This applies to both YAML entries and compressed body sidecars: do not commit
+`.timeline/` when it may contain credentials or sensitive payloads.
 
 When viewing timeline entries, `$VAR` references in the stored request snapshot
 are resolved against the active environment. This means switching environments
 shows you what the request would send with the current env, not the env used
 at the time of sending.
+
+### Body Sidecars
+
+When a request or response body exceeds 10 KB, the corresponding `body` field
+is omitted and replaced with a `bodyRef`:
+
+```yaml
+bodyRef:
+  file: <entry-id>-response.gz
+  encoding: gzip
+  size: 27520
+```
+
+The file path is relative to that request's `.yml.bodies/` directory. Noodle
+removes sidecars when entries are evicted by the 50-entry limit or when the
+timeline is cleared. Treat sidecars as application-managed files.
 
 ## Useful Queries
 
