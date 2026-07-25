@@ -27,7 +27,7 @@ listed, reflecting your current custom keybinds.
 | `Ctrl+K`             | Clone request                                        |
 | `Ctrl+W`             | Delete request                                       |
 | `Ctrl+P`             | Open command palette                                 |
-| `Ctrl+F`             | Find request                                         |
+| `Ctrl+F`             | Find request or folder                               |
 | `Ctrl+U`             | Cycle environment                                    |
 | `Ctrl+O`             | Switch collection                                    |
 | `Ctrl+L`             | Toggle layout (stacked / side-by-side)               |
@@ -40,6 +40,7 @@ listed, reflecting your current custom keybinds.
 | `/`                  | Filter a JSON response with JSONPath                 |
 | `Ctrl+Z`             | Undo all pending changes                             |
 | `Ctrl+Alt+N`         | New folder                                           |
+| `g`                  | Enter jump mode                                      |
 | `e`                  | Open environment editor                              |
 | `Ctrl+C`             | Quit                                                 |
 
@@ -57,6 +58,27 @@ When the request pane is focused (field-level, not editing):
 | `Ctrl+T`  | Toggle form entry text/file |
 | `Ctrl+D`  | Revert current field        |
 | `Ctrl+R`  | Revert all fields           |
+
+## Jump Mode
+
+Press `g` to show letter hints on every focusable element. Press a letter
+to jump focus to that element, or `Esc` to cancel. Non-matching keys are
+swallowed while jump mode is active. Badges render over a dark backdrop
+outside the pane layout.
+
+| Letter | Target |
+| ------ | ------ |
+| `s` | Sidebar pane |
+| `m` | URL bar method selector |
+| `u` | URL bar URL field |
+| `h` | Request Headers tab |
+| `p` | Request Params tab |
+| `b` | Request Body tab |
+| `a` | Request Auth tab |
+| `t` | Request Settings tab |
+| `r` | Response Body tab |
+| `e` | Response Headers tab |
+| `l` | Response Timeline tab |
 
 ## Read-only Modes
 
@@ -184,6 +206,7 @@ pane_expand: f2
 response_copy_body: ctrl+b
 response_query: /
 request_find: ctrl+f
+jump_mode: g
 
 # Browse
 browse_delete: ctrl+d
