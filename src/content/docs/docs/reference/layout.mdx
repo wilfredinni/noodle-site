@@ -53,3 +53,18 @@ The request pane has two editing modes:
 When the collection directory is read-only (browse or empty mode), the
 request pane is view-only. Initialize the directory from the command
 palette to enable editing.
+
+## Status Bar
+
+The footer bar runs along the bottom of the TUI and shows three segments:
+
+- **Left**: active environment name with its configured color badge
+- **Center-right**: keyboard shortcut hints -- only the most-used actions
+  are shown, and hints adapt to terminal width by hiding when space is
+  tight
+- **Far right**: `Noodle v{version}` branding in the primary color
+
+Shortcut hints use your custom keybindings from
+`~/.config/noodle/keybinds.yml`. The send, save, palette, jump, and help
+keys always appear; narrower terminals drop additional hints while keeping
+the branding visible.
