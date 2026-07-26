@@ -11,9 +11,8 @@ Get noodle on your machine in under a minute. Three ways, take your pick.
 curl -LsSf https://noodlerest.dev/install.sh | sh
 ```
 
-Detects your OS and architecture, downloads the latest binary and its
-`SHA256SUMS` manifest from GitHub Releases, verifies the checksum, and drops
-the binary at `~/.local/bin/noodle`.
+Detects your OS and architecture, downloads the latest binary, and drops it
+at `~/.local/bin/noodle`.
 
 If `~/.local/bin` isn't on your `$PATH`, the script will let you know: just
 add this to your shell config (`~/.zshrc`, `~/.bashrc`, etc.):
@@ -85,11 +84,9 @@ Running an Intel Mac? Build from source above.
 noodle update
 ```
 
-Homebrew installs run `brew upgrade noodle`. Other installs check GitHub for
-the latest release, verify its SHA-256 checksum, and replace the binary
-atomically. Release checks are cached for one hour; pass `--force` to check
-immediately. For scripted use, add `--json`; `GH_TOKEN` or `GITHUB_TOKEN` can
-authenticate the GitHub API request.
+Homebrew installs run `brew upgrade noodle`. Standalone binaries update
+themselves automatically. Pass `--force` to skip the one-hour cache, or
+`--json` for scripted use.
 
 ## AI Agent Skills
 
