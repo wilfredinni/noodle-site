@@ -1,15 +1,8 @@
 {
-  "version": "v0.5.2",
-  "releaseUrl": "https://github.com/wilfredinni/noodle/releases/tag/v0.5.2",
+  "version": "v0.5.3",
   "assets": {
-    "macos-arm64": {
-      "sha256": "cbcb8888f6ec444327045a862ff1c23b38841b85ff60b380848eb63e9baa76a4"
-    },
-    "linux-x86_64": {
-      "sha256": "691d03cf9ed23bba55995e3e312703f8dc5483ab2bff505dcff35559a8ab815a"
-    },
-    "linux-arm64": {
-      "sha256": "41da8a4e2931f1630acb0ecae8da57bbedf2a7f029fbc30b2e772509a42c8e25"
-    }
+    "macos-arm64": { "sha256": "e4b744f9dba33d4aea6eae7b14eaa5467d99923a997c347646e66c9f40b0f45a" },
+    "linux-x86_64": { "sha256": "b9e8552211a9f1d8a131983543e926df22d829d834cc4151f198b87b2191b2a4" },
+    "linux-arm64": { "sha256": "a3ee60c5f8dcf5e8c66361f650299ae54ff4c1d76b044664f21e7ad4ed3b27a9" }
   }
 }
