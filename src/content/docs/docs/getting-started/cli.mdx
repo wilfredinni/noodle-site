@@ -55,7 +55,7 @@ noodle import ./spec.json -o ./my-apis                  # custom output dir
 
 ## Update
 
-Updates noodle to the latest version. Homebrew installs run `brew upgrade noodle` instead.
+Updates noodle to the latest version. Homebrew installs run `brew upgrade noodle` instead. Standalone binaries use Noodle's update manifest and verify the downloaded SHA-256 checksum before replacement.
 
 ```bash
 noodle update
@@ -63,7 +63,9 @@ noodle update --force       # bypass the one-hour release-check cache
 noodle update --json        # emit one JSON result envelope
 ```
 
-Non-Homebrew installs cache the latest release check for one hour.
+Non-Homebrew installs cache validated release metadata for one hour. If the
+manifest is temporarily unavailable, Noodle can use a valid cached release for
+up to seven days.
 
 ## Automation commands
 

@@ -30,7 +30,7 @@ NOODLE_INSTALL_DIR=/usr/local/bin curl -LsSf ... | sh
 **Need a specific version?** Pin it with `NOODLE_VERSION`:
 
 ```bash
-NOODLE_VERSION=v0.5.2 curl -LsSf https://noodlerest.dev/install.sh | sh
+NOODLE_VERSION=v0.5.3 curl -LsSf https://noodlerest.dev/install.sh | sh
 ```
 
 ## Homebrew
@@ -84,9 +84,10 @@ Running an Intel Mac? Build from source above.
 noodle update
 ```
 
-Homebrew installs run `brew upgrade noodle`. Standalone binaries update
-themselves automatically. Pass `--force` to skip the one-hour cache, or
-`--json` for scripted use.
+Homebrew installs run `brew upgrade noodle`. Standalone binaries read Noodle's
+update manifest, download the matching release, and verify its SHA-256 checksum
+before replacement. Update checks cache release metadata for one hour; pass
+`--force` to bypass that cache, or `--json` for scripted use.
 
 ## AI Agent Skills
 
