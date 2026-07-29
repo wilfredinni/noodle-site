@@ -8,10 +8,11 @@ and code folding for JSON bodies and YAML request files.
 
 ## JSON Body Editor
 
-When editing a JSON request body, noodle provides syntax highlighting with
-line numbers. Variable references (`$var`) are highlighted with color-coded
-states — resolved variables in your active theme's primary color, and missing
-variables in your theme's error color.
+JSON request bodies stay visible in the editor while browsing and editing.
+Press **Return** on the body field to edit it. The editor provides syntax
+highlighting with line numbers. Variable references (`$var`) are highlighted
+with color-coded states: resolved variables in your active theme's primary
+color, and missing variables in your theme's error color.
 
 Invalid JSON shows an inline validation notice with a user-friendly error
 message instead of raw stack traces.
@@ -43,6 +44,8 @@ Fold and unfold blocks of code to focus on what matters:
 | `Ctrl+G` | Toggle fold at the current line |
 | `F5`     | Fold all foldable regions       |
 | `F6`     | Unfold all regions              |
+| `Ctrl+Z` | Undo editor change              |
+| `Ctrl+Shift+Z` | Redo editor change         |
 
 When you edit inside a folded region, the fold auto-expands. Fold state
 is preserved across content changes.
@@ -62,14 +65,10 @@ filtered by your typed prefix.
 
 ## Technical Details
 
-The code editor uses Tree-sitter for accurate syntax parsing:
-
-- **JSON**: `tree-sitter-json.wasm` parser with `highlights.scm` queries
-- **YAML**: `tree-sitter-yaml.wasm` parser with `highlights.scm` queries
-
-If Tree-sitter parsing fails (e.g., because the content contains `$variable`
-references that aren't valid JSON), noodle falls back to local tokenizers
-that understand `$var` syntax.
+The editor registers Tree-sitter parsers for JSON and YAML. It uses
+Tree-sitter highlights when available, then falls back to local JSON or YAML
+tokenizers when parsing fails or yields no highlights. This fallback keeps
+`$variable` references usable in JSON bodies before send-time substitution.
 
 Syntax highlight colors are synced with your active theme. Changing themes
 with `Ctrl+T` instantly updates the editor's colors.

@@ -102,10 +102,12 @@ This helps you catch typos and missing environment variables before sending.
 
 ## JSON Body Editor
 
-When `body_type` is `json`, the body field uses the [code editor](/docs/guides/code-editor/)
-with Tree-sitter syntax highlighting, line numbers, and inline JSON validation.
-Invalid JSON shows an error notice above the body area with a readable error
-message.
+When `body_type` is `json`, the body field stays in the [code editor](/docs/guides/code-editor/)
+while browsing and editing. It has syntax highlighting, line numbers, code
+folding, variable completion, and inline JSON validation. Press **Return** on
+the body field to edit it; **Escape** returns to the body-type selector without
+discarding the draft. Invalid JSON shows an error notice above the body area
+with a readable message.
 
 For multipart entries, **Ctrl+T** toggles between text and file mode.
 
