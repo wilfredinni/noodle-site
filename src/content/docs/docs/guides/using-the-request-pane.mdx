@@ -7,7 +7,7 @@ import { Image } from "astro:assets";
 import noodleOwl from "../../../../assets/noodle-owl.png";
 
 The request pane sits in the center of the TUI. It shows every detail of
-the selected request: URL, method, headers, params, auth, body, and
+the selected request: URL, method, headers, query and path params, auth, body, and
 settings.
 
 <Image
@@ -41,6 +41,14 @@ same way:
 | Toggle enabled | **Space**                     |
 | Edit value     | **Return** to enter edit mode |
 | Delete row     | **Ctrl+D** in browse mode     |
+
+## Path Params
+
+The **Path** tab holds the required values for `:name` tokens in the URL. For
+example, `https://api.example.com/users/:userId` has a `userId` path param.
+Noodle adds and removes matching entries as you change the URL. Path params
+cannot be disabled; all URL tokens must resolve before sending. Values support
+environment variables such as `$user_id`.
 
 ## Edit Mode
 
@@ -128,7 +136,7 @@ Press **Return** on the type field to cycle through options.
 
 | Action          | Keybinding                                         |
 | --------------- | -------------------------------------------------- |
-| New request     | **Ctrl+N**: set name, method, URL in a modal       |
+| New request     | **Ctrl+N**: set name, folder, method, and URL in a modal |
 | Save            | **Ctrl+S**: writes the `.yml` file                 |
 | Clone           | **Ctrl+K**: duplicates the request                 |
 | Delete          | **Ctrl+W**: deletes with confirmation              |
@@ -161,4 +169,6 @@ generated snippet.
 
 ## Sending
 
-Press **Ctrl+Return** or **^J** to send. The response appears in the response pane.
+Press **Ctrl+Return** or **^J** to send, or click **Send** at the right end of
+the URL bar. The control shows an in-place sending indicator while the request
+is running, and the response appears in the response pane.

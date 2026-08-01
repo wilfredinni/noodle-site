@@ -15,7 +15,7 @@ response time, headers, and body (auto-formatted if JSON).
 
 | Key | Action |
 |-----|--------|
-| **←**/**→** | Switch tabs (Body / Headers / Timeline) |
+| **←**/**→** | Switch tabs (Body / Headers / Network / Timeline) |
 | **↑**/**↓** | Scroll active tab |
 | **PgUp**/**PgDn** | Page scroll |
 | **F2** | Expand response pane to full width |
@@ -26,7 +26,12 @@ response time, headers, and body (auto-formatted if JSON).
 |-----|---------|
 | **Body** | Response body with JSON syntax highlighting and line numbers |
 | **Headers** | Response headers sorted alphabetically |
+| **Network** | Live request, redirect, response, and failure events |
 | **Timeline** | History of every send for this request |
+
+The Network tab updates while a request is sending. Its events are retained in
+timeline entries, so you can inspect the trace again after the response is
+complete.
 
 ## Timeline
 

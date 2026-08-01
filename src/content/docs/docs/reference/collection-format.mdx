@@ -21,6 +21,7 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 | `body_type`       | string  | no       | `none`  | `none`, `json`, `multipart`, `urlencoded`, `binary`        |
 | `headers`         | map     | no       | `{}`    | Request headers (omit if empty)                            |
 | `params`          | array   | no       | `[]`    | URL query parameters (omit if empty)                       |
+| `path_params`     | array   | no       | `[]`    | Values for `:name` URL path tokens (omit if empty)          |
 | `body`            | string  | no       | —       | Raw body content                                           |
 | `form_data`       | array   | no       | —       | Multipart form entries                                     |
 | `file_path`       | string  | no       | —       | Path to binary upload file                                 |
@@ -55,6 +56,21 @@ params:
     value: x
     enabled: false
 ```
+
+### Path Params
+
+Use `:name` tokens in the URL and provide one required value for each token in
+`path_params`. Path params are substituted before sending, so they do not
+support `enabled: false`.
+
+```yaml
+url: $base_url/users/:userId
+path_params:
+  - name: userId
+    value: $user_id
+```
+
+Noodle synchronizes these entries with URL tokens when you edit the URL.
 
 ### Form Data
 

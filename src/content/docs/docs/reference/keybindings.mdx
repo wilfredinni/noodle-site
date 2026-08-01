@@ -72,12 +72,37 @@ swallowed while jump mode is active.
 | `u` | URL bar URL field |
 | `h` | Request Headers tab |
 | `p` | Request Params tab |
+| `x` | Request Path tab |
 | `b` | Request Body tab |
 | `a` | Request Auth tab |
 | `t` | Request Settings tab |
 | `r` | Response Body tab |
 | `e` | Response Headers tab |
+| `n` | Response Network tab |
 | `l` | Response Timeline tab |
+
+### Folder targets
+
+When a folder is selected, these replace the request and response targets:
+
+| Letter | Target |
+| ------ | ------ |
+| `s` | Sidebar pane |
+| `m` | Folder General tab |
+| `h` | Folder Headers tab |
+| `a` | Folder Auth tab |
+| `y` | Folder Activity tab |
+
+### Environment editor targets
+
+When the environment editor is open, these are the available jump targets:
+
+| Letter | Target |
+| ------ | ------ |
+| `s` | Environment sidebar |
+| `m` | Environment name |
+| `c` | Environment color |
+| `v` | Environment variables |
 
 ## Read-only Modes
 
@@ -139,7 +164,7 @@ When the response pane is focused:
 
 | Key             | Action                                  |
 | --------------- | --------------------------------------- |
-| `←` / `→`       | Switch tabs (Body / Headers / Timeline) |
+| `←` / `→`       | Switch tabs (Body / Headers / Network / Timeline) |
 | `↑` / `↓`       | Scroll active tab                       |
 | `PgUp` / `PgDn` | Page scroll                             |
 | `Return`        | Expand/collapse timeline entry          |
