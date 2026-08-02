@@ -12,9 +12,9 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 
 | Field             | Type    | Required | Default | Description                                                |
 | ----------------- | ------- | -------- | ------- | ---------------------------------------------------------- |
-| `name`            | string  | yes      | —       | Display name for the request                               |
-| `method`          | string  | yes      | —       | `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS` |
-| `url`             | string  | yes      | —       | Full URL, supports `$VAR` substitution                     |
+| `name`            | string  | yes      | Required | Display name for the request                               |
+| `method`          | string  | yes      | Required | `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS` |
+| `url`             | string  | yes      | Required | Full URL, supports `$VAR` substitution                     |
 | `timeout`         | number  | no       | `0`     | Request timeout in ms. `0` = no timeout                    |
 | `followRedirects` | boolean | no       | `true`  | Follow HTTP redirects                                      |
 | `maxRedirects`    | number  | no       | `5`     | Max redirect chain length                                  |
@@ -22,10 +22,10 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 | `headers`         | map     | no       | `{}`    | Request headers (omit if empty)                            |
 | `params`          | array   | no       | `[]`    | URL query parameters (omit if empty)                       |
 | `path_params`     | array   | no       | `[]`    | Values for `:name` URL path tokens (omit if empty)          |
-| `body`            | string  | no       | —       | Raw body content                                           |
-| `form_data`       | array   | no       | —       | Multipart form entries                                     |
-| `file_path`       | string  | no       | —       | Path to binary upload file                                 |
-| `auth`            | object  | no       | —       | Auth config (omit for no auth)                             |
+| `body`            | string  | no       | None     | Raw body content                                           |
+| `form_data`       | array   | no       | None     | Multipart form entries                                     |
+| `file_path`       | string  | no       | None     | Path to binary upload file                                 |
+| `auth`            | object  | no       | None     | Auth config (omit for no auth)                             |
 
 ### Headers
 
@@ -42,9 +42,9 @@ headers:
 
 Array of `{ name, value, enabled }` entries. Each entry:
 
-- `name` — string, required
-- `value` — string, required
-- `enabled` — boolean, default `true`
+- `name`: string, required
+- `value`: string, required
+- `enabled`: boolean, default `true`
 
 ```yaml
 params:
@@ -76,10 +76,10 @@ Noodle synchronizes these entries with URL tokens when you edit the URL.
 
 Array for `multipart` and `urlencoded` body types. Each entry:
 
-- `name` — string, required
-- `value` — string, required
-- `type` — `text` (default) or `file`
-- `enabled` — boolean, default `true`
+- `name`: string, required
+- `value`: string, required
+- `type`: `text` (default) or `file`
+- `enabled`: boolean, default `true`
 
 ```yaml
 body_type: multipart
@@ -98,8 +98,8 @@ to `text`.
 
 | Type      | Fields                      | Description                                    |
 | --------- | --------------------------- | ---------------------------------------------- |
-| `none`    | —                           | No auth (omit `auth` field entirely)           |
-| `inherit` | —                           | Use nearest parent folder's auth               |
+| `none`    | None                        | No auth (omit `auth` field entirely)           |
+| `inherit` | None                        | Use nearest parent folder's auth               |
 | `bearer`  | `token`                     | Bearer token auth                              |
 | `basic`   | `user`, `pass`              | Basic auth                                     |
 | `api_key` | `key`, `value`, `placement` | API key auth. `placement`: `header` or `query` |
