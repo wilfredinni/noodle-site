@@ -46,6 +46,18 @@ noodle request create health \
 The default TUI collection is `./collections`. A new collection directory is
 created when you first save a request.
 
+## Formatting a collection
+
+Use the automation CLI to rewrite every request with canonical YAML and
+pretty-print valid JSON request bodies:
+
+```bash
+noodle collection format ./my-api
+```
+
+This command modifies request files. Invalid JSON body text is preserved as-is.
+OpenAPI and Postman imports run the same formatting automatically.
+
 ## Switching Collections
 
 Press `Ctrl+O` to switch between previously used collection directories. The

@@ -53,6 +53,10 @@ noodle import ./spec.json -o ./my-apis                  # custom output dir
 | `--format` | `-i`  | auto-detect     | `openapi` or `postman` |
 | `--output` | `-o`  | `./collections` | Output directory       |
 
+After writing the collection, import canonicalizes each request's YAML and
+pretty-prints valid JSON bodies. Its JSON result includes the number of
+formatted bodies in `data.formattedJsonBodies`.
+
 ## Update
 
 Updates noodle to the latest version. Homebrew installs run `brew upgrade noodle` instead. Standalone binaries use Noodle's update manifest and verify the downloaded SHA-256 checksum before replacement.
@@ -82,6 +86,7 @@ collection-relative paths without the `.yml` extension (for example,
 | `noodle collection init <path>`                                                   | Bootstrap collection markers in an existing directory.        |
 | `noodle collection list <path>`                                                   | Print a collection tree.                                      |
 | `noodle collection inspect <path>`                                                | Show collection metadata, environments, and its tree.         |
+| `noodle collection format <path>`                                                 | Canonicalize request YAML and pretty-print valid JSON bodies.  |
 | `noodle collection audit <path> [--fix]`                                          | Validate collection files; `--fix` canonicalizes valid files. |
 | `noodle collection run <path> [-e <env>]`                                         | Run every request and fail if any request fails.              |
 | `noodle request create <id> --url <url> [--method <method>] [--collection <dir>]` | Create a minimal request.                                     |
