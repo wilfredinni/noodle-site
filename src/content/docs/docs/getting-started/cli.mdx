@@ -35,12 +35,14 @@ browse or empty directories before editing or sending.
 
 ## Import
 
-Converts an OpenAPI 3.0 or Postman collection into noodle `.yml` files.
+Converts an OpenAPI 3.0 or Swagger 2.0 specification, Postman collection, or
+Insomnia v4/v5 JSON export into noodle `.yml` files.
 Format is auto-detected from file contents.
 
 ```bash
 noodle import ./api-spec.json                           # auto-detect
 noodle import ./postman_collection.json -i postman      # force format
+noodle import ./insomnia-export.json -i insomnia        # force format
 noodle import ./spec.json -o ./my-apis                  # custom output dir
 ```
 
@@ -50,12 +52,38 @@ noodle import ./spec.json -o ./my-apis                  # custom output dir
 
 | Flag       | Short | Default         | Description            |
 | ---------- | ----- | --------------- | ---------------------- |
-| `--format` | `-i`  | auto-detect     | `openapi` or `postman` |
+| `--format` | `-i`  | auto-detect     | `openapi`, `swagger`, `postman`, or `insomnia` |
 | `--output` | `-o`  | `./collections` | Output directory       |
 
 After writing the collection, import canonicalizes each request's YAML and
 pretty-prints valid JSON bodies. Its JSON result includes the number of
 formatted bodies in `data.formattedJsonBodies`.
+
+## Export
+
+Exports a Noodle collection as an OpenAPI 3.0.3 document or Postman Collection
+v2.1 bundle.
+
+```bash
+noodle export ./collections --format openapi --output ./specs/openapi.yml
+noodle export ./collections --format postman --output ./exports/postman --json
+```
+
+| Argument | Description |
+| -------- | ----------- |
+| `collection` | Noodle collection directory |
+
+| Flag | Short | Description |
+| ---- | ----- | ----------- |
+| `--format` | | `openapi` or `postman` |
+| `--output` | `-o` | Output file for OpenAPI, or new/empty directory for Postman |
+
+The output path must be outside the collection. OpenAPI includes enabled
+parameters and headers, supported auth, request-body examples, folders as
+tags, and enabled nonempty environment `base_url` values as servers. Postman
+creates `collection.postman_collection.json` plus a redacted environment file
+for every Noodle environment. Literal request values are preserved in both
+formats, so review exports for secrets before sharing them.
 
 ## Update
 

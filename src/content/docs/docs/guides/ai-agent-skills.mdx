@@ -37,20 +37,23 @@ Audit collections for:
 
 ### Import
 
-Convert OpenAPI 3.0 and Postman collections to noodle format using `noodle import`.
+Import OpenAPI 3.0, Swagger 2.0, Postman, and Insomnia v4/v5 JSON exports with
+`noodle import`. For a format Noodle does not support, agents should map only
+directly supported behavior to Noodle files and report unsupported scripts,
+tests, and auth flows.
 
-### Convert
+### Export
 
-Convert formats noodle's CLI doesn't support by reading source files and writing noodle files directly:
-
-- **Insomnia exports**: maps resources, request groups, auth, environments
-- **Swagger 2.0 specs**: maps paths, security definitions, parameters
+Export a Noodle collection as OpenAPI 3.0.3 or a Postman Collection v2.1 bundle
+with `noodle export`. Agents should use a path outside the collection and warn
+before sharing request literals, which may include secrets.
 
 ## Example prompts
 
 - "Scaffold a noodle collection for the Stripe API with auth and a few endpoints"
 - "Audit my collection for security issues and REST best practices"
-- "Convert this Insomnia export to a noodle collection"
+- "Import this Insomnia export to a noodle collection"
+- "Export this collection as a Postman bundle"
 - "How many requests are in the Stripe API collection?"
 - "What's the average response time for the login request on my Stripe collection?"
 - "Change the expand layout keybinding to Alt+I"

@@ -1,0 +1,28 @@
+---
+title: Collection Export
+description: Export Noodle collections as OpenAPI or Postman files
+---
+
+Export a collection as OpenAPI 3.0.3:
+
+```bash
+noodle export ./collections --format openapi --output ./specs/openapi.yml
+```
+
+The document includes enabled request parameters and headers, request-body
+examples, folders as tags, supported authentication schemes, and each enabled,
+nonempty environment `base_url` as a server. Other environment values and
+response timeline data are not exported.
+
+Export a Postman Collection v2.1 bundle:
+
+```bash
+noodle export ./collections --format postman --output ./exports/postman
+```
+
+The output directory must be new or empty. Noodle writes
+`collection.postman_collection.json` and one redacted
+`<environment>.postman_environment.json` file per environment. Request literals
+remain intact and can contain secrets, so review a bundle before sharing it.
+
+For either format, use an output path outside the collection directory.

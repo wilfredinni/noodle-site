@@ -1,0 +1,16 @@
+---
+title: Swagger Import
+description: Import Swagger 2.0 specifications as Noodle collections
+---
+
+Import a Swagger 2.0 JSON or YAML specification:
+
+```bash
+noodle import ./swagger.json -i swagger
+noodle import ./swagger.yaml -i swagger -o ./collections
+```
+
+The importer converts supported paths, parameters, request bodies, security
+definitions, tags, and server details into Noodle requests, folders, and
+environments. Swagger is also detected automatically from a `swagger: "2.0"`
+document.
