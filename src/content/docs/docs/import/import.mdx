@@ -1,0 +1,57 @@
+---
+title: Import Collections
+description: Import OpenAPI, Swagger, Postman, and Insomnia collections into Noodle
+---
+
+Use `noodle import` to convert supported API descriptions and collections into
+Noodle `.yml` requests. The format is detected from the source file when
+possible; pass `--format` to choose it explicitly.
+
+```bash
+noodle import ./api.yaml --output ./collections
+noodle import ./collection.json --format postman --output ./collections
+```
+
+## OpenAPI 3.0
+
+```bash
+noodle import ./openapi.json --format openapi
+```
+
+Noodle creates one request per operation, groups tagged operations into folders,
+and imports supported parameters, request bodies, authentication, and servers.
+
+## Swagger 2.0
+
+```bash
+noodle import ./swagger.yaml --format swagger
+```
+
+Supported paths, parameters, request bodies, security definitions, tags, and
+server details become Noodle requests, folders, and environments.
+
+## Postman
+
+```bash
+noodle import ./postman_collection.json --format postman
+```
+
+Noodle preserves supported requests, folders, auth, headers, query parameters,
+body types, and collection variables. Pre-request scripts and tests are not
+imported.
+
+## Insomnia
+
+```bash
+noodle import ./insomnia-export.json --format insomnia
+```
+
+Insomnia v4 and v5 JSON exports preserve supported workspaces, request groups,
+requests, environments, headers, parameters, body types, and auth. Cyclic
+request groups are skipped.
+
+## After import
+
+Import canonicalizes request YAML and pretty-prints valid JSON bodies. Inspect
+the new collection, then run a few requests to verify variable substitution and
+authentication.

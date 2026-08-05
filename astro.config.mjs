@@ -116,10 +116,10 @@ export default defineConfig({
           ],
         },
         {
-          label: "Import",
+          label: "Import & Export",
           items: [
-            { label: "OpenAPI", slug: "docs/import/openapi" },
-            { label: "Postman", slug: "docs/import/postman" },
+            { label: "Import Collections", slug: "docs/import/import" },
+            { label: "Collection Export", slug: "docs/import/export" },
           ],
         },
         {
