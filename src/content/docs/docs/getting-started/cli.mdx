@@ -59,6 +59,12 @@ After writing the collection, import canonicalizes each request's YAML and
 pretty-prints valid JSON bodies. Its JSON result includes the number of
 formatted bodies in `data.formattedJsonBodies`.
 
+### Import in the TUI
+
+From an open collection, press `Ctrl+P` and choose **Import Collection**. Pick
+whether the source should become a new collection or be added to the current
+one. Save pending changes before choosing the current collection.
+
 ## Export
 
 Exports a Noodle collection as an OpenAPI 3.0.3 document or Postman Collection
@@ -84,6 +90,12 @@ tags, and enabled nonempty environment `base_url` values as servers. Postman
 creates `collection.postman_collection.json` plus a redacted environment file
 for every Noodle environment. Literal request values are preserved in both
 formats, so review exports for secrets before sharing them.
+
+### Export in the TUI
+
+Press `Ctrl+P` and choose **Export Collection** to select OpenAPI or Postman
+and preview the output target. When the usual Postman target directory is
+occupied, the TUI chooses the next numbered directory.
 
 ## Update
 

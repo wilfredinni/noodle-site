@@ -46,7 +46,9 @@ tests, and auth flows.
 
 Export a Noodle collection as OpenAPI 3.0.3 or a Postman Collection v2.1 bundle
 with `noodle export`. Agents should use a path outside the collection and warn
-before sharing request literals, which may include secrets.
+before sharing request literals, which may include secrets. `@/` upload paths
+expand to absolute home-directory paths in Postman bundles, so agents should
+also warn about local-path disclosure.
 
 ## Example prompts
 

@@ -94,6 +94,20 @@ form_data:
 For `urlencoded`, use the same entries with text values; omit `type` or set it
 to `text`.
 
+### File Path Shorthand
+
+Multipart file entries and binary `file_path` values can use a quoted `@/`
+prefix for the current user's home directory:
+
+```yaml
+file_path: '@/Documents/photo.png'
+```
+
+Noodle keeps this portable shorthand in the collection and expands it only
+when reading an upload file or producing an output artifact. Postman exports
+therefore contain absolute file paths and should be reviewed for local-path
+disclosure before sharing.
+
 ### Auth
 
 | Type      | Fields                      | Description                                    |
