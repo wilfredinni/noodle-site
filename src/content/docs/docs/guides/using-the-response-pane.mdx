@@ -24,7 +24,7 @@ response time, headers, and body (auto-formatted if JSON).
 
 | Tab | Content |
 |-----|---------|
-| **Body** | Response body with JSON syntax highlighting and line numbers |
+| **Body** | Read-only response body with JSON highlighting, line numbers, folding, and a scrollbar |
 | **Headers** | Response headers sorted alphabetically |
 | **Network** | Live request, redirect, response, and failure events |
 | **Timeline** | History of every send for this request |
@@ -32,6 +32,13 @@ response time, headers, and body (auto-formatted if JSON).
 The Network tab updates while a request is sending. Its events are retained in
 timeline entries, so you can inspect the trace again after the response is
 complete.
+
+## Folding JSON Responses
+
+Use **Ctrl+G** to toggle the JSON block at the cursor, **F5** to fold every
+foldable block, or **F6** to unfold all. You can also click a fold marker in
+the line-number gutter. Folded rows keep their original source line numbers,
+and copying the response still uses the complete body.
 
 ## Timeline
 

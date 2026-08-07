@@ -22,11 +22,15 @@ rules, see [Environment Format](/docs/reference/environment-format/).
 ## Cycling
 
 Press `Ctrl+U` to cycle through available environments. The active
-environment shows in the sidebar with a color badge.
+environment shows in the header with a color marker.
+
+Press **e**, or click the environment in the header, to open a searchable
+picker. Type to filter environment names and press **Return** to activate the
+highlighted environment.
 
 ## Environment Editor
 
-Press **e** to open the full environment editor. The TUI splits into
+Press **F3** to open the full environment editor. The TUI splits into
 three sections:
 
 - **Sidebar** (left): lists all `.env` files with color dots and
@@ -47,15 +51,17 @@ when the env editor is open.
 | **Space**   | Select/activate environment            |
 | **Ctrl+D**  | Delete current variable row            |
 | **Ctrl+S**  | Save environment                       |
-| **Ctrl+N**  | Create new environment                 |
+| **Ctrl+N**  | Create an environment with a name and optional color |
 | **Ctrl+K**  | Clone selected environment             |
 | **Ctrl+W**  | Delete environment (with confirmation) |
-| **e**       | Return to main view                    |
+| **Escape**  | Return to main view                    |
 
 ### Features
 
 - **Dirty tracking**: unsaved changes show a yellow bullet
 - **Color badges**: 17 theme colors available
+- **Searchable picker**: filter and activate environments without opening the editor
+- **Create form**: validate a new name and choose its color before saving
 - **Disable variables**: checkbox toggles a `#` prefix
 - **Clone**: appends " - Copy" to the name
 - **Context menu**: right-click an environment in the sidebar to save, create,

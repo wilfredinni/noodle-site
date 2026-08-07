@@ -29,6 +29,7 @@ listed, reflecting your current custom keybinds.
 | `Ctrl+P`             | Open command palette                                 |
 | `Ctrl+F`             | Find request or folder                               |
 | `Ctrl+U`             | Cycle environment                                    |
+| `F3`                 | Open environment editor                              |
 | `Ctrl+O`             | Switch collection                                    |
 | `Ctrl+L`             | Toggle layout (stacked / side-by-side)               |
 | `F2`                 | Expand/collapse focused pane                         |
@@ -41,7 +42,7 @@ listed, reflecting your current custom keybinds.
 | `Ctrl+Z`             | Undo all pending changes                             |
 | `Ctrl+Alt+N`         | New folder                                           |
 | `g`                  | Enter jump mode                                      |
-| `e`                  | Open environment editor                              |
+| `e`                  | Open searchable environment picker                   |
 | `Ctrl+C`             | Quit                                                 |
 
 ## Field Browse Mode
@@ -121,7 +122,8 @@ read-only modes:
 | `Ctrl+Alt+N`   | New folder   |
 | `Ctrl+E`       | Edit request  |
 | `Ctrl+Alt+E`   | Edit YAML     |
-| `e`            | Env editor    |
+| `e`            | Environment picker |
+| `F3`           | Environment editor |
 
 Use the command palette (`Ctrl+P`) to initialize the directory before
 editing or sending.
@@ -138,16 +140,18 @@ When editing a field value:
 
 ## Code Editor
 
-When editing JSON body or YAML overlay:
+When a request or response JSON body or a YAML overlay has focus:
 
 | Key            | Action                      |
 | -------------- | --------------------------- |
 | `Ctrl+G`       | Toggle fold at current line |
 | `F5`           | Fold all foldable regions   |
 | `F6`           | Unfold all regions          |
-| `Ctrl+Z`       | Undo editor change          |
-| `Ctrl+Shift+Z` | Redo editor change          |
-| `Shift+Return` | Insert newline              |
+| `Ctrl+Z`       | Undo editable content       |
+| `Ctrl+Shift+Z` | Redo editable content       |
+| `Shift+Return` | Insert newline while editing |
+
+Response bodies are read-only, but their JSON fold controls remain available.
 
 ## Sidebar
 
@@ -194,7 +198,7 @@ When the environment editor is open:
 | `Return`  | Edit field or select environment       |
 | `Tab`     | Switch between key and value columns   |
 | `Space`   | Select/activate environment            |
-| `e`       | Return to main view                    |
+| `Escape`  | Return to main view                    |
 
 ## Customization
 
@@ -215,7 +219,8 @@ folder_new: ctrl+alt+n
 
 # Environment
 env_cycle: ctrl+u
-env_editor: e
+env_picker: e
+env_editor: f3
 env_save: ctrl+s
 env_new: ctrl+n
 env_clone: ctrl+k

@@ -4,7 +4,7 @@ description: Syntax highlighting, code folding, and validation in noodle
 ---
 
 noodle includes a built-in code editor with Tree-sitter syntax highlighting
-and code folding for JSON bodies and YAML request files.
+and code folding for request and response JSON bodies and YAML request files.
 
 ## JSON Body Editor
 
@@ -14,8 +14,16 @@ highlighting with line numbers. Variable references (`$var`) are highlighted
 with color-coded states: resolved variables in your active theme's primary
 color, and missing variables in your theme's error color.
 
-Invalid JSON shows an inline validation notice with a user-friendly error
-message instead of raw stack traces.
+Invalid JSON shows an inline validation notice with a source line and column.
+When environment variables are substituted, errors still map back to the
+request source and identify an invalid variable value when applicable.
+
+## Response Body Viewer
+
+Response bodies use the same editor in read-only mode. JSON responses support
+keyboard and gutter folding, keep original source line numbers beside folded
+rows, and show a themed scrollbar when the body overflows. Copying across a
+folded row returns the complete original source rather than the collapsed text.
 
 ## YAML Editor Overlay
 
