@@ -13,6 +13,10 @@ confirm_undo_all: true
 collections:
   - /home/user/projects/my-api
   - /home/user/projects/other-api
+proxy:
+  mode: custom
+  url: http://$PROXY_USER:$PROXY_PASSWORD@proxy.example:8080
+  bypass: [localhost, .internal.example]
 ```
 
 ## Fields
@@ -23,10 +27,15 @@ collections:
 | `layout` | string | `stacked` | `stacked`, `side-by-side` | Pane arrangement |
 | `confirm_undo_all` | boolean | `true` | `true`, `false` | Show confirmation before `Ctrl+Z` undo-all |
 | `collections` | string[] | `[]` | List of absolute paths | Previously-used collection directories. Managed by the collection switcher (`Ctrl+O`); listed in most-recently-used order. |
+| `proxy` | object | System proxy | `system`, `off`, `custom` | Global request-routing policy. A custom proxy needs an HTTP or HTTPS `url` and may include a string-array `bypass` list. |
 
 Noodle adds and reorders collections automatically when you switch to a
 new directory. No need to edit this by hand. Use `noodle workspace audit --fix`
 to remove stale paths that no longer exist on disk.
+
+Custom proxy credentials must use active-environment `$VARNAME` values; literal
+credentials are rejected. See [Settings](/docs/guides/settings/) for proxy
+scope, precedence, bypass rules, and the interactive workflow.
 
 Partial files are fine: only the fields you include are overridden:
 

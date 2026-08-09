@@ -1,0 +1,115 @@
+---
+title: Settings
+description: Configure Noodle globally and per collection
+---
+
+import { Image } from "astro:assets";
+import keySettings from "../../../../assets/key-settings.png";
+import proxySettings from "../../../../assets/proxy-settings.png";
+
+Settings separates global preferences from configuration that belongs to the
+current collection.
+
+## Open Settings
+
+Press <kbd>F4</kbd> from any Noodle workspace to open Settings. Alternatively,
+press <kbd>Ctrl</kbd>+<kbd>P</kbd>, search for **Open Settings**, and press
+<kbd>Enter</kbd>. Settings opens on the global **Appearance** section; use the
+scope switcher to reach settings for the active collection.
+
+<Image
+  src={keySettings}
+  alt="Noodle Settings showing the global Keyboard section"
+  loading="eager"
+  fetchpriority="high"
+/>
+
+## Global settings
+
+Global settings apply wherever you use Noodle. They are stored in
+`~/.config/noodle/config.yml`.
+
+### Appearance
+
+Choose a theme and the default stacked or side-by-side layout. See
+[Themes](/docs/reference/theming/) for the available themes.
+
+### Collections
+
+Manage registered collection directories and their order. Noodle opens the
+first valid registered collection when no collection path is supplied, and the
+collection switcher updates this list as you work.
+
+### Keyboard shortcuts
+
+Customize supported shortcuts from the Keyboard section. Fixed navigation and
+editing keys cannot be reassigned. See [Keybindings](/docs/reference/keybindings/)
+for every available binding ID and default.
+
+### Proxy policy
+
+Choose one of these global modes:
+
+| Mode | Behavior |
+| ---- | -------- |
+| System | Use `HTTP_PROXY`, `HTTPS_PROXY`, and `NO_PROXY` from the environment. This is the default. |
+| Off | Send requests directly. |
+| Custom | Send requests through one configured HTTP or HTTPS proxy. |
+
+For a custom proxy, set a URL such as
+`http://$PROXY_USER:$PROXY_PASSWORD@proxy.example:8080`. Proxy credentials must
+use active-environment variables. Literal credentials are rejected.
+
+<Image
+  src={proxySettings}
+  alt="Noodle Settings showing custom proxy configuration"
+  loading="lazy"
+/>
+
+The optional bypass list accepts comma-separated `*`, host names, `.domain`
+suffixes, IP addresses, and optional ports. Matching requests are sent directly.
+
+## Collection settings
+
+Collection settings apply only to the active collection and are saved in its
+`settings.yml` file.
+
+### General
+
+Set a display name and description for the collection. You can also set
+`timeline_max_entries`, which retains 50 responses per request by default.
+Lowering the value removes older entries; set it to `0` to disable response
+history for the collection.
+
+### Collection proxy
+
+Choose one of these modes for the collection:
+
+| Mode | Behavior |
+| ---- | -------- |
+| Inherit | Follow the global proxy policy. This is the default. |
+| Off | Send this collection's requests directly. |
+| Custom | Use a collection-specific HTTP or HTTPS proxy and bypass list. |
+
+Collection settings are useful when one API needs a corporate proxy while your
+other collections use the system setting or direct connections.
+
+### Proxy precedence
+
+Noodle resolves proxy policy in this order:
+
+1. `--noproxy` forces direct connections for one invocation.
+2. A collection `off` or `custom` policy overrides the global policy.
+3. A global `off` or `custom` policy applies when the collection inherits.
+4. Otherwise, Noodle uses the system proxy environment variables.
+
+Use `--noproxy` with the TUI, `noodle collection run`, or `noodle request run`
+when you need to bypass every saved proxy setting temporarily.
+
+## File references
+
+The Settings workspace edits the same files you can manage directly:
+
+- [Configuration](/docs/reference/configuration/) documents global `config.yml`.
+- [Collection Format](/docs/reference/collection-format/#collection-settings-settingsyml)
+  documents collection `settings.yml`.

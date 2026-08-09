@@ -93,6 +93,7 @@ export default defineConfig({
           label: "Guides",
           items: [
             { label: "Layout", slug: "docs/reference/layout" },
+            { label: "Settings", slug: "docs/guides/settings" },
             { label: "Collections", slug: "docs/guides/collections" },
             {
               label: "Using the Sidebar",

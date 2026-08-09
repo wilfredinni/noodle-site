@@ -166,10 +166,30 @@ auth:
 Single file at collection root:
 
 ```yaml
+name: Payments API
+description: |-
+  Requests for the payments platform.
+timeline_max_entries: 50
 environment: development
+proxy:
+  mode: custom
+  url: http://$PROXY_USER:$PROXY_PASSWORD@proxy.example:8080
+  bypass: [localhost, .internal.example]
 ```
 
-Sets the default active environment. Must match a `.env` file in `.environments/`.
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `name` | string | Optional display name; defaults to the collection directory name. |
+| `description` | string | Optional collection notes. |
+| `timeline_max_entries` | non-negative integer | Per-request history retention. Defaults to `50`; `0` disables recording. |
+| `environment` | string | Default active environment. Must match a `.env` file in `.environments/`. |
+| `proxy` | object | Optional collection proxy policy. `mode` is `inherit`, `off`, or `custom`. A custom policy uses an `http` or `https` `url` and an optional string-array `bypass` list. |
+
+Custom proxy credentials may use active-environment `$VARNAME` values. Literal
+credentials are rejected. `--noproxy` forces direct connections for one TUI,
+`collection run`, or `request run` invocation.
+See [Settings](/docs/guides/settings/) for proxy scope, precedence, and bypass
+rules.
 
 ## Hidden State (`.noodle/`)
 

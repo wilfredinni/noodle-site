@@ -27,6 +27,12 @@ Scaffold collections, add requests (including `:name` URL path parameters), set 
 
 Rename, restructure, deduplicate headers across requests, flatten deep nesting, and reorder folders while preserving auth inheritance chains. Moving or renaming changes a request ID, so agents should explain that its generated timeline data (including large-body sidecars) will be orphaned rather than silently claiming to preserve it.
 
+### Configure
+
+Set collection names, descriptions, response-history retention, and proxy
+policy in `settings.yml`. Agents can use `--noproxy` when a single TUI or
+automation run must bypass saved and system proxy settings.
+
 ### Evaluate
 
 Audit collections for:
@@ -60,5 +66,6 @@ also warn about local-path disclosure.
 - "What's the average response time for the login request on my Stripe collection?"
 - "Change the expand layout keybinding to Alt+I"
 - "Set Catppuccin as my theme"
+- "Set this collection's proxy to inherit global settings and retain 10 responses per request"
 - "Order the folders on the Stripe collection from Z to A"
 - "Set up basic auth on the Posts folder for $basic_user and $basic_password"
