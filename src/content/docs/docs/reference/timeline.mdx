@@ -32,7 +32,7 @@ body remains available without bloating the YAML file.
     id: users/get-users
     name: Get Users
     method: GET
-    url: $base_url/users
+    url: https://api.example.com/users
     headers: {}
     params:
       - name: page
@@ -80,16 +80,17 @@ body remains available without bloating the YAML file.
 
 ## Security
 
-Timeline entries contain the substituted request data used to send the
-request. Detail views mask configured bearer, basic, and header API-key auth
-for display, but the files on disk are **not** secret-redacted storage.
-This applies to both YAML entries and compressed body sidecars: do not commit
-`.timeline/` when it may contain credentials or sensitive payloads.
+Timeline request snapshots resolve ordinary environment variables but redact
+declared environment secrets, proxy/TLS settings secrets, sensitive headers,
+and literal auth credentials before persistence. Network messages and errors
+receive the same known-secret redaction. Server response status text, headers,
+and bodies remain exactly as received, and ordinary variables are not treated
+as secrets.
 
-When viewing timeline entries, `$VAR` references in the stored request snapshot
-are resolved against the active environment. This means switching environments
-shows you what the request would send with the current env, not the env used
-at the time of sending.
+The stored snapshot represents the environment selected when the request was
+sent; switching environments does not rewrite old entries. Timeline YAML and
+compressed sidecars can still contain sensitive public variables or response
+payloads, so do not commit `.timeline/`.
 
 ### Body Sidecars
 

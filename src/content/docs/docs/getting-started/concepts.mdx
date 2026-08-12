@@ -101,19 +101,24 @@ substitution.
 ```
 # .environments/development.env
 API_URL=http://localhost:3000
-API_KEY=dev-abc123
+# @secret API_KEY
+API_KEY=
 _color=green
 ```
 
 ```
 # .environments/production.env
 API_URL=https://api.example.com
-API_KEY=prod-xyz789
+# @secret API_KEY
+API_KEY=
 _color=red
 ```
 
 The `_color` key is special: it sets the badge color in the sidebar.
-All other keys are available as `$VARNAME` templates.
+Ordinary keys are stored in the file. `# @secret NAME` followed by a blank
+`NAME=` placeholder declares a secure value stored in the OS credential vault;
+a same-named process environment value takes precedence. Both kinds are
+available as `$VARNAME` templates.
 
 Cycle between environments with `Ctrl+U`, search them with **e**, or open the
 full environment editor with **F3**.
@@ -130,8 +135,9 @@ active environment. Supported in:
 - Authentication fields
 - File paths
 
-This is how you keep secrets out of version control and reuse the same
-request across dev/staging/production.
+Use secure declarations for tokens, passwords, and API keys so the values stay
+out of version control while the same request remains reusable across
+dev/staging/production.
 
 ## Pane
 

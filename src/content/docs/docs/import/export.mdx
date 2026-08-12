@@ -28,6 +28,9 @@ remain intact and can contain secrets, so review a bundle before sharing it.
 Home-relative `@/` file paths expand to absolute paths in Postman output. That
 keeps file requests runnable, but can reveal local usernames and directories.
 
+Noodle-specific TLS settings and OS-vault credentials are not translated into
+OpenAPI or Postman output.
+
 For either format, use an output path outside the collection directory.
 
 ## Export in the TUI

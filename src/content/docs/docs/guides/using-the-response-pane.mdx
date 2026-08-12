@@ -59,8 +59,10 @@ Large request and response bodies remain available in timeline details. Noodle
 stores bodies larger than 10 KB as compressed sidecars next to the timeline
 YAML, rather than truncating them.
 
-Timeline entries resolve `$VAR` references against the active environment,
-so switching environments updates the displayed request snapshots inline.
+Timeline request snapshots resolve ordinary `$VAR` references at send time and
+redact declared secrets plus sensitive request headers and auth. Server response
+fields remain intact, so timeline YAML and sidecars should still be treated as
+sensitive local data.
 
 ## Copy Body
 

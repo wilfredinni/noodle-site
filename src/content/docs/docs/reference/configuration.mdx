@@ -15,8 +15,9 @@ collections:
   - /home/user/projects/other-api
 proxy:
   mode: custom
-  url: http://$PROXY_USER:$PROXY_PASSWORD@proxy.example:8080
+  url: http://proxy.example:8080
   bypass: [localhost, .internal.example]
+  auth: true
 ```
 
 ## Fields
@@ -33,8 +34,9 @@ Noodle adds and reorders collections automatically when you switch to a
 new directory. No need to edit this by hand. Use `noodle workspace audit --fix`
 to remove stale paths that no longer exist on disk.
 
-Custom proxy credentials must use active-environment `$VARNAME` values; literal
-credentials are rejected. See [Settings](/docs/guides/settings/) for proxy
+Custom proxy URLs cannot contain credentials or variables. When `auth: true`,
+the username and optional password live in the OS credential vault and must be
+managed through Settings. See [Settings](/docs/guides/settings/) for proxy
 scope, precedence, bypass rules, and the interactive workflow.
 
 Partial files are fine: only the fields you include are overridden:

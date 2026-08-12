@@ -84,6 +84,11 @@ Below the body section, configure request behavior:
 | **Timeout**          | Request timeout in milliseconds. `0` means no timeout |
 | **Follow redirects** | Toggle automatic redirect following on/off            |
 | **Max redirects**    | Maximum number of redirects to follow                 |
+| **TLS verification** | Inherit the collection policy, require verification, or disable it for this request |
+
+Disabling TLS verification weakens transport security. Prefer configuring the
+required CA bundle in collection Settings; use the request override only when
+the target is intentionally trusted another way.
 
 ## Variable Autocompletion
 

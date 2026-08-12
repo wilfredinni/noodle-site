@@ -56,9 +56,11 @@ Choose one of these global modes:
 | Off | Send requests directly. |
 | Custom | Send requests through one configured HTTP or HTTPS proxy. |
 
-For a custom proxy, set a URL such as
-`http://$PROXY_USER:$PROXY_PASSWORD@proxy.example:8080`. Proxy credentials must
-use active-environment variables. Literal credentials are rejected.
+For a custom proxy, set a credential-free URL such as
+`http://proxy.example:8080`. Enable **Proxy authentication** to enter a username
+and optional password. Noodle stores both in the OS credential vault; the config
+file keeps only the URL and `auth: true`. URLs containing credentials or
+`$VARNAME` placeholders are rejected.
 
 <Image
   src={proxySettings}
@@ -94,6 +96,20 @@ Choose one of these modes for the collection:
 Collection settings are useful when one API needs a corporate proxy while your
 other collections use the system setting or direct connections.
 
+### TLS and mutual TLS
+
+Collection TLS settings can keep certificate verification enabled or disabled,
+replace the default roots with a custom PEM CA bundle, and select PEM client
+certificates by exact host and port. Relative paths resolve from the collection
+root. A custom CA bundle replaces the default roots, so include every root the
+collection needs.
+
+For an encrypted private key, enter the passphrase in Settings. Noodle stores it
+in the OS credential vault and writes only a generated `secret_id` to
+`settings.yml`. Request files may override only `tls.verify`; `--insecure`
+disables verification for one TUI or automation invocation. PFX/PKCS#12 files
+are not supported; convert them to a PEM certificate chain and private key.
+
 ### Proxy precedence
 
 Noodle resolves proxy policy in this order:
@@ -105,6 +121,10 @@ Noodle resolves proxy policy in this order:
 
 Use `--noproxy` with the TUI, `noodle collection run`, or `noodle request run`
 when you need to bypass every saved proxy setting temporarily.
+
+`settings.yml` is strict. Malformed YAML, unknown keys, wrong field types, and
+invalid proxy or TLS blocks stop collection opening, auditing, and execution
+until corrected; a missing or empty file still uses defaults.
 
 ## File references
 

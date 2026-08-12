@@ -6,7 +6,9 @@ description: Configure authentication for your requests
 ## Auth Types
 
 Choose an auth type from the request or folder **Auth** tab. Use environment
-variables for credentials so the same request works across environments.
+variables for credentials so the same request works across environments, and
+declare sensitive values with `# @secret NAME` plus a blank placeholder so the
+real value lives in the OS credential vault.
 
 ### Bearer Token
 

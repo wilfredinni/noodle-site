@@ -29,14 +29,22 @@ Rename, restructure, deduplicate headers across requests, flatten deep nesting, 
 
 ### Configure
 
-Set collection names, descriptions, response-history retention, and proxy
-policy in `settings.yml`. Agents can use `--noproxy` when a single TUI or
-automation run must bypass saved and system proxy settings.
+Set collection names, descriptions, response-history retention, credential-free
+proxy policy, and TLS/mTLS metadata in `settings.yml`. Agents can use
+`--noproxy` when one run must bypass proxy settings and `--insecure` only when
+the user intentionally disables TLS verification for that invocation.
+
+Declare secure environment values with blank `# @secret` placeholders and use
+`noodle secret set`, `list`, and `delete` for OS-vault values. Agents should
+never place proxy credentials, mTLS passphrases, or environment secrets in
+YAML, command arguments, or logs.
 
 ### Evaluate
 
 Audit collections for:
-- **Security**: hardcoded tokens, HTTP vs HTTPS, tokens in URLs, missing auth
+- **Security**: hardcoded tokens, undeclared secure values, HTTP vs HTTPS,
+  tokens in URLs, missing auth, unsafe TLS overrides, and credential-bearing
+  proxy URLs
 - **REST practices**: correct HTTP methods, URL patterns, Content-Type headers
 - **Structure**: orphan requests, folder naming, nesting depth
 - **Environment hygiene**: declared but unused vars, missing vars across environments

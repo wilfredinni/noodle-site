@@ -23,10 +23,11 @@ my-collection/
 └── health.yml
 ```
 
-The `.noodle/` and `.timeline/` directories are created automatically. They
-store local UI state and response history, and can be committed or ignored to
-suit your workflow. The [Timeline](/docs/reference/timeline/) reference
-explains the stored history format.
+The `.noodle/` and `.timeline/` directories are created automatically.
+`.noodle/` stores local UI state. `.timeline/` stores response history that may
+contain public variables or sensitive server payloads, so keep it out of version
+control. The [Timeline](/docs/reference/timeline/) reference explains the stored
+history format and redaction boundaries.
 
 For the complete request, folder, and settings schema, see the
 [Collection Format](/docs/reference/collection-format/) reference.
@@ -88,3 +89,8 @@ environment: production
 
 This selects the environment when you open the collection and when automation
 run commands are used without `--env`.
+
+Noodle also generates a `collection_id` in `settings.yml` when collection-scoped
+vault storage is first needed. Preserve it when moving the collection so secure
+environment values, proxy credentials, and mTLS passphrases remain available;
+do not copy it into another collection.

@@ -50,6 +50,8 @@ when the env editor is open.
 | **Tab**     | Switch between key and value columns   |
 | **Space**   | Select/activate environment            |
 | **Ctrl+D**  | Delete current variable row            |
+| **s**       | Toggle secure storage for the selected variable |
+| **r**       | Reveal or mask the selected secret for this session |
 | **Ctrl+S**  | Save environment                       |
 | **Ctrl+N**  | Create an environment with a name and optional color |
 | **Ctrl+K**  | Clone selected environment             |
@@ -63,6 +65,11 @@ when the env editor is open.
 - **Searchable picker**: filter and activate environments without opening the editor
 - **Create form**: validate a new name and choose its color before saving
 - **Disable variables**: checkbox toggles a `#` prefix
-- **Clone**: appends " - Copy" to the name
+- **Secure values**: mark a row `[secret]`; Noodle stores its value in the OS
+  credential vault and keeps only a blank declaration in the `.env` file
+- **Secret sources**: a same-named process environment variable takes
+  precedence over the vault; missing secrets are highlighted
+- **Clone**: appends " - Copy" to the name, then asks whether to copy stored
+  values or only the secret declarations
 - **Context menu**: right-click an environment in the sidebar to save, create,
   clone, or delete environments

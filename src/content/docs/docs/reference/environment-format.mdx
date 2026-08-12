@@ -11,15 +11,25 @@ One `.env` file per environment.
 ```ini
 _color=success
 base_url=https://api.example.com
-api_key=sk-placeholder
+# @secret api_key
+api_key=
 # disabled_key=this_is_disabled
 ```
 
 ### Rules
 
-- **`KEY=value`**: Active variable, available for `$KEY` substitution
+- **`KEY=value`**: Active public variable, available for `$KEY` substitution
 - **`# KEY=value`**: Disabled variable. Prefix with `#` to exclude from substitution
+- **`# @secret KEY` + blank `KEY=`**: Enabled secure declaration. The value comes from `process.env.KEY` when defined, otherwise from the OS credential vault.
+- **`# @secret KEY` + `# KEY=`**: Disabled secure declaration. Secure placeholders must stay blank and immediately follow their marker.
 - **`_color=<name>`**: Sets sidebar badge color for this environment
+
+Use the environment editor or `noodle secret set KEY --env <name>` to store a
+secret. Noodle uses macOS Keychain, Linux Secret Service, or Windows Credential
+Manager and never writes the value into the `.env` file. Missing vault values
+remain declared but unresolved. Declared secret values are masked in the editor
+and redacted from persisted request snapshots, request search, code generation,
+and exports; server response fields remain intact.
 
 ## Badge Colors
 
@@ -62,6 +72,6 @@ Unresolved variables cause noodle to throw an error at send time.
   Different values, same keys.
 - Comment out (`#`) variables that don't apply to an environment; don't
   delete the line.
-- Use placeholder values (e.g., `sk-placeholder`) in dev/staging. Keep real
-  secrets out of version control.
+- Use secure declarations for tokens, passwords, and API keys. Keep ordinary
+  placeholders only for deliberately public test values.
 - Put `_color` on the first line for visual clarity.

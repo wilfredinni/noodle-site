@@ -26,6 +26,7 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 | `form_data`       | array   | no       | None     | Multipart form entries                                     |
 | `file_path`       | string  | no       | None     | Path to binary upload file                                 |
 | `auth`            | object  | no       | None     | Auth config (omit for no auth)                             |
+| `tls`             | object  | no       | None     | Per-request TLS override; supports only `verify: true|false` |
 
 ### Headers
 
@@ -124,6 +125,18 @@ auth:
   token: $api_token
 ```
 
+### TLS override
+
+A request can override only certificate verification:
+
+```yaml
+tls:
+  verify: false
+```
+
+Omit `tls` to inherit the collection setting. CA bundles and client
+certificates are collection settings, not request fields.
+
 ### Minimal Request
 
 ```yaml
@@ -166,6 +179,7 @@ auth:
 Single file at collection root:
 
 ```yaml
+collection_id: 123e4567-e89b-42d3-a456-426614174000
 name: Payments API
 description: |-
   Requests for the payments platform.
@@ -173,23 +187,50 @@ timeline_max_entries: 50
 environment: development
 proxy:
   mode: custom
-  url: http://$PROXY_USER:$PROXY_PASSWORD@proxy.example:8080
+  url: http://proxy.example:8080
   bypass: [localhost, .internal.example]
+  auth: true
+tls:
+  verify: true
+  ca_bundle: ./certs/internal-roots.pem
+  client_certificates:
+    - host: api.internal.example
+      port: 443
+      cert_file: ./certs/client-chain.pem
+      key_file: ./certs/client-key.pem
+      secret_id: 123e4567-e89b-42d3-a456-426614174001
 ```
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
+| `collection_id` | UUID string | Generated credential-vault namespace. Preserve it when moving a collection; do not copy it into another collection. |
 | `name` | string | Optional display name; defaults to the collection directory name. |
 | `description` | string | Optional collection notes. |
 | `timeline_max_entries` | non-negative integer | Per-request history retention. Defaults to `50`; `0` disables recording. |
 | `environment` | string | Default active environment. Must match a `.env` file in `.environments/`. |
 | `proxy` | object | Optional collection proxy policy. `mode` is `inherit`, `off`, or `custom`. A custom policy uses an `http` or `https` `url` and an optional string-array `bypass` list. |
+| `tls` | object | Optional TLS policy with `verify`, `ca_bundle`, and exact-host `client_certificates`. |
 
-Custom proxy credentials may use active-environment `$VARNAME` values. Literal
-credentials are rejected. `--noproxy` forces direct connections for one TUI,
+Custom proxy URLs reject credentials and variables. When authentication is
+enabled, `auth: true` is persisted while the username and optional password live
+in the OS credential vault. `--noproxy` forces direct connections for one TUI,
 `collection run`, or `request run` invocation.
 See [Settings](/docs/guides/settings/) for proxy scope, precedence, and bypass
 rules.
+
+TLS client-certificate profiles require `host`, `cert_file`, and `key_file`;
+`port` defaults to `443`, and `enabled` is optional. Relative paths resolve from
+the collection root. Enter encrypted-key passphrases in Settings; Noodle stores
+them in the OS vault and persists only the generated `secret_id`. Use
+`--insecure` to disable verification for one invocation.
+
+Settings are validated strictly. Malformed YAML, unknown keys, wrong types, and
+invalid proxy/TLS blocks fail collection opening, auditing, and automation. A
+missing or empty file uses defaults.
+
+Redirects follow only HTTP or HTTPS. Noodle rejects HTTPS-to-HTTP downgrades and
+removes authorization, proxy authorization, cookies, `Host`, and header API-key
+credentials before following a cross-origin redirect.
 
 ## Hidden State (`.noodle/`)
 

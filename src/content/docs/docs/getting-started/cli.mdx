@@ -13,6 +13,7 @@ noodle .                                # open current directory
 noodle --collection ./api --env prod    # explicit collection + env
 noodle -c ./my-requests -e staging      # shorthand
 noodle --collection ./api --noproxy     # force direct connections
+noodle --collection ./api --insecure    # disable TLS verification once
 ```
 
 A positional `<path>` overrides `--collection`; supplying both is invalid.
@@ -32,6 +33,7 @@ browse or empty directories before editing or sending.
 | `--collection` | `-c`  | `./collections` | Path to request directory                              |
 | `--env`        | `-e`  | None            | Environment to activate. Exits with error if not found |
 | `--noproxy`    |      | `false`         | Force direct connections for this invocation           |
+| `--insecure`   |      | `false`         | Disable TLS certificate verification for this invocation |
 
 `--help` and `--version` are available on every command.
 
@@ -130,15 +132,24 @@ collection-relative paths without the `.yml` extension (for example,
 | `noodle collection inspect <path>`                                                | Show collection metadata, environments, and its tree.         |
 | `noodle collection format <path>`                                                 | Canonicalize request YAML and pretty-print valid JSON bodies.  |
 | `noodle collection audit <path> [--fix]`                                          | Validate collection files; `--fix` canonicalizes valid files. |
-| `noodle collection run <path> [-e <env>] [--noproxy]`                             | Run every request and fail if any request fails.              |
+| `noodle collection run <path> [-e <env>] [--noproxy] [--insecure]`                | Run every request and fail if any request fails.              |
 | `noodle request create <id> --url <url> [--method <method>] [--collection <dir>]` | Create a minimal request.                                     |
-| `noodle request run <id> [--collection <dir>] [-e <env>] [--noproxy]`             | Run one saved request.                                        |
+| `noodle request run <id> [--collection <dir>] [-e <env>] [--noproxy] [--insecure]`| Run one saved request.                                        |
 | `noodle environment set <key> <value> --env <name> [--collection <dir>]`          | Set and enable an environment variable.                       |
+| `noodle secret set <key> --env <name> [--collection <dir>] [--stdin]`             | Declare and securely store an environment value.              |
+| `noodle secret list --env <name> [--collection <dir>]`                            | List declared secret names and active sources.                |
+| `noodle secret delete <key> --env <name> [--collection <dir>]`                    | Remove the local vault value but keep its declaration.        |
 
 `request run` and `collection run` use `--env` when supplied. Otherwise,
 they use the environment named by the collection's `settings.yml`.
 Add `--noproxy` to either run command to bypass saved and system proxy policy
-for that invocation.
+for that invocation. Add `--insecure` only when you intentionally want to
+disable TLS certificate verification for that run.
+
+`secret set` prompts without echo in an interactive terminal. Use `--stdin` for
+automation so the value is not exposed in command arguments. `secret list`
+reports each declaration as `process`, `keychain`, `missing`, or `disabled`;
+process environment values take precedence over locally stored values.
 
 ### JSON output and exit status
 
