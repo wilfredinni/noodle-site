@@ -14,6 +14,9 @@ examples, folders as tags, supported authentication schemes, and each enabled,
 nonempty environment `base_url` as a server. Other environment values and
 response timeline data are not exported.
 
+NTLM and AWS SigV4 export as HTTP security schemes. Validate those schemes with
+the OpenAPI consumer that will read the document.
+
 ## Postman
 
 ```bash
@@ -30,6 +33,11 @@ keeps file requests runnable, but can reveal local usernames and directories.
 
 Noodle-specific TLS settings and OS-vault credentials are not translated into
 OpenAPI or Postman output.
+
+Postman output uses its matching `ntlm` and `awsv4` auth representations. On
+import, Noodle maps NTLM from OpenAPI, Postman, and Insomnia sources, and maps
+AWS SigV4 from Postman. Review imported credentials and move sensitive values
+to secret environment declarations before sending.
 
 For either format, use an output path outside the collection directory.
 

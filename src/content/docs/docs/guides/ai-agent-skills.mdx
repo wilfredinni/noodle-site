@@ -39,6 +39,12 @@ Declare secure environment values with blank `# @secret` placeholders and use
 never place proxy credentials, mTLS passphrases, or environment secrets in
 YAML, command arguments, or logs.
 
+Agents can configure server NTLMv2 or AWS SigV4 auth through request or folder
+YAML when the user provides the needed values. They should declare NTLM
+passwords plus AWS secret keys and session tokens as secrets; SigV4 does not
+support multipart bodies, and generated client-code snippets are unavailable
+for either auth type.
+
 ### Evaluate
 
 Audit collections for:

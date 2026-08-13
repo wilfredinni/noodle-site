@@ -27,6 +27,22 @@ auth:
   pass: $password
 ```
 
+### NTLMv2
+
+```yaml
+auth:
+  type: ntlm
+  username: $ntlm_username
+  password: $ntlm_password
+  domain: CONTOSO
+  workstation: build-agent
+```
+
+`domain` and `workstation` are optional. Noodle supports the server's
+connection-bound NTLMv2 challenge exchange; it does not support proxy NTLM,
+NTLMv1, Kerberos/SPNEGO negotiation, signing, sealing, or channel binding.
+Declare `$ntlm_password` as a secret environment value.
+
 ### API Key
 
 ```yaml
@@ -38,6 +54,31 @@ auth:
 ```
 
 `placement` can be `header` or `query`.
+
+### AWS Signature Version 4
+
+```yaml
+auth:
+  type: aws_sigv4
+  access_key: $aws_access_key_id
+  secret_key: $aws_secret_access_key
+  region: us-east-1
+  service: execute-api
+  session_token: $aws_session_token
+```
+
+`session_token` is optional. Noodle signs the request after environment
+substitution and supports text, JSON, URL-encoded, and binary bodies. Multipart
+bodies are not supported because their runtime-generated boundary and bytes
+cannot be signed reliably in advance. Declare the secret key and session token
+as secure environment values.
+
+## Generated client code
+
+The **Generate Code** command is unavailable for NTLMv2 and AWS SigV4 requests.
+NTLM requires a connection-bound challenge exchange, and a generated SigV4
+signature would expire. Keep these requests in a collection and run them with
+Noodle instead.
 
 ## Inheritance
 

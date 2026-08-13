@@ -111,19 +111,27 @@ disclosure before sharing.
 
 ### Auth
 
-| Type      | Fields                      | Description                                    |
-| --------- | --------------------------- | ---------------------------------------------- |
-| `none`    | None                        | No auth (omit `auth` field entirely)           |
-| `inherit` | None                        | Use nearest parent folder's auth               |
-| `bearer`  | `token`                     | Bearer token auth                              |
-| `basic`   | `user`, `pass`              | Basic auth                                     |
-| `api_key` | `key`, `value`, `placement` | API key auth. `placement`: `header` or `query` |
+| Type        | Fields                                                          | Description                                    |
+| ----------- | --------------------------------------------------------------- | ---------------------------------------------- |
+| `none`      | None                                                            | No auth (omit `auth` field entirely)           |
+| `inherit`   | None                                                            | Use nearest parent folder's auth               |
+| `bearer`    | `token`                                                         | Bearer token auth                              |
+| `basic`     | `user`, `pass`                                                  | Basic auth                                     |
+| `ntlm`      | `username`, `password`, optional `domain`, `workstation`       | Connection-bound server NTLMv2 auth            |
+| `api_key`   | `key`, `value`, `placement`                                    | API key auth. `placement`: `header` or `query` |
+| `aws_sigv4` | `access_key`, `secret_key`, `region`, `service`, `session_token` | AWS Signature Version 4; `session_token` is optional |
 
 ```yaml
 auth:
   type: bearer
   token: $api_token
 ```
+
+NTLM uses the server's connection-bound NTLMv2 challenge exchange. Proxy NTLM,
+NTLMv1, Kerberos/SPNEGO negotiation, signing, sealing, and channel binding are
+not supported. AWS SigV4 signs requests after variable substitution and supports
+text, JSON, URL-encoded, and binary bodies; multipart is not supported. Keep
+passwords, AWS secret keys, and session tokens in secret environment variables.
 
 ### TLS override
 
