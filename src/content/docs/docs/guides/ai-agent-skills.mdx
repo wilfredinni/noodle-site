@@ -29,8 +29,8 @@ Rename, restructure, deduplicate headers across requests, flatten deep nesting, 
 
 ### Configure
 
-Set collection names, descriptions, response-history retention, credential-free
-proxy policy, and TLS/mTLS metadata in `settings.yml`. Agents can use
+Set collection names, descriptions, response-history retention, cookie policy,
+credential-free proxy policy, and TLS/mTLS metadata in `settings.yml`. Agents can use
 `--noproxy` when one run must bypass proxy settings and `--insecure` only when
 the user intentionally disables TLS verification for that invocation.
 
@@ -38,6 +38,12 @@ Declare secure environment values with blank `# @secret` placeholders and use
 `noodle secret set`, `list`, and `delete` for OS-vault values. Agents should
 never place proxy credentials, mTLS passphrases, or environment secrets in
 YAML, command arguments, or logs.
+
+Agents can inspect storage health with `noodle cookie list` and clear or recover
+a jar with `noodle cookie clear`. Cookie list output includes live cookie values,
+so agents should redact it from logs and shared reports. Per-request
+`sendCookies: false` disables outgoing jar cookies but still captures response
+cookies.
 
 Agents can configure server NTLMv2 or AWS SigV4 auth through request or folder
 YAML when the user provides the needed values. They should declare NTLM
@@ -81,5 +87,6 @@ also warn about local-path disclosure.
 - "Change the expand layout keybinding to Alt+I"
 - "Set Catppuccin as my theme"
 - "Set this collection's proxy to inherit global settings and retain 10 responses per request"
+- "Disable automatic cookie handling for this collection"
 - "Order the folders on the Stripe collection from Z to A"
 - "Set up basic auth on the Posts folder for $basic_user and $basic_password"

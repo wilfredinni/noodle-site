@@ -18,6 +18,7 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 | `timeout`         | number  | no       | `0`     | Request timeout in ms. `0` = no timeout                    |
 | `followRedirects` | boolean | no       | `true`  | Follow HTTP redirects                                      |
 | `maxRedirects`    | number  | no       | `5`     | Max redirect chain length                                  |
+| `sendCookies`     | boolean | no       | `true`  | Send matching collection jar cookies; `false` still captures responses |
 | `body_type`       | string  | no       | `none`  | `none`, `json`, `multipart`, `urlencoded`, `binary`        |
 | `headers`         | map     | no       | `{}`    | Request headers (omit if empty)                            |
 | `params`          | array   | no       | `[]`    | URL query parameters (omit if empty)                       |
@@ -193,6 +194,8 @@ description: |-
   Requests for the payments platform.
 timeline_max_entries: 50
 environment: development
+cookies:
+  enabled: true
 proxy:
   mode: custom
   url: http://proxy.example:8080
@@ -216,6 +219,7 @@ tls:
 | `description` | string | Optional collection notes. |
 | `timeline_max_entries` | non-negative integer | Per-request history retention. Defaults to `50`; `0` disables recording. |
 | `environment` | string | Default active environment. Must match a `.env` file in `.environments/`. |
+| `cookies` | object | Optional cookie policy. `enabled` is a boolean and defaults to `true`; `false` prevents sending and capturing jar cookies. |
 | `proxy` | object | Optional collection proxy policy. `mode` is `inherit`, `off`, or `custom`. A custom policy uses an `http` or `https` `url` and an optional string-array `bypass` list. |
 | `tls` | object | Optional TLS policy with `verify`, `ca_bundle`, and exact-host `client_certificates`. |
 
@@ -233,7 +237,7 @@ them in the OS vault and persists only the generated `secret_id`. Use
 `--insecure` to disable verification for one invocation.
 
 Settings are validated strictly. Malformed YAML, unknown keys, wrong types, and
-invalid proxy/TLS blocks fail collection opening, auditing, and automation. A
+invalid proxy/TLS/cookie blocks fail collection opening, auditing, and automation. A
 missing or empty file uses defaults.
 
 Redirects follow only HTTP or HTTPS. Noodle rejects HTTPS-to-HTTP downgrades and

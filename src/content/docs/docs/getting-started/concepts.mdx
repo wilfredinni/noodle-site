@@ -64,7 +64,7 @@ url: https://api.example.com/users
 ```
 
 Requests support headers, query parameters, body (JSON, form, text, binary),
-authentication, and settings like timeout.
+authentication, and settings like timeout and cookie sending.
 
 The request file is the source of truth. Edit it in the TUI or open it in
 your editor: both work.
@@ -139,6 +139,22 @@ Use secure declarations for tokens, passwords, and API keys so the values stay
 out of version control while the same request remains reusable across
 dev/staging/production.
 
+## Cookie Jar
+
+Noodle keeps one cookie jar per collection. It captures `Set-Cookie` headers
+from responses and sends matching cookies on later requests and redirect hops.
+A `Cookie` header written in the request wins when it has the same cookie name.
+
+Open **Cookies** from the command palette to inspect and manage jars by domain.
+The response pane's **Cookies** tab separates cookies sent on the final request
+leg from `Set-Cookie` values received in the final response.
+
+The jar is enabled by default. Disable it for a collection in Settings, or turn
+off **Send Cookies** for one request. The request control suppresses outgoing
+jar cookies but still captures response cookies. Jars use OS-vault-backed
+encryption under `~/.config/noodle/cookies/`; when the vault is unavailable,
+Noodle uses a mode-`0600` plaintext file and displays a persistent warning.
+
 ## Pane
 
 The main TUI is split into four **panes**:
@@ -147,7 +163,7 @@ The main TUI is split into four **panes**:
 - **URL bar**: inspect and edit the selected request URL. Press **Tab**
   to switch between method selector and URL field.
 - **Request**: inspect and edit the selected request
-- **Response**: view response body, headers, and timing
+- **Response**: view response body, headers, network trace, timeline, and cookies
 
 Press **Ctrl+L** to toggle between stacked (vertical) and side-by-side
 layout.
@@ -181,7 +197,7 @@ which view is active:
 | Request     | Find, new, clone, save, delete, edit, import cURL, generate code, send |
 | Response    | Copy body, filter JSON with JSONPath                               |
 | Environment | Cycle, open editor                                                 |
-| Collection  | Switch collection, reload collection, new folder, initialize       |
+| Workspace   | Switch collection, reload collection, new folder, initialize, Cookies |
 | App         | Help, theme picker, toggle layout, expand pane, undo all, about    |
 
 **Env editor view** (when **e** is pressed):

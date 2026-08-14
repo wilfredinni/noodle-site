@@ -85,6 +85,7 @@ swallowed while jump mode is active.
 | `e` | Response Headers tab |
 | `n` | Response Network tab |
 | `l` | Response Timeline tab |
+| `k` | Response Cookies tab |
 
 ### Folder targets
 
@@ -108,6 +109,15 @@ When the environment editor is open, these are the available jump targets:
 | `m` | Environment name |
 | `c` | Environment color |
 | `v` | Environment variables |
+
+### Cookie jar targets
+
+When the cookie jar is open, these are the available jump targets:
+
+| Letter | Target |
+| ------ | ------ |
+| `s` | Domain sidebar |
+| `c` | Cookie list |
 
 ## Read-only Modes
 
@@ -172,7 +182,7 @@ When the response pane is focused:
 
 | Key             | Action                                  |
 | --------------- | --------------------------------------- |
-| `←` / `→`       | Switch tabs (Body / Headers / Network / Timeline) |
+| `←` / `→`       | Switch tabs (Body / Headers / Network / Timeline / Cookies) |
 | `↑` / `↓`       | Scroll active tab                       |
 | `PgUp` / `PgDn` | Page scroll                             |
 | `Return`        | Expand/collapse timeline entry          |
@@ -206,6 +216,25 @@ When the environment editor is open:
 | `r`       | Reveal or mask selected environment secret |
 | `Escape`  | Return to main view                    |
 
+## Cookie Jar
+
+Open **Cookies** from the command palette. The opening shortcut is unbound by
+default and can be assigned with `cookie_jar_open`.
+
+| Key | Action |
+| --- | ------ |
+| `↑` / `↓` | Select a domain or cookie |
+| `Ctrl+N` | Add a cookie |
+| `Ctrl+E` | Edit the selected cookie |
+| `Return` | Expand or collapse the selected cookie |
+| `Ctrl+B` | Copy the selected cookie as `name=value` |
+| `/` | Filter cookies; `Escape` clears and `Return` keeps the filter |
+| `Ctrl+W` | Delete the selected domain |
+| `Ctrl+D` | Delete the selected cookie |
+| `Ctrl+Alt+W` | Clear the jar or reset unavailable storage with a backup |
+| `r` | Retry unavailable storage |
+| `Escape` | Close the cookie jar |
+
 ## Customization
 
 Keybindings can be customized in `~/.config/noodle/keybinds.yml`. Navigation and edit mode keys (`tab`, `up`, `down`, `left`, `right`, `return`, `escape`, `shift+tab`) and `request_send` are fixed and cannot be overridden.
@@ -234,6 +263,15 @@ env_reveal: r
 env_new: ctrl+n
 env_clone: ctrl+k
 env_delete: ctrl+w
+
+# Cookies
+# cookie_jar_open is unbound by default; assign a key to enable it
+cookie_edit: ctrl+e
+cookie_delete: ctrl+w
+cookie_delete_domain: ctrl+d
+cookie_clear: ctrl+alt+w
+cookie_new: ctrl+n
+cookie_copy: ctrl+b
 
 # App
 command_palette: ctrl+p

@@ -83,6 +83,12 @@ Set a display name and description for the collection. You can also set
 Lowering the value removes older entries; set it to `0` to disable response
 history for the collection.
 
+The **Cookie jar** toggle is enabled by default. When enabled, Noodle captures
+`Set-Cookie` headers and sends matching cookies on later requests. Turning it
+off prevents both sending and capturing jar cookies for the collection. Use the
+request pane's **Send Cookies** control when only one request should omit
+outgoing jar cookies.
+
 ### Collection proxy
 
 Choose one of these modes for the collection:

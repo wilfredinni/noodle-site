@@ -85,10 +85,16 @@ Below the body section, configure request behavior:
 | **Follow redirects** | Toggle automatic redirect following on/off            |
 | **Max redirects**    | Maximum number of redirects to follow                 |
 | **TLS verification** | Inherit the collection policy, require verification, or disable it for this request |
+| **Send Cookies**     | Send matching cookies from the collection jar          |
 
 Disabling TLS verification weakens transport security. Prefer configuring the
 required CA bundle in collection Settings; use the request override only when
 the target is intentionally trusted another way.
+
+Turning off **Send Cookies** prevents jar cookies from being added to this
+request and its redirect hops. Noodle still captures response cookies into the
+collection jar. Disable the jar in collection Settings when neither sending nor
+capturing should occur.
 
 ## Variable Autocompletion
 

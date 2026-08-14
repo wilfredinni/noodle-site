@@ -139,6 +139,8 @@ collection-relative paths without the `.yml` extension (for example,
 | `noodle secret set <key> --env <name> [--collection <dir>] [--stdin]`             | Declare and securely store an environment value.              |
 | `noodle secret list --env <name> [--collection <dir>]`                            | List declared secret names and active sources.                |
 | `noodle secret delete <key> --env <name> [--collection <dir>]`                    | Remove the local vault value but keep its declaration.        |
+| `noodle cookie list [--collection <dir>]`                                        | List collection cookies and storage health.                   |
+| `noodle cookie clear [--collection <dir>]`                                       | Clear the collection jar or recover unreadable storage.       |
 
 `request run` and `collection run` use `--env` when supplied. Otherwise,
 they use the environment named by the collection's `settings.yml`.
@@ -150,6 +152,12 @@ disable TLS certificate verification for that run.
 automation so the value is not exposed in command arguments. `secret list`
 reports each declaration as `process`, `keychain`, `missing`, or `disabled`;
 process environment values take precedence over locally stored values.
+
+`cookie list` includes every cookie value, host-only scope, storage state, and
+non-fatal storage warnings. Treat its output as sensitive. `cookie clear`
+backs up unreadable storage before creating a clean jar and reports the backup
+path. Request and collection runs can still succeed when the jar is unavailable;
+those runs report a warning and continue without jar cookies.
 
 ### JSON output and exit status
 
