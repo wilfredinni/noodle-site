@@ -39,6 +39,13 @@ Declare secure environment values with blank `# @secret` placeholders and use
 never place proxy credentials, mTLS passphrases, or environment secrets in
 YAML, command arguments, or logs.
 
+Agents must not assume the OS vault is available on headless Linux. If a secret
+operation reports that Secret Service or the `login` keyring collection is
+unavailable, direct the user to the [Linux and headless environment
+setup](/docs/reference/environment-format/#linux-and-headless-environments).
+For unattended jobs, use the same-named process environment variable or an
+external secret manager instead of trying to unlock a graphical keyring prompt.
+
 Agents can inspect storage health with `noodle cookie list` and clear or recover
 a jar with `noodle cookie clear`. Cookie list output includes live cookie values,
 so agents should redact it from logs and shared reports. Per-request

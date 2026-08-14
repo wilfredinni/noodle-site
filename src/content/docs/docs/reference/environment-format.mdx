@@ -31,6 +31,56 @@ remain declared but unresolved. Declared secret values are masked in the editor
 and redacted from persisted request snapshots, request search, code generation,
 and exports; server response fields remain intact.
 
+## Linux and headless environments
+
+On Linux, Noodle uses the Secret Service API through a provider such as GNOME
+Keyring or KWallet. A desktop session normally starts and unlocks the provider
+for you. On a headless server, you must provide a user D-Bus session and an
+unlocked keyring collection.
+
+Install a provider and the command-line Secret Service tools first:
+
+```bash
+# Ubuntu/Debian
+sudo apt install gnome-keyring libsecret-tools dbus-user-session
+
+# Fedora
+sudo dnf install gnome-keyring libsecret
+
+# Arch
+sudo pacman -S gnome-keyring libsecret
+```
+
+Run Noodle inside the same user D-Bus session as the keyring. If a foreground
+`gnome-keyring-daemon --start` process is already running, stop it with
+`Ctrl+C` first:
+
+```bash
+dbus-run-session -- bash
+read -rsp "Keyring password: " KEYRING_PASSWORD
+printf "\n"
+eval "$(printf '%s\n' "$KEYRING_PASSWORD" | gnome-keyring-daemon --unlock --components=secrets)"
+unset KEYRING_PASSWORD
+noodle --collection ./my-api
+```
+
+The `--unlock` step creates or unlocks the `login` collection without requiring
+the graphical SystemPrompter. Keep Noodle in that shell; a separate SSH shell
+will not share its D-Bus session. For unattended jobs, provide the same-named
+secret through the process environment or use an external secret manager
+instead of depending on an interactively unlocked keyring.
+
+### Troubleshooting
+
+- `Object does not exist at path .../collection/login` means the login keyring
+  collection is missing or locked. Run the headless setup above.
+- `couldn't initialize prompt` or `SystemPrompter` GTK warnings mean the keyring
+  tried to open a graphical prompt. Use `gnome-keyring-daemon --unlock` with the
+  password supplied on stdin.
+- `cookies plaintext` means Noodle could not access the OS vault and used a
+  mode-`0600` fallback for the cookie jar. Restart Noodle after fixing the
+  keyring.
+
 ## Badge Colors
 
 | Color | Badge |

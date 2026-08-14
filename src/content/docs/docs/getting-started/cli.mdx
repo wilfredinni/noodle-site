@@ -153,6 +153,11 @@ automation so the value is not exposed in command arguments. `secret list`
 reports each declaration as `process`, `keychain`, `missing`, or `disabled`;
 process environment values take precedence over locally stored values.
 
+On headless Linux, `secret set` also requires a user D-Bus session and an
+unlocked GNOME Keyring or KWallet collection. See [Linux and headless
+environments](/docs/reference/environment-format/#linux-and-headless-environments)
+for setup and troubleshooting.
+
 `cookie list` includes every cookie value, host-only scope, storage state, and
 non-fatal storage warnings. Treat its output as sensitive. `cookie clear`
 backs up unreadable storage before creating a clean jar and reports the backup
