@@ -1,8 +1,8 @@
 {
-  "version": "v0.7.2",
+  "version": "v0.7.3",
   "assets": {
-    "macos-arm64": { "sha256": "28492c190705234224f3f8e516b988dddb6ce499c4ad3e92313794ebba4e6f7a" },
-    "linux-x86_64": { "sha256": "48d95b825934eed6eee34fa436e51f7709ee833cbdbbd4ac493b0f44f178ebe9" },
-    "linux-arm64": { "sha256": "80c0013a09d76d75ab9bd77d764de41b081739fe421169a2cd50fc17c2ca2aae" }
+    "macos-arm64": { "sha256": "1532a9abe9c3ebf5617336fed8be1ae4f30b57e52cae689234535acd921d9ea5" },
+    "linux-x86_64": { "sha256": "0313f0f4502306e47c12d7ff10ac427b4dd9be1c2541f98716e89bab06db4488" },
+    "linux-arm64": { "sha256": "abbfabbb61f4726b4222311a3e8305e8d0c9f66bd15611686897626edadbbf3e" }
   }
 }
