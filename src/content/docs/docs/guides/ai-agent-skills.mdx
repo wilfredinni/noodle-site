@@ -45,11 +45,18 @@ so agents should redact it from logs and shared reports. Per-request
 `sendCookies: false` disables outgoing jar cookies but still captures response
 cookies.
 
-Agents can configure server NTLMv2 or AWS SigV4 auth through request or folder
-YAML when the user provides the needed values. They should declare NTLM
-passwords plus AWS secret keys and session tokens as secrets; SigV4 does not
-support multipart bodies, and generated client-code snippets are unavailable
-for either auth type.
+Agents can configure server NTLMv2, AWS SigV4, OAuth 1.0a, or OAuth 2.0 auth
+through request or folder YAML when the user provides the needed values. They
+should declare NTLM passwords, AWS secret keys and session tokens, OAuth
+consumer and token secrets, client secrets, passwords, and private signing keys
+as secrets. SigV4 and OAuth 1 body hashes do not support multipart bodies.
+
+Agents must not place OAuth 2 tokens, authorization codes, PKCE verifiers, or
+generated state in collection files. First-time authorization code and implicit
+flows require the human user to complete browser authorization in the TUI.
+Automation may reuse or refresh stored credentials, but it never opens a
+browser. Generated client-code snippets are unavailable for NTLMv2, AWS SigV4,
+OAuth 1.0a, and OAuth 2.0 requests.
 
 ### Evaluate
 
@@ -90,3 +97,4 @@ also warn about local-path disclosure.
 - "Disable automatic cookie handling for this collection"
 - "Order the folders on the Stripe collection from Z to A"
 - "Set up basic auth on the Posts folder for $basic_user and $basic_password"
+- "Configure OAuth 2 authorization code with S256 PKCE for this request"

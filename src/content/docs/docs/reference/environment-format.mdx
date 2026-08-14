@@ -62,7 +62,8 @@ environment. Variables are applied to:
 - `body`
 - `form_data` values
 - `file_path`
-- `auth` fields (token, user, pass, key, value)
+- all string-valued `auth` fields, including OAuth credentials, endpoints,
+  scopes, private keys, token placement names, and additional parameters
 
 Unresolved variables cause noodle to throw an error at send time.
 

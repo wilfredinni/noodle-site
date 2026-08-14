@@ -27,6 +27,71 @@ auth:
   pass: $password
 ```
 
+### OAuth 1.0a
+
+```yaml
+auth:
+  type: oauth1
+  consumer_key: $oauth1_consumer_key
+  consumer_secret: $oauth1_consumer_secret
+  access_token: $oauth1_access_token
+  access_token_secret: $oauth1_access_token_secret
+  signature_method: HMAC-SHA256
+  placement: header
+```
+
+Noodle supports HMAC-SHA1/256/512, RSA-SHA1/256/512, and PLAINTEXT
+signatures. Place OAuth parameters in the `header`, `query`, or a URL-encoded
+`body`; body placement is unavailable for other body types. RSA private keys
+may be inline text or collection-relative and `@/` file paths. Optional body
+hashes do not support multipart bodies.
+
+Blank nonces and timestamps are generated for each signing operation. Noodle
+signs each allowed same-origin redirect leg again and strips OAuth credentials
+when the origin changes. PLAINTEXT is accepted only over HTTPS or loopback
+HTTP. Keep consumer secrets, token secrets, and private keys in secret
+environment variables.
+
+### OAuth 2.0
+
+```yaml
+auth:
+  type: oauth2
+  grant_type: authorization_code
+  authorization_url: https://identity.example.com/oauth/authorize
+  access_token_url: https://identity.example.com/oauth/token
+  refresh_token_url: https://identity.example.com/oauth/token
+  client_id: $oauth2_client_id
+  client_secret: $oauth2_client_secret
+  scope: openid profile
+  redirect_uri: http://127.0.0.1:8765/oauth/callback
+  pkce: true
+  pkce_method: S256
+  token_placement: header
+```
+
+Supported grants are authorization code, client credentials, implicit, and
+password. Authorization code defaults to S256 PKCE. Implicit, password, and
+plain PKCE remain available for compatibility, but new integrations should
+prefer authorization code with S256 PKCE. OAuth endpoints require HTTPS except
+on loopback hosts, and browser callbacks use a loopback HTTP URL ending in
+`/oauth/callback`.
+
+TUI sends can open the system browser for authorization code and implicit
+flows. Open the command palette with `Ctrl+P` to fetch or authorize, copy, or
+clear the selected request's OAuth 2 token. Non-interactive commands never open
+a browser: they may reuse or refresh stored browser credentials, while client
+credentials and password grants may fetch a token directly.
+
+Token responses live in the OS credential vault. If the vault is unavailable,
+Noodle keeps them in memory for the current session and reports a warning; it
+never writes plaintext OAuth tokens, authorization codes, PKCE verifiers, or
+generated state to request YAML. OAuth 2 also supports signed client
+assertions, access or ID token delivery, header or query placement, and custom
+authorization, token, and refresh parameters. See
+[Collection Format](/docs/reference/collection-format/#oauth-20) for the full
+field schema.
+
 ### NTLMv2
 
 ```yaml
@@ -75,9 +140,10 @@ as secure environment values.
 
 ## Generated client code
 
-The **Generate Code** command is unavailable for NTLMv2 and AWS SigV4 requests.
-NTLM requires a connection-bound challenge exchange, and a generated SigV4
-signature would expire. Keep these requests in a collection and run them with
+The **Generate Code** command is unavailable for NTLMv2, AWS SigV4, OAuth 1.0a,
+and OAuth 2.0 requests. NTLM requires a connection-bound challenge exchange,
+SigV4 and OAuth 1 signatures are request-specific, and OAuth 2 tokens use
+external secure state. Keep these requests in a collection and run them with
 Noodle instead.
 
 ## Inheritance

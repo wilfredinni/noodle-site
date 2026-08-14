@@ -27,6 +27,9 @@ noodle import ./openapi.json --format openapi
 
 Noodle creates one request per operation, groups tagged operations into folders,
 and imports supported parameters, request bodies, authentication, and servers.
+OAuth 2.0 authorization code, client credentials, implicit, and password flows
+retain their endpoints, scopes, and generated credential placeholders. OpenAPI
+3.0 does not represent OAuth 1.0a.
 
 ## Swagger 2.0
 
@@ -46,6 +49,8 @@ noodle import ./postman_collection.json --format postman
 Noodle preserves supported requests, folders, auth, headers, query parameters,
 body types, and collection variables. Pre-request scripts and tests are not
 imported.
+OAuth 1.0a and OAuth 2.0 configuration map to Noodle's matching auth types;
+review imported signing methods, grant types, endpoints, and token placement.
 
 ## Insomnia
 
@@ -56,6 +61,7 @@ noodle import ./insomnia-export.json --format insomnia
 Insomnia v4 and v5 JSON exports preserve supported workspaces, request groups,
 requests, environments, headers, parameters, body types, and auth. Cyclic
 request groups are skipped.
+Supported OAuth 1.0a and OAuth 2.0 fields map to Noodle's matching auth types.
 
 ## After import
 

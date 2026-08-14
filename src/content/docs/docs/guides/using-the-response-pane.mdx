@@ -26,13 +26,14 @@ response time, headers, and body (auto-formatted if JSON).
 |-----|---------|
 | **Body** | Read-only response body with JSON highlighting, line numbers, folding, and a scrollbar |
 | **Headers** | Response headers sorted alphabetically |
-| **Network** | Live request, redirect, response, and failure events |
+| **Network** | Live request, authentication, redirect, response, and failure events |
 | **Timeline** | History of every send for this request |
 | **Cookies** | Cookies sent on the final request leg and received in the final response |
 
-The Network tab updates while a request is sending. Its events are retained in
-timeline entries, so you can inspect the trace again after the response is
-complete.
+The Network tab updates while a request is sending. OAuth 2 token acquisition,
+refresh, and browser authorization status appear as authentication events
+without exposing token values. Events are retained in timeline entries, so you
+can inspect the trace again after the response is complete.
 
 ## Folding JSON Responses
 
@@ -61,9 +62,10 @@ stores bodies larger than 10 KB as compressed sidecars next to the timeline
 YAML, rather than truncating them.
 
 Timeline request snapshots resolve ordinary `$VAR` references at send time and
-redact declared secrets plus sensitive request headers and auth. Server response
-fields remain intact, so timeline YAML and sidecars should still be treated as
-sensitive local data.
+redact declared secrets plus sensitive request headers, OAuth signatures,
+assertions, tokens, and other auth credentials. Server response fields remain
+intact, so timeline YAML and sidecars should still be treated as sensitive
+local data.
 
 ## Cookies
 

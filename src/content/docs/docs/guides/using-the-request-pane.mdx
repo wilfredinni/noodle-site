@@ -134,14 +134,22 @@ For multipart entries, **Ctrl+T** toggles between text and file mode.
 
 Navigate to the auth section to set authentication:
 
-| Auth type   | Fields                                     |
-| ----------- | ------------------------------------------ |
-| **None**    | No auth                                    |
-| **Bearer**  | Token field                                |
-| **Basic**   | Username and password                      |
-| **API Key** | Key, value, and placement (header / query) |
+| Auth type | Fields |
+| --------- | ------ |
+| **None** | No auth |
+| **Inherit** | Nearest parent folder auth |
+| **Bearer** | Token |
+| **Basic** | Username and password |
+| **NTLMv2** | Username, password, optional domain and workstation |
+| **API Key** | Key, value, and header or query placement |
+| **AWS SigV4** | Access key, secret key, region, service, optional session token |
+| **OAuth 1.0a** | Credentials, signature method, private key, placement, and optional signing fields |
+| **OAuth 2.0** | Grant, endpoints, client credentials, PKCE, token lifecycle, client assertion, and delivery fields |
 
 Press **Return** on the type field to cycle through options.
+For OAuth 2.0 requests, open the command palette to fetch or authorize, copy,
+or clear the current secure token. See
+[Authentication](/docs/guides/authentication/) for setup and security rules.
 
 ## Creating and Managing Requests
 
@@ -169,6 +177,10 @@ With a selected request, choose **Generate Code** in the command palette to
 create a client snippet. Choose a language and, where applicable, a library;
 press **i** to interpolate the active environment and **c** to copy the
 generated snippet.
+
+Code generation is unavailable for NTLMv2, AWS SigV4, OAuth 1.0a, and OAuth
+2.0 requests because those schemes require a connection exchange,
+request-specific signature, or external secure token state.
 
 ## Reverting
 
