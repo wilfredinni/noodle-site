@@ -19,7 +19,7 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 | `followRedirects` | boolean | no       | `true`  | Follow HTTP redirects                                      |
 | `maxRedirects`    | number  | no       | `5`     | Max redirect chain length                                  |
 | `sendCookies`     | boolean | no       | `true`  | Send matching collection jar cookies; `false` still captures responses |
-| `body_type`       | string  | no       | `none`  | `none`, `json`, `multipart`, `urlencoded`, `binary`        |
+| `body_type`       | string  | no       | `none`  | `none`, `json`, `xml`, `multipart`, `urlencoded`, `binary` |
 | `headers`         | map     | no       | `{}`    | Request headers (omit if empty)                            |
 | `params`          | array   | no       | `[]`    | URL query parameters (omit if empty)                       |
 | `path_params`     | array   | no       | `[]`    | Values for `:name` URL path tokens (omit if empty)          |
@@ -109,6 +109,21 @@ Noodle keeps this portable shorthand in the collection and expands it only
 when reading an upload file or producing an output artifact. Postman exports
 therefore contain absolute file paths and should be reviewed for local-path
 disclosure before sharing.
+
+### XML Body
+
+XML bodies are sent unchanged after environment-variable substitution. Noodle
+adds `Content-Type: application/xml` when no enabled Content-Type header exists;
+set an explicit header for MIME types such as `text/xml` or
+`application/soap+xml`.
+
+```yaml
+body_type: xml
+body: |-
+  <request>
+    <id>$request_id</id>
+  </request>
+```
 
 ### Auth
 

@@ -17,6 +17,10 @@ press <kbd>Ctrl</kbd>+<kbd>P</kbd>, search for **Open Settings**, and press
 <kbd>Enter</kbd>. Settings opens on the global **Appearance** section; use the
 scope switcher to reach settings for the active collection.
 
+The command palette also lists every application and collection Settings
+category, so searches such as **Keyboard**, **Proxy**, or **Certificates** open
+that category directly.
+
 <Image
   src={keySettings}
   alt="Noodle Settings showing the global Keyboard section"
@@ -33,6 +37,13 @@ Global settings apply wherever you use Noodle. They are stored in
 
 Choose a theme and the default stacked or side-by-side layout. See
 [Themes](/docs/reference/theming/) for the available themes.
+
+### Behavior
+
+Choose whether undo-all asks for confirmation and select a detected external
+editor. The command palette uses that editor for **Open Collection in Editor**
+and **Open Settings in Editor**. Noodle detects Zed, Visual Studio Code, Sublime
+Text, Cursor, Windsurf, and VSCodium when installed.
 
 ### Collections
 
@@ -139,3 +150,6 @@ The Settings workspace edits the same files you can manage directly:
 - [Configuration](/docs/reference/configuration/) documents global `config.yml`.
 - [Collection Format](/docs/reference/collection-format/#collection-settings-settingsyml)
   documents collection `settings.yml`.
+
+The command palette's **Open Settings in Editor** action opens the application
+settings directory in the selected external editor.

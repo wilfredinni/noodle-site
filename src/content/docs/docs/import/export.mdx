@@ -14,6 +14,10 @@ examples, folders as tags, supported authentication schemes, and each enabled,
 nonempty environment `base_url` as a server. Other environment values and
 response timeline data are not exported.
 
+XML bodies export as literal string examples. Explicit XML MIME types such as
+`application/soap+xml` are preserved; a Noodle extension preserves XML intent
+when a request uses a non-XML media type.
+
 NTLM and AWS SigV4 export as HTTP security schemes. Validate those schemes with
 the OpenAPI consumer that will read the document.
 
@@ -41,13 +45,16 @@ OpenAPI or Postman output.
 
 Postman output uses its matching `ntlm`, `awsv4`, `oauth1`, and `oauth2` auth
 representations. OAuth configuration is preserved, but cached OAuth 2 tokens
-and generated OAuth 1 signatures are not exported.
+and generated OAuth 1 signatures are not exported. XML bodies use Postman's raw
+XML representation.
 
-On import, Noodle maps OAuth 2.0 flows from OpenAPI. It maps OAuth 1.0a and OAuth
-2.0 from Postman and Insomnia, NTLM from OpenAPI, Postman, and Insomnia, and AWS
-SigV4 from Postman. Review imported grant types, endpoints, signing methods,
-token placement, and credentials. Move sensitive values and private keys to
-secret environment declarations before sending.
+On import, Noodle maps XML request examples from OpenAPI and Swagger, raw XML
+bodies from Postman, and XML bodies from Insomnia. It also maps OAuth 2.0 flows
+from OpenAPI; OAuth 1.0a and OAuth 2.0 from Postman and Insomnia; NTLM from
+OpenAPI, Postman, and Insomnia; and AWS SigV4 from Postman. Review imported
+grant types, endpoints, signing methods, token placement, and credentials. Move
+sensitive values and private keys to secret environment declarations before
+sending.
 
 For either format, use an output path outside the collection directory.
 

@@ -68,7 +68,8 @@ shows different fields:
 | Type           | Fields shown                |
 | -------------- | --------------------------- |
 | **none**       | No body                     |
-| **json**       | Raw text area               |
+| **json**       | JSON code editor            |
+| **xml**        | XML code editor             |
 | **urlencoded** | Form entries (key/value)    |
 | **multipart**  | Form entries (text or file) |
 | **binary**     | File path                   |
@@ -119,14 +120,15 @@ All input fields display `$variable` references with color-coded states:
 
 This helps you catch typos and missing environment variables before sending.
 
-## JSON Body Editor
+## JSON and XML Body Editor
 
-When `body_type` is `json`, the body field stays in the [code editor](/docs/guides/code-editor/)
-while browsing and editing. It has syntax highlighting, line numbers, code
-folding, variable completion, and inline JSON validation. Press **Return** on
-the body field to edit it; **Escape** returns to the body-type selector without
-discarding the draft. Invalid JSON shows an error notice above the body area
-with a readable message.
+When `body_type` is `json` or `xml`, the body field stays in the
+[code editor](/docs/guides/code-editor/) while browsing and editing. Both have
+syntax highlighting, line numbers, code folding, and variable completion. JSON
+also has inline validation; XML is sent unchanged after variable substitution
+and defaults to `Content-Type: application/xml` when no enabled Content-Type
+header exists. Press **Return** on the body field to edit it; **Escape** returns
+to the body-type selector without discarding the draft.
 
 For multipart entries, **Ctrl+T** toggles between text and file mode.
 

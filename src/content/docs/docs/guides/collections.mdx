@@ -71,6 +71,17 @@ Opened collections are stored in `~/.config/noodle/config.yml`. You can also
 switch collections from the Collection section of the command palette
 (`Ctrl+P`).
 
+The command palette can also open the active collection in a detected external
+editor. Choose the preferred editor in Settings under global **Behavior**.
+
+## Repairing invalid YAML
+
+If a request or `folder.yml` file is invalid, Noodle opens a repair workspace
+instead of the normal collection view. Select each invalid file, edit it with
+inline YAML validation, and press **Ctrl+S** to save. Noodle reloads the
+collection after a successful repair; **Ctrl+W** deletes the selected invalid
+file after confirmation.
+
 ## Organizing a collection
 
 Use folders to group related requests. A `folder.yml` can give a folder a

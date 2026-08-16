@@ -4,7 +4,7 @@ description: Syntax highlighting, code folding, and validation in noodle
 ---
 
 noodle includes a built-in code editor with Tree-sitter syntax highlighting
-and code folding for request and response JSON bodies and YAML request files.
+and code folding for JSON and XML bodies and YAML request files.
 
 ## JSON Body Editor
 
@@ -18,12 +18,19 @@ Invalid JSON shows an inline validation notice with a source line and column.
 When environment variables are substituted, errors still map back to the
 request source and identify an invalid variable value when applicable.
 
+## XML Body Editor
+
+XML request bodies use the same editor with Tree-sitter XML highlighting, code
+folding, line numbers, and variable completion. Noodle does not reformat or
+schema-validate XML; it sends the substituted source unchanged.
+
 ## Response Body Viewer
 
 Response bodies use the same editor in read-only mode. JSON responses support
-keyboard and gutter folding, keep original source line numbers beside folded
-rows, and show a themed scrollbar when the body overflows. Copying across a
-folded row returns the complete original source rather than the collapsed text.
+keyboard and gutter folding, while XML responses use XML highlighting. The
+viewer keeps original source line numbers beside folded rows and shows a themed
+scrollbar when the body overflows. Copying across a folded row returns the
+complete original source rather than the collapsed text.
 
 ## YAML Editor Overlay
 
@@ -73,7 +80,7 @@ filtered by your typed prefix.
 
 ## Technical Details
 
-The editor registers Tree-sitter parsers for JSON and YAML. It uses
+The editor registers Tree-sitter parsers for JSON, YAML, and XML. It uses
 Tree-sitter highlights when available, then falls back to local JSON or YAML
 tokenizers when parsing fails or yields no highlights. This fallback keeps
 `$variable` references usable in JSON bodies before send-time substitution.
