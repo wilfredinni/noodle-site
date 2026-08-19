@@ -10,10 +10,21 @@ AI agent skills are reusable instruction sets that extend what your coding agent
 Install the skill globally for your agent:
 
 ```bash
+noodle agent install
+```
+
+The built-in installer writes a managed copy to
+`~/.agents/skills/noodle-use` and links detected Claude, Cursor, Codex, and
+OpenCode installations to it. Noodle refreshes an existing managed copy when
+it updates. Use `--json` for scripted installation.
+
+For other clients, use the skills CLI fallback:
+
+```bash
 npx skills add wilfredinni/noodle --skill noodle-use -g
 ```
 
-Supports OpenCode, Claude Code, Cursor, GitHub Copilot, and 70+ other agents.
+The fallback supports GitHub Copilot and 70+ other agents.
 
 ## What agents can do
 

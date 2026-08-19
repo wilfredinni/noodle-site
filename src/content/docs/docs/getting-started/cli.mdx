@@ -113,7 +113,25 @@ noodle update --json        # emit one JSON result envelope
 
 Non-Homebrew installs cache validated release metadata for one hour. If the
 manifest is temporarily unavailable, Noodle can use a valid cached release for
-up to seven days.
+up to seven days. When a managed `noodle-use` skill is already installed, a
+successful standalone, Homebrew, or TUI update refreshes it with the new
+Noodle version. Skill refresh failure does not roll back the Noodle update and
+reports `noodle agent install` as the retry.
+
+## Agent skill
+
+Installs or updates Noodle's embedded `noodle-use` skill without a network
+request:
+
+```bash
+noodle agent install
+noodle agent install --json
+```
+
+The command writes the managed copy to `~/.agents/skills/noodle-use` and links
+detected Claude, Cursor, Codex, and OpenCode skill directories to it. It refuses
+to replace unmanaged directories at those paths. JSON mode returns the action,
+managed path, and linked paths in one result envelope.
 
 ## Automation commands
 

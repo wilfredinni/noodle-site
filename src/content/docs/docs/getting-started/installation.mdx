@@ -99,6 +99,15 @@ Install the `noodle-use` skill to teach your AI coding agent how to
 create, organize, and audit noodle collections:
 
 ```bash
+noodle agent install
+```
+
+Noodle stores one managed copy under `~/.agents/skills/noodle-use`, links
+detected Claude, Cursor, Codex, and OpenCode installations to it, and keeps an
+existing managed installation synchronized when Noodle updates. For other
+clients, use the skills CLI fallback:
+
+```bash
 npx skills add wilfredinni/noodle --skill noodle-use -g
 ```
 
