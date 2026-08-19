@@ -9,7 +9,7 @@ const capabilities = [
   ["Collections", "Folders, inherited context, and Git-friendly files"],
   ["Environments", "Switchable variables and secure values"],
   ["Transport", "Proxy, TLS, mTLS, and authentication"],
-  ["Portability", "OpenAPI, Swagger, Postman, and Insomnia"],
+  ["Portability", "Import OpenAPI, Swagger, Postman, and Insomnia. Export OpenAPI and Postman."],
 ]
 
 const nextItems = [
@@ -49,22 +49,25 @@ const nextItems = [
       </article>
 
       <article class="feature-row feature-row--reverse">
-        <div class="exchange-proof" aria-label="Request and response inspection flow">
-          <div class="exchange-step">
-            <span>Request</span>
-            <strong><i>PUT</i> /users/42</strong>
+        <div class="exchange-proof" aria-label="Response inspector showing a successful PUT request">
+          <div class="response-toolbar">
+            <span class="request-method">PUT</span>
+            <code>/users/42</code>
+            <span class="response-status">200 OK</span>
+            <span class="response-time">87ms</span>
           </div>
-          <div class="exchange-line" aria-hidden="true"></div>
-          <div class="exchange-step">
-            <span>Response</span>
-            <strong class="syntax-green">200 OK</strong>
+          <div class="response-tabs" aria-label="Available response views">
+            <span class="is-active">Body</span>
+            <span>Headers <b>12</b></span>
+            <span>Cookies <b>2</b></span>
+            <span>Timeline</span>
           </div>
-          <div class="response-facts">
-            <div><span>Body</span><code>application/json</code></div>
-            <div><span>Headers</span><code>12 received</code></div>
-            <div><span>Timeline</span><code>87ms total</code></div>
-            <div><span>Cookies</span><code>jar active</code></div>
-          </div>
+          <pre class="response-body"><code>&#123;
+  <span class="syntax-violet">"id"</span>: <span class="syntax-green">42</span>,
+  <span class="syntax-violet">"name"</span>: <span class="syntax-cyan">"Ada Lovelace"</span>,
+  <span class="syntax-violet">"role"</span>: <span class="syntax-cyan">"developer"</span>
+&#125;</code></pre>
+          <div class="response-meta"><span>application/json</span><span>2.1 KB</span></div>
         </div>
 
         <div class="feature-copy">
@@ -125,10 +128,6 @@ const nextItems = [
         ))}
       </div>
 
-      <div class="portability-line">
-        <span>Import</span><code>OpenAPI · Swagger · Postman · Insomnia</code>
-        <span>Export</span><code>OpenAPI · Postman</code>
-      </div>
     </section>
 
     <section class="coming-next" aria-labelledby="next-title">
@@ -288,68 +287,91 @@ const nextItems = [
   .syntax-green { color: var(--green); }
 
   .exchange-proof {
-    display: grid;
-    grid-template-columns: 1fr 4rem 1fr;
-    align-items: center;
-    padding: 1.5rem;
+    overflow: hidden;
   }
 
-  .exchange-step {
+  .response-toolbar {
     display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
     gap: 0.75rem;
+    align-items: center;
+    min-height: 52px;
+    padding-inline: 1rem;
+    border-bottom: 1px solid var(--rule);
   }
 
-  .exchange-step span {
-    color: var(--violet);
-    text-transform: uppercase;
-  }
-
-  .exchange-step strong {
-    color: var(--fg);
-    font-weight: 400;
-  }
-
-  .exchange-step i {
-    color: var(--orange);
-    font-style: normal;
-  }
-
-  .exchange-line {
-    height: 1px;
-    margin-inline: 0.75rem;
-    background: var(--violet);
-  }
-
-  .response-facts {
-    grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin: 1.5rem -1.5rem -1.5rem;
-    border-top: 1px solid var(--rule);
-  }
-
-  .response-facts div {
-    display: grid;
-    gap: 0.5rem;
+  .response-toolbar code {
     min-width: 0;
-    padding: 1rem;
-    border-right: 1px solid var(--rule);
-  }
-
-  .response-facts div:last-child {
-    border-right: 0;
-  }
-
-  .response-facts span {
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  .response-facts code {
     overflow-x: auto;
     color: var(--fg);
     font-size: inherit;
     white-space: nowrap;
+  }
+
+  .request-method {
+    padding: 0.25rem 0.5rem;
+    color: var(--ivory-ink);
+    background: var(--orange);
+    border-radius: 8px;
+  }
+
+  .response-status {
+    color: var(--green);
+  }
+
+  .response-time {
+    color: var(--muted);
+  }
+
+  .response-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    background: color-mix(in srgb, var(--bg) 32%, transparent);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .response-tabs span {
+    padding: 0.75rem 1rem;
+    color: var(--muted);
+    border-right: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+
+  .response-tabs span:last-child {
+    border-right: 0;
+  }
+
+  .response-tabs .is-active {
+    color: var(--accent);
+    box-shadow: inset 0 -2px var(--accent);
+  }
+
+  .response-tabs b {
+    color: var(--fg);
+    font-weight: 400;
+  }
+
+  .response-body {
+    min-height: 180px;
+    margin: 0;
+    overflow-x: auto;
+    padding: 1.25rem;
+  }
+
+  .response-body code {
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.8;
+  }
+
+  .response-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
   }
 
   .environment-proof > div {
@@ -496,33 +518,6 @@ const nextItems = [
     line-height: 1.55;
   }
 
-  .portability-line {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 0.55fr);
-    gap: 1rem;
-    align-items: center;
-    min-height: 60px;
-    padding-inline: 1rem;
-    margin-top: 1rem;
-    background: color-mix(in srgb, var(--panel) 72%, transparent);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-  }
-
-  .portability-line span {
-    color: var(--noodle);
-    text-transform: uppercase;
-  }
-
-  .portability-line code {
-    overflow-x: auto;
-    color: var(--fg);
-    font-size: inherit;
-    white-space: nowrap;
-  }
-
   .coming-next {
     margin-block: 0 var(--section-space);
     padding: clamp(3rem, 6vw, 5rem);
@@ -620,13 +615,11 @@ const nextItems = [
       padding-inline: 1rem;
     }
 
-    .response-facts,
     .capability-grid,
     .next-grid {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .response-facts div,
     .capability-grid article,
     .capability-grid article:nth-child(3n),
     .capability-grid article:nth-last-child(-n + 3),
@@ -635,15 +628,22 @@ const nextItems = [
       border-bottom: 1px solid var(--rule);
     }
 
-    .response-facts div:last-child,
     .capability-grid article:last-child,
     .next-grid article:last-child {
       border-bottom: 0;
     }
 
-    .portability-line {
-      grid-template-columns: auto minmax(0, 1fr);
-      padding-block: 1rem;
+    .response-tabs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .response-tabs span:nth-child(2) {
+      border-right: 0;
+    }
+
+    .response-tabs span:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--rule);
+    }
+
   }
 </style>
