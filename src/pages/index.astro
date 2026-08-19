@@ -29,6 +29,7 @@ const nextItems = [
     <section class="feature-list" aria-label="Noodle features">
       <article class="feature-row">
         <div class="feature-copy">
+          <span class="section-kicker">01 · Files first</span>
           <h2>Requests that belong in the repository.</h2>
           <p>Every request is a readable YAML file. Edit it in Noodle or your editor, review it in Git, and keep it beside the code it exercises.</p>
           <a href="/docs/reference/collection-format/">Request file reference</a>
@@ -67,6 +68,7 @@ const nextItems = [
         </div>
 
         <div class="feature-copy">
+          <span class="section-kicker">02 · Full exchange</span>
           <h2>The whole exchange, without leaving the terminal.</h2>
           <p>Compose a request, send it, then move through body, headers, cookies, and timing from the same keyboard-first workspace.</p>
           <a href="/docs/guides/using-the-response-pane/">Inspecting responses</a>
@@ -75,6 +77,7 @@ const nextItems = [
 
       <article class="feature-row">
         <div class="feature-copy">
+          <span class="section-kicker">03 · Environments</span>
           <h2>Environment-aware without leaking secrets.</h2>
           <p>Switch between development, staging, and production variables. Secret declarations stay in the file while values live in the OS credential vault or process environment.</p>
           <a href="/docs/guides/using-environments/">Using environments</a>
@@ -99,6 +102,7 @@ const nextItems = [
         </div>
 
         <div class="feature-copy">
+          <span class="section-kicker">04 · Automation</span>
           <h2>One collection, more than one way to work.</h2>
           <p>Explore interactively in the TUI, run requests from the CLI, automate collection checks, or give coding agents the supported Noodle skill.</p>
           <a href="/docs/getting-started/cli/">CLI and automation</a>
@@ -108,7 +112,7 @@ const nextItems = [
 
     <section class="capability-section" aria-labelledby="capability-title">
       <header>
-        <h2 id="capability-title">The rest of the workflow is already here.</h2>
+        <div><span class="section-kicker">The complete workbench</span><h2 id="capability-title">The rest of the workflow is already here.</h2></div>
         <p>Focused enough to stay fast, complete enough to handle real API work.</p>
       </header>
 
@@ -129,7 +133,7 @@ const nextItems = [
 
     <section class="coming-next" aria-labelledby="next-title">
       <header>
-        <h2 id="next-title">Coming next</h2>
+        <div><span class="section-kicker">On the stove</span><h2 id="next-title">Coming next</h2></div>
         <p>Planned directions, clearly separated from what Noodle ships today.</p>
       </header>
       <div class="next-grid">
@@ -160,16 +164,16 @@ const nextItems = [
   }
 
   .feature-list {
-    padding-top: 0;
+    padding-top: var(--section-space);
   }
 
   .feature-row {
     display: grid;
-    grid-template-columns: minmax(16rem, 0.72fr) minmax(0, 1.28fr);
+    grid-template-columns: minmax(18rem, 0.8fr) minmax(0, 1.2fr);
     gap: clamp(2rem, 6vw, 6rem);
     align-items: center;
-    min-height: 310px;
-    padding-block: clamp(3rem, 4vw, 4rem);
+    min-height: 0;
+    padding-block: clamp(4rem, 8vw, 7rem);
     border-top: 1px solid var(--rule);
   }
 
@@ -178,11 +182,21 @@ const nextItems = [
   }
 
   .feature-row--reverse {
-    grid-template-columns: minmax(0, 1.28fr) minmax(16rem, 0.72fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 0.8fr);
   }
 
   .feature-copy {
-    max-width: 30rem;
+    max-width: 34rem;
+  }
+
+  .section-kicker {
+    display: block;
+    margin-bottom: 1.25rem;
+    color: var(--coral);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   .feature-copy h2,
@@ -190,11 +204,11 @@ const nextItems = [
   .coming-next h2,
   .closing h2 {
     color: var(--fg);
-    font-family: var(--font-sans);
-    font-size: 1.35rem;
-    font-weight: 650;
-    letter-spacing: -0.025em;
-    line-height: 1.08;
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 5vw, 4.5rem);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
   }
 
   .feature-copy p,
@@ -205,14 +219,14 @@ const nextItems = [
     color: var(--muted);
     font-family: var(--font-sans);
     font-size: 1rem;
-    line-height: 1.7;
+    line-height: 1.65;
   }
 
   .feature-copy a,
   .closing > a {
     display: inline-block;
     margin-top: 1.25rem;
-    color: var(--violet);
+    color: var(--accent);
     font-family: var(--font-mono);
     font-size: 0.7rem;
     text-underline-offset: 0.3em;
@@ -224,8 +238,9 @@ const nextItems = [
   .terminal-proof {
     min-width: 0;
     color: var(--muted);
-    background: var(--panel);
+    background: color-mix(in srgb, var(--panel) 92%, transparent);
     border: 1px solid var(--border);
+    border-radius: 16px;
     font-family: var(--font-mono);
     font-size: 0.72rem;
   }
@@ -237,12 +252,14 @@ const nextItems = [
     gap: 1rem;
     min-height: 42px;
     padding: 0.75rem 1rem;
+    background: color-mix(in srgb, var(--bg) 32%, transparent);
     border-bottom: 1px solid var(--rule);
   }
 
   .proof-foot {
     color: var(--green);
     border-top: 1px solid var(--rule);
+    background: transparent;
     border-bottom: 0;
   }
 
@@ -421,7 +438,7 @@ const nextItems = [
   }
 
   .capability-section {
-    padding-block: clamp(4.5rem, 8vw, 7rem);
+    padding-block: var(--section-space);
   }
 
   .capability-section header,
@@ -441,8 +458,10 @@ const nextItems = [
   .capability-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
+    overflow: hidden;
+    background: color-mix(in srgb, var(--panel) 86%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
   }
 
   .capability-grid article {
@@ -463,9 +482,9 @@ const nextItems = [
   .capability-grid h3,
   .next-grid h3 {
     color: var(--fg);
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    font-weight: 650;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 400;
   }
 
   .capability-grid p,
@@ -484,13 +503,16 @@ const nextItems = [
     align-items: center;
     min-height: 60px;
     padding-inline: 1rem;
-    border-bottom: 1px solid var(--rule);
+    margin-top: 1rem;
+    background: color-mix(in srgb, var(--panel) 72%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
     font-family: var(--font-mono);
     font-size: 0.7rem;
   }
 
   .portability-line span {
-    color: var(--violet);
+    color: var(--noodle);
     text-transform: uppercase;
   }
 
@@ -502,19 +524,25 @@ const nextItems = [
   }
 
   .coming-next {
-    padding-block: clamp(4.5rem, 8vw, 7rem);
-    border-top: 1px solid var(--rule);
+    margin-block: 0 var(--section-space);
+    padding: clamp(3rem, 6vw, 5rem);
+    color: var(--ivory-ink);
+    background: var(--ivory);
+    border: 0;
+    border-radius: 24px;
   }
 
   .next-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    border: 1px solid var(--border);
+    border: 1px solid color-mix(in srgb, var(--ivory-ink) 24%, transparent);
+    border-radius: 16px;
+    overflow: hidden;
   }
 
   .next-grid article {
     padding: 1.5rem;
-    border-right: 1px solid var(--rule);
+    border-right: 1px solid color-mix(in srgb, var(--ivory-ink) 16%, transparent);
   }
 
   .next-grid article:last-child {
@@ -524,7 +552,7 @@ const nextItems = [
   .next-grid article > span {
     display: block;
     margin-bottom: 2rem;
-    color: var(--violet);
+    color: var(--coral-ink);
     font-family: var(--font-mono);
     font-size: 0.7rem;
     text-transform: uppercase;
@@ -533,13 +561,29 @@ const nextItems = [
   .closing {
     display: grid;
     justify-items: center;
-    padding: clamp(4.5rem, 8vw, 7rem) 0;
+    padding: var(--section-space) 0;
     border-top: 1px solid var(--rule);
     text-align: center;
   }
 
   .closing h2 {
     max-width: 22ch;
+  }
+
+  .coming-next h2,
+  .coming-next header p,
+  .coming-next .section-kicker,
+  .next-grid h3,
+  .next-grid p {
+    color: var(--ivory-ink);
+  }
+
+  .coming-next .section-kicker {
+    color: var(--coral-ink);
+  }
+
+  .closing h2 {
+    font-size: clamp(3rem, 7vw, 6rem);
   }
 
   .closing :global(.install-block) {

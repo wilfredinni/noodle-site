@@ -25,11 +25,11 @@ const statusId = id ? `${id}-status` : undefined
   .install-command {
     display: flex;
     align-items: stretch;
-    min-height: 44px;
+    min-height: 48px;
     overflow: hidden;
-    background: color-mix(in srgb, var(--panel) 78%, transparent);
+    background: color-mix(in srgb, var(--bg) 76%, transparent);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
   }
 
   code {
@@ -39,7 +39,7 @@ const statusId = id ? `${id}-status` : undefined
     min-width: 0;
     overflow-x: auto;
     padding: 0.75rem 0.9rem;
-    color: #d7dae2;
+    color: var(--fg);
     font-family: var(--font-mono);
     font-size: 0.72rem;
     line-height: 1.5;
@@ -66,8 +66,8 @@ const statusId = id ? `${id}-status` : undefined
   }
 
   button:hover {
-    color: var(--bg);
-    background: var(--violet);
+    color: var(--ivory-ink);
+    background: var(--accent);
   }
 
   .copy-status {

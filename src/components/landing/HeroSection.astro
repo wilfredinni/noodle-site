@@ -5,17 +5,32 @@ import InstallPill from "../InstallPill.astro"
 ---
 
 <header class="hero">
-  <div class="hero-copy">
-    <h1>API workflows,<br />in your terminal.</h1>
-    <InstallPill id="hero-install" command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow"><span aria-hidden="true"></span> Open-source terminal REST client</p>
+      <h1>API workflows,<br /><em>untangled.</em></h1>
+    </div>
+
+    <div class="hero-intro">
+      <p>Write, send, inspect, and automate HTTP requests from readable files without leaving your terminal.</p>
+      <a href="/docs/getting-started/quick-start/">Explore the quick start <span aria-hidden="true">→</span></a>
+      <div class="install-card">
+        <span>Install in one line</span>
+        <InstallPill id="hero-install" command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
+      </div>
+    </div>
   </div>
 
-  <div class="product-stage">
-    <div class="stage-bar" aria-hidden="true">
-      <span class="window-controls"><i></i><i></i><i></i></span>
-      <span>noodle · collections</span>
-      <span>production</span>
-    </div>
+  <svg class="method-noodles" viewBox="0 0 1160 150" role="img" aria-label="HTTP methods connected by noodle-shaped request paths">
+    <path class="strand strand-one" d="M78 38C240 38 234 124 404 124S584 27 738 27s195 90 344 90"></path>
+    <path class="strand strand-two" d="M78 78c150 0 162-48 286-48s167 91 318 91 200-64 400-64"></path>
+    <g class="method method-get" transform="translate(8 18)"><rect width="88" height="40" rx="12"></rect><text x="44" y="25">GET</text></g>
+    <g class="method method-post" transform="translate(386 104)"><rect width="98" height="40" rx="12"></rect><text x="49" y="25">POST</text></g>
+    <g class="method method-put" transform="translate(716 6)"><rect width="88" height="40" rx="12"></rect><text x="44" y="25">PUT</text></g>
+    <g class="method method-delete" transform="translate(1040 96)"><rect width="112" height="40" rx="12"></rect><text x="56" y="25">DELETE</text></g>
+  </svg>
+
+  <figure class="product-stage">
     <Image
       src={productImage}
       class="product-image"
@@ -23,21 +38,13 @@ import InstallPill from "../InstallPill.astro"
       loading="eager"
       fetchpriority="high"
     />
-  </div>
+    <figcaption><span>One collection</span><span>Readable files · live requests · inspectable responses</span><span>Any terminal</span></figcaption>
+  </figure>
 
   <div class="value-strip" aria-label="Noodle product benefits">
-    <article>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4.5 13h6L9 22l8.5-11h-6L13 2Z"></path></svg>
-      <div><h2>Fast</h2><p>Stay in the terminal and keep your hands on the keyboard.</p></div>
-    </article>
-    <article>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h16"></path><path d="m17 10 3 2-3 2"></path></svg>
-      <div><h2>Reviewable</h2><p>Keep requests and environments readable beside your code.</p></div>
-    </article>
-    <article>
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8h8M7 4h10v4H7zM5 12h14v8H5z"></path><path d="M9 16h.01M12 16h3"></path></svg>
-      <div><h2>Automatable</h2><p>Use the same collection from the TUI, CLI, scripts, and agents.</p></div>
-    </article>
+    <article><span>01</span><div><h2>Fast by default</h2><p>Stay in the terminal and keep your hands on the keyboard.</p></div></article>
+    <article><span>02</span><div><h2>Made to review</h2><p>Keep requests and environments readable beside your code.</p></div></article>
+    <article><span>03</span><div><h2>Ready to automate</h2><p>Use the same collection from the TUI, CLI, scripts, and agents.</p></div></article>
   </div>
 </header>
 
@@ -45,171 +52,242 @@ import InstallPill from "../InstallPill.astro"
   .hero {
     width: min(100%, 1200px);
     margin-inline: auto;
-    padding: 0 1.5rem;
+    padding: clamp(3.5rem, 8vw, 7rem) 1.5rem 0;
   }
 
-  .hero-copy {
+  .hero-grid {
     display: grid;
-    justify-items: center;
-    width: min(100%, 48rem);
-    margin-inline: auto;
-    text-align: center;
+    grid-template-columns: minmax(0, 1.05fr) minmax(27rem, 0.95fr);
+    gap: clamp(3rem, 5vw, 4rem);
+    align-items: end;
+  }
+
+  .eyebrow {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow span {
+    width: 2.5rem;
+    height: 2px;
+    background: var(--noodle);
   }
 
   h1 {
     color: var(--fg);
     font-family: var(--font-display);
-    font-size: clamp(3rem, 4vw, 3.75rem);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 0.9;
+    font-size: clamp(4rem, 8vw, 7.5rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 0.82;
+  }
+
+  h1 em {
+    position: relative;
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  h1 em::after {
+    position: absolute;
+    right: 0;
+    bottom: 0.02em;
+    left: 0.06em;
+    height: 0.08em;
+    background: var(--noodle);
+    content: "";
+    transform: rotate(-1.5deg);
+  }
+
+  .hero-intro {
+    padding-bottom: 0.75rem;
+  }
+
+  .hero-intro > p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.65;
+  }
+
+  .hero-intro > a {
+    display: inline-flex;
+    gap: 0.6rem;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 0.8rem;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-underline-offset: 0.3em;
+  }
+
+  .hero-intro > a span {
+    color: var(--accent);
+  }
+
+  .install-card {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--panel) 86%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  .install-card > span {
+    display: block;
+    margin-bottom: 0.65rem;
+    color: var(--noodle);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  .hero-copy :global(.install-block) {
-    width: min(100%, 31rem);
-    margin-top: 0.75rem;
+  .method-noodles {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: clamp(2rem, 5vw, 4.5rem) 0 clamp(1rem, 3vw, 2rem);
+    overflow: visible;
   }
 
+  .strand {
+    fill: none;
+    stroke-linecap: round;
+    stroke-width: 14;
+  }
+
+  .strand-one { stroke: var(--noodle); }
+  .strand-two { stroke: var(--coral); }
+
+  .method rect {
+    stroke: var(--bg);
+    stroke-width: 4;
+  }
+
+  .method text {
+    fill: white;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 600;
+    text-anchor: middle;
+  }
+
+  .method-get rect { fill: #2da665; }
+  .method-post rect { fill: #2679d9; }
+  .method-put rect { fill: #e7802d; }
+  .method-delete rect { fill: #d94e4e; }
+
   .product-stage {
-    display: flex;
-    flex-direction: column;
-    width: min(100%, 56rem);
-    aspect-ratio: 2.05;
-    margin: 0.5rem auto 0;
+    width: 100%;
     overflow: hidden;
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    animation: stage-reveal 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    border-radius: 16px;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.28);
   }
-
-  .stage-bar {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    min-height: 32px;
-    padding-inline: 0.75rem;
-    color: var(--muted);
-    border-bottom: 1px solid var(--rule);
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-  }
-
-  .stage-bar > span:last-child {
-    justify-self: end;
-    color: var(--orange);
-  }
-
-  .window-controls {
-    display: flex;
-    gap: 0.35rem;
-  }
-
-  .window-controls i {
-    display: block;
-    width: 8px;
-    height: 8px;
-    background: var(--muted);
-    border-radius: 50%;
-  }
-
-  .window-controls i:first-child { background: var(--orange); }
-  .window-controls i:nth-child(2) { background: var(--green); }
-  .window-controls i:last-child { background: var(--violet); }
 
   .product-image {
     display: block;
     width: 100%;
-    height: 0;
-    min-height: 0;
-    flex: 1 1 0;
-    object-fit: cover;
-    object-position: top;
+    height: auto;
   }
+
+  figcaption {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1rem;
+    align-items: center;
+    min-height: 48px;
+    padding-inline: 1rem;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+  }
+
+  figcaption span:first-child { color: var(--noodle); }
+  figcaption span:last-child { justify-self: end; color: var(--accent); }
 
   .value-strip {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    width: min(100%, 56rem);
-    margin: 0 auto;
     border-bottom: 1px solid var(--rule);
   }
 
   .value-strip article {
     display: grid;
-    grid-template-columns: 2rem minmax(0, 1fr);
-    gap: 0.9rem;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem;
     min-width: 0;
-    padding: 1.5rem 1rem;
+    padding: 1.75rem 1.25rem;
     border-right: 1px solid var(--rule);
   }
 
-  .value-strip article:last-child {
-    border-right: 0;
-  }
+  .value-strip article:last-child { border-right: 0; }
 
-  .value-strip svg {
-    width: 20px;
-    color: var(--violet);
-    fill: none;
-    stroke: currentColor;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-width: 1.5;
+  .value-strip article > span {
+    color: var(--coral);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
   }
 
   .value-strip h2 {
     color: var(--fg);
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    font-weight: 650;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: 1;
   }
 
   .value-strip p {
-    margin-top: 0.35rem;
+    margin-top: 0.5rem;
     color: var(--muted);
-    font-family: var(--font-sans);
-    font-size: 0.7rem;
+    font-size: 0.78rem;
     line-height: 1.55;
   }
 
-  @keyframes stage-reveal {
-    from {
-      clip-path: inset(5% 5% 0);
-      filter: blur(3px);
-      opacity: 0.86;
+  @media (max-width: 900px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2.5rem;
     }
-    to {
-      clip-path: inset(0);
-      filter: blur(0);
-      opacity: 1;
+
+    .hero-intro {
+      max-width: 36rem;
     }
   }
 
-  @media (max-width: 760px) {
+  @media (max-width: 680px) {
     .hero {
-      padding: 2.5rem 1rem 0;
+      padding: 3rem 1rem 0;
     }
 
-    .product-stage {
-      aspect-ratio: 1.2;
-      margin-top: 1.7rem;
-      border-radius: 6px;
+    .method-noodles {
+      margin-block: 2rem 1rem;
     }
 
-    .stage-bar {
-      grid-template-columns: 1fr auto;
+    .strand {
+      stroke-width: 20;
     }
 
-    .stage-bar > span:nth-child(2) {
+    .method text {
+      font-size: 18px;
+    }
+
+    figcaption {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    figcaption span:nth-child(2) {
       display: none;
-    }
-
-    .product-image {
-      width: 150%;
-      max-width: none;
-      object-position: left top;
     }
 
     .value-strip {

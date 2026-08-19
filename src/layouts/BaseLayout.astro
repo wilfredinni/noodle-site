@@ -23,7 +23,7 @@ const { title, description } = Astro.props
     <link rel="icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style is:global>
       *,
       *::before,
@@ -34,30 +34,37 @@ const { title, description } = Astro.props
       }
 
       :root {
-        --bg: #08090d;
-        --bg-elevated: #0d0f15;
-        --bg-card: #0d0f15;
-        --panel: #0d0f15;
-        --fg: #eceef3;
-        --muted: #979ba7;
-        --accent: #8d82f6;
+        --bg: #181613;
+        --bg-elevated: #201d19;
+        --bg-card: #24211d;
+        --panel: #24211d;
+        --fg: #f3efe7;
+        --muted: #aaa39a;
+        --accent: #59c9be;
         --accent-glow: transparent;
-        --accent-dim: #7469dc;
-        --border: #292c36;
-        --border-hover: #3b3f4b;
-        --rule: rgba(218, 221, 232, 0.12);
-        --violet: #8d82f6;
-        --cyan: #62d9d5;
-        --green: #9ecb7b;
-        --orange: #e7b56f;
-        --ivory: #f5f2ea;
-        --ivory-ink: #171715;
-        --section-space: clamp(5.5rem, 9vw, 9rem);
+        --accent-dim: #3daaa1;
+        --border: #3b3630;
+        --border-hover: #514a42;
+        --rule: rgba(243, 239, 231, 0.12);
+        --violet: #59c9be;
+        --cyan: #59c9be;
+        --green: #9dcb82;
+        --orange: #f0a96b;
+        --noodle: #f2c65a;
+        --coral: #ef7b63;
+        --coral-ink: #9b3f31;
+        --method-get: #2da665;
+        --method-post: #2679d9;
+        --method-put: #e7802d;
+        --method-delete: #d94e4e;
+        --ivory: #eee7da;
+        --ivory-ink: #211e1a;
+        --section-space: clamp(5rem, 10vw, 9rem);
         --shadow-strong: rgba(0, 0, 0, 0.35);
         --mask-ink: #000;
-        --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+        --font-display: 'Bodoni Moda', Georgia, serif;
         --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-        --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        --font-sans: 'DM Sans', system-ui, sans-serif;
         --accent-text: var(--bg);
 
         /* Centralized Noodle accents */
@@ -124,8 +131,8 @@ const { title, description } = Astro.props
       }
 
       ::selection {
-        color: var(--bg);
-        background: var(--cyan);
+        color: var(--ivory-ink);
+        background: var(--noodle);
       }
 
       * {

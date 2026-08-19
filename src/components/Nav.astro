@@ -1,7 +1,14 @@
+---
+import { Image } from "astro:assets"
+import logoMark from "../assets/noodle/logo-simple.png"
+---
+
 <nav id="site-nav" aria-label="Primary navigation">
   <div class="nav-inner">
     <a href="/" class="wordmark" aria-label="Noodle home">
-      <span>NOODLE</span><span class="prompt" aria-hidden="true">&gt;_</span>
+      <Image src={logoMark} class="brand-mark" alt="" width={54} loading="eager" />
+      <span class="brand-name">noodle</span>
+      <span class="brand-kind">REST CLIENT</span>
     </a>
 
     <div class="nav-links" id="primary-navigation">
@@ -9,7 +16,7 @@
       <a href="/blog/">Blog</a>
       <a href="https://github.com/wilfredinni/noodle" target="_blank" rel="noopener noreferrer">Source</a>
       <a href="https://github.com/wilfredinni/noodle/releases" target="_blank" rel="noopener noreferrer">Releases</a>
-      <a class="install-link" href="/docs/getting-started/installation/">Get Noodle</a>
+      <a class="install-link" href="/docs/getting-started/installation/">Install Noodle</a>
     </div>
 
     <button class="menu-toggle" id="menu-toggle" aria-label="Open navigation menu" aria-controls="primary-navigation" aria-expanded="false">
@@ -24,8 +31,8 @@
     top: 0;
     z-index: 20;
     width: 100%;
-    min-height: 58px;
-    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    min-height: 72px;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
     border-bottom: 1px solid var(--rule);
     backdrop-filter: blur(12px);
   }
@@ -34,8 +41,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: min(100%, 1280px);
-    min-height: 58px;
+    width: min(100%, 1200px);
+    min-height: 72px;
     margin-inline: auto;
     padding-inline: 1.5rem;
   }
@@ -43,28 +50,39 @@
   .wordmark {
     display: inline-flex;
     align-items: center;
-    gap: 0.7rem;
+    gap: 0.55rem;
     color: var(--fg);
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.22em;
     text-decoration: none;
   }
 
-  .prompt {
-    color: var(--cyan);
-    letter-spacing: -0.12em;
+  .brand-mark {
+    width: 38px;
+    height: 32px;
+    object-fit: contain;
+  }
+
+  .brand-name {
+    font-family: var(--font-display);
+    font-size: 1.65rem;
+    line-height: 1;
+  }
+
+  .brand-kind {
+    margin-left: 0.15rem;
+    color: var(--noodle);
+    font-family: var(--font-mono);
+    font-size: 0.52rem;
+    letter-spacing: 0.18em;
   }
 
   .nav-links {
     display: flex;
     align-items: center;
-    gap: 1.8rem;
+    gap: 1.65rem;
   }
 
   .nav-links a {
-    color: var(--muted);
+    color: color-mix(in srgb, var(--fg) 72%, transparent);
     font-family: var(--font-mono);
     font-size: 0.7rem;
     letter-spacing: 0.04em;
@@ -79,16 +97,17 @@
   .nav-links .install-link {
     display: inline-flex;
     align-items: center;
-    min-height: 32px;
-    padding-inline: 0.8rem;
-    color: var(--fg);
-    background: var(--violet);
-    border: 1px solid var(--violet);
-    border-radius: 6px;
+    min-height: 44px;
+    padding-inline: 1rem;
+    color: var(--ivory-ink);
+    background: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    font-weight: 600;
   }
 
   .nav-links .install-link:hover {
-    color: var(--fg);
+    color: var(--ivory-ink);
     background: var(--accent-dim);
     border-color: var(--accent-dim);
   }
@@ -142,7 +161,12 @@
     .nav-links .install-link {
       justify-content: center;
       margin-top: 0.5rem;
-      border: 1px solid var(--border);
+      color: var(--ivory-ink);
+      border: 1px solid var(--accent);
+    }
+
+    .brand-kind {
+      display: none;
     }
 
     .menu-toggle {
