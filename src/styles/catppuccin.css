@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap");
 
-/* Catppuccin Mocha — dark */
+/* Catppuccin Mocha: dark */
 :root {
   --sl-content-width: 46rem;
   --sl-color-accent-low: #1e1e2e;
@@ -130,7 +130,7 @@
   }
 }
 
-/* Catppuccin Latte — light */
+/* Catppuccin Latte: light */
 [data-theme="light"],
 .sl-theme-light {
   --sl-color-accent-low: #e6e6f2;

@@ -8,7 +8,7 @@
 
 # noodle
 
-Terminal REST client — inspect, send, and iterate on HTTP requests from YAML files on disk. Built with OpenTUI on Bun.
+Terminal REST client for inspecting, sending, and iterating on HTTP requests from YAML files on disk. Built with OpenTUI on Bun.
 
 ## Development
 
