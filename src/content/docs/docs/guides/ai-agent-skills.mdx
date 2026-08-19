@@ -25,6 +25,12 @@ The built-in installer writes a managed copy to
 OpenCode installations to it. Noodle refreshes an existing managed copy when
 it updates. Use `--json` for scripted installation.
 
+If any detected path contains an unmanaged copy, Noodle preserves every copy
+and reports all conflicts before changing anything. Review those paths, then
+run `noodle agent install --force` only when you intentionally want Noodle to
+replace all of them. Forced installation keeps backups until every target has
+been installed and rolls completed replacements back if a later target fails.
+
 For other clients, use the skills CLI fallback:
 
 ```bash

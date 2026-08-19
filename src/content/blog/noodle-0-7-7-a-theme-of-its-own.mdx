@@ -1,0 +1,53 @@
+---
+title: "Noodle 0.7.7: A Theme of Its Own"
+description: A Noodle-native default theme, safer recovery for agent skill installation, and a steadier UI test foundation.
+date: 2026-08-19
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+import { Image } from "astro:assets";
+import noodleThemeImage from "../../assets/noodle-noodle.png";
+
+Noodle 0.7.7 is a focused release about ownership and recovery. The terminal now opens with a color system that belongs to Noodle, and the agent skill installer has a deliberate path forward when an older or manually installed copy is already in the way.
+
+## A default that looks like Noodle
+
+Noodle has shipped with a broad theme library for a while, but its default came from that library rather than from the product itself. This release adds a dedicated Noodle theme built from the same teal, warm yellow, coral, green, and dark neutral palette used across the website.
+
+The result is not a special rendering path. It is one more theme in the same system, so panes, borders, selections, syntax highlighting, status colors, and overlays all keep using the shared theme roles. Noodle now ships with 33 themes, and `Ctrl+T` still opens the picker whenever another one fits your terminal better.
+
+<Image
+  src={noodleThemeImage}
+  alt="A Noodle collection rendered with the Noodle color theme"
+  loading="eager"
+  fetchpriority="high"
+/>
+
+The Noodle theme is used when a configuration has no saved theme. Existing selections remain intact, so this is a better starting point rather than a reset of personal preferences.
+
+## A safe way through installer conflicts
+
+Noodle 0.7.6 introduced the built-in `noodle-use` installer for Claude, Cursor, Codex, and OpenCode. It intentionally refused to replace an unmanaged skill directory because Noodle could not know whether that copy contained local work.
+
+That protection remains the default. The installer now gathers every conflicting path and reports them together without changing anything. If those copies are known and replaceable, `noodle agent install --force` makes that choice explicit.
+
+Forced installation stages each replacement and keeps its backup until the canonical skill and every detected agent link have succeeded. If a later target fails, Noodle rolls completed replacements back. It also refuses to overwrite a target that changed during the operation, leaving the original backup available instead.
+
+This keeps provenance and compatibility separate. An unmanaged copy is preserved because it belongs to the user, not because it is necessarily incompatible. `--force` is the recovery command for the moment when the user has reviewed that provenance and wants Noodle to take ownership.
+
+## Less waiting in the test suite
+
+The release also removes more fixed delays from OpenTUI tests and shares keymap setup and cleanup across the UI suite. Those changes do not add a new interaction, but they make the checks behind overlays, editors, settings, and themes depend on controlled operations instead of timing luck.
+
+## Still your terminal
+
+The new default makes Noodle more recognizable without narrowing the theme picker. The new force option makes recovery possible without weakening the safe default. Both changes follow the same idea: choose a useful starting point, keep user-owned state visible, and require an explicit decision before replacing it.
+
+See the [theme reference](/docs/reference/theming/) for the complete catalog and the [agent skill guide](/docs/guides/ai-agent-skills/) for installation and recovery details.

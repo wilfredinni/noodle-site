@@ -132,11 +132,15 @@ request:
 ```bash
 noodle agent install
 noodle agent install --json
+noodle agent install --force
 ```
 
 The command writes the managed copy to `~/.agents/skills/noodle-use` and links
 detected Claude, Cursor, Codex, and OpenCode skill directories to it. It refuses
-to replace unmanaged directories at those paths. JSON mode returns the action,
+to replace unmanaged directories at those paths and reports all conflicts before
+changing anything. Use `--force` only when every reported copy should be
+replaced; the installer keeps backups until all targets succeed and rolls back
+completed replacements if a later target fails. JSON mode returns the action,
 managed path, and linked paths in one result envelope.
 
 ## Automation commands
