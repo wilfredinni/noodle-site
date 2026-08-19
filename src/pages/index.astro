@@ -26,7 +26,7 @@ const nextItems = [
   <HeroSection />
 
   <main class="landing">
-    <section class="feature-list" aria-label="Noodle features">
+    <section id="features" class="feature-list" aria-label="Noodle features">
       <article class="feature-row">
         <div class="feature-copy">
           <span class="section-kicker">01 · Files first</span>
@@ -156,6 +156,10 @@ const nextItems = [
 </BaseLayout>
 
 <style>
+  #features {
+    scroll-margin-top: 96px;
+  }
+
   .landing {
     width: min(100%, 1200px);
     margin-inline: auto;
