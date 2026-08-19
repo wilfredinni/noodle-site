@@ -1,64 +1,198 @@
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap");
 
-/* Catppuccin Mocha: dark */
 :root {
+  color-scheme: dark;
   --sl-content-width: 46rem;
-  --sl-color-accent-low: #1e1e2e;
-  --sl-color-accent: #b4befe;
-  --sl-color-accent-high: #cdd6f4;
-  --sl-color-white: #cdd6f4;
-  --sl-color-gray-1: #bac2de;
-  --sl-color-gray-2: #a6adc8;
-  --sl-color-gray-3: #7f849c;
-  --sl-color-gray-4: #585b70;
-  --sl-color-gray-5: #45475a;
-  --sl-color-gray-6: #313244;
-  --sl-color-black: #1e1e2e;
-  --sl-color-bg: #1e1e2e;
-  --sl-color-bg-nav: #181825;
-  --sl-color-bg-sidebar: #181825;
-  --sl-color-bg-inline-code: #313244;
-  --sl-color-bg-accent: #b4befe;
-  --sl-color-hairline-light: #313244;
-  --sl-color-hairline-shade: #45475a;
-  --sl-color-border: #313244;
-  --sl-color-border-accent: #b4befe;
+  --sl-font: "DM Sans", system-ui, sans-serif;
+  --sl-font-mono: "JetBrains Mono", monospace;
+  --sl-color-accent-low: #203b38;
+  --sl-color-accent: #59c9be;
+  --sl-color-accent-high: #eafaf8;
+  --sl-color-white: #f3efe7;
+  --sl-color-gray-1: #d7d1c8;
+  --sl-color-gray-2: #aaa39a;
+  --sl-color-gray-3: #857e75;
+  --sl-color-gray-4: #625b53;
+  --sl-color-gray-5: #474038;
+  --sl-color-gray-6: #302b26;
+  --sl-color-black: #181613;
+  --sl-color-bg: #181613;
+  --sl-color-bg-nav: #1a1815;
+  --sl-color-bg-sidebar: #1d1a17;
+  --sl-color-bg-inline-code: #24211d;
+  --sl-color-bg-accent: #59c9be;
+  --sl-color-hairline-light: #3b3630;
+  --sl-color-hairline-shade: #474038;
+  --sl-color-border: #3b3630;
+  --sl-color-border-accent: #59c9be;
+  --sl-color-orange-high: #f0a96b;
+  --sl-color-orange: #f0a96b;
+  --sl-color-green-high: #9dcb82;
+  --sl-color-green: #9dcb82;
+  --sl-color-blue-high: #8adbd4;
+  --sl-color-blue: #59c9be;
+  --sl-color-red-high: #f3a08f;
+  --sl-color-red: #ef7b63;
+  --sl-color-purple-high: #f2c65a;
+  --sl-color-purple: #f2c65a;
+  --sl-color-hero: #59c9be;
+}
 
-  --sl-color-orange-high: #fab387;
-  --sl-color-orange: #fab387;
-  --sl-color-green-high: #a6e3a1;
-  --sl-color-green: #a6e3a1;
-  --sl-color-blue-high: #89b4fa;
-  --sl-color-blue: #89b4fa;
-  --sl-color-red-high: #f38ba8;
-  --sl-color-red: #f38ba8;
-  --sl-color-purple-high: #cba6f7;
-  --sl-color-purple: #cba6f7;
+[data-theme="light"],
+.sl-theme-light {
+  color-scheme: light;
+  --sl-color-accent-low: #d7e9e6;
+  --sl-color-accent: #2f635e;
+  --sl-color-accent-high: #142b29;
+  --sl-color-white: #211e1a;
+  --sl-color-gray-1: #302b26;
+  --sl-color-gray-2: #554e46;
+  --sl-color-gray-3: #746c63;
+  --sl-color-gray-4: #9b9287;
+  --sl-color-gray-5: #c2b8aa;
+  --sl-color-gray-6: #ded5c8;
+  --sl-color-black: #f6f0e5;
+  --sl-color-bg: #f6f0e5;
+  --sl-color-bg-nav: #eee7da;
+  --sl-color-bg-sidebar: #eee7da;
+  --sl-color-bg-inline-code: #e6ddcf;
+  --sl-color-bg-accent: #2f635e;
+  --sl-color-hairline-light: #d0c7b9;
+  --sl-color-hairline-shade: #c2b8aa;
+  --sl-color-border: #d0c7b9;
+  --sl-color-border-accent: #2f635e;
+  --sl-color-orange-high: #7a4a1f;
+  --sl-color-orange: #9a5b25;
+  --sl-color-green-high: #3d651f;
+  --sl-color-green: #527c31;
+  --sl-color-blue-high: #245f59;
+  --sl-color-blue: #2f635e;
+  --sl-color-red-high: #7f3026;
+  --sl-color-red: #9b3f31;
+  --sl-color-purple-high: #6a5428;
+  --sl-color-purple: #8e7034;
+  --sl-color-hero: #2f635e;
+}
 
-  --sl-color-hero: #b4befe;
+html {
+  background: var(--sl-color-bg);
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--sl-color-bg);
+  font-family: var(--sl-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  color: #211e1a;
+  background: #f2c65a;
+}
+
+* {
+  scrollbar-color: var(--sl-color-gray-5) var(--sl-color-bg);
+  scrollbar-width: thin;
+}
+
+:focus-visible {
+  outline: 2px solid var(--sl-color-blue-high);
+  outline-offset: 3px;
+}
+
+header.header {
+  background-color: var(--sl-color-bg-nav);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1600 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-140 120C260-80 490 250 900 75S1410 235 1740 15' stroke='%23f2c65a' stroke-width='20' opacity='.07'/%3E%3Cpath d='M-120 145C300-45 535 245 960 100S1390 205 1730 45' stroke='%2359c9be' stroke-width='12' opacity='.055'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: center;
+  background-size: cover;
+  border-bottom-color: var(--sl-color-hairline-light);
+}
+
+site-search button {
+  min-width: 44px;
+  min-height: 44px;
+  background: color-mix(in srgb, var(--sl-color-bg) 78%, transparent);
+  border-color: var(--sl-color-border);
+  border-radius: 8px;
+  font-family: var(--sl-font-mono);
+}
+
+button[aria-label="Menu"] {
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--sl-color-white);
+  background: transparent;
+  border: 1px solid var(--sl-color-border);
+  border-radius: 8px;
+}
+
+.sidebar-pane,
+.right-sidebar-panel {
+  background: var(--sl-color-bg-sidebar);
+}
+
+.sidebar-content,
+.right-sidebar {
+  font-family: var(--sl-font);
+}
+
+.sidebar-content summary,
+.right-sidebar h2 {
+  color: var(--sl-color-white);
+  font-family: var(--sl-font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.sidebar-content a,
+.right-sidebar a {
+  border-radius: 8px;
+  text-underline-offset: 0.2em;
+}
+
+.sidebar-content a[aria-current="page"] {
+  color: var(--sl-color-accent-high);
+  background: var(--sl-color-accent-low);
 }
 
 .sl-markdown-content {
-  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
-  font-size: 1.08rem;
-  line-height: 1.8;
+  color: var(--sl-color-gray-1);
+  font-family: var(--sl-font);
+  font-size: 1rem;
+  line-height: 1.72;
+}
+
+h1#_top {
+  max-width: 18ch;
+  color: var(--sl-color-white);
+  font-family: "Bodoni Moda", Georgia, serif;
+  font-size: 4rem;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  text-wrap: balance;
 }
 
 .sl-markdown-content :is(h1, h2, h3, h4) {
-  font-family: "JetBrains Mono", monospace;
+  color: var(--sl-color-white);
+  font-family: "Bodoni Moda", Georgia, serif;
+  font-weight: 400;
   letter-spacing: -0.025em;
   text-wrap: balance;
 }
 
 .sl-markdown-content h1 {
   max-width: 18ch;
-  font-size: clamp(2.25rem, 5vw, 3.6rem);
-  line-height: 1.08;
+  font-size: 4rem;
+  line-height: 1;
 }
 
 .sl-markdown-content > p:first-of-type {
+  max-width: 68ch;
   color: var(--sl-color-gray-2);
-  font-size: 1.22rem;
+  font-size: 1.05rem;
   line-height: 1.65;
 }
 
@@ -66,14 +200,19 @@
   margin-top: 3.75rem;
   padding-top: 1.25rem;
   border-top: 1px solid var(--sl-color-hairline-light);
-  font-size: clamp(1.55rem, 3vw, 1.95rem);
-  line-height: 1.25;
+  font-size: 1.5rem;
+  line-height: 1.1;
 }
 
 .sl-markdown-content h3 {
   margin-top: 2.75rem;
-  font-size: 1.25rem;
-  line-height: 1.35;
+  font-size: 1.4rem;
+  line-height: 1.2;
+}
+
+.sl-markdown-content h4 {
+  font-size: 1rem;
+  line-height: 1.3;
 }
 
 .sl-markdown-content :is(p, li) {
@@ -88,11 +227,21 @@
   margin-top: 0.45rem;
 }
 
+.sl-markdown-content a {
+  color: var(--sl-color-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.sl-markdown-content a:hover {
+  color: var(--sl-color-accent-high);
+}
+
 .sl-markdown-content :is(img, picture) {
   width: 100%;
-  border: 1px solid var(--sl-color-hairline-light);
-  border-radius: 0.75rem;
   background: var(--sl-color-bg-nav);
+  border: 1px solid var(--sl-color-hairline-light);
+  border-radius: 16px;
 }
 
 .sl-markdown-content p:has(> img:only-child) {
@@ -100,70 +249,77 @@
 }
 
 .sl-markdown-content table {
-  font-family: system-ui, sans-serif;
-  font-size: 0.92rem;
+  font-family: var(--sl-font);
+  font-size: 0.875rem;
   line-height: 1.55;
+}
+
+.sl-markdown-content :is(th, td) {
+  border-color: var(--sl-color-hairline-light);
+}
+
+.sl-markdown-content th {
+  color: var(--sl-color-white);
+  background: var(--sl-color-bg-nav);
+  font-family: var(--sl-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
 }
 
 .sl-markdown-content blockquote {
   margin-block: 2.5rem;
   padding: 1.25rem 1.5rem;
-  border-inline-start-width: 1px;
-  background: var(--sl-color-bg-nav);
   color: var(--sl-color-gray-2);
+  background: var(--sl-color-bg-nav);
+  border: 1px solid var(--sl-color-hairline-light);
+  border-radius: 8px;
   font-style: normal;
 }
 
 .sl-markdown-content code:not(pre code) {
+  color: var(--sl-color-accent-high);
+  background: var(--sl-color-bg-inline-code);
   border: 1px solid var(--sl-color-gray-5);
-  font-family: "JetBrains Mono", monospace;
+  border-radius: 8px;
+  font-family: var(--sl-font-mono);
+}
+
+.expressive-code .frame,
+.expressive-code pre {
+  border-radius: 16px;
+}
+
+.pagination-links a {
+  background: var(--sl-color-bg-nav);
+  border-color: var(--sl-color-border);
+  border-radius: 16px;
+}
+
+.pagination-links a:hover {
+  border-color: var(--sl-color-accent);
 }
 
 @media (max-width: 50rem) {
   .sl-markdown-content {
-    font-size: 1rem;
-    line-height: 1.72;
+    line-height: 1.68;
+  }
+
+  .sl-markdown-content h1 {
+    font-size: 2.4rem;
+  }
+
+  h1#_top {
+    font-size: 2.4rem;
   }
 
   .sl-markdown-content h2 {
     margin-top: 3rem;
+    font-size: 1.5rem;
   }
 }
 
-/* Catppuccin Latte: light */
-[data-theme="light"],
-.sl-theme-light {
-  --sl-color-accent-low: #e6e6f2;
-  --sl-color-accent: #7287fd;
-  --sl-color-accent-high: #1e1e2e;
-  --sl-color-white: #1e1e2e;
-  --sl-color-gray-1: #4c4f69;
-  --sl-color-gray-2: #5c5f77;
-  --sl-color-gray-3: #8c8fa1;
-  --sl-color-gray-4: #9ca0b0;
-  --sl-color-gray-5: #bcc0cc;
-  --sl-color-gray-6: #dce0e8;
-  --sl-color-black: #eff1f5;
-  --sl-color-bg: #eff1f5;
-  --sl-color-bg-nav: #e6e9ef;
-  --sl-color-bg-sidebar: #e6e9ef;
-  --sl-color-bg-inline-code: #dce0e8;
-  --sl-color-bg-accent: #7287fd;
-  --sl-color-hairline-light: #ccd0da;
-  --sl-color-hairline-shade: #bcc0cc;
-  --sl-color-border: #ccd0da;
-  --sl-color-border-accent: #7287fd;
-
-  --sl-color-orange-high: #fe640b;
-  --sl-color-orange: #fe640b;
-  --sl-color-green-high: #40a02b;
-  --sl-color-green: #40a02b;
-  --sl-color-blue-high: #1e66f5;
-  --sl-color-blue: #1e66f5;
-  --sl-color-red-high: #d20f39;
-  --sl-color-red: #d20f39;
-  --sl-color-purple-high: #8839ef;
-  --sl-color-purple: #8839ef;
-
-  --sl-color-hero: #7287fd;
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
