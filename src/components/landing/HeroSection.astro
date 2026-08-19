@@ -13,11 +13,11 @@ import InstallPill from "../InstallPill.astro"
 
     <div class="hero-intro">
       <p>Write, send, inspect, and automate HTTP requests from readable files without leaving your terminal.</p>
-      <a href="/docs/getting-started/quick-start/">Explore the quick start <span aria-hidden="true">→</span></a>
       <div class="install-card">
         <span>Install in one line</span>
         <InstallPill id="hero-install" command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
       </div>
+      <a href="/docs/getting-started/quick-start/">Explore the quick start <span aria-hidden="true">→</span></a>
     </div>
   </div>
 
@@ -33,9 +33,9 @@ import InstallPill from "../InstallPill.astro"
   </figure>
 
   <div class="value-strip" aria-label="Noodle product benefits">
-    <article><span>01</span><div><h2>Fast by default</h2><p>Stay in the terminal and keep your hands on the keyboard.</p></div></article>
-    <article><span>02</span><div><h2>Made to review</h2><p>Keep requests and environments readable beside your code.</p></div></article>
-    <article><span>03</span><div><h2>Ready to automate</h2><p>Use the same collection from the TUI, CLI, scripts, and agents.</p></div></article>
+    <article><h2>Fast by default</h2><p>Stay in the terminal and keep your hands on the keyboard.</p></article>
+    <article><h2>Made to review</h2><p>Keep requests and environments readable beside your code.</p></article>
+    <article><h2>Ready to automate</h2><p>Use the same collection from the TUI, CLI, scripts, and agents.</p></article>
   </div>
 </header>
 
@@ -112,11 +112,11 @@ import InstallPill from "../InstallPill.astro"
     gap: 0.6rem;
     align-items: center;
     min-height: 44px;
-    margin-top: 0.8rem;
+    margin-top: 1rem;
     color: var(--fg);
     font-family: var(--font-mono);
-    font-size: 0.7rem;
-    text-underline-offset: 0.3em;
+    font-size: 0.75rem;
+    text-decoration: none;
   }
 
   .hero-intro > a span {
@@ -180,21 +180,12 @@ import InstallPill from "../InstallPill.astro"
   }
 
   .value-strip article {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 1rem;
     min-width: 0;
     padding: 1.75rem 1.25rem;
     border-right: 1px solid var(--rule);
   }
 
   .value-strip article:last-child { border-right: 0; }
-
-  .value-strip article > span {
-    color: var(--coral);
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-  }
 
   .value-strip h2 {
     color: var(--fg);
@@ -204,10 +195,19 @@ import InstallPill from "../InstallPill.astro"
     line-height: 1;
   }
 
+  .value-strip h2::before {
+    display: block;
+    width: 1.5rem;
+    height: 2px;
+    margin-bottom: 0.75rem;
+    background: var(--coral);
+    content: "";
+  }
+
   .value-strip p {
     margin-top: 0.5rem;
     color: var(--muted);
-    font-size: 0.78rem;
+    font-size: 0.875rem;
     line-height: 1.55;
   }
 
