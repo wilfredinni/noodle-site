@@ -1,238 +1,181 @@
----
-import { Image } from "astro:assets"
-import logoImage from "../assets/logo.png"
----
-<nav id="site-nav">
+<nav id="site-nav" aria-label="Primary navigation">
   <div class="nav-inner">
-    <a href="/" class="logo">
-      <Image src={logoImage} alt="Noodle Logo" loading="eager" fetchpriority="high" style="width: 24px; height: 24px;" />
-      noodle
+    <a href="/" class="wordmark" aria-label="Noodle home">
+      <span>NOODLE</span><span class="prompt" aria-hidden="true">&gt;_</span>
     </a>
-    <div class="nav-center" id="primary-navigation">
-      <a href="/">Home</a>
-      <a href="/blog/">Blog</a>
+
+    <div class="nav-links" id="primary-navigation">
       <a href="/docs/">Docs</a>
-      <a href="/docs/getting-started/quick-start/">Quick Start</a>
+      <a href="/blog/">Blog</a>
+      <a href="https://github.com/wilfredinni/noodle" target="_blank" rel="noopener noreferrer">Source</a>
       <a href="https://github.com/wilfredinni/noodle/releases" target="_blank" rel="noopener noreferrer">Releases</a>
-      <a href="https://app.notion.com/p/39128d9edba9809da834f351332baf57?v=39228d9edba98042ad07000cdbe5d751" target="_blank" rel="noopener noreferrer">Roadmap</a>
-      <a href="https://github.com/wilfredinni/noodle" target="_blank" class="mobile-only">GitHub</a>
-      <a href="/docs/getting-started/installation/" class="mobile-only mobile-install-btn">Install</a>
+      <a class="install-link" href="/docs/getting-started/installation/">Get Noodle</a>
     </div>
-    <div class="nav-right">
-      <a href="https://github.com/wilfredinni/noodle" target="_blank" aria-label="GitHub">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-      </a>
-      <a href="/docs/getting-started/installation/" class="nav-install-btn">Install</a>
-      
-      <button class="hamburger-btn" id="menu-toggle" aria-label="Open navigation menu" aria-controls="primary-navigation" aria-expanded="false">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-      </button>
-    </div>
+
+    <button class="menu-toggle" id="menu-toggle" aria-label="Open navigation menu" aria-controls="primary-navigation" aria-expanded="false">
+      <span></span><span></span>
+    </button>
   </div>
 </nav>
 
 <style>
-  nav {
-    width: 100%;
+  #site-nav {
     position: sticky;
     top: 0;
     z-index: 20;
+    width: 100%;
+    min-height: 58px;
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    border-bottom: 1px solid var(--rule);
     backdrop-filter: blur(12px);
-    background: color-mix(in srgb, var(--bg) 75%, transparent);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    display: flex;
-    justify-content: center;
   }
 
   .nav-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    max-width: 1200px;
-    padding: 0.75rem 2rem;
-    position: relative;
+    width: min(100%, 1280px);
+    min-height: 58px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
   }
 
-  nav .logo {
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: var(--fg);
     font-family: var(--font-mono);
-    font-size: 1.25rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    color: var(--fg);
+    letter-spacing: 0.22em;
     text-decoration: none;
-    letter-spacing: 0.05em;
+  }
+
+  .prompt {
+    color: var(--cyan);
+    letter-spacing: -0.12em;
+  }
+
+  .nav-links {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1.8rem;
   }
 
-  nav .nav-center a {
+  .nav-links a {
     color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
     text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: color 0.2s;
-    padding: 0.35rem 0;
+    transition: color 180ms ease;
   }
 
-  nav .nav-right a {
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    padding: 0.4rem;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    transition: color 0.2s, border-color 0.2s;
-  }
-
-  nav .nav-center a:hover,
-  nav .nav-right a:hover {
+  .nav-links a:hover {
     color: var(--fg);
   }
 
-  nav .nav-right a:hover {
-    border-color: var(--border-hover);
-  }
-
-  nav .nav-center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 1.5rem;
+  .nav-links .install-link {
+    display: inline-flex;
     align-items: center;
-  }
-
-  nav .nav-right {
-    margin-left: auto;
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-  }
-
-  nav .nav-install-btn {
-    color: var(--muted);
-    font-size: 0.85rem;
-    font-weight: 500;
-    padding: 0.4rem 0.6rem;
-    text-decoration: none;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    transition: color 0.2s, border-color 0.2s;
-  }
-
-  nav .nav-install-btn:hover {
+    min-height: 32px;
+    padding-inline: 0.8rem;
     color: var(--fg);
-    border-color: var(--border-hover);
+    background: var(--violet);
+    border: 1px solid var(--violet);
+    border-radius: 6px;
   }
 
-  /* Mobile only navigation menu items */
-  .mobile-only {
+  .nav-links .install-link:hover {
+    color: var(--fg);
+    background: var(--accent-dim);
+    border-color: var(--accent-dim);
+  }
+
+  .menu-toggle {
     display: none;
-  }
-
-  /* Hamburger Toggle */
-  .hamburger-btn {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
     width: 44px;
     height: 44px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
     padding: 0;
-    z-index: 12;
-    border-radius: 4px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
   }
 
-  .hamburger-line {
+  .menu-toggle span {
     display: block;
-    width: 100%;
-    height: 2px;
-    background: var(--muted);
-    transition: transform 0.2s, opacity 0.2s;
+    width: 22px;
+    height: 1px;
+    margin: 6px auto;
+    background: var(--fg);
+    transition: transform 180ms ease;
   }
 
-  nav.menu-open .hamburger-line:nth-child(1) {
-    transform: translateY(6px) rotate(45deg);
-  }
-  nav.menu-open .hamburger-line:nth-child(2) {
-    opacity: 0;
-  }
-  nav.menu-open .hamburger-line:nth-child(3) {
-    transform: translateY(-6px) rotate(-45deg);
-  }
-
-  @media (max-width: 768px) {
-    .hamburger-btn {
-      display: flex;
+  @media (max-width: 760px) {
+    .nav-inner {
+      min-height: 64px;
+      padding-inline: 1rem;
     }
 
-    /* Hide GitHub icon and Install button from header bar on mobile */
-    nav .nav-right > a {
-      display: none;
-    }
-
-    /* Show GitHub and Install link inside the mobile hamburger menu */
-    nav .mobile-only {
-      display: flex;
-    }
-
-    nav .nav-center {
-      display: none;
+    .nav-links {
       position: absolute;
-      top: 100%;
-      left: 0;
-      width: 100%;
-      background: var(--bg-elevated);
+      inset: 64px 0 auto;
+      display: none;
+      align-items: stretch;
+      padding: 0.8rem 1rem 1rem;
+      background: var(--bg);
       border-bottom: 1px solid var(--border);
-      flex-direction: column;
-      padding: 1rem 1.5rem 1.5rem;
-      gap: 1.25rem;
-      align-items: center;
-      transform: none;
-      z-index: 9;
     }
 
-    nav .nav-center a {
-      align-items: center;
+    #site-nav.menu-open .nav-links {
+      display: grid;
+    }
+
+    .nav-links a {
       display: flex;
+      align-items: center;
       min-height: 44px;
+      border-bottom: 1px solid var(--rule);
     }
 
-    nav.menu-open .nav-center {
-      display: flex;
+    .nav-links .install-link {
+      justify-content: center;
+      margin-top: 0.5rem;
+      border: 1px solid var(--border);
+    }
+
+    .menu-toggle {
+      display: block;
+    }
+
+    #site-nav.menu-open .menu-toggle span:first-child {
+      transform: translateY(3.5px) rotate(45deg);
+    }
+
+    #site-nav.menu-open .menu-toggle span:last-child {
+      transform: translateY(-3.5px) rotate(-45deg);
     }
   }
 </style>
 
 <script>
-  const toggleBtn = document.getElementById("menu-toggle");
-  const nav = document.getElementById("site-nav");
+  const toggle = document.getElementById("menu-toggle")
+  const nav = document.getElementById("site-nav")
 
-  if (toggleBtn && nav) {
-    const closeMenu = () => {
-      nav.classList.remove("menu-open");
-      toggleBtn.setAttribute("aria-expanded", "false");
-      toggleBtn.setAttribute("aria-label", "Open navigation menu");
-    };
+  if (toggle && nav) {
+    const close = () => {
+      nav.classList.remove("menu-open")
+      toggle.setAttribute("aria-expanded", "false")
+      toggle.setAttribute("aria-label", "Open navigation menu")
+    }
 
-    toggleBtn.addEventListener("click", () => {
-      const isOpen = nav.classList.toggle("menu-open");
-      toggleBtn.setAttribute("aria-expanded", String(isOpen));
-      toggleBtn.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu");
-    });
-
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape") closeMenu();
-    });
-
-    document.addEventListener("click", (event) => {
-      if (!nav.contains(event.target as Node)) closeMenu();
-    });
+    toggle.addEventListener("click", () => {
+      const isOpen = nav.classList.toggle("menu-open")
+      toggle.setAttribute("aria-expanded", String(isOpen))
+      toggle.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu")
+    })
+    document.addEventListener("keydown", (event) => event.key === "Escape" && close())
+    nav.querySelectorAll("a").forEach((link) => link.addEventListener("click", close))
   }
 </script>

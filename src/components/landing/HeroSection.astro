@@ -1,240 +1,228 @@
 ---
 import { Image } from "astro:assets"
-import exampleImage from "../../assets/example.png"
+import productImage from "../../assets/noodle-catppuccin.png"
 import InstallPill from "../InstallPill.astro"
 ---
 
-<header class="full-width-hero">
-  <div class="hero-text">
-    <h1>Readable requests. Versioned workflows. No lock-in.</h1>
-    <p class="lede">
-      Write, send, and inspect HTTP requests from YAML files in your repository. Noodle stays local, works with Git, and belongs in your terminal.
-    </p>
-
-    <InstallPill command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
-
-    <p class="hero-proof">
-      <a href="https://github.com/wilfredinni/noodle" target="_blank" rel="noopener noreferrer">Open source</a>
-      <span aria-hidden="true">·</span>
-      <a href="/docs/getting-started/installation/#supported-platforms">macOS &amp; Linux</a>
-      <span aria-hidden="true">·</span>
-      <a href="/docs/getting-started/installation/#did-it-work">Verify install</a>
-    </p>
-
-    <div class="hero-links">
-      <a class="hero-link-primary" href="/docs/getting-started/quick-start/">Quick Start</a>
-      <a href="/docs/">Read the docs</a>
-    </div>
+<header class="hero">
+  <div class="hero-copy">
+    <h1>API workflows,<br />in your terminal.</h1>
+    <InstallPill id="hero-install" command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
   </div>
 
-  <div class="hero-visual">
-    <div class="visual-wrapper">
-      <Image src={exampleImage} class="hero-screenshot" alt="Noodle TUI Workspace" loading="eager" fetchpriority="high" />
-      <span class="image-caption">Noodle default theme Catppuccin</span>
+  <div class="product-stage">
+    <div class="stage-bar" aria-hidden="true">
+      <span class="window-controls"><i></i><i></i><i></i></span>
+      <span>noodle · collections</span>
+      <span>production</span>
     </div>
+    <Image
+      src={productImage}
+      class="product-image"
+      alt="Noodle terminal interface showing a request collection, request editor, and response inspector"
+      loading="eager"
+      fetchpriority="high"
+    />
+  </div>
+
+  <div class="value-strip" aria-label="Noodle product benefits">
+    <article>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4.5 13h6L9 22l8.5-11h-6L13 2Z"></path></svg>
+      <div><h2>Fast</h2><p>Stay in the terminal and keep your hands on the keyboard.</p></div>
+    </article>
+    <article>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h10M4 18h16"></path><path d="m17 10 3 2-3 2"></path></svg>
+      <div><h2>Reviewable</h2><p>Keep requests and environments readable beside your code.</p></div>
+    </article>
+    <article>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 8h8M7 4h10v4H7zM5 12h14v8H5z"></path><path d="M9 16h.01M12 16h3"></path></svg>
+      <div><h2>Automatable</h2><p>Use the same collection from the TUI, CLI, scripts, and agents.</p></div>
+    </article>
   </div>
 </header>
 
 <style>
-  .full-width-hero {
+  .hero {
+    width: min(100%, 1200px);
+    margin-inline: auto;
+    padding: 0 1.5rem;
+  }
+
+  .hero-copy {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 4rem;
-    align-items: center;
-    width: 100%;
-    max-width: 1440px;
-    min-height: calc(100vh - 58px);
-    margin: 0 auto;
-    padding-left: 2rem;
-    padding-right: 0;
-    overflow: hidden;
+    justify-items: center;
+    width: min(100%, 48rem);
+    margin-inline: auto;
+    text-align: center;
   }
 
-  .hero-text {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    padding-right: 1rem;
-  }
-
-  .hero-text h1 {
-    font-size: clamp(2rem, 4vw, 3.2rem);
-    font-weight: 800;
-    line-height: 1.2;
+  h1 {
     color: var(--fg);
-  }
-
-  .hero-text .lede {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    color: var(--muted);
-    max-width: 58ch;
-  }
-
-  .hero-links {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 0.5rem;
-  }
-
-  .hero-proof {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
-    color: var(--muted);
-    font-size: 0.85rem;
-    margin-top: -0.75rem;
-  }
-
-  .hero-proof a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .hero-proof a:hover {
-    color: var(--fg);
-    text-decoration: underline;
-  }
-
-  .hero-links a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 1rem;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 4vw, 3.75rem);
     font-weight: 600;
-    transition: color 0.2s;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+    text-transform: uppercase;
   }
 
-  .hero-links .hero-link-primary {
-    color: var(--bg);
-    background: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 4px;
-    padding: 0.45rem 0.75rem;
-    box-shadow: 3px 3px 0 var(--accent-dim);
+  .hero-copy :global(.install-block) {
+    width: min(100%, 31rem);
+    margin-top: 0.75rem;
   }
 
-  .hero-links a:hover {
-    color: var(--fg);
-  }
-
-  .hero-links .hero-link-primary:hover {
-    background: var(--accent-dim);
-    border-color: var(--accent-dim);
-    box-shadow: 2px 2px 0 var(--accent-dim);
-    color: var(--bg);
-    transform: translate(1px, 1px);
-    text-decoration: none;
-  }
-
-  .hero-links a:active {
-    color: var(--accent-dim);
-  }
-
-  .hero-visual {
-    position: relative;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .visual-wrapper {
-    position: relative;
-    width: 100%;
+  .product-stage {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .image-caption {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted);
-    opacity: 0.7;
-    margin-top: 0.5rem;
-    padding-left: 0.25rem;
-  }
-
-  .hero-screenshot {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
+    width: min(100%, 56rem);
+    aspect-ratio: 2.05;
+    margin: 0.5rem auto 0;
+    overflow: hidden;
+    background: var(--panel);
     border: 1px solid var(--border);
-    border-right: none;
-    border-radius: 8px 0 0 8px;
-    box-shadow: -10px 20px 40px var(--shadow-strong);
-    z-index: 2;
-    position: relative;
-    -webkit-mask-image: linear-gradient(to right, var(--mask-ink) 70%, transparent 100%);
-    mask-image: linear-gradient(to right, var(--mask-ink) 70%, transparent 100%);
+    border-radius: 8px;
+    animation: stage-reveal 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .stage-bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    min-height: 32px;
+    padding-inline: 0.75rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+  }
+
+  .stage-bar > span:last-child {
+    justify-self: end;
+    color: var(--orange);
+  }
+
+  .window-controls {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .window-controls i {
     display: block;
+    width: 8px;
+    height: 8px;
+    background: var(--muted);
+    border-radius: 50%;
   }
 
-  @media (max-width: 900px) {
-    .full-width-hero {
+  .window-controls i:first-child { background: var(--orange); }
+  .window-controls i:nth-child(2) { background: var(--green); }
+  .window-controls i:last-child { background: var(--violet); }
+
+  .product-image {
+    display: block;
+    width: 100%;
+    height: 0;
+    min-height: 0;
+    flex: 1 1 0;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .value-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: min(100%, 56rem);
+    margin: 0 auto;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .value-strip article {
+    display: grid;
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.9rem;
+    min-width: 0;
+    padding: 1.5rem 1rem;
+    border-right: 1px solid var(--rule);
+  }
+
+  .value-strip article:last-child {
+    border-right: 0;
+  }
+
+  .value-strip svg {
+    width: 20px;
+    color: var(--violet);
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .value-strip h2 {
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    font-weight: 650;
+  }
+
+  .value-strip p {
+    margin-top: 0.35rem;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    line-height: 1.55;
+  }
+
+  @keyframes stage-reveal {
+    from {
+      clip-path: inset(5% 5% 0);
+      filter: blur(3px);
+      opacity: 0.86;
+    }
+    to {
+      clip-path: inset(0);
+      filter: blur(0);
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      padding: 2.5rem 1rem 0;
+    }
+
+    .product-stage {
+      aspect-ratio: 1.2;
+      margin-top: 1.7rem;
+      border-radius: 6px;
+    }
+
+    .stage-bar {
+      grid-template-columns: 1fr auto;
+    }
+
+    .stage-bar > span:nth-child(2) {
+      display: none;
+    }
+
+    .product-image {
+      width: 150%;
+      max-width: none;
+      object-position: left top;
+    }
+
+    .value-strip {
       grid-template-columns: minmax(0, 1fr);
-      gap: 2.5rem;
-      text-align: center;
-      padding-left: 2rem;
-      padding-right: 2rem;
-      min-height: auto;
-      margin-top: 2.5rem;
-      margin-bottom: 2.5rem;
     }
 
-    .visual-wrapper {
-      align-items: center;
+    .value-strip article {
+      border-right: 0;
+      border-bottom: 1px solid var(--rule);
     }
 
-    .image-caption {
-      padding-left: 0;
-    }
-
-    .hero-links {
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .hero-proof {
-      justify-content: center;
-      margin-top: -0.5rem;
-    }
-
-    .hero-screenshot {
-      border-right: 1px solid var(--border);
-      border-radius: 8px;
-      -webkit-mask-image: none;
-      mask-image: none;
-    }
-
-    .hero-text h1,
-    .hero-text .lede {
-      max-width: 100%;
-    }
-  }
-
-  @media (pointer: coarse) {
-    .hero-links a {
-      align-items: center;
-      display: inline-flex;
-      min-height: 44px;
-    }
-  }
-
-  @media (max-width: 520px) {
-    .full-width-hero {
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
-    }
-
-    .hero-text {
-      gap: 1.25rem;
-    }
-
-    .hero-links {
-      gap: 0.75rem 1rem;
+    .value-strip article:last-child {
+      border-bottom: 0;
     }
   }
 </style>

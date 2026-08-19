@@ -1,65 +1,73 @@
 ---
-export interface Props {
-  command: string;
+interface Props {
+  command: string
+  id?: string
 }
 
-const { command } = Astro.props;
+const { command, id } = Astro.props
+const statusId = id ? `${id}-status` : undefined
 ---
 
-<div class="install-pill">
-  <code>{command}</code>
-  <button class="copy-btn" data-command={command} aria-label="Copy install command" aria-describedby="copy-status">COPY</button>
+<div class="install-block" data-install-block>
+  <div class="install-command">
+    <code><span aria-hidden="true">$</span> {command}</code>
+    <button type="button" data-command={command} aria-label="Copy install command" aria-describedby={statusId}>Copy</button>
+  </div>
+  <p class="copy-status" id={statusId} aria-live="polite"></p>
 </div>
-<p class="copy-status" id="copy-status" aria-live="polite"></p>
 
 <style>
-  .install-pill {
+  .install-block {
+    position: relative;
+    width: min(100%, 40rem);
+  }
+
+  .install-command {
     display: flex;
     align-items: stretch;
+    min-height: 44px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--panel) 78%, transparent);
     border: 1px solid var(--border);
     border-radius: 6px;
-    background: var(--bg-elevated);
-    overflow: hidden;
-    max-width: fit-content;
   }
 
-  .install-pill code {
+  code {
+    display: flex;
     flex: 1;
+    align-items: center;
     min-width: 0;
-    padding: 0.75rem 1.25rem;
-    font-size: 0.85rem;
-    white-space: nowrap;
     overflow-x: auto;
-    color: var(--color-blue);
-    display: flex;
-    align-items: center;
-    scrollbar-width: none; /* Firefox */
-  }
-
-  .install-pill code::-webkit-scrollbar {
-    display: none; /* Safari and Chrome */
-  }
-
-  .install-pill code::before {
-    content: "$ ";
-    color: var(--muted);
-    margin-right: 0.5rem;
-  }
-
-  .copy-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 1.25rem;
-    background: var(--border);
-    border: none;
-    border-left: 1px solid var(--border);
-    color: var(--fg);
+    padding: 0.75rem 0.9rem;
+    color: #d7dae2;
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.72rem;
+    line-height: 1.5;
+    white-space: nowrap;
+    scrollbar-width: thin;
+  }
+
+  code span {
+    margin-right: 0.55rem;
+    color: var(--green);
+  }
+
+  button {
+    min-width: 72px;
+    padding-inline: 0.9rem;
+    color: var(--fg);
+    background: transparent;
+    border: 0;
+    border-left: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: color 180ms ease, background-color 180ms ease;
+  }
+
+  button:hover {
+    color: var(--bg);
+    background: var(--violet);
   }
 
   .copy-status {
@@ -71,84 +79,30 @@ const { command } = Astro.props;
     clip-path: inset(50%);
     white-space: nowrap;
   }
-
-  .copy-btn:hover {
-    background: var(--accent);
-    color: var(--bg);
-  }
-
-  .copy-btn:active {
-    background: var(--accent-dim);
-    color: var(--bg);
-  }
-
-  @media (max-width: 900px) {
-    .install-pill {
-      margin: 0 auto;
-      max-width: 100%;
-      width: 100%;
-    }
-  }
-
-  @media (max-width: 520px) {
-    .install-pill code {
-      padding: 0.75rem 0.9rem;
-      font-size: 0.75rem;
-    }
-
-    .copy-btn {
-      min-width: 4.5rem;
-      padding: 0 0.9rem;
-    }
-  }
-
-  @media (pointer: coarse) {
-    .copy-btn {
-      min-height: 44px;
-    }
-  }
 </style>
 
 <script>
-  // Clipboard copy logic
-  const copyButtons = document.querySelectorAll('.copy-btn');
-  copyButtons.forEach(btn => {
-    let timeoutId: ReturnType<typeof setTimeout> | null = null;
-    const originalText = btn.textContent || 'COPY';
-    const status = document.getElementById('copy-status');
-    
-    btn.addEventListener('click', () => {
-      const command = btn.getAttribute('data-command');
-      if (command) {
-        const copyPromise = (navigator.clipboard && typeof navigator.clipboard.writeText === 'function')
-          ? navigator.clipboard.writeText(command)
-          : Promise.reject(new Error('Clipboard API unavailable'));
+  document.querySelectorAll<HTMLElement>("[data-install-block]").forEach((block) => {
+    const button = block.querySelector<HTMLButtonElement>("button[data-command]")
+    const status = block.querySelector<HTMLElement>(".copy-status")
+    let timeout: ReturnType<typeof setTimeout> | undefined
 
-        copyPromise
-          .then(() => {
-            btn.textContent = 'COPIED';
-            status && (status.textContent = 'Install command copied.');
-            if (timeoutId) {
-              clearTimeout(timeoutId);
-            }
-            timeoutId = setTimeout(() => {
-              btn.textContent = originalText;
-              status && (status.textContent = '');
-              timeoutId = null;
-            }, 2000);
-          })
-          .catch(() => {
-            const code = btn.previousElementSibling;
-            if (code) {
-              const range = document.createRange();
-              range.selectNodeContents(code);
-              const selection = window.getSelection();
-              selection?.removeAllRanges();
-              selection?.addRange(range);
-            }
-            status && (status.textContent = 'Could not copy automatically. Select the command and copy it manually.');
-          });
+    button?.addEventListener("click", async () => {
+      const command = button.dataset.command
+      if (!command) return
+
+      try {
+        await navigator.clipboard.writeText(command)
+        button.textContent = "Copied"
+        if (status) status.textContent = "Install command copied."
+        clearTimeout(timeout)
+        timeout = setTimeout(() => {
+          button.textContent = "Copy"
+          if (status) status.textContent = ""
+        }, 1800)
+      } catch {
+        if (status) status.textContent = "Copy failed. Select the command and copy it manually."
       }
-    });
-  });
+    })
+  })
 </script>

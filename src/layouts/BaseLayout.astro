@@ -23,7 +23,7 @@ const { title, description } = Astro.props
     <link rel="icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <style is:global>
       *,
       *::before,
@@ -34,28 +34,38 @@ const { title, description } = Astro.props
       }
 
       :root {
-        --bg: #1e1e2e;
-        --bg-elevated: #181825;
-        --bg-card: rgba(49, 50, 68, 0.7);
-        --fg: #cdd6f4;
-        --muted: #a6adc8;
-        --accent: #b4befe;
-        --accent-glow: rgba(180, 190, 254, 0.3);
-        --accent-dim: #9399e8;
-        --border: #313244;
-        --border-hover: #45475a;
+        --bg: #08090d;
+        --bg-elevated: #0d0f15;
+        --bg-card: #0d0f15;
+        --panel: #0d0f15;
+        --fg: #eceef3;
+        --muted: #979ba7;
+        --accent: #8d82f6;
+        --accent-glow: transparent;
+        --accent-dim: #7469dc;
+        --border: #292c36;
+        --border-hover: #3b3f4b;
+        --rule: rgba(218, 221, 232, 0.12);
+        --violet: #8d82f6;
+        --cyan: #62d9d5;
+        --green: #9ecb7b;
+        --orange: #e7b56f;
+        --ivory: #f5f2ea;
+        --ivory-ink: #171715;
+        --section-space: clamp(5.5rem, 9vw, 9rem);
         --shadow-strong: rgba(0, 0, 0, 0.35);
         --mask-ink: #000;
+        --font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
         --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
         --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         --accent-text: var(--bg);
 
         /* Centralized Noodle accents */
-        --color-orange: #fab387;
-        --color-green: #a6e3a1;
+        --color-orange: var(--orange);
+        --color-green: var(--green);
         --color-blue: #89b4fa;
         --color-red: #f38ba8;
-        --color-purple: #cba6f7;
+        --color-purple: var(--violet);
         --color-yellow: #f9e2af;
       }
 
@@ -87,7 +97,7 @@ const { title, description } = Astro.props
       }
 
       body {
-        font-family: var(--font-mono);
+        font-family: var(--font-sans);
         background: var(--bg);
         color: var(--fg);
         line-height: 1.6;
@@ -111,6 +121,30 @@ const { title, description } = Astro.props
 
       p {
         text-wrap: pretty;
+      }
+
+      ::selection {
+        color: var(--bg);
+        background: var(--cyan);
+      }
+
+      * {
+        scrollbar-color: var(--border-hover) var(--bg);
+        scrollbar-width: thin;
+      }
+
+      *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      *::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+
+      *::-webkit-scrollbar-thumb {
+        background: var(--border-hover);
+        border: 2px solid var(--bg);
       }
 
       a,
