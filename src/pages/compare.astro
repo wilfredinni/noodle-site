@@ -137,11 +137,11 @@ const sections = [
   },
 ]
 
-const roadmaps = [
-  ["Noodle", "High", "v0.8 JavaScript scripting · v0.9 assertions and chaining · v1.0 richer runner"],
-  ["Posting", "Medium / low", "WebSocket, SSE, OAuth2, testing, uploads, cookie editing, and more; some entries are stale"],
-  ["Yaak", "Medium", "Response-history restoration in progress; OpenAPI export backlog; scripting and data runner under consideration"],
-  ["Bruno", "Low for future claims", "No trustworthy post-v4 roadmap; the still-linked roadmap is outdated relative to Bruno 4"],
+const bestFits = [
+  ["Noodle", "Repository + terminal", "Choose it when requests should be readable files beside your code, shared by the TUI, CLI, CI, and coding agents."],
+  ["Posting", "Terminal + scripting", "Choose it for a focused interactive HTTP workflow with capable Python scripting inside the terminal."],
+  ["Yaak", "Desktop + protocols", "Choose it for a polished local desktop client with broad protocol support and modern authentication."],
+  ["Bruno", "Testing + automation", "Choose it for mature scripting, assertions, runners, CI, and a broader API-testing platform."],
 ]
 ---
 
@@ -155,7 +155,6 @@ const roadmaps = [
       <h1>The repository<br />is the <em>workspace.</em></h1>
       <div class="hero-summary">
         <p>Noodle is not trying to win every feature column. It is built for API work that belongs beside your code, from terminal exploration to CI and coding agents.</p>
-        <div class="verified"><span>Verified</span><strong>August 19, 2026</strong><small>Official docs, repositories, changelogs, public roadmaps, and Noodle's tracker.</small></div>
       </div>
     </header>
 
@@ -169,7 +168,7 @@ const roadmaps = [
 
     <nav class="section-nav" aria-label="Comparison sections">
       {sections.map(({ id, kicker }) => <a href={`#${id}`}>{kicker.replace(/^\d+ · /, "")}</a>)}
-      <a href="#roadmaps">Roadmaps</a>
+      <a href="#best-fit">Best fit</a>
     </nav>
 
     {sections.map(({ id, kicker, title, description, rows }, sectionIndex) => (
@@ -196,17 +195,17 @@ const roadmaps = [
       </section>
     ))}
 
-    <section id="roadmaps" class="roadmap-panel" aria-labelledby="roadmaps-title">
+    <section id="best-fit" class="fit-panel" aria-labelledby="best-fit-title">
       <header>
-        <div><span class="section-kicker">07 · Planned work</span><h2 id="roadmaps-title">Roadmaps are not equal promises.</h2></div>
-        <p>Versioned milestones, backlog ideas, and old living documents should not be presented with the same certainty.</p>
+        <div><span class="section-kicker">07 · Choose your fit</span><h2 id="best-fit-title">Different tools, different strengths.</h2></div>
+        <p>The right choice depends on where you work, which protocols you need, and how much testing automation you expect today.</p>
       </header>
-      <div class="roadmap-grid">
-        {roadmaps.map(([product, reliability, direction]) => (
+      <div class="fit-grid">
+        {bestFits.map(([product, focus, conclusion]) => (
           <article>
-            <span>{reliability} reliability</span>
+            <span>{focus}</span>
             <h3>{product}</h3>
-            <p>{direction}</p>
+            <p>{conclusion}</p>
           </article>
         ))}
       </div>
@@ -264,11 +263,8 @@ const roadmaps = [
   }
 
   .hero-summary {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.55fr);
-    gap: clamp(2rem, 6vw, 6rem);
-    align-items: end;
-    margin-top: clamp(2.5rem, 5vw, 4rem);
+    max-width: 52rem;
+    margin-top: 2rem;
   }
 
   .hero-summary > p {
@@ -276,29 +272,6 @@ const roadmaps = [
     color: var(--muted);
     font-size: 1.05rem;
     line-height: 1.6;
-  }
-
-  .verified {
-    display: grid;
-    gap: 0.25rem;
-    padding: 1.25rem;
-    background: color-mix(in srgb, var(--panel) 86%, transparent);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-  }
-
-  .verified span,
-  .verified small {
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-  }
-
-  .verified strong {
-    color: var(--noodle);
-    font-family: var(--font-display);
-    font-size: 1.4rem;
-    font-weight: 400;
   }
 
   .legend,
@@ -353,7 +326,7 @@ const roadmaps = [
   }
 
   .comparison-section > header,
-  .roadmap-panel > header {
+  .fit-panel > header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.62fr);
     gap: clamp(2rem, 5vw, 5rem);
@@ -362,7 +335,7 @@ const roadmaps = [
   }
 
   .comparison-section h2,
-  .roadmap-panel h2,
+  .fit-panel h2,
   .comparison-conclusion h2 {
     max-width: 15ch;
     color: var(--fg);
@@ -374,7 +347,7 @@ const roadmaps = [
   }
 
   .comparison-section > header p,
-  .roadmap-panel > header p {
+  .fit-panel > header p {
     color: var(--muted);
     font-size: 1rem;
     line-height: 1.65;
@@ -451,7 +424,7 @@ const roadmaps = [
     background: color-mix(in srgb, var(--accent) 7%, var(--panel));
   }
 
-  .roadmap-panel {
+  .fit-panel {
     scroll-margin-top: 140px;
     margin-block: var(--section-space);
     padding: clamp(3rem, 6vw, 5rem);
@@ -460,16 +433,27 @@ const roadmaps = [
     border-radius: 24px;
   }
 
-  .roadmap-panel h2,
-  .roadmap-panel > header p {
+  .fit-panel > header {
+    display: block;
+    max-width: 48rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .fit-panel > header p {
+    max-width: 46rem;
+    margin-top: 1.25rem;
+  }
+
+  .fit-panel h2,
+  .fit-panel > header p {
     color: var(--ivory-ink);
   }
 
-  .roadmap-panel .section-kicker {
+  .fit-panel .section-kicker {
     color: var(--coral-ink);
   }
 
-  .roadmap-grid {
+  .fit-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     border: 1px solid color-mix(in srgb, var(--ivory-ink) 22%, transparent);
@@ -477,21 +461,21 @@ const roadmaps = [
     overflow: hidden;
   }
 
-  .roadmap-grid article {
+  .fit-grid article {
     padding: 1.5rem;
     border-right: 1px solid color-mix(in srgb, var(--ivory-ink) 16%, transparent);
     border-bottom: 1px solid color-mix(in srgb, var(--ivory-ink) 16%, transparent);
   }
 
-  .roadmap-grid article:nth-child(2n) {
+  .fit-grid article:nth-child(2n) {
     border-right: 0;
   }
 
-  .roadmap-grid article:nth-last-child(-n + 2) {
+  .fit-grid article:nth-last-child(-n + 2) {
     border-bottom: 0;
   }
 
-  .roadmap-grid span {
+  .fit-grid span {
     color: var(--coral-ink);
     font-family: var(--font-mono);
     font-size: 0.7rem;
@@ -499,7 +483,7 @@ const roadmaps = [
     text-transform: uppercase;
   }
 
-  .roadmap-grid h3 {
+  .fit-grid h3 {
     margin-top: 1.5rem;
     color: var(--ivory-ink);
     font-family: var(--font-display);
@@ -507,7 +491,7 @@ const roadmaps = [
     font-weight: 400;
   }
 
-  .roadmap-grid p {
+  .fit-grid p {
     margin-top: 0.5rem;
     color: var(--ivory-ink);
     font-size: 1rem;
@@ -555,7 +539,7 @@ const roadmaps = [
 
     .hero-summary,
     .comparison-section > header,
-    .roadmap-panel > header {
+    .fit-panel > header {
       grid-template-columns: minmax(0, 1fr);
       gap: 1.5rem;
       align-items: start;
@@ -570,27 +554,27 @@ const roadmaps = [
     }
 
     .comparison-section,
-    .roadmap-panel {
+    .fit-panel {
       scroll-margin-top: 126px;
     }
 
-    .roadmap-panel {
+    .fit-panel {
       padding: 2.5rem 1.25rem;
       border-radius: 16px;
     }
 
-    .roadmap-grid {
+    .fit-grid {
       grid-template-columns: minmax(0, 1fr);
     }
 
-    .roadmap-grid article,
-    .roadmap-grid article:nth-child(2n),
-    .roadmap-grid article:nth-last-child(-n + 2) {
+    .fit-grid article,
+    .fit-grid article:nth-child(2n),
+    .fit-grid article:nth-last-child(-n + 2) {
       border-right: 0;
       border-bottom: 1px solid color-mix(in srgb, var(--ivory-ink) 16%, transparent);
     }
 
-    .roadmap-grid article:last-child {
+    .fit-grid article:last-child {
       border-bottom: 0;
     }
   }
