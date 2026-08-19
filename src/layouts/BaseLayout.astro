@@ -23,7 +23,7 @@ const { title, description } = Astro.props
     <link rel="icon" href="/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style is:global>
       *,
       *::before,
@@ -34,28 +34,41 @@ const { title, description } = Astro.props
       }
 
       :root {
-        --bg: #1e1e2e;
-        --bg-elevated: #181825;
-        --bg-card: rgba(49, 50, 68, 0.7);
-        --fg: #cdd6f4;
-        --muted: #a6adc8;
-        --accent: #b4befe;
-        --accent-glow: rgba(180, 190, 254, 0.3);
-        --accent-dim: #9399e8;
-        --border: #313244;
-        --border-hover: #45475a;
+        --bg: #181613;
+        --bg-elevated: #201d19;
+        --bg-card: #24211d;
+        --panel: #24211d;
+        --fg: #f3efe7;
+        --muted: #aaa39a;
+        --accent: #59c9be;
+        --accent-glow: transparent;
+        --accent-dim: #3daaa1;
+        --border: #3b3630;
+        --border-hover: #514a42;
+        --rule: rgba(243, 239, 231, 0.12);
+        --violet: #59c9be;
+        --cyan: #59c9be;
+        --green: #9dcb82;
+        --orange: #f0a96b;
+        --noodle: #f2c65a;
+        --coral: #ef7b63;
+        --coral-ink: #9b3f31;
+        --ivory: #eee7da;
+        --ivory-ink: #211e1a;
+        --section-space: clamp(3rem, 4vw, 4.5rem);
         --shadow-strong: rgba(0, 0, 0, 0.35);
         --mask-ink: #000;
+        --font-display: 'Bodoni Moda', Georgia, serif;
         --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-        --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        --font-sans: 'DM Sans', system-ui, sans-serif;
         --accent-text: var(--bg);
 
         /* Centralized Noodle accents */
-        --color-orange: #fab387;
-        --color-green: #a6e3a1;
+        --color-orange: var(--orange);
+        --color-green: var(--green);
         --color-blue: #89b4fa;
         --color-red: #f38ba8;
-        --color-purple: #cba6f7;
+        --color-purple: var(--violet);
         --color-yellow: #f9e2af;
       }
 
@@ -87,7 +100,7 @@ const { title, description } = Astro.props
       }
 
       body {
-        font-family: var(--font-mono);
+        font-family: var(--font-sans);
         background: var(--bg);
         color: var(--fg);
         line-height: 1.6;
@@ -111,6 +124,30 @@ const { title, description } = Astro.props
 
       p {
         text-wrap: pretty;
+      }
+
+      ::selection {
+        color: var(--ivory-ink);
+        background: var(--noodle);
+      }
+
+      * {
+        scrollbar-color: var(--border-hover) var(--bg);
+        scrollbar-width: thin;
+      }
+
+      *::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      *::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+
+      *::-webkit-scrollbar-thumb {
+        background: var(--border-hover);
+        border: 2px solid var(--bg);
       }
 
       a,
@@ -183,7 +220,7 @@ const { title, description } = Astro.props
         <span class="footer-separator" aria-hidden="true">·</span>
         <a href="https://app.notion.com/p/39128d9edba9809da834f351332baf57?v=39228d9edba98042ad07000cdbe5d751">Roadmap</a>
         <span class="footer-separator" aria-hidden="true">·</span>
-        <a href="https://github.com/wilfredinni/noodle/releases">Releases</a>
+        <a href="/releases/">Releases</a>
         <span class="footer-separator" aria-hidden="true">·</span>
         <a href="https://github.com/wilfredinni/noodle/issues">Issues</a>
         <span class="footer-separator" aria-hidden="true">·</span>

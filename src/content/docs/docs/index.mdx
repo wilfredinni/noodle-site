@@ -1,40 +1,54 @@
 ---
 title: Noodle Docs
-description: Documentation for the Noodle terminal REST client
+description: Learn how Noodle turns request files into a fast, inspectable API workflow in your terminal.
 ---
 
-Welcome to the Noodle documentation. Noodle is a terminal REST client
-that treats HTTP requests as files on disk: inspect, send, and iterate
-from the TUI.
+Noodle keeps HTTP work close to the code it belongs with. Requests live as YAML
+files, environments remain portable, and the terminal gives you one place to
+edit, send, inspect, and repeat.
 
-## Getting Started
+![A Noodle workspace with a request and response open](../../../assets/noodle.png)
 
-- [Installation](/docs/getting-started/installation/): install via curl, Homebrew, or source
-- [Quick Start](/docs/getting-started/quick-start/): send your first request in under a minute
-- [Concepts](/docs/getting-started/concepts/): collections, requests, environments, and more
-- [CLI Commands](/docs/getting-started/cli/): TUI, conversion, update, and automation commands
+## Start with one request
 
-## Using the TUI
+If Noodle is not installed yet, begin with [Installation](/docs/getting-started/installation/).
+Then follow the [Quick Start](/docs/getting-started/quick-start/) to create a
+collection, save a request, and inspect its first response. The whole path takes
+only a few minutes and leaves you with real files you can keep.
 
-- [Layout](/docs/reference/layout/): panes, focus, and layout modes
-- [Using the Sidebar](/docs/guides/using-the-sidebar/): browse, create, and manage requests
-- [Using the Request Pane](/docs/guides/using-the-request-pane/): edit headers, params, auth, body, settings
-- [Code Editor](/docs/guides/code-editor/): syntax highlighting, folding, and autocompletion
-- [Using the Response Pane](/docs/guides/using-the-response-pane/): read responses, browse timeline
-- [Using Environments](/docs/guides/using-environments/): manage variables and contexts
-- [Using Folders](/docs/guides/using-folders/): organize requests with folders and overrides
-- [Authentication](/docs/guides/authentication/): configure request and folder authentication
+Read [Concepts](/docs/getting-started/concepts/) when you want the mental model
+behind collections, folders, environments, focus, and the command palette. The
+[CLI guide](/docs/getting-started/cli/) covers everything you can launch or
+automate outside the TUI.
 
-## Reference
+## Settle into the workspace
 
-- [Keybindings](/docs/reference/keybindings/): all keyboard shortcuts
-- [Themes](/docs/reference/theming/): available color themes
-- [Collections](/docs/guides/collections/): collection layout, switching, and defaults
-- [Timeline](/docs/reference/timeline/): response history file format
-- [Collection Format](/docs/reference/collection-format/): canonical request and folder YAML schema
-- [Environment Format](/docs/reference/environment-format/): canonical dotenv environment format
+The interface is built around a short loop: choose a request in the
+[sidebar](/docs/guides/using-the-sidebar/), edit it in the
+[request pane](/docs/guides/using-the-request-pane/), and inspect the result in
+the [response pane](/docs/guides/using-the-response-pane/). The
+[layout guide](/docs/reference/layout/) explains how focus moves between them.
 
-## Import and Export
+Once that loop feels natural, add [environments](/docs/guides/using-environments/)
+for reusable values, [folders](/docs/guides/using-folders/) for structure and
+inheritance, and [authentication](/docs/guides/authentication/) for protected
+APIs. The [code editor](/docs/guides/code-editor/) guide covers larger JSON,
+XML, and YAML edits.
 
-- [Import Collections](/docs/import/import/): import OpenAPI, Swagger, Postman, or Insomnia sources
-- [Collection Export](/docs/import/export/): export OpenAPI or Postman files
+## Bring existing work with you
+
+You do not need to rebuild an existing API collection by hand. Noodle can
+[import collections](/docs/import/import/) from OpenAPI, Swagger, Postman, and
+Insomnia, then [export collections](/docs/import/export/) as OpenAPI or Postman
+when another tool needs them.
+
+## Keep the reference close
+
+Use the reference pages when you need an exact answer rather than a walkthrough:
+
+- [Keybindings](/docs/reference/keybindings/) for every default shortcut
+- [Collection format](/docs/reference/collection-format/) for request, folder, and settings YAML
+- [Environment format](/docs/reference/environment-format/) for dotenv and secure-value rules
+- [Timeline](/docs/reference/timeline/) for stored response history
+- [Configuration](/docs/reference/configuration/) for global settings
+- [Themes](/docs/reference/theming/) for the available color schemes

@@ -13,9 +13,9 @@ export default defineConfig({
       title: "Noodle",
       plugins: [starlightLlmsTxt()],
       description:
-        "Terminal REST client — inspect, send, and iterate on HTTP requests from YAML files on disk.",
+        "Terminal REST client for inspecting, sending, and iterating on HTTP requests from YAML files on disk.",
       logo: {
-        src: "./src/assets/logo.png",
+        src: "./src/assets/noodle/logo-simpler.png",
         alt: "Noodle",
       },
       expressiveCode: {

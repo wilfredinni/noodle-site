@@ -1,0 +1,581 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+import InstallPill from "../components/InstallPill.astro"
+
+const products = ["Noodle", "Posting", "Yaak", "Bruno"]
+
+const sections = [
+  {
+    id: "overview",
+    kicker: "The short version",
+    title: "Choose by workflow, not feature count.",
+    description: "Each tool is strong for a different reason. Noodle's distinction is architectural: the repository is the workspace.",
+    rows: [
+      ["Best at", "Repo-native terminal API workflow + automation/agents", "Focused interactive terminal HTTP workflow", "Modern local desktop client with broad protocols", "Full API testing and automation platform"],
+      ["Requests are true files", "⭐ Yes, core architecture", "⭐ Yes", "◐ Optional synchronized representation", "⭐ Yes"],
+      ["Terminal-first", "⭐ Yes", "⭐ Yes", "No", "No"],
+      ["Protocol breadth", "HTTP today", "HTTP today", "⭐ Very high", "⭐ Very high"],
+      ["Auth and networking", "⭐ Very high", "Basic", "⭐ Very high", "⭐ Very high"],
+      ["Scripting and testing today", "Developing toward v1", "Good scripting, tests planned", "Chaining/templates, no arbitrary scripting", "⭐ Most complete"],
+      ["Headless and CI automation", "⭐ Yes", "Limited", "⭐ Yes", "⭐ Very mature"],
+      ["AI-agent workflow", "⭐ Skill + files + CLI", "Minimal", "⭐ Skill + CLI + MCP", "In-app BYOK AI + CLI"],
+      ["Main differentiator", "The repository is the workspace", "HTTP client inside the terminal", "Local-first GUI without Postman weight", "Git-native testing powerhouse"],
+    ],
+  },
+  {
+    id: "model",
+    kicker: "01 · Product model",
+    title: "Where does the work actually live?",
+    description: "All four products work offline. Their storage and interaction models are very different.",
+    rows: [
+      ["Primary experience", "Terminal TUI + non-interactive CLI", "Terminal TUI", "Desktop GUI + CLI", "Desktop GUI + CLI"],
+      ["Core philosophy", "Repository-first; requests live beside code", "Terminal-first HTTP client", "Local-first desktop API client", "Git-friendly offline API development and testing"],
+      ["Canonical request storage", "✅ One readable .yml file per request", "✅ .posting.yaml files", "◐ Local app database; optional YAML sync", "✅ File-native .bru or OpenCollection .yml"],
+      ["Git-friendly", "✅ Native consequence of file model", "✅ Native consequence of file model", "✅ YAML sync + built-in Git actions", "✅ File-native + built-in Git UI"],
+      ["Built-in Git UI", "❌ Use normal Git tooling", "❌ Use normal Git tooling", "✅ Branch, commit, diff, and more", "✅ Core Git UI; advanced operations may be paid"],
+      ["Works offline", "✅", "✅", "✅", "✅ Offline-only"],
+      ["Cloud account required", "❌", "❌", "❌ for normal use", "❌"],
+      ["License and pricing", "Apache-2.0 · free OSS", "Apache-2.0 · free OSS", "MIT source; commercial prebuilt license for work", "MIT core + paid Pro/Ultimate tiers"],
+    ],
+  },
+  {
+    id: "api",
+    kicker: "02 · API capabilities",
+    title: "Focused HTTP client or broad protocol platform?",
+    description: "Noodle and Posting deliberately focus on HTTP today. Yaak and Bruno cover more protocol types.",
+    rows: [
+      ["HTTP / REST", "✅", "✅", "✅", "✅"],
+      ["GraphQL, first-class", "🧭 Planned", "❌", "✅", "✅"],
+      ["gRPC", "🧭 Planned", "❌", "✅ reflection/proto", "✅"],
+      ["WebSocket", "🧭 Planned", "🧭 Planned", "✅", "✅"],
+      ["Server-Sent Events", "🧭 Planned", "🧭 Planned", "✅", "◐ Supported, not a separate top-level type"],
+      ["SOAP", "❌", "❌", "❌ dedicated type", "✅"],
+      ["Variables and environments", "✅", "✅", "✅", "✅"],
+      ["Folder inheritance", "✅ Headers + auth", "❌ Limited collection model", "✅ Workspace/folder/request", "✅"],
+      ["JSON body editor", "✅ Tree-sitter, validation, folding, completion", "✅ Syntax highlighting", "✅", "✅"],
+      ["Multipart and file upload", "✅", "🧭 Richer uploads planned", "✅", "✅"],
+      ["Client code generation", "✅ Multiple languages and libraries", "◐ cURL export", "✅ Code snippets", "✅"],
+      ["Response filtering", "✅ JSONPath", "◐ Normal response inspection", "✅ JSONPath and rich tools", "✅ Query/filtering"],
+      ["Persistent response history", "✅ Per-request timeline", "❌ Not documented", "✅", "✅"],
+      ["Network and redirect debugging", "✅ Detailed trace", "◐ Basic trace/status", "✅ Timeline/debugging", "✅ DevTools network tools"],
+      ["Custom response visualization", "🧭 Planned", "❌", "❌ Generic arbitrary renderer", "✅ bru.visualize() / Handlebars"],
+    ],
+  },
+  {
+    id: "security",
+    kicker: "03 · Auth and networking",
+    title: "Serious networking without a cloud account.",
+    description: "Noodle's recent releases substantially expanded authentication, secrets, TLS, proxy, and cookie handling.",
+    rows: [
+      ["Basic", "✅", "◐ Programmatic, not a rich Auth UI", "✅", "✅"],
+      ["Bearer", "✅", "✅", "✅", "✅"],
+      ["API key auth", "✅ Header/query", "◐ Manual header or Python", "✅", "✅"],
+      ["OAuth 1.0", "✅", "❌", "✅", "✅"],
+      ["OAuth 2.0", "✅", "🧭 Planned", "✅", "✅"],
+      ["AWS SigV4", "✅", "❌ Native", "✅", "✅"],
+      ["NTLM", "✅ NTLMv2", "❌ Native", "✅", "✅"],
+      ["JWT auth generation", "🧭 Planned", "❌", "✅", "◐ Scripting/auth workflows"],
+      ["Persistent cookie jar", "✅ Per collection", "◐ Response cookies; editor planned", "✅ Automatic jar + editor", "✅"],
+      ["Custom CA", "✅", "✅", "✅", "✅"],
+      ["mTLS and client certificates", "✅", "✅ Cert path", "✅", "✅"],
+      ["Proxy", "✅ System/direct/custom + bypass", "❌ Dedicated configuration not documented", "✅ System/custom/none + SOCKS5", "✅ System/manual/PAC"],
+      ["Secure secret storage", "✅ OS credential vault", "◐ No secure vault documented", "✅ Encrypted secrets + keychain/1Password", "✅ Secret manager + external vaults"],
+    ],
+  },
+  {
+    id: "automation",
+    kicker: "04 · Testing and automation",
+    title: "The largest gap today, and Noodle's road to v1.",
+    description: "Bruno leads in mature testing. Noodle already has headless execution; its roadmap adds scripts, assertions, chaining, and a richer runner.",
+    rows: [
+      ["Pre-request scripts", "🧭 v0.8 JavaScript", "✅ Python", "❌ Arbitrary scripts; under consideration", "✅ JavaScript"],
+      ["Post-response scripts", "🧭 v0.8 JavaScript", "✅ Python", "❌ Arbitrary scripts; under consideration", "✅ JavaScript"],
+      ["Extract response into variables", "🧭 v0.9 first-class chaining", "✅ Via Python", "✅ Request chaining", "✅"],
+      ["Request chaining", "🧭 v0.9", "◐ Python/session variables", "✅ Declarative response()", "✅ Extensive"],
+      ["Assertions and tests", "🧭 v0.9", "🧭 Test framework planned", "❌ No current framework", "✅ Chai/JS assertions"],
+      ["Run one request headlessly", "✅", "❌ Documented runner", "✅", "✅"],
+      ["Run folder/collection headlessly", "✅", "❌", "✅ Workspace/folder", "✅"],
+      ["Parallel and batch execution", "◐ Collection execution now; richer runner planned", "❌", "✅ CLI --parallel", "✅ Runner"],
+      ["Dedicated runner/results UI", "🧭 v1.0", "❌", "◐ Bulk CLI; data runner considered", "✅"],
+      ["Data-driven CSV/JSON runs", "🧭 Planned", "❌", "🧭 Under consideration", "✅ CSV, paid feature"],
+      ["CI-friendly structured output", "✅ JSON", "❌ Dedicated CI runner", "✅ CLI", "✅ CLI + JUnit/reports"],
+      ["Docker runner", "❌ Official image", "❌", "❌ Official image found", "✅ Official CLI images"],
+      ["GitHub Action", "❌ Dedicated action", "❌", "❌ Dedicated action found", "✅ Official action"],
+    ],
+  },
+  {
+    id: "interop",
+    kicker: "05 · Interoperability",
+    title: "Bring collections in. Keep them portable.",
+    description: "Noodle combines broad import support with readable native YAML and useful export paths.",
+    rows: [
+      ["cURL import", "✅", "✅ Experimental", "✅", "✅"],
+      ["OpenAPI 3 import", "✅", "✅ Experimental", "✅ 3.0/3.1", "✅"],
+      ["Swagger 2 import", "✅", "❌ Documented", "✅", "✅"],
+      ["Postman import", "✅", "✅ Experimental", "✅", "✅"],
+      ["Insomnia import", "✅", "❌", "✅", "✅"],
+      ["OpenAPI export", "✅", "❌", "🧭 Backlog", "✅"],
+      ["Postman export", "✅", "❌", "❌", "✅"],
+      ["Portable native format", "✅ Plain YAML", "✅ Plain YAML", "✅ Yaak JSON; optional sync YAML", "✅ .bru + OpenCollection YAML"],
+      ["Open native specification", "YAML schema and documentation", "Posting YAML format", "Yaak-specific sync format", "✅ OpenCollection specification"],
+    ],
+  },
+  {
+    id: "agents",
+    kicker: "06 · Git and agents",
+    title: "Can coding agents use the same workspace you do?",
+    description: "Noodle's file model, CLI, and managed skill make agent workflows a first-class part of the product rather than an export path.",
+    rows: [
+      ["Requests naturally editable by agents", "✅ Plain YAML source of truth", "✅ Plain YAML", "◐ CLI/database or sync YAML", "✅ Files"],
+      ["Dedicated agent CLI workflow", "✅", "❌", "✅", "◐ General CLI"],
+      ["Agent Skill", "✅ noodle-use", "❌", "✅ As of 2026.6", "❌ Equivalent found"],
+      ["Claude/Codex/Cursor/OpenCode", "✅", "❌ Dedicated integration", "✅", "◐ General tooling"],
+      ["MCP server", "❌", "❌", "✅ Plugin", "❌ Official equivalent found"],
+      ["Built-in AI assistant", "❌ External-agent workflow by design", "❌", "❌", "✅ BYOK AI in v4"],
+      ["Plugin system", "❌", "❌ Python scripting instead", "✅ Substantial plugin system", "◐ Apps + scripting"],
+    ],
+  },
+]
+
+const bestFits = [
+  ["Noodle", "Repository + terminal", "Choose it when requests should be readable files beside your code, shared by the TUI, CLI, CI, and coding agents."],
+  ["Posting", "Terminal + scripting", "Choose it for a focused interactive HTTP workflow with capable Python scripting inside the terminal."],
+  ["Yaak", "Desktop + protocols", "Choose it for a polished local desktop client with broad protocol support and modern authentication."],
+  ["Bruno", "Testing + automation", "Choose it for mature scripting, assertions, runners, CI, and a broader API-testing platform."],
+]
+---
+
+<BaseLayout
+  title="Compare Noodle · Posting, Yaak, and Bruno"
+  description="An honest, source-backed comparison of Noodle, Posting, Yaak, and Bruno for repository-native API workflows."
+>
+  <main class="comparison-page">
+    <header class="comparison-hero">
+      <span class="section-kicker">Noodle compared</span>
+      <h1>The repository<br />is the <em>workspace.</em></h1>
+      <div class="hero-summary">
+        <p>Noodle is not trying to win every feature column. It is built for API work that belongs beside your code, from terminal exploration to CI and coding agents.</p>
+      </div>
+    </header>
+
+    <aside class="legend" aria-label="Comparison legend">
+      <strong>Legend</strong>
+      <span>✅ Available now</span>
+      <span>◐ Important limitation</span>
+      <span>🧭 Planned or considered</span>
+      <span>❌ No native support verified</span>
+    </aside>
+
+    <nav class="section-nav" aria-label="Comparison sections">
+      {sections.map(({ id, kicker }) => <a href={`#${id}`}>{kicker.replace(/^\d+ · /, "")}</a>)}
+      <a href="#best-fit">Best fit</a>
+    </nav>
+
+    {sections.map(({ id, kicker, title, description, rows }, sectionIndex) => (
+      <section id={id} class:list={["comparison-section", { "comparison-section--lead": sectionIndex === 0 }]} aria-labelledby={`${id}-title`}>
+        <header>
+          <div><span class="section-kicker">{kicker}</span><h2 id={`${id}-title`}>{title}</h2></div>
+          <p>{description}</p>
+        </header>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th scope="col">Capability</th>{products.map((product, index) => <th scope="col" class:list={{ "is-noodle": index === 0 }}>{product}</th>)}</tr>
+            </thead>
+            <tbody>
+              {rows.map(([capability, ...values]) => (
+                <tr>
+                  <th scope="row">{capability}</th>
+                  {values.map((value, index) => <td class:list={{ "is-noodle": index === 0 }}>{value}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    ))}
+
+    <section id="best-fit" class="fit-panel" aria-labelledby="best-fit-title">
+      <header>
+        <div><span class="section-kicker">07 · Choose your fit</span><h2 id="best-fit-title">Different tools, different strengths.</h2></div>
+        <p>The right choice depends on where you work, which protocols you need, and how much testing automation you expect today.</p>
+      </header>
+      <div class="fit-grid">
+        {bestFits.map(([product, focus, conclusion]) => (
+          <article>
+            <span>{focus}</span>
+            <h3>{product}</h3>
+            <p>{conclusion}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="comparison-conclusion" aria-labelledby="conclusion-title">
+      <span class="section-kicker">The honest conclusion</span>
+      <h2 id="conclusion-title">Choose Noodle when your API client should live with your code.</h2>
+      <p>Plain YAML is the source of truth. The same collection works from the TUI, CLI, CI, and coding-agent workflow.</p>
+      <InstallPill id="compare-install" command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
+      <a href="/docs/getting-started/quick-start/">Follow the quick start <span aria-hidden="true">→</span></a>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  :global(body) {
+    background: var(--bg) url("data:image/svg+xml,%3Csvg viewBox='0 0 1600 1500' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-180 310C260 20 470 610 910 420S1390 610 1780 190' stroke='%23f2c65a' stroke-width='28' opacity='.075'/%3E%3Cpath d='M1780 1080C1330 820 1160 1390 720 1190S210 910-180 1310' stroke='%2359c9be' stroke-width='20' opacity='.055'/%3E%3Cpath d='M-180 330C260 40 470 630 910 440S1390 630 1780 210' stroke='%23f3efe7' stroke-width='3' opacity='.035'/%3E%3C/g%3E%3C/svg%3E") top center / max(100vw, 960px) 1500px repeat-y;
+  }
+
+  .comparison-page {
+    width: min(100%, 1200px);
+    margin-inline: auto;
+    padding: clamp(4rem, 8vw, 7rem) 1.5rem 0;
+  }
+
+  .section-kicker {
+    display: block;
+    margin-bottom: 1.25rem;
+    color: var(--coral);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .comparison-hero {
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .comparison-hero h1 {
+    max-width: 11ch;
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 8vw, 7.5rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 0.88;
+  }
+
+  .comparison-hero h1 em {
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  .hero-summary {
+    max-width: 52rem;
+    margin-top: 2rem;
+  }
+
+  .hero-summary > p {
+    max-width: 48rem;
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+
+  .legend,
+  .section-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.5rem;
+    align-items: center;
+    padding-block: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .legend strong {
+    color: var(--noodle);
+    font-weight: 400;
+    text-transform: uppercase;
+  }
+
+  .legend span {
+    color: var(--muted);
+  }
+
+  .section-nav {
+    position: sticky;
+    z-index: 10;
+    top: 72px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    backdrop-filter: blur(12px);
+  }
+
+  .section-nav a {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    min-height: 44px;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  .section-nav a:hover {
+    color: var(--fg);
+  }
+
+  .comparison-section {
+    scroll-margin-top: 140px;
+    padding-block: var(--section-space);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .comparison-section > header,
+  .fit-panel > header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.62fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: end;
+    margin-bottom: 2.5rem;
+  }
+
+  .comparison-section h2,
+  .fit-panel h2,
+  .comparison-conclusion h2 {
+    max-width: 15ch;
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 5vw, 4.5rem);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+  }
+
+  .comparison-section > header p,
+  .fit-panel > header p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    background: color-mix(in srgb, var(--panel) 86%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  table {
+    width: 100%;
+    min-width: 980px;
+    border-collapse: separate;
+    border-spacing: 0;
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  th,
+  td {
+    width: 19%;
+    padding: 1rem;
+    text-align: left;
+    vertical-align: top;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  th:first-child,
+  tbody th {
+    position: sticky;
+    z-index: 2;
+    left: 0;
+    width: 24%;
+    color: var(--fg);
+    background: var(--bg-card);
+  }
+
+  thead th {
+    color: var(--fg);
+    background: var(--bg-elevated);
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 400;
+  }
+
+  thead th:first-child {
+    z-index: 3;
+    color: var(--noodle);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  tbody th {
+    font-weight: 500;
+  }
+
+  tr:last-child > * {
+    border-bottom: 0;
+  }
+
+  tr > *:last-child {
+    border-right: 0;
+  }
+
+  .is-noodle {
+    color: var(--fg);
+    background: color-mix(in srgb, var(--accent) 7%, var(--panel));
+  }
+
+  .fit-panel {
+    scroll-margin-top: 140px;
+    margin-block: var(--section-space);
+    padding: clamp(3rem, 6vw, 5rem);
+    color: var(--ivory-ink);
+    background: var(--ivory);
+    border-radius: 24px;
+  }
+
+  .fit-panel > header {
+    display: block;
+    max-width: 48rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .fit-panel > header p {
+    max-width: 46rem;
+    margin-top: 1.25rem;
+  }
+
+  .fit-panel h2,
+  .fit-panel > header p {
+    color: var(--ivory-ink);
+  }
+
+  .fit-panel .section-kicker {
+    color: var(--coral-ink);
+  }
+
+  .fit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border: 1px solid color-mix(in srgb, var(--ivory-ink) 22%, transparent);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .fit-grid article {
+    padding: 1.5rem;
+    border-right: 1px solid color-mix(in srgb, var(--ivory-ink) 16%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--ivory-ink) 16%, transparent);
+  }
+
+  .fit-grid article:nth-child(2n) {
+    border-right: 0;
+  }
+
+  .fit-grid article:nth-last-child(-n + 2) {
+    border-bottom: 0;
+  }
+
+  .fit-grid span {
+    color: var(--coral-ink);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .fit-grid h3 {
+    margin-top: 1.5rem;
+    color: var(--ivory-ink);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 400;
+  }
+
+  .fit-grid p {
+    margin-top: 0.5rem;
+    color: var(--ivory-ink);
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .comparison-conclusion {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    padding: clamp(4rem, 9vw, 8rem) 1rem;
+    text-align: center;
+    border-top: 1px solid var(--rule);
+  }
+
+  .comparison-conclusion h2 {
+    max-width: 20ch;
+  }
+
+  .comparison-conclusion > p {
+    max-width: 42rem;
+    margin-block: 1.25rem 1.75rem;
+    color: var(--muted);
+  }
+
+  .comparison-conclusion :global(.install-pill) {
+    width: min(100%, 560px);
+  }
+
+  .comparison-conclusion > a {
+    display: inline-flex;
+    gap: 0.6rem;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 0.75rem;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 760px) {
+    .comparison-page {
+      padding: 3rem 1rem 0;
+    }
+
+    .hero-summary,
+    .comparison-section > header,
+    .fit-panel > header {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .legend {
+      align-items: flex-start;
+    }
+
+    .section-nav {
+      top: 64px;
+    }
+
+    .comparison-section,
+    .fit-panel {
+      scroll-margin-top: 126px;
+    }
+
+    .fit-panel {
+      padding: 2.5rem 1.25rem;
+      border-radius: 16px;
+    }
+
+    .fit-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .fit-grid article,
+    .fit-grid article:nth-child(2n),
+    .fit-grid article:nth-last-child(-n + 2) {
+      border-right: 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--ivory-ink) 16%, transparent);
+    }
+
+    .fit-grid article:last-child {
+      border-bottom: 0;
+    }
+  }
+</style>

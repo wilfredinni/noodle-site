@@ -1,10 +1,12 @@
 ---
 title: Timeline
-description: Response history format and queries
+description: Understand how Noodle stores response history, protects known secrets, and keeps large bodies available on disk.
 ---
 
 noodle stores response history for every request under `<collection>/.timeline/`.
 One file per request, mirroring the request ID structure.
+
+![Timeline entries for a request in the response pane](../../../../assets/timeline.png)
 
 ## Directory Layout
 

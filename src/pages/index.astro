@@ -1,67 +1,660 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro"
-import FeatureCard from "../components/FeatureCard.astro"
 import HeroSection from "../components/landing/HeroSection.astro"
-import YamlSection from "../components/landing/YamlSection.astro"
-import SkillSection from "../components/landing/SkillSection.astro"
-import ExtrasSection from "../components/landing/ExtrasSection.astro"
-import CtaSection from "../components/landing/CtaSection.astro"
-import FeatureSection from "../components/landing/FeatureSection.astro"
+import InstallPill from "../components/InstallPill.astro"
+import { getArticles } from "../lib/articles"
+
+const [latestRelease] = await getArticles("release")
+
+const capabilities = [
+  ["Requests", "URL, params, headers, body, and auth"],
+  ["Responses", "Body, headers, cookies, status, and timing"],
+  ["Collections", "Folders, inherited context, and Git-friendly files"],
+  ["Environments", "Switchable variables and secure values"],
+  ["Transport", "Proxy, TLS, mTLS, and authentication"],
+  ["Portability", "Import OpenAPI, Swagger, Postman, and Insomnia. Export OpenAPI and Postman."],
+]
+
+const nextItems = [
+  ["v0.8", "Assertions and captures", "Validate responses and pass captured values into later requests."],
+  ["v0.9", "Scripts and advanced tests", "Add reusable setup, teardown, and deeper request checks."],
+  ["v0.10", "Richer CI reporting", "Expand collection runs with reports such as JUnit."],
+]
 ---
 
-<BaseLayout title="Noodle · Terminal REST Client" description="Inspect, send, and iterate on HTTP requests from YAML files on disk. Built for the terminal.">
-  <HeroSection />
-  <YamlSection />
+<BaseLayout
+  title="Noodle · API workflows in your terminal"
+  description="Write, send, inspect, and automate HTTP requests from version-controlled YAML files."
+>
+  <HeroSection latestRelease={latestRelease} />
 
-  <main class="tui-container">
-    <FeatureSection
-      tag="The workflow"
-      title="Write it. Version it. Run it."
-      summary="Noodle keeps the request itself, its shared configuration, and its repeatable checks in files your team can review and run anywhere."
-    >
-      <FeatureCard
-        tag="Requests"
-        title="Compose a real request"
-        desc="Define the URL, headers, params, body, and auth in one readable request file—then send it without leaving the terminal."
-        cmd="Send with Ctrl+Enter/J"
-        accent="var(--color-blue)"
-      />
-      <FeatureCard
-        tag="Shared context"
-        title="Keep context beside code"
-        desc="Share auth and headers through folders, switch environments, and review every request as plain YAML in Git."
-        cmd="Edit a folder to add Auth"
-        accent="var(--color-purple)"
-      />
-      <FeatureCard
-        tag="Automation"
-        title="Run and audit with confidence"
-        desc="Use the CLI in scripts or agent workflows, inspect response history, and audit collections before you share or ship them."
-        cmd="$ noodle collection run ."
-        accent="var(--color-green)"
-      />
-    </FeatureSection>
+  <main class="landing">
+    <section id="features" class="feature-list" aria-label="Noodle features">
+      <article class="feature-row">
+        <div class="feature-copy">
+          <span class="section-kicker">01 · Files first</span>
+          <h2>Requests that belong in the repository.</h2>
+          <p>Every request is a readable YAML file. Edit it in Noodle or your editor, review it in Git, and keep it beside the code it exercises.</p>
+          <a href="/docs/reference/collection-format/">Request file reference</a>
+        </div>
 
-    <SkillSection />
-    <ExtrasSection />
-    <CtaSection />
+        <div class="code-proof" aria-label="Example request file">
+          <div class="proof-bar"><span>collections/users/get.yml</span><span>tracked</span></div>
+          <pre><code><span class="syntax-violet">name:</span> Get user
+<span class="syntax-violet">method:</span> <span class="syntax-orange">GET</span>
+<span class="syntax-violet">url:</span> <span class="syntax-cyan">"$base_url/users/:id"</span>
+<span class="syntax-violet">headers:</span>
+  Accept: <span class="syntax-cyan">application/json</span>
+<span class="syntax-violet">params:</span>
+  id: <span class="syntax-green">42</span></code></pre>
+          <div class="proof-foot"><span>● valid request</span><span>plain YAML on disk</span></div>
+        </div>
+      </article>
+
+      <article class="feature-row feature-row--reverse">
+        <div class="exchange-proof" aria-label="Response inspector showing a successful PUT request">
+          <div class="response-toolbar">
+            <span class="request-method">PUT</span>
+            <code>/users/42</code>
+            <span class="response-status">200 OK</span>
+            <span class="response-time">87ms</span>
+          </div>
+          <div class="response-tabs" aria-label="Available response views">
+            <span class="is-active">Body</span>
+            <span>Headers <b>12</b></span>
+            <span>Cookies <b>2</b></span>
+            <span>Timeline</span>
+          </div>
+          <pre class="response-body"><code>&#123;
+  <span class="syntax-violet">"id"</span>: <span class="syntax-green">42</span>,
+  <span class="syntax-violet">"name"</span>: <span class="syntax-cyan">"Ada Lovelace"</span>,
+  <span class="syntax-violet">"role"</span>: <span class="syntax-cyan">"developer"</span>
+&#125;</code></pre>
+          <div class="response-meta"><span>application/json</span><span>2.1 KB</span></div>
+        </div>
+
+        <div class="feature-copy">
+          <span class="section-kicker">02 · Full exchange</span>
+          <h2>The whole exchange, without leaving the terminal.</h2>
+          <p>Compose a request, send it, then move through body, headers, cookies, and timing from the same keyboard-first workspace.</p>
+          <a href="/docs/guides/using-the-response-pane/">Inspecting responses</a>
+        </div>
+      </article>
+
+      <article class="feature-row">
+        <div class="feature-copy">
+          <span class="section-kicker">03 · Environments</span>
+          <h2>Environment-aware without leaking secrets.</h2>
+          <p>Switch between development, staging, and production variables. Secret declarations stay in the file while values live in the OS credential vault or process environment.</p>
+          <a href="/docs/guides/using-environments/">Using environments</a>
+        </div>
+
+        <div class="environment-proof" aria-label="Environment and secret state">
+          <div class="environment-head"><span>Environment</span><span>State</span></div>
+          <div><strong><i class="dot dot-green"></i>development</strong><span>active</span></div>
+          <div><strong><i class="dot dot-orange"></i>staging</strong><span>ready</span></div>
+          <div><strong><i class="dot dot-violet"></i>production</strong><span>ready</span></div>
+          <div class="secret-row"><code>API_TOKEN</code><span>OS credential vault</span></div>
+        </div>
+      </article>
+
+      <article class="feature-row feature-row--reverse">
+        <div class="terminal-proof" aria-label="Noodle CLI and agent commands">
+          <div><span>$</span><code>noodle request run users/get --collection ./api</code></div>
+          <div><span>$</span><code>noodle collection audit ./api</code></div>
+          <div><span>$</span><code>noodle collection run ./api --env staging --json</code></div>
+          <div><span>$</span><code>noodle agent install</code></div>
+          <p><span>status</span> success · exit 0 · JSON available</p>
+        </div>
+
+        <div class="feature-copy">
+          <span class="section-kicker">04 · Automation</span>
+          <h2>One collection, more than one way to work.</h2>
+          <p>Explore interactively in the TUI, run requests from the CLI, automate collection checks, or give coding agents the supported Noodle skill.</p>
+          <a href="/docs/getting-started/cli/">CLI and automation</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="capability-section" aria-labelledby="capability-title">
+      <header>
+        <div><span class="section-kicker">The complete workbench</span><h2 id="capability-title">The rest of the workflow is already here.</h2></div>
+        <p>Focused enough to stay fast, complete enough to handle real API work.</p>
+      </header>
+
+      <div class="capability-grid">
+        {capabilities.map(([title, body]) => (
+          <article>
+            <h3>{title}</h3>
+            <p>{body}</p>
+          </article>
+        ))}
+      </div>
+
+    </section>
+
+    <section class="coming-next" aria-labelledby="next-title">
+      <header>
+        <div><span class="section-kicker">On the stove</span><h2 id="next-title">Coming next</h2></div>
+        <p>Planned directions, clearly separated from what Noodle ships today.</p>
+      </header>
+      <div class="next-grid">
+        {nextItems.map(([version, title, body]) => (
+          <article>
+            <span>Roadmap · {version}</span>
+            <h3>{title}</h3>
+            <p>{body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="closing" aria-labelledby="closing-title">
+      <h2 id="closing-title">Put your API workflow where it belongs.</h2>
+      <p>Install Noodle and open your first collection.</p>
+      <InstallPill id="closing-install" command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
+      <a href="/docs/getting-started/quick-start/">Follow the quick start</a>
+    </section>
   </main>
 </BaseLayout>
 
 <style>
-  .tui-container {
-    display: flex;
-    flex-direction: column;
-    padding: 0 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 2;
+  :global(body) {
+    background: var(--bg) url("data:image/svg+xml,%3Csvg viewBox='0 0 1600 1500' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-180 310C260 20 470 610 910 420S1390 610 1780 190' stroke='%23f2c65a' stroke-width='28' opacity='.075'/%3E%3Cpath d='M1780 1080C1330 820 1160 1390 720 1190S210 910-180 1310' stroke='%2359c9be' stroke-width='20' opacity='.055'/%3E%3Cpath d='M-180 330C260 40 470 630 910 440S1390 630 1780 210' stroke='%23f3efe7' stroke-width='3' opacity='.035'/%3E%3C/g%3E%3C/svg%3E") top center / max(100vw, 960px) 1500px repeat-y;
   }
 
-  @media (max-width: 520px) {
-    .tui-container {
-      padding: 0 1.25rem;
+  #features {
+    scroll-margin-top: 96px;
+  }
+
+  .landing {
+    width: min(100%, 1200px);
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
+
+  .feature-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2.5rem, 4vw, 4rem);
+    align-items: center;
+    min-height: 0;
+    padding-block: var(--section-space);
+    border-top: 1px solid var(--rule);
+  }
+
+  .feature-row:first-child {
+    border-top: 0;
+  }
+
+  .feature-row:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .feature-copy {
+    max-width: 34rem;
+  }
+
+  .section-kicker {
+    display: block;
+    margin-bottom: 1.25rem;
+    color: var(--coral);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .feature-copy h2,
+  .capability-section h2,
+  .coming-next h2,
+  .closing h2 {
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: clamp(2.4rem, 5vw, 4.5rem);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 0.95;
+  }
+
+  .feature-copy h2 {
+    font-size: clamp(2.75rem, 4vw, 4rem);
+  }
+
+  .feature-copy p,
+  .capability-section header p,
+  .coming-next header p,
+  .closing > p {
+    margin-top: 1rem;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .feature-copy a,
+  .closing > a {
+    display: inline-block;
+    margin-top: 1.25rem;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    text-underline-offset: 0.3em;
+  }
+
+  .code-proof,
+  .exchange-proof,
+  .environment-proof,
+  .terminal-proof {
+    min-width: 0;
+    color: var(--muted);
+    background: color-mix(in srgb, var(--panel) 92%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .proof-bar,
+  .proof-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 42px;
+    padding: 0.75rem 1rem;
+    background: color-mix(in srgb, var(--bg) 32%, transparent);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .proof-foot {
+    color: var(--green);
+    border-top: 1px solid var(--rule);
+    background: transparent;
+    border-bottom: 0;
+  }
+
+  .proof-foot span:last-child {
+    color: var(--muted);
+  }
+
+  .code-proof pre {
+    min-height: 220px;
+    margin: 0;
+    overflow-x: auto;
+    padding: 1.6rem;
+    background: transparent;
+  }
+
+  .code-proof code {
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    line-height: 1.9;
+  }
+
+  .syntax-violet { color: var(--violet); }
+  .syntax-orange { color: var(--orange); }
+  .syntax-cyan { color: var(--cyan); }
+  .syntax-green { color: var(--green); }
+
+  .exchange-proof {
+    overflow: hidden;
+  }
+
+  .response-toolbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    gap: 0.75rem;
+    align-items: center;
+    min-height: 52px;
+    padding-inline: 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .response-toolbar code {
+    min-width: 0;
+    overflow-x: auto;
+    color: var(--fg);
+    font-size: inherit;
+    white-space: nowrap;
+  }
+
+  .request-method {
+    padding: 0.25rem 0.5rem;
+    color: var(--ivory-ink);
+    background: var(--orange);
+    border-radius: 8px;
+  }
+
+  .response-status {
+    color: var(--green);
+  }
+
+  .response-time {
+    color: var(--muted);
+  }
+
+  .response-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    background: color-mix(in srgb, var(--bg) 32%, transparent);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .response-tabs span {
+    padding: 0.75rem 1rem;
+    color: var(--muted);
+    border-right: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+
+  .response-tabs span:last-child {
+    border-right: 0;
+  }
+
+  .response-tabs .is-active {
+    color: var(--accent);
+    box-shadow: inset 0 -2px var(--accent);
+  }
+
+  .response-tabs b {
+    color: var(--fg);
+    font-weight: 400;
+  }
+
+  .response-body {
+    min-height: 180px;
+    margin: 0;
+    overflow-x: auto;
+    padding: 1.25rem;
+  }
+
+  .response-body code {
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.8;
+  }
+
+  .response-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    color: var(--muted);
+    border-top: 1px solid var(--rule);
+  }
+
+  .environment-proof > div {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    min-height: 54px;
+    padding-inline: 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .environment-proof > div:last-child {
+    border-bottom: 0;
+  }
+
+  .environment-head {
+    min-height: 38px !important;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .environment-proof strong {
+    display: flex;
+    align-items: center;
+    color: var(--fg);
+    font-weight: 400;
+  }
+
+  .environment-proof > div > span:last-child {
+    color: var(--green);
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    margin-right: 0.55rem;
+    border-radius: 50%;
+  }
+
+  .dot-green { background: var(--green); }
+  .dot-orange { background: var(--orange); }
+  .dot-violet { background: var(--violet); }
+
+  .environment-proof .secret-row {
+    min-height: 70px;
+  }
+
+  .secret-row code {
+    color: var(--violet);
+  }
+
+  .secret-row span:last-child {
+    color: var(--fg) !important;
+  }
+
+  .terminal-proof > div {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr);
+    align-items: center;
+    min-height: 52px;
+    padding-inline: 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .terminal-proof > div > span {
+    color: var(--green);
+  }
+
+  .terminal-proof code {
+    min-width: 0;
+    overflow-x: auto;
+    color: var(--fg);
+    font-size: inherit;
+    white-space: nowrap;
+  }
+
+  .terminal-proof p {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    color: var(--green);
+  }
+
+  .terminal-proof p span {
+    color: var(--violet);
+  }
+
+  .capability-section {
+    padding-block: var(--section-space);
+  }
+
+  .capability-section header,
+  .coming-next header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.7fr);
+    gap: 3rem;
+    align-items: end;
+    margin-bottom: 2.5rem;
+  }
+
+  .capability-section header h2,
+  .coming-next header h2 {
+    max-width: 18ch;
+  }
+
+  .capability-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    overflow: hidden;
+    background: color-mix(in srgb, var(--panel) 86%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  .capability-grid article {
+    min-width: 0;
+    padding: 1.5rem;
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .capability-grid article:nth-child(3n) {
+    border-right: 0;
+  }
+
+  .capability-grid article:nth-last-child(-n + 3) {
+    border-bottom: 0;
+  }
+
+  .capability-grid h3,
+  .next-grid h3 {
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 400;
+  }
+
+  .capability-grid p,
+  .next-grid p {
+    margin-top: 0.55rem;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .coming-next {
+    margin-block: 0 var(--section-space);
+    padding: clamp(3rem, 6vw, 5rem);
+    color: var(--ivory-ink);
+    background: var(--ivory);
+    border: 0;
+    border-radius: 24px;
+  }
+
+  .next-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 1px solid color-mix(in srgb, var(--ivory-ink) 24%, transparent);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .next-grid article {
+    padding: 1.5rem;
+    border-right: 1px solid color-mix(in srgb, var(--ivory-ink) 16%, transparent);
+  }
+
+  .next-grid article:last-child {
+    border-right: 0;
+  }
+
+  .next-grid article > span {
+    display: block;
+    margin-bottom: 2rem;
+    color: var(--coral-ink);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    text-transform: uppercase;
+  }
+
+  .closing {
+    display: grid;
+    justify-items: center;
+    padding: var(--section-space) 0;
+    border-top: 1px solid var(--rule);
+    text-align: center;
+  }
+
+  .closing h2 {
+    max-width: 22ch;
+  }
+
+  .coming-next h2,
+  .coming-next header p,
+  .coming-next .section-kicker,
+  .next-grid h3,
+  .next-grid p {
+    color: var(--ivory-ink);
+  }
+
+  .coming-next .section-kicker {
+    color: var(--coral-ink);
+  }
+
+  .closing h2 {
+    font-size: clamp(3rem, 7vw, 6rem);
+  }
+
+  .closing :global(.install-block) {
+    width: min(100%, 34rem);
+    margin-top: 1.5rem;
+  }
+
+  @media (max-width: 900px) {
+    .feature-row,
+    .feature-row--reverse {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 2rem;
     }
+
+    .feature-row--reverse .exchange-proof,
+    .feature-row--reverse .terminal-proof {
+      order: 2;
+    }
+
+    .feature-copy {
+      max-width: 42rem;
+    }
+
+    .capability-section header,
+    .coming-next header {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+      align-items: start;
+    }
+  }
+
+  @media (max-width: 680px) {
+    .landing {
+      padding-inline: 1rem;
+    }
+
+    .capability-grid,
+    .next-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .capability-grid article,
+    .capability-grid article:nth-child(3n),
+    .capability-grid article:nth-last-child(-n + 3),
+    .next-grid article {
+      border-right: 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .capability-grid article:last-child,
+    .next-grid article:last-child {
+      border-bottom: 0;
+    }
+
+    .response-tabs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .response-tabs span:nth-child(2) {
+      border-right: 0;
+    }
+
+    .response-tabs span:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--rule);
+    }
+
   }
 </style>

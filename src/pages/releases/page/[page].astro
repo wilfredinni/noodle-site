@@ -1,0 +1,24 @@
+---
+import type { GetStaticPaths, Page } from "astro"
+import type { CollectionEntry } from "astro:content"
+import ArticleIndex from "../../../components/ArticleIndex.astro"
+import BaseLayout from "../../../layouts/BaseLayout.astro"
+import { ARTICLES_PER_PAGE, getArticles } from "../../../lib/articles"
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const releases = await getArticles("release")
+  return paginate(releases, { pageSize: ARTICLES_PER_PAGE }).slice(1)
+}) satisfies GetStaticPaths
+
+const { page } = Astro.props as { page: Page<CollectionEntry<"blog">> }
+---
+
+<BaseLayout title={`Releases · Page ${page.currentPage} · Noodle`} description="Noodle release notes, updates, and the thinking behind what shipped.">
+  <ArticleIndex
+    kicker="Noodle releases"
+    title="Release notes"
+    description="What changed in each Noodle release, why it matters, and how it fits into the terminal workflow."
+    posts={page.data}
+    pagination={{ currentPage: page.currentPage, lastPage: page.lastPage, basePath: "/releases" }}
+  />
+</BaseLayout>

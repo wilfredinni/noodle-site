@@ -1,6 +1,6 @@
 ---
 title: Using the Response Pane
-description: Read responses, browse history, and inspect headers
+description: Read the latest response, follow its network trace, and return to earlier sends without leaving the terminal.
 ---
 import { Image } from 'astro:assets';
 import noodleOpencode from '../../../../assets/noodle-opencode.png';
@@ -42,6 +42,8 @@ foldable block, or **F6** to unfold all. You can also click a fold marker in
 the line-number gutter. Folded rows keep their original source line numbers,
 and copying the response still uses the complete body.
 
+![A JSON response with nested regions folded](../../../../assets/response_folding.png)
+
 ## Timeline
 
 Every request send is stored on disk as a timeline entry.
@@ -61,6 +63,8 @@ Large request and response bodies remain available in timeline details. Noodle
 stores bodies larger than 10 KB as compressed sidecars next to the timeline
 YAML, rather than truncating them.
 
+![A request's response history in the Timeline tab](../../../../assets/timeline.png)
+
 Timeline request snapshots resolve ordinary `$VAR` references at send time and
 redact declared secrets plus sensitive request headers, OAuth signatures,
 assertions, tokens, and other auth credentials. Server response fields remain
@@ -73,6 +77,8 @@ The **Cookies** tab separates sent and received cookie rows. Press **Return** or
 click a row to expand its value and attributes. Received rows show path, domain,
 expiry, Secure, HttpOnly, and SameSite metadata when present; expired response
 cookies are marked as deleted.
+
+![Sent and received cookies in the response pane](../../../../assets/cookie-tab.png)
 
 The tab shows the final request leg and final response. Noodle still captures
 `Set-Cookie` headers from intermediate redirects and NTLM handshake responses

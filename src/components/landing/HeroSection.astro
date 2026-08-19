@@ -1,240 +1,273 @@
 ---
 import { Image } from "astro:assets"
-import exampleImage from "../../assets/example.png"
+import type { CollectionEntry } from "astro:content"
+import productImage from "../../assets/landing.png"
 import InstallPill from "../InstallPill.astro"
+
+interface Props {
+  latestRelease?: CollectionEntry<"blog">
+}
+
+const { latestRelease } = Astro.props
+const latestReleaseLabel = latestRelease?.data.title
+  .replace(/^Noodle\s+/, "v")
+  .replace(":", " ·")
+const [latestVersion, latestTitle] = (latestReleaseLabel ?? "").split(" · ")
 ---
 
-<header class="full-width-hero">
-  <div class="hero-text">
-    <h1>Readable requests. Versioned workflows. No lock-in.</h1>
-    <p class="lede">
-      Write, send, and inspect HTTP requests from YAML files in your repository. Noodle stays local, works with Git, and belongs in your terminal.
-    </p>
+<header class="hero">
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <p class="eyebrow"><span aria-hidden="true"></span> Open-source terminal REST client</p>
+      <h1>API workflows,<br /><em>untangled.</em></h1>
+    </div>
 
-    <InstallPill command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
-
-    <p class="hero-proof">
-      <a href="https://github.com/wilfredinni/noodle" target="_blank" rel="noopener noreferrer">Open source</a>
-      <span aria-hidden="true">·</span>
-      <a href="/docs/getting-started/installation/#supported-platforms">macOS &amp; Linux</a>
-      <span aria-hidden="true">·</span>
-      <a href="/docs/getting-started/installation/#did-it-work">Verify install</a>
-    </p>
-
-    <div class="hero-links">
-      <a class="hero-link-primary" href="/docs/getting-started/quick-start/">Quick Start</a>
-      <a href="/docs/">Read the docs</a>
+    <div class="hero-intro">
+      {latestRelease && (
+        <a class="latest-release" href={`/blog/${latestRelease.id}/`}>
+          <span>{latestVersion}</span>
+          <strong>{latestTitle}</strong>
+          <span aria-hidden="true">→</span>
+        </a>
+      )}
+      <p>
+        Write, send, inspect, and automate HTTP requests from readable files without leaving your terminal.
+        Keep every collection versioned beside the code it exercises, ready for the TUI, CLI, scripts, and coding agents.
+      </p>
+      <div class="install-card">
+        <span>Install in one line</span>
+        <InstallPill id="hero-install" command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
+      </div>
+      <a class="quick-start-link" href="/docs/getting-started/quick-start/">Explore the quick start <span aria-hidden="true">→</span></a>
     </div>
   </div>
 
-  <div class="hero-visual">
-    <div class="visual-wrapper">
-      <Image src={exampleImage} class="hero-screenshot" alt="Noodle TUI Workspace" loading="eager" fetchpriority="high" />
-      <span class="image-caption">Noodle default theme Catppuccin</span>
-    </div>
+  <figure class="product-stage">
+    <Image
+      src={productImage}
+      class="product-image"
+      alt="Noodle terminal interface showing a request collection, request editor, and response inspector"
+      format="png"
+      loading="eager"
+      fetchpriority="high"
+    />
+  </figure>
+
+  <div class="value-strip" aria-label="Noodle product benefits">
+    <article><h2>Fast by default</h2><p>Stay in the terminal and keep your hands on the keyboard.</p></article>
+    <article><h2>Made to review</h2><p>Keep requests and environments readable beside your code.</p></article>
+    <article><h2>Ready to automate</h2><p>Use the same collection from the TUI, CLI, scripts, and agents.</p></article>
   </div>
 </header>
 
 <style>
-  .full-width-hero {
+  .hero {
+    width: min(100%, 1200px);
+    margin-inline: auto;
+    padding: clamp(3.5rem, 8vw, 7rem) 1.5rem 0;
+  }
+
+  .hero-grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 4rem;
-    align-items: center;
-    width: 100%;
-    max-width: 1440px;
-    min-height: calc(100vh - 58px);
-    margin: 0 auto;
-    padding-left: 2rem;
-    padding-right: 0;
-    overflow: hidden;
+    grid-template-columns: minmax(0, 1.05fr) minmax(27rem, 0.95fr);
+    gap: clamp(3rem, 5vw, 4rem);
+    align-items: start;
   }
 
-  .hero-text {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    padding-right: 1rem;
-  }
-
-  .hero-text h1 {
-    font-size: clamp(2rem, 4vw, 3.2rem);
-    font-weight: 800;
-    line-height: 1.2;
-    color: var(--fg);
-  }
-
-  .hero-text .lede {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    color: var(--muted);
-    max-width: 58ch;
-  }
-
-  .hero-links {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-top: 0.5rem;
-  }
-
-  .hero-proof {
-    display: flex;
+  .latest-release {
+    display: inline-flex;
     flex-wrap: wrap;
-    gap: 0.45rem;
-    color: var(--muted);
-    font-size: 0.85rem;
-    margin-top: -0.75rem;
-  }
-
-  .hero-proof a {
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .hero-proof a:hover {
-    color: var(--fg);
-    text-decoration: underline;
-  }
-
-  .hero-links a {
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: color 0.2s;
-  }
-
-  .hero-links .hero-link-primary {
-    color: var(--bg);
-    background: var(--accent);
-    border: 1px solid var(--accent);
-    border-radius: 4px;
-    padding: 0.45rem 0.75rem;
-    box-shadow: 3px 3px 0 var(--accent-dim);
-  }
-
-  .hero-links a:hover {
-    color: var(--fg);
-  }
-
-  .hero-links .hero-link-primary:hover {
-    background: var(--accent-dim);
-    border-color: var(--accent-dim);
-    box-shadow: 2px 2px 0 var(--accent-dim);
-    color: var(--bg);
-    transform: translate(1px, 1px);
-    text-decoration: none;
-  }
-
-  .hero-links a:active {
-    color: var(--accent-dim);
-  }
-
-  .hero-visual {
-    position: relative;
-    display: flex;
-    justify-content: flex-start;
     align-items: center;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .visual-wrapper {
-    position: relative;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .image-caption {
+    min-height: 44px;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--fg);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
-    color: var(--muted);
-    opacity: 0.7;
-    margin-top: 0.5rem;
-    padding-left: 0.25rem;
+    font-size: 0.875rem;
+    text-decoration: none;
   }
 
-  .hero-screenshot {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    border: 1px solid var(--border);
-    border-right: none;
-    border-radius: 8px 0 0 8px;
-    box-shadow: -10px 20px 40px var(--shadow-strong);
-    z-index: 2;
+  .latest-release > span:first-child {
+    color: var(--noodle);
+  }
+
+  .latest-release strong {
+    font-weight: 400;
+  }
+
+  .latest-release > span:last-child {
+    color: var(--accent);
+  }
+
+  .eyebrow {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow span {
+    width: 2.5rem;
+    height: 2px;
+    background: var(--noodle);
+  }
+
+  h1 {
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: clamp(4rem, 8vw, 7.5rem);
+    font-weight: 400;
+    letter-spacing: -0.045em;
+    line-height: 0.82;
+  }
+
+  h1 em {
     position: relative;
-    -webkit-mask-image: linear-gradient(to right, var(--mask-ink) 70%, transparent 100%);
-    mask-image: linear-gradient(to right, var(--mask-ink) 70%, transparent 100%);
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  h1 em::after {
+    position: absolute;
+    right: 0;
+    bottom: 0.02em;
+    left: 0.06em;
+    height: 0.08em;
+    background: var(--noodle);
+    content: "";
+    transform: rotate(-1.5deg);
+  }
+
+  .hero-intro {
+    padding-bottom: 0.75rem;
+  }
+
+  .hero-intro > p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    line-height: 1.65;
+  }
+
+  .quick-start-link {
+    display: inline-flex;
+    gap: 0.6rem;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 1rem;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+
+  .quick-start-link span {
+    color: var(--accent);
+  }
+
+  .install-card {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: color-mix(in srgb, var(--panel) 86%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  .install-card > span {
     display: block;
+    margin-bottom: 0.65rem;
+    color: var(--noodle);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .product-stage {
+    width: 100%;
+    margin-top: clamp(3rem, 9vw, 8rem);
+    overflow: hidden;
+    background: var(--panel);
+    border-radius: 16px;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.28);
+  }
+
+  .product-image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .value-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-top: 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .value-strip article {
+    min-width: 0;
+    padding: 1.75rem 1.25rem;
+    border-right: 1px solid var(--rule);
+  }
+
+  .value-strip article:last-child { border-right: 0; }
+
+  .value-strip h2 {
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 400;
+    line-height: 1;
+  }
+
+  .value-strip h2::before {
+    display: block;
+    width: 1.5rem;
+    height: 2px;
+    margin-bottom: 0.75rem;
+    background: var(--coral);
+    content: "";
+  }
+
+  .value-strip p {
+    margin-top: 0.5rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.55;
   }
 
   @media (max-width: 900px) {
-    .full-width-hero {
+    .hero-grid {
       grid-template-columns: minmax(0, 1fr);
       gap: 2.5rem;
-      text-align: center;
-      padding-left: 2rem;
-      padding-right: 2rem;
-      min-height: auto;
-      margin-top: 2.5rem;
-      margin-bottom: 2.5rem;
     }
 
-    .visual-wrapper {
-      align-items: center;
-    }
-
-    .image-caption {
-      padding-left: 0;
-    }
-
-    .hero-links {
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .hero-proof {
-      justify-content: center;
-      margin-top: -0.5rem;
-    }
-
-    .hero-screenshot {
-      border-right: 1px solid var(--border);
-      border-radius: 8px;
-      -webkit-mask-image: none;
-      mask-image: none;
-    }
-
-    .hero-text h1,
-    .hero-text .lede {
-      max-width: 100%;
+    .hero-intro {
+      max-width: 36rem;
     }
   }
 
-  @media (pointer: coarse) {
-    .hero-links a {
-      align-items: center;
-      display: inline-flex;
-      min-height: 44px;
-    }
-  }
-
-  @media (max-width: 520px) {
-    .full-width-hero {
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
+  @media (max-width: 680px) {
+    .hero {
+      padding: 3rem 1rem 0;
     }
 
-    .hero-text {
-      gap: 1.25rem;
+    .value-strip {
+      grid-template-columns: minmax(0, 1fr);
     }
 
-    .hero-links {
-      gap: 0.75rem 1rem;
+    .value-strip article {
+      border-right: 0;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .value-strip article:last-child {
+      border-bottom: 0;
     }
   }
 </style>
