@@ -21,15 +21,6 @@ import InstallPill from "../InstallPill.astro"
     </div>
   </div>
 
-  <svg class="method-noodles" viewBox="0 0 1160 150" role="img" aria-label="HTTP methods connected by noodle-shaped request paths">
-    <path class="strand strand-one" d="M78 38C240 38 234 124 404 124S584 27 738 27s195 90 344 90"></path>
-    <path class="strand strand-two" d="M78 78c150 0 162-48 286-48s167 91 318 91 200-64 400-64"></path>
-    <g class="method method-get" transform="translate(8 18)"><rect width="88" height="40" rx="12"></rect><text x="44" y="25">GET</text></g>
-    <g class="method method-post" transform="translate(386 104)"><rect width="98" height="40" rx="12"></rect><text x="49" y="25">POST</text></g>
-    <g class="method method-put" transform="translate(716 6)"><rect width="88" height="40" rx="12"></rect><text x="44" y="25">PUT</text></g>
-    <g class="method method-delete" transform="translate(1040 96)"><rect width="112" height="40" rx="12"></rect><text x="56" y="25">DELETE</text></g>
-  </svg>
-
   <figure class="product-stage">
     <Image
       src={productImage}
@@ -150,43 +141,9 @@ import InstallPill from "../InstallPill.astro"
     text-transform: uppercase;
   }
 
-  .method-noodles {
-    display: block;
-    width: 100%;
-    height: auto;
-    margin: clamp(2rem, 5vw, 4.5rem) 0 clamp(1rem, 3vw, 2rem);
-    overflow: visible;
-  }
-
-  .strand {
-    fill: none;
-    stroke-linecap: round;
-    stroke-width: 14;
-  }
-
-  .strand-one { stroke: var(--noodle); }
-  .strand-two { stroke: var(--coral); }
-
-  .method rect {
-    stroke: var(--bg);
-    stroke-width: 4;
-  }
-
-  .method text {
-    fill: white;
-    font-family: var(--font-sans);
-    font-size: 14px;
-    font-weight: 600;
-    text-anchor: middle;
-  }
-
-  .method-get rect { fill: #2da665; }
-  .method-post rect { fill: #2679d9; }
-  .method-put rect { fill: #e7802d; }
-  .method-delete rect { fill: #d94e4e; }
-
   .product-stage {
     width: 100%;
+    margin-top: clamp(3rem, 9vw, 8rem);
     overflow: hidden;
     background: var(--panel);
     border: 1px solid var(--border);
@@ -268,18 +225,6 @@ import InstallPill from "../InstallPill.astro"
   @media (max-width: 680px) {
     .hero {
       padding: 3rem 1rem 0;
-    }
-
-    .method-noodles {
-      margin-block: 2rem 1rem;
-    }
-
-    .strand {
-      stroke-width: 20;
-    }
-
-    .method text {
-      font-size: 18px;
     }
 
     figcaption {
