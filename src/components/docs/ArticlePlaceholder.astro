@@ -1,0 +1,59 @@
+---
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<figure class="article-placeholder">
+  <div class="article-placeholder__frame">
+    <span>Image placeholder</span>
+    <strong>{title}</strong>
+  </div>
+  <figcaption>{description}</figcaption>
+</figure>
+
+<style>
+  .article-placeholder {
+    margin-block: 2.5rem;
+  }
+
+  .article-placeholder__frame {
+    min-height: 18rem;
+    display: grid;
+    place-content: center;
+    gap: 0.65rem;
+    padding: 2rem;
+    border: 1px dashed var(--sl-color-gray-4);
+    border-radius: 0.75rem;
+    background: var(--sl-color-bg-nav);
+    color: var(--sl-color-gray-2);
+    text-align: center;
+  }
+
+  .article-placeholder__frame span {
+    font: 600 0.72rem/1.2 "JetBrains Mono", monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .article-placeholder__frame strong {
+    color: var(--sl-color-white);
+    font: 700 clamp(1.15rem, 3vw, 1.5rem)/1.3 "JetBrains Mono", monospace;
+  }
+
+  figcaption {
+    margin-top: 0.75rem;
+    color: var(--sl-color-gray-3);
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+
+  @media (max-width: 50rem) {
+    .article-placeholder__frame {
+      min-height: 13rem;
+    }
+  }
+</style>

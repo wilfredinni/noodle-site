@@ -1,6 +1,6 @@
 ---
 title: Using the Request Pane
-description: Edit and configure HTTP requests in the terminal
+description: Shape an HTTP request from its URL and parameters through its body, authentication, and send behavior.
 ---
 
 import { Image } from "astro:assets";
@@ -49,6 +49,8 @@ example, `https://api.example.com/users/:userId` has a `userId` path param.
 Noodle adds and removes matching entries as you change the URL. Path params
 cannot be disabled; all URL tokens must resolve before sending. Values support
 environment variables such as `$user_id`.
+
+![Path parameters generated from tokens in the request URL](../../../../assets/path.png)
 
 ## Edit Mode
 
@@ -111,6 +113,8 @@ The popup lists available environment variables filtered by your typed
 prefix. It appears at your cursor position and works in the URL bar,
 header values, param values, body editor, and auth fields.
 
+![Environment variable suggestions inside a request field](../../../../assets/autocomplete.png)
+
 ## Variable Highlighting
 
 All input fields display `$variable` references with color-coded states:
@@ -152,6 +156,8 @@ Press **Return** on the type field to cycle through options.
 For OAuth 2.0 requests, open the command palette to fetch or authorize, copy,
 or clear the current secure token. See
 [Authentication](/docs/guides/authentication/) for setup and security rules.
+
+![AWS Signature Version 4 fields in the request Auth tab](../../../../assets/aws-auth.png)
 
 ## Creating and Managing Requests
 

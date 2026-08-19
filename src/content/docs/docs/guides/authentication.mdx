@@ -1,7 +1,18 @@
 ---
 title: Authentication
-description: Configure authentication for your requests
+description: Keep credentials out of request files while configuring bearer, OAuth, NTLMv2, API key, and signed requests.
 ---
+
+import ArticlePlaceholder from "../../../../components/docs/ArticlePlaceholder.astro";
+
+Authentication can live on one request or flow down from a folder. In either
+case, keep credentials in environment variables and declare sensitive values
+as secrets so collection files stay safe to share.
+
+<ArticlePlaceholder
+  title="Request auth and folder inheritance"
+  description="Replace with a flow showing folder credentials inherited by child requests and overridden by an explicit request auth setting."
+/>
 
 ## Auth Types
 
@@ -137,6 +148,8 @@ substitution and supports text, JSON, URL-encoded, and binary bodies. Multipart
 bodies are not supported because their runtime-generated boundary and bytes
 cannot be signed reliably in advance. Declare the secret key and session token
 as secure environment values.
+
+![AWS Signature Version 4 configured in the request pane](../../../../assets/aws-auth.png)
 
 ## Generated client code
 

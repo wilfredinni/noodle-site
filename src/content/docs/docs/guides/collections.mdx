@@ -1,10 +1,12 @@
 ---
 title: Collections
-description: Create, switch, and organize request collections
+description: Turn a directory of request files into a portable workspace you can open, share, format, and automate.
 ---
 
 A collection is a directory of `.yml` request files. It is the unit you open,
 share, version, inspect, and run.
+
+![A request collection open in Noodle](../../../../assets/collection.png)
 
 ## Directory Structure
 
@@ -47,6 +49,8 @@ noodle request create health \
 The default TUI collection is `./collections`. A new collection directory is
 created when you first save a request.
 
+![An empty collection ready for its first request](../../../../assets/empty-collection.png)
+
 ## Formatting a collection
 
 Use the automation CLI to rewrite every request with canonical YAML and
@@ -66,6 +70,8 @@ collection switcher lists them in most-recently-used order. When you switch,
 Noodle reloads the collection, environments, and UI state; unsaved drafts are
 preserved per collection. Clicking the collection path in the header opens the
 same switcher.
+
+![The collection switcher listing recent workspaces](../../../../assets/collection-switcher.png)
 
 Opened collections are stored in `~/.config/noodle/config.yml`. You can also
 switch collections from the Collection section of the command palette

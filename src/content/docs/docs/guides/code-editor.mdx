@@ -1,6 +1,6 @@
 ---
 title: Code Editor
-description: Syntax highlighting, code folding, and validation in noodle
+description: Edit JSON, XML, and YAML with syntax highlighting, validation, folding, and environment-aware completion.
 ---
 
 noodle includes a built-in code editor with Tree-sitter syntax highlighting
@@ -54,6 +54,8 @@ inserting another.
 
 Fold and unfold blocks of code to focus on what matters:
 
+![A folded JSON response in Noodle's code editor](../../../../assets/folding.png)
+
 | Key      | Action                          |
 | -------- | ------------------------------- |
 | `Ctrl+G` | Toggle fold at the current line |
@@ -77,6 +79,8 @@ Type `$` in the code editor to trigger the variable autocompletion popup.
 Navigate suggestions with **up/down**, accept with **Tab** or **Return**,
 dismiss with **Escape**. The popup lists available environment variables
 filtered by your typed prefix.
+
+![Environment variable suggestions in the code editor](../../../../assets/autocomplete.png)
 
 ## Technical Details
 
