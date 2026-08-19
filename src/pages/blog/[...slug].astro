@@ -12,7 +12,8 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props
-const { Content } = await render(post)
+const { Content, headings } = await render(post)
+const articleHeadings = headings.filter(({ depth }) => depth === 2)
 
 const formatDate = (date: Date) => {
   return date.toLocaleDateString("en-US", {
@@ -25,23 +26,38 @@ const formatDate = (date: Date) => {
 
 <BaseLayout title={`${post.data.title} · Noodle Blog`} description={post.data.description}>
   <main class="post-container">
+    <header class="post-header">
+      <div class="post-meta">
+        <time datetime={post.data.date.toISOString()}>
+          {formatDate(post.data.date)}
+        </time>
+        {post.data.tags && post.data.tags.length > 0 && (
+          <>
+            <span class="meta-separator">·</span>
+            <div class="meta-tags">
+              {post.data.tags.map((tag) => (
+                <span class="post-tag">#{tag}</span>
+              ))}
+            </div>
+          </>
+        )}
+      </div>
 
-    <div class="post-meta">
-      <time datetime={post.data.date.toISOString()}>
-        {formatDate(post.data.date)}
-      </time>
-      {post.data.tags && post.data.tags.length > 0 && (
-        <span class="meta-separator">·</span>
-        <div class="meta-tags">
-          {post.data.tags.map((tag) => (
-            <span class="post-tag">#{tag}</span>
-          ))}
-        </div>
-      )}
-    </div>
+      <h1 class="post-title">{post.data.title}</h1>
+    </header>
 
-    <h1 class="post-title">{post.data.title}</h1>
-
+    {articleHeadings.length > 0 && (
+      <aside class="article-nav">
+        <p>On this article</p>
+        <nav aria-label="Article sections">
+          <ol>
+            {articleHeadings.map(({ slug, text }) => (
+              <li><a href={`#${slug}`}>{text}</a></li>
+            ))}
+          </ol>
+        </nav>
+      </aside>
+    )}
 
     <article class="post-content">
       <Content />
@@ -89,21 +105,36 @@ const formatDate = (date: Date) => {
 </BaseLayout>
 
 <style>
-  .post-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 6rem 2rem 6rem;
+  :global(body) {
+    background: var(--bg) url("data:image/svg+xml,%3Csvg viewBox='0 0 1600 1500' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-180 310C260 20 470 610 910 420S1390 610 1780 190' stroke='%23f2c65a' stroke-width='28' opacity='.075'/%3E%3Cpath d='M1780 1080C1330 820 1160 1390 720 1190S210 910-180 1310' stroke='%2359c9be' stroke-width='20' opacity='.055'/%3E%3Cpath d='M-180 330C260 40 470 630 910 440S1390 630 1780 210' stroke='%23f3efe7' stroke-width='3' opacity='.035'/%3E%3C/g%3E%3C/svg%3E") top center / max(100vw, 960px) 1500px repeat-y;
   }
 
+  .post-container {
+    display: grid;
+    grid-template-areas:
+      "header nav"
+      "article nav"
+      "author nav";
+    grid-template-columns: minmax(0, 46rem) 15rem;
+    column-gap: clamp(3rem, 7vw, 6rem);
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: clamp(4rem, 9vw, 7rem) clamp(1.25rem, 4vw, 2.5rem) 6rem;
+  }
+
+  .post-header {
+    grid-area: header;
+  }
 
   .post-meta {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin-bottom: 1.25rem;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
     flex-wrap: wrap;
   }
 
@@ -117,24 +148,64 @@ const formatDate = (date: Date) => {
   }
 
   .post-tag {
-    color: var(--color-purple);
+    color: var(--coral);
     font-weight: 600;
   }
 
   .post-title {
-    font-size: 2.75rem;
-    font-weight: 800;
-    line-height: 1.2;
+    max-width: 14ch;
+    margin: 0 0 clamp(3rem, 7vw, 5rem);
     color: var(--fg);
-    margin-bottom: 2rem;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    line-height: 0.98;
     text-wrap: balance;
   }
 
+  .article-nav {
+    position: sticky;
+    top: 7rem;
+    grid-area: nav;
+    align-self: start;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
 
+  .article-nav > p {
+    margin-bottom: 0.75rem;
+    color: var(--noodle);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
 
-  /* Markdown Body Prose Styles */
+  .article-nav ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .article-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.45rem 0;
+    color: var(--muted);
+    font-size: 0.875rem;
+    line-height: 1.35;
+    text-decoration: none;
+  }
+
+  .article-nav a:hover,
+  .article-nav a:focus-visible {
+    color: var(--accent);
+  }
+
   .post-content {
+    grid-area: article;
     font-family: var(--font-sans);
     font-size: 1.05rem;
     line-height: 1.8;
@@ -148,23 +219,24 @@ const formatDate = (date: Date) => {
   }
 
   .post-content :global(h2) {
-    font-family: var(--font-mono);
-    font-size: 1.6rem;
-    font-weight: 700;
-    margin: 3.5rem 0 1.25rem;
+    margin: 4.5rem 0 1.25rem;
     color: var(--fg);
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0.5rem;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 4vw, 4rem);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+    scroll-margin-top: 7rem;
   }
 
   .post-content :global(h3) {
-    font-family: var(--font-mono);
-    font-size: 1.25rem;
-    font-weight: 700;
     margin: 2.5rem 0 1rem;
     color: var(--fg);
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    scroll-margin-top: 7rem;
   }
 
   .post-content :global(ul), 
@@ -184,21 +256,20 @@ const formatDate = (date: Date) => {
 
   .post-content :global(a) {
     color: var(--accent);
-    text-decoration: none;
-    border-bottom: 1px dashed var(--accent);
-    transition: color 0.2s, border-color 0.2s;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: color 0.2s;
   }
 
   .post-content :global(a:hover) {
     color: var(--accent-dim);
-    border-color: var(--accent-dim);
   }
 
   .post-content :global(img) {
     max-width: 70ch;
     width: 100%;
     height: auto;
-    border-radius: 6px;
+    border-radius: 16px;
     border: 1px solid var(--border);
     display: block;
     margin: 2rem 0;
@@ -210,14 +281,14 @@ const formatDate = (date: Date) => {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     padding: 0.15em 0.3em;
-    border-radius: 4px;
+    border-radius: 8px;
     color: var(--color-orange);
   }
 
   .post-content :global(pre) {
     background: var(--bg-elevated) !important;
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 16px;
     padding: 1.25rem;
     margin-bottom: 2rem;
     overflow-x: auto;
@@ -233,34 +304,25 @@ const formatDate = (date: Date) => {
   }
 
   .post-content :global(blockquote) {
-    border-inline-start: 4px solid var(--accent);
     padding: 1rem 1.5rem;
     margin: 2rem 0;
     color: var(--muted);
     font-style: italic;
-    background: color-mix(in srgb, var(--accent) 5%, transparent);
-    border-radius: 0 8px 8px 0;
+    background: color-mix(in srgb, var(--panel) 88%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 16px;
     max-width: 70ch;
-  }
-
-  @media (max-width: 768px) {
-    .post-title {
-      font-size: 2rem;
-    }
-
-    .post-container {
-      padding: 4rem 1.25rem 4rem;
-    }
   }
 
   .author-bio-card {
     display: flex;
+    grid-area: author;
     align-items: center;
     gap: 1.25rem;
     padding: 1.25rem;
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 16px;
     margin-top: 4rem;
   }
 
@@ -286,14 +348,13 @@ const formatDate = (date: Date) => {
 
   .bio-name a {
     color: inherit;
-    text-decoration: none;
-    border-bottom: 1px dashed var(--border-hover);
-    transition: color 0.2s, border-color 0.2s;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: color 0.2s;
   }
 
   .bio-name a:hover {
     color: var(--accent);
-    border-color: var(--accent);
   }
 
   .bio-subtitle {
@@ -311,10 +372,11 @@ const formatDate = (date: Date) => {
   .bio-btn {
     display: inline-flex;
     align-items: center;
+    min-height: 44px;
     gap: 0.4rem;
-    padding: 0.35rem 0.65rem;
+    padding: 0.5rem 0.75rem;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
     font-size: 0.75rem;
     color: var(--muted);
     text-decoration: none;
@@ -335,6 +397,38 @@ const formatDate = (date: Date) => {
 
   .bio-btn:hover svg {
     color: var(--fg);
+  }
+
+  @media (max-width: 900px) {
+    .post-container {
+      grid-template-areas:
+        "header"
+        "nav"
+        "article"
+        "author";
+      grid-template-columns: minmax(0, 46rem);
+      justify-content: center;
+    }
+
+    .article-nav {
+      position: static;
+      margin-bottom: 2.5rem;
+    }
+
+    .article-nav ol {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 1.5rem;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .post-container {
+      padding: 4rem 1.25rem;
+    }
+    .article-nav ol {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (max-width: 600px) {
