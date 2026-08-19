@@ -2,6 +2,9 @@
 import BaseLayout from "../layouts/BaseLayout.astro"
 import HeroSection from "../components/landing/HeroSection.astro"
 import InstallPill from "../components/InstallPill.astro"
+import { getArticles } from "../lib/articles"
+
+const [latestRelease] = await getArticles("release")
 
 const capabilities = [
   ["Requests", "URL, params, headers, body, and auth"],
@@ -23,7 +26,7 @@ const nextItems = [
   title="Noodle · API workflows in your terminal"
   description="Write, send, inspect, and automate HTTP requests from version-controlled YAML files."
 >
-  <HeroSection />
+  <HeroSection latestRelease={latestRelease} />
 
   <main class="landing">
     <section id="features" class="feature-list" aria-label="Noodle features">

@@ -1,7 +1,18 @@
 ---
 import { Image } from "astro:assets"
+import type { CollectionEntry } from "astro:content"
 import productImage from "../../assets/landing.png"
 import InstallPill from "../InstallPill.astro"
+
+interface Props {
+  latestRelease?: CollectionEntry<"blog">
+}
+
+const { latestRelease } = Astro.props
+const latestReleaseLabel = latestRelease?.data.title
+  .replace(/^Noodle\s+/, "v")
+  .replace(":", " ·")
+const [latestVersion, latestTitle] = (latestReleaseLabel ?? "").split(" · ")
 ---
 
 <header class="hero">
@@ -12,6 +23,13 @@ import InstallPill from "../InstallPill.astro"
     </div>
 
     <div class="hero-intro">
+      {latestRelease && (
+        <a class="latest-release" href={`/blog/${latestRelease.id}/`}>
+          <span>{latestVersion}</span>
+          <strong>{latestTitle}</strong>
+          <span aria-hidden="true">→</span>
+        </a>
+      )}
       <p>
         Write, send, inspect, and automate HTTP requests from readable files without leaving your terminal.
         Keep every collection versioned beside the code it exercises, ready for the TUI, CLI, scripts, and coding agents.
@@ -53,7 +71,32 @@ import InstallPill from "../InstallPill.astro"
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(27rem, 0.95fr);
     gap: clamp(3rem, 5vw, 4rem);
-    align-items: end;
+    align-items: start;
+  }
+
+  .latest-release {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 44px;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-decoration: none;
+  }
+
+  .latest-release > span:first-child {
+    color: var(--noodle);
+  }
+
+  .latest-release strong {
+    font-weight: 400;
+  }
+
+  .latest-release > span:last-child {
+    color: var(--accent);
   }
 
   .eyebrow {

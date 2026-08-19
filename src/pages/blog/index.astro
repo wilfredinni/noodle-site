@@ -9,6 +9,7 @@ const lastPage = Math.ceil(posts.length / ARTICLES_PER_PAGE)
 
 <BaseLayout title="Blog · Noodle" description="The latest updates, guides, and announcements from the Noodle terminal REST client team.">
   <ArticleIndex
+    kicker="Noodle journal"
     title="Inside Noodle"
     description="Updates, architecture, and feature deep-dives from the creators of the terminal REST client."
     posts={posts.slice(0, ARTICLES_PER_PAGE)}
