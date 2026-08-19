@@ -13,9 +13,9 @@ const capabilities = [
 ]
 
 const nextItems = [
-  ["Assertions and captures", "Validate responses and pass captured values into later requests."],
-  ["Scripts and advanced tests", "Add reusable setup, teardown, and deeper request checks."],
-  ["Richer CI reporting", "Expand collection runs with reports such as JUnit."],
+  ["v0.8", "Assertions and captures", "Validate responses and pass captured values into later requests."],
+  ["v0.9", "Scripts and advanced tests", "Add reusable setup, teardown, and deeper request checks."],
+  ["v0.10", "Richer CI reporting", "Expand collection runs with reports such as JUnit."],
 ]
 ---
 
@@ -136,9 +136,9 @@ const nextItems = [
         <p>Planned directions, clearly separated from what Noodle ships today.</p>
       </header>
       <div class="next-grid">
-        {nextItems.map(([title, body]) => (
+        {nextItems.map(([version, title, body]) => (
           <article>
-            <span>Coming next</span>
+            <span>Roadmap · {version}</span>
             <h3>{title}</h3>
             <p>{body}</p>
           </article>
