@@ -38,7 +38,7 @@ const [latestVersion, latestTitle] = (latestReleaseLabel ?? "").split(" · ")
         <span>Install in one line</span>
         <InstallPill id="hero-install" command="curl -LsSf https://noodlerest.dev/install.sh | sh" />
       </div>
-      <a href="/docs/getting-started/quick-start/">Explore the quick start <span aria-hidden="true">→</span></a>
+      <a class="quick-start-link" href="/docs/getting-started/quick-start/">Explore the quick start <span aria-hidden="true">→</span></a>
     </div>
   </div>
 
@@ -83,7 +83,7 @@ const [latestVersion, latestTitle] = (latestReleaseLabel ?? "").split(" · ")
     margin-bottom: 0.75rem;
     color: var(--fg);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     text-decoration: none;
   }
 
@@ -153,7 +153,7 @@ const [latestVersion, latestTitle] = (latestReleaseLabel ?? "").split(" · ")
     line-height: 1.65;
   }
 
-  .hero-intro > a {
+  .quick-start-link {
     display: inline-flex;
     gap: 0.6rem;
     align-items: center;
@@ -161,11 +161,11 @@ const [latestVersion, latestTitle] = (latestReleaseLabel ?? "").split(" · ")
     margin-top: 1rem;
     color: var(--fg);
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.875rem;
     text-decoration: none;
   }
 
-  .hero-intro > a span {
+  .quick-start-link span {
     color: var(--accent);
   }
 
