@@ -82,5 +82,15 @@ const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute
     .site-nav-links a:hover {
       color: var(--sl-color-text);
     }
+
+    @media (max-width: 50rem) {
+      .site-title-group {
+        gap: 0;
+      }
+
+      .site-nav-links {
+        display: none;
+      }
+    }
   }
 </style>
