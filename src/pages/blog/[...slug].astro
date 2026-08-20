@@ -478,7 +478,7 @@ const formatDate = (date: Date) => {
     margin: 0.75rem 0 1.5rem;
     color: var(--fg);
     font-family: var(--font-display);
-    font-size: 2rem;
+    font-size: 1.65rem;
     font-weight: 400;
   }
 
@@ -546,10 +546,27 @@ const formatDate = (date: Date) => {
 
   @media (max-width: 768px) {
     .post-container {
-      padding: 4rem 1.25rem;
+      padding: 3rem 1.25rem 4rem;
     }
-    .article-nav ol {
-      grid-template-columns: 1fr;
+
+    .article-nav {
+      display: none;
+    }
+
+    .post-title {
+      margin-bottom: 2.75rem;
+      font-size: clamp(2.4rem, 13vw, 3rem);
+      letter-spacing: -0.04em;
+    }
+
+    .post-content :global(h2) {
+      margin-top: 3.75rem;
+      font-size: clamp(2.4rem, 10vw, 3rem);
+      letter-spacing: -0.03em;
+    }
+
+    .post-content :global(code) {
+      overflow-wrap: anywhere;
     }
   }
 
@@ -564,6 +581,13 @@ const formatDate = (date: Date) => {
     .bio-avatar {
       width: 56px;
       height: 56px;
+    }
+
+    .related-articles a {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.35rem;
+      padding: 0.85rem 0;
     }
   }
 </style>

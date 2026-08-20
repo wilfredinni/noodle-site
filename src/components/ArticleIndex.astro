@@ -178,7 +178,8 @@ const formatDate = (date: Date) => date.toLocaleDateString("en-US", {
   }
 
   .article-copy {
-    flex: 1 1 36rem;
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .article-row h2 {
@@ -267,24 +268,51 @@ const formatDate = (date: Date) => date.toLocaleDateString("en-US", {
   }
 
   @media (max-width: 650px) {
+    .index-header {
+      margin-bottom: 2.75rem;
+    }
+
+    .index-header h1 {
+      font-size: clamp(3rem, 16vw, 4.5rem);
+      letter-spacing: -0.04em;
+    }
+
+    .index-header h1::after {
+      height: 6px;
+      margin-top: 1rem;
+    }
+
     .article-row a {
       flex-direction: column;
       align-items: flex-start;
       min-height: 0;
-      gap: 1rem;
-      padding: 1.5rem 0;
+      gap: 1.25rem;
+      padding: 1.35rem 0;
+    }
+
+    .article-row h2 {
+      font-size: 1.65rem;
+    }
+
+    .article-copy p {
+      font-size: 1rem;
     }
 
     .article-meta {
       width: 100%;
       margin-left: 0;
-      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.6rem 1rem;
+    }
+
+    .article-arrow {
+      margin-left: auto;
     }
   }
 
   @media (max-width: 768px) {
     .article-index {
-      padding: 4rem 1.25rem;
+      padding: 3rem 1.25rem 4rem;
     }
 
     .pagination {
