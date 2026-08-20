@@ -5,6 +5,7 @@
     "": {
       "name": "users-carlosmontecinos-projects-noodle-site",
       "dependencies": {
+        "@astrojs/sitemap": "^3.7.3",
         "@astrojs/starlight": "^0.41.7",
         "astro": "^7.2.1",
         "sharp": "^0.34.5",

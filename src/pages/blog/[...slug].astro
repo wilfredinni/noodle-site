@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from "astro:content"
 import BaseLayout from "../../layouts/BaseLayout.astro"
-import { Image } from "astro:assets"
+import { getArticles } from "../../lib/articles"
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog")
@@ -14,23 +14,67 @@ export async function getStaticPaths() {
 const { post } = Astro.props
 const { Content, headings } = await render(post)
 const articleHeadings = headings.filter(({ depth }) => depth === 2)
+const relatedPosts = (await getArticles()).filter(({ id }) => id !== post.id).slice(0, 3)
+const site = Astro.site ?? Astro.url
+const postUrl = new URL(`/blog/${post.id}/`, site)
+const modifiedDate = post.data.updatedDate ?? post.data.date
+const articleStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: post.data.title,
+  description: post.data.description,
+  image: new URL("/og-default.jpg", site).href,
+  datePublished: post.data.date.toISOString(),
+  dateModified: modifiedDate.toISOString(),
+  author: {
+    "@type": "Person",
+    name: post.data.author.name,
+    url: post.data.author.url,
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Noodle",
+    url: new URL("/", site).href,
+    logo: {
+      "@type": "ImageObject",
+      url: new URL("/android-chrome-512x512.png", site).href,
+    },
+  },
+  mainEntityOfPage: postUrl.href,
+  keywords: post.data.tags.join(", "),
+}
 
 const formatDate = (date: Date) => {
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "UTC",
   })
 }
 ---
 
-<BaseLayout title={`${post.data.title} · Noodle Blog`} description={post.data.description}>
+<BaseLayout
+  title={`${post.data.title} · Noodle Blog`}
+  description={post.data.description}
+  type="article"
+  publishedTime={post.data.date}
+  modifiedTime={modifiedDate}
+  author={post.data.author.name}
+  structuredData={articleStructuredData}
+>
   <main class="post-container">
     <header class="post-header">
       <div class="post-meta">
         <time datetime={post.data.date.toISOString()}>
           {formatDate(post.data.date)}
         </time>
+        {post.data.updatedDate && (
+          <>
+            <span class="meta-separator">·</span>
+            <span>Updated <time datetime={post.data.updatedDate.toISOString()}>{formatDate(post.data.updatedDate)}</time></span>
+          </>
+        )}
         {post.data.tags && post.data.tags.length > 0 && (
           <>
             <span class="meta-separator">·</span>
@@ -66,7 +110,7 @@ const formatDate = (date: Date) => {
     {post.data.author && (
       <div class="author-bio-card">
         {post.data.author.picture && (
-          <Image src={post.data.author.picture} alt={post.data.author.name} width={72} height={72} class="bio-avatar" />
+          <img src={post.data.author.picture} alt={post.data.author.name} width="72" height="72" loading="lazy" decoding="async" class="bio-avatar" />
         )}
         <div class="bio-content">
           <span class="bio-name">
@@ -101,6 +145,23 @@ const formatDate = (date: Date) => {
         </div>
       </div>
     )}
+
+    {relatedPosts.length > 0 && (
+      <section class="related-articles" aria-labelledby="related-title">
+        <span>More from Noodle</span>
+        <h2 id="related-title">Continue reading</h2>
+        <ul>
+          {relatedPosts.map((relatedPost) => (
+            <li>
+              <a href={`/blog/${relatedPost.id}/`}>
+                <strong>{relatedPost.data.title}</strong>
+                <time datetime={relatedPost.data.date.toISOString()}>{formatDate(relatedPost.data.date)}</time>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
   </main>
 </BaseLayout>
 
@@ -114,7 +175,8 @@ const formatDate = (date: Date) => {
     grid-template-areas:
       "header nav"
       "article nav"
-      "author nav";
+      "author nav"
+      "related nav";
     grid-template-columns: minmax(0, 46rem) 15rem;
     column-gap: clamp(3rem, 7vw, 6rem);
     width: 100%;
@@ -399,13 +461,73 @@ const formatDate = (date: Date) => {
     color: var(--fg);
   }
 
+  .related-articles {
+    grid-area: related;
+    margin-top: 4rem;
+  }
+
+  .related-articles > span {
+    color: var(--coral);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .related-articles h2 {
+    margin: 0.75rem 0 1.5rem;
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 400;
+  }
+
+  .related-articles ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .related-articles li {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .related-articles a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: 64px;
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .related-articles a:hover strong,
+  .related-articles a:focus-visible strong {
+    color: var(--accent);
+  }
+
+  .related-articles strong {
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .related-articles time {
+    flex: 0 0 auto;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+  }
+
   @media (max-width: 900px) {
     .post-container {
       grid-template-areas:
         "header"
         "nav"
         "article"
-        "author";
+        "author"
+        "related";
       grid-template-columns: minmax(0, 46rem);
       justify-content: center;
     }

@@ -1,7 +1,28 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import sitemap from "@astrojs/sitemap";
 import starlight from "@astrojs/starlight";
 import starlightLlmsTxt from "starlight-llms-txt";
+import { readdirSync, readFileSync } from "node:fs";
+import { basename, extname } from "node:path";
+
+const lastModified = new Map();
+
+for (const file of readdirSync("./src/content/blog")) {
+  if (!/\.mdx?$/.test(file)) continue;
+
+  const source = readFileSync(`./src/content/blog/${file}`, "utf8");
+  const date = source.match(/^updatedDate:\s*["']?([^"'\n]+)["']?$/m)?.[1]
+    ?? source.match(/^date:\s*["']?([^"'\n]+)["']?$/m)?.[1];
+
+  if (date) lastModified.set(`/blog/${basename(file, extname(file))}/`, date.trim());
+}
+
+const latestArticleDate = [...lastModified.values()].sort().at(-1);
+if (latestArticleDate) {
+  for (const path of ["/", "/blog/", "/releases/"]) lastModified.set(path, latestArticleDate);
+}
+lastModified.set("/compare/", "2026-08-19");
 
 export default defineConfig({
   site: "https://noodlerest.dev",
@@ -9,6 +30,14 @@ export default defineConfig({
     domains: ["github.com", "avatars.githubusercontent.com"],
   },
   integrations: [
+    sitemap({
+      filter: (page) => new URL(page).pathname !== "/rss.xml",
+      serialize(item) {
+        const date = lastModified.get(new URL(item.url).pathname);
+        if (date) item.lastmod = new Date(date).toISOString();
+        return item;
+      },
+    }),
     starlight({
       title: "Noodle",
       plugins: [starlightLlmsTxt()],
@@ -56,6 +85,59 @@ export default defineConfig({
           attrs: {
             rel: "manifest",
             href: "/site.webmanifest",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "alternate",
+            type: "application/rss+xml",
+            title: "Noodle Blog",
+            href: "/rss.xml",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "sitemap",
+            href: "/sitemap-index.xml",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "robots",
+            content: "index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:image",
+            content: "https://noodlerest.dev/og-default.jpg",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:image:alt",
+            content: "Noodle terminal REST client",
+          },
+        },
+        { tag: "meta", attrs: { property: "og:image:width", content: "1200" } },
+        { tag: "meta", attrs: { property: "og:image:height", content: "630" } },
+        {
+          tag: "meta",
+          attrs: {
+            name: "twitter:image",
+            content: "https://noodlerest.dev/og-default.jpg",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "twitter:image:alt",
+            content: "Noodle terminal REST client",
           },
         },
       ],
