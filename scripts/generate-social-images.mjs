@@ -108,7 +108,7 @@ const cards = [
       <text x="84" y="394" class="sans" fill="${colors.navy}" font-size="20">Readable files. Live requests. Any terminal.</text>
       <line x1="84" y1="502" x2="586" y2="502" stroke="${colors.navy}" opacity="0.35"/>
       <text x="84" y="548" class="mono" fill="${colors.navy}" font-size="14">noodlerest.dev</text>
-      ${logo(786, 70, 440, 393)}
+      ${logo(786, 80, 430, 380)}
     `),
   },
   {
