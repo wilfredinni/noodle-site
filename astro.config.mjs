@@ -44,7 +44,7 @@ export default defineConfig({
       description:
         "Terminal REST client for inspecting, sending, and iterating on HTTP requests from YAML files on disk.",
       logo: {
-        src: "./src/assets/noodle/logo-simpler.png",
+        src: "./src/assets/noodle/logo-kraken-light.svg",
         alt: "Noodle",
       },
       expressiveCode: {
@@ -52,14 +52,14 @@ export default defineConfig({
           frame: "none",
         },
       },
-      favicon: "/favicon.ico",
+      favicon: "/favicon.ico?v=3",
       head: [
         {
           tag: "link",
           attrs: {
             rel: "apple-touch-icon",
             sizes: "180x180",
-            href: "/apple-touch-icon.png",
+            href: "/apple-touch-icon.png?v=3",
           },
         },
         {
@@ -68,7 +68,7 @@ export default defineConfig({
             rel: "icon",
             type: "image/png",
             sizes: "32x32",
-            href: "/favicon-32x32.png",
+            href: "/favicon-32x32.png?v=3",
           },
         },
         {
@@ -77,14 +77,14 @@ export default defineConfig({
             rel: "icon",
             type: "image/png",
             sizes: "16x16",
-            href: "/favicon-16x16.png",
+            href: "/favicon-16x16.png?v=3",
           },
         },
         {
           tag: "link",
           attrs: {
             rel: "manifest",
-            href: "/site.webmanifest",
+            href: "/site.webmanifest?v=3",
           },
         },
         {
@@ -114,7 +114,7 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             property: "og:image",
-            content: "https://noodlerest.dev/og-default.jpg",
+            content: "https://noodlerest.dev/social/og-default.png",
           },
         },
         {
@@ -130,7 +130,7 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             name: "twitter:image",
-            content: "https://noodlerest.dev/og-default.jpg",
+            content: "https://noodlerest.dev/social/og-default.png",
           },
         },
         {
