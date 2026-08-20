@@ -7,7 +7,7 @@ const releases = await getArticles("release")
 const lastPage = Math.ceil(releases.length / ARTICLES_PER_PAGE)
 ---
 
-<BaseLayout title="Releases · Noodle" description="Noodle release notes, updates, and the thinking behind what shipped.">
+<BaseLayout title="Releases · Noodle" description="Noodle release notes, updates, and the thinking behind what shipped." image="/social/release.png">
   <ArticleIndex
     kicker="Noodle releases"
     title="Release notes"

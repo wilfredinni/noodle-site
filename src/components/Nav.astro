@@ -6,7 +6,16 @@ import krakenLogo from "../assets/noodle/logo-kraken-light.svg"
 <nav id="site-nav" aria-label="Primary navigation">
   <div class="nav-inner">
     <a href="/" class="wordmark" aria-label="Noodle home">
-      <Image class="brand-mark" src={krakenLogo} width={40} height={36} alt="" decoding="async" />
+      <Image
+        class="brand-mark"
+        src={krakenLogo}
+        width={40}
+        height={36}
+        alt=""
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
       <span class="brand-name">noodle</span>
     </a>
 

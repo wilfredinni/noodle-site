@@ -13,7 +13,7 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page } = Astro.props as { page: Page<CollectionEntry<"blog">> }
 ---
 
-<BaseLayout title={`Blog · Page ${page.currentPage} · Noodle`} description="The latest updates, guides, and announcements from the Noodle terminal REST client team.">
+<BaseLayout title={`Blog · Page ${page.currentPage} · Noodle`} description="The latest updates, guides, and announcements from the Noodle terminal REST client team." image="/social/blog.png">
   <ArticleIndex
     kicker="Noodle journal"
     title="Inside Noodle"

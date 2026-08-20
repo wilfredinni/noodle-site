@@ -7,6 +7,7 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "social:generate": "node scripts/generate-social-images.mjs",
     "astro": "astro"
   },
   "dependencies": {

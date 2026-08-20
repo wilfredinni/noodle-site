@@ -18,12 +18,13 @@ const relatedPosts = (await getArticles()).filter(({ id }) => id !== post.id).sl
 const site = Astro.site ?? Astro.url
 const postUrl = new URL(`/blog/${post.id}/`, site)
 const modifiedDate = post.data.updatedDate ?? post.data.date
+const socialImage = post.data.tags.includes("release") ? "/social/release.png" : "/social/blog.png"
 const articleStructuredData = {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
   headline: post.data.title,
   description: post.data.description,
-  image: new URL("/og-default.jpg", site).href,
+  image: new URL(socialImage, site).href,
   datePublished: post.data.date.toISOString(),
   dateModified: modifiedDate.toISOString(),
   author: {
@@ -57,6 +58,7 @@ const formatDate = (date: Date) => {
 <BaseLayout
   title={`${post.data.title} · Noodle Blog`}
   description={post.data.description}
+  image={socialImage}
   type="article"
   publishedTime={post.data.date}
   modifiedTime={modifiedDate}
