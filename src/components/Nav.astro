@@ -1,12 +1,12 @@
 ---
 import { Image } from "astro:assets"
-import logoMark from "../assets/noodle/logo-simpler.png"
+import krakenLogo from "../assets/noodle/logo-kraken-light.svg"
 ---
 
 <nav id="site-nav" aria-label="Primary navigation">
   <div class="nav-inner">
     <a href="/" class="wordmark" aria-label="Noodle home">
-      <Image src={logoMark} class="brand-mark" alt="" width={54} loading="eager" />
+      <Image class="brand-mark" src={krakenLogo} width={40} height={36} alt="" decoding="async" />
       <span class="brand-name">noodle</span>
     </a>
 
@@ -62,8 +62,9 @@ import logoMark from "../assets/noodle/logo-simpler.png"
   }
 
   .brand-mark {
-    width: 38px;
-    height: 32px;
+    width: 40px;
+    height: 36px;
+    flex: none;
     object-fit: contain;
   }
 
