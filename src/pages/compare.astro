@@ -143,11 +143,31 @@ const bestFits = [
   ["Yaak", "Desktop + protocols", "Choose it for a polished local desktop client with broad protocol support and modern authentication."],
   ["Bruno", "Testing + automation", "Choose it for mature scripting, assertions, runners, CI, and a broader API-testing platform."],
 ]
+
+const comparisonSources = [
+  ["Noodle", [["Documentation", "/docs/"], ["GitHub", "https://github.com/wilfredinni/noodle"]]],
+  ["Posting", [["Website", "https://posting.sh/"], ["GitHub", "https://github.com/darrenburns/posting"]]],
+  ["Yaak", [["Documentation", "https://yaak.app/docs"], ["GitHub", "https://github.com/mountain-loop/yaak"]]],
+  ["Bruno", [["Documentation", "https://docs.usebruno.com/v2/introduction/what-is-bruno"], ["Pricing", "https://www.usebruno.com/pricing"], ["GitHub", "https://github.com/usebruno/bruno"]]],
+] as const
+
+const comparisonUrl = new URL("/compare/", Astro.site ?? Astro.url)
+const comparisonStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Compare Noodle, Posting, Yaak, and Bruno",
+  description: "A source-backed comparison of repository-native API clients and testing tools.",
+  url: comparisonUrl.href,
+  dateModified: "2026-08-19",
+  about: products.map((name) => ({ "@type": "SoftwareApplication", name })),
+  citation: comparisonSources.flatMap(([, links]) => links.map(([, href]) => href)),
+}
 ---
 
 <BaseLayout
   title="Compare Noodle · Posting, Yaak, and Bruno"
   description="An honest, source-backed comparison of Noodle, Posting, Yaak, and Bruno for repository-native API workflows."
+  structuredData={comparisonStructuredData}
 >
   <main class="comparison-page">
     <header class="comparison-hero">
@@ -169,6 +189,7 @@ const bestFits = [
     <nav class="section-nav" aria-label="Comparison sections">
       {sections.map(({ id, kicker }) => <a href={`#${id}`}>{kicker.replace(/^\d+ · /, "")}</a>)}
       <a href="#best-fit">Best fit</a>
+      <a href="#sources">Sources</a>
     </nav>
 
     {sections.map(({ id, kicker, title, description, rows }, sectionIndex) => (
@@ -209,6 +230,23 @@ const bestFits = [
           </article>
         ))}
       </div>
+    </section>
+
+    <section id="sources" class="comparison-section source-section" aria-labelledby="sources-title">
+      <header>
+        <div><span class="section-kicker">Verification</span><h2 id="sources-title">Official sources, checked recently.</h2></div>
+        <p>Features, licensing, and pricing were verified against the linked product documentation on <time datetime="2026-08-19">August 19, 2026</time>. Products change, so use these sources for the latest details.</p>
+      </header>
+      <ul class="source-list">
+        {comparisonSources.map(([product, links]) => (
+          <li>
+            <strong>{product}</strong>
+            <span>
+              {links.map(([label, href]) => <a href={href}>{label}</a>)}
+            </span>
+          </li>
+        ))}
+      </ul>
     </section>
 
     <section class="comparison-conclusion" aria-labelledby="conclusion-title">
@@ -498,6 +536,43 @@ const bestFits = [
     line-height: 1.6;
   }
 
+  .source-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .source-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: 64px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .source-list strong {
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  .source-list span {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.75rem 1.25rem;
+  }
+
+  .source-list a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
   .comparison-conclusion {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -576,6 +651,17 @@ const bestFits = [
 
     .fit-grid article:last-child {
       border-bottom: 0;
+    }
+
+    .source-list li {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding-block: 0.75rem;
+    }
+
+    .source-list span {
+      justify-content: flex-start;
     }
   }
 </style>

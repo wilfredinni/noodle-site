@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro"
 import HeroSection from "../components/landing/HeroSection.astro"
 import InstallPill from "../components/InstallPill.astro"
 import { getArticles } from "../lib/articles"
+import update from "../../public/update.json"
 
 const [latestRelease] = await getArticles("release")
 
@@ -20,11 +21,46 @@ const nextItems = [
   ["v0.9", "Scripts and advanced tests", "Add reusable setup, teardown, and deeper request checks."],
   ["v0.10", "Richer CI reporting", "Expand collection runs with reports such as JUnit."],
 ]
+
+const site = Astro.site ?? Astro.url
+const homeUrl = new URL("/", site).href
+const homeStructuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${homeUrl}#website`,
+      name: "Noodle",
+      url: homeUrl,
+      description: "Write, send, inspect, and automate HTTP requests from version-controlled YAML files.",
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${homeUrl}#software`,
+      name: "Noodle",
+      url: homeUrl,
+      description: "A terminal REST client for repository-native API workflows.",
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: ["macOS", "Linux"],
+      softwareVersion: update.version.replace(/^v/, ""),
+      downloadUrl: new URL("/install.sh", site).href,
+      codeRepository: "https://github.com/wilfredinni/noodle",
+      license: "https://www.apache.org/licenses/LICENSE-2.0",
+      image: new URL("/og-default.jpg", site).href,
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+    },
+  ],
+}
 ---
 
 <BaseLayout
   title="Noodle · API workflows in your terminal"
   description="Write, send, inspect, and automate HTTP requests from version-controlled YAML files."
+  structuredData={homeStructuredData}
 >
   <HeroSection latestRelease={latestRelease} />
 

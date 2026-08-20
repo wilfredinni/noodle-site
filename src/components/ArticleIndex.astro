@@ -26,6 +26,13 @@ const {
 const pageHref = (page: number) => page === 1
   ? `${pagination?.basePath}/`
   : `${pagination?.basePath}/page/${page}/`
+
+const formatDate = (date: Date) => date.toLocaleDateString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+})
 ---
 
 <main class="article-index">
@@ -45,8 +52,12 @@ const pageHref = (page: number) => page === 1
         {posts.map((post) => (
           <article class="article-row">
             <a href={`/blog/${post.id}/`}>
-              <h2>{post.data.title}</h2>
+              <div class="article-copy">
+                <h2>{post.data.title}</h2>
+                <p>{post.data.description}</p>
+              </div>
               <div class="article-meta">
+                <time datetime={post.data.date.toISOString()}>{formatDate(post.data.date)}</time>
                 {post.data.tags.slice(0, 2).map((tag) => (
                   <span>#{tag}</span>
                 ))}
@@ -166,8 +177,11 @@ const pageHref = (page: number) => page === 1
     outline: 2px solid transparent;
   }
 
+  .article-copy {
+    flex: 1 1 36rem;
+  }
+
   .article-row h2 {
-    flex-grow: 1;
     margin: 0;
     color: var(--fg);
     font-family: var(--font-display);
@@ -175,6 +189,14 @@ const pageHref = (page: number) => page === 1
     font-weight: 400;
     line-height: 1.1;
     transition: color 0.2s;
+  }
+
+  .article-copy p {
+    max-width: 62ch;
+    margin-top: 0.65rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.55;
   }
 
   .article-row a:hover h2,
@@ -191,6 +213,13 @@ const pageHref = (page: number) => page === 1
 
   .article-meta span:not(.article-arrow) {
     color: var(--coral);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .article-meta time {
+    color: var(--muted);
     font-family: var(--font-mono);
     font-size: 0.75rem;
     white-space: nowrap;

@@ -10,6 +10,36 @@
   to = "https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.sh"
   status = 301
 
+[[redirects]]
+  from = "/docs/import/openapi/"
+  to = "/docs/import/import/#openapi-30"
+  status = 301
+
+[[redirects]]
+  from = "/docs/import/swagger/"
+  to = "/docs/import/import/#swagger-20"
+  status = 301
+
+[[redirects]]
+  from = "/docs/import/postman/"
+  to = "/docs/import/import/#postman"
+  status = 301
+
+[[redirects]]
+  from = "/docs/import/insomnia/"
+  to = "/docs/import/import/#insomnia"
+  status = 301
+
+[[headers]]
+  for = "/_astro/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/rss.xml"
+  [headers.values]
+    Cache-Control = "public, s-maxage=300, stale-while-revalidate=600"
+
 [[headers]]
   for = "/update.json"
   [headers.values]
