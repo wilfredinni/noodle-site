@@ -1,0 +1,372 @@
+<figure class="auth-inheritance" aria-labelledby="auth-inheritance-caption">
+  <div class="auth-inheritance__diagram not-content" aria-hidden="true">
+    <section class="folder-auth">
+      <header>
+        <span>FOLDER AUTH</span>
+        <strong>payments/</strong>
+      </header>
+      <div class="auth-config">
+        <code>type: bearer</code>
+        <code>token: $api_token</code>
+      </div>
+      <small>shared policy in <code>folder.yml</code></small>
+    </section>
+
+    <div class="inheritance-path">
+      <span>resolve per request</span>
+      <svg viewBox="0 0 72 176" focusable="false">
+        <path d="M1 88h24M25 22v132M25 22h42M25 88h42M25 154h42"></path>
+        <path d="m62 17 5 5-5 5M62 83l5 5-5 5M62 149l5 5-5 5"></path>
+      </svg>
+    </div>
+
+    <div class="request-outcomes">
+      <section class="request request--inherit">
+        <header><b>GET</b><code>balance.yml</code></header>
+        <div><code>auth: inherit</code><strong>folder bearer</strong></div>
+        <small>Authorization header added</small>
+      </section>
+
+      <section class="request request--override">
+        <header><b>POST</b><code>webhook.yml</code></header>
+        <div><code>auth: api_key</code><strong>request wins</strong></div>
+        <small>folder auth replaced</small>
+      </section>
+
+      <section class="request request--none">
+        <header><b>GET</b><code>health.yml</code></header>
+        <div><code>auth: none</code><strong>no auth</strong></div>
+        <small>folder auth disabled</small>
+      </section>
+    </div>
+
+    <div class="secret-boundary">
+      <svg viewBox="0 0 20 20" focusable="false">
+        <path d="M10 2 16 4.5v4.8c0 3.9-2.4 6.5-6 8.7-3.6-2.2-6-4.8-6-8.7V4.5L10 2Z"></path>
+        <path d="m7.3 9.8 1.7 1.7 3.8-4"></path>
+      </svg>
+      <p><strong>Collection file</strong> <code>$api_token</code> reference</p>
+      <span></span>
+      <p><strong>OS credential vault</strong> secret value</p>
+    </div>
+  </div>
+
+  <figcaption id="auth-inheritance-caption">
+    A request with <code>auth: inherit</code> uses its nearest folder's auth.
+    Explicit request auth replaces the folder setting, while <code>auth: none</code> opts
+    out. Secret values remain outside shareable collection files.
+  </figcaption>
+</figure>
+
+<style>
+  .auth-inheritance {
+    margin-block: 2.5rem;
+  }
+
+  .auth-inheritance__diagram {
+    display: grid;
+    grid-template-columns: minmax(10.5rem, 0.82fr) 4.5rem minmax(18rem, 1.5fr);
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    overflow: hidden;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-hairline-light);
+    border-radius: 16px;
+    font-family: var(--sl-font-mono);
+  }
+
+  .auth-inheritance__diagram :where(div, section, header, p) {
+    margin-block: 0;
+  }
+
+  .auth-inheritance .auth-inheritance__diagram code {
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    font-family: inherit;
+  }
+
+  .folder-auth,
+  .request {
+    min-width: 0;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 16px;
+  }
+
+  .folder-auth {
+    display: grid;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-color: var(--sl-color-border-accent);
+  }
+
+  .folder-auth header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+
+  .folder-auth header span,
+  .inheritance-path span {
+    color: var(--sl-color-gray-2);
+    font-size: 0.52rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  .folder-auth header strong {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--sl-color-purple-high);
+    font-size: 0.7rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .auth-config {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.65rem;
+    background: var(--sl-color-bg-inline-code);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+  }
+
+  .auth-config code {
+    color: var(--sl-color-white);
+    font-size: 0.65rem;
+  }
+
+  .auth-config code:last-child {
+    color: var(--sl-color-blue-high);
+  }
+
+  .folder-auth > small {
+    color: var(--sl-color-gray-2);
+    font-size: 0.52rem;
+  }
+
+  .folder-auth > small code {
+    color: var(--sl-color-white);
+  }
+
+  .inheritance-path {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+  }
+
+  .inheritance-path span {
+    text-align: center;
+  }
+
+  .inheritance-path svg {
+    width: 4.5rem;
+    height: 11rem;
+    fill: none;
+    stroke: var(--sl-color-accent);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .request-outcomes {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .request {
+    display: grid;
+    grid-template-columns: minmax(7.5rem, 0.8fr) minmax(9rem, 1fr);
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .request header,
+  .request > div {
+    display: grid;
+    align-content: center;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .request header {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-row: 1 / 3;
+    align-items: center;
+  }
+
+  .request header b {
+    color: var(--sl-color-green-high);
+    font-size: 0.52rem;
+  }
+
+  .request--override header b {
+    color: var(--sl-color-orange-high);
+  }
+
+  .request header code {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--sl-color-white);
+    font-size: 0.65rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .request > div code,
+  .request > div strong,
+  .request > small {
+    font-size: 0.52rem;
+  }
+
+  .request > div code {
+    color: var(--sl-color-blue-high);
+  }
+
+  .request > div,
+  .request > small {
+    grid-column: 2;
+  }
+
+  .request > div strong {
+    color: var(--sl-color-white);
+  }
+
+  .request > small {
+    color: var(--sl-color-gray-2);
+  }
+
+  .request--override > div code {
+    color: var(--sl-color-orange-high);
+  }
+
+  .request--none > div code {
+    color: var(--sl-color-gray-2);
+  }
+
+  .secret-boundary {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: auto auto minmax(2rem, 1fr) auto;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: 0.25rem;
+    padding: 0.65rem 0.75rem;
+    color: var(--sl-color-gray-2);
+    background: var(--sl-color-bg-inline-code);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+  }
+
+  .secret-boundary svg {
+    width: 1rem;
+    fill: none;
+    stroke: var(--sl-color-purple-high);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .secret-boundary p {
+    font-size: 0.52rem;
+  }
+
+  .secret-boundary strong {
+    color: var(--sl-color-white);
+  }
+
+  .secret-boundary code {
+    color: var(--sl-color-blue-high);
+  }
+
+  .secret-boundary > span {
+    height: 1px;
+    background: var(--sl-color-gray-5);
+  }
+
+  .auth-inheritance figcaption {
+    margin-top: 0.75rem;
+    color: var(--sl-color-gray-2);
+    font-family: var(--sl-font-mono);
+    font-size: 0.65rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 40rem) {
+    .auth-inheritance__diagram {
+      grid-template-columns: minmax(0, 1fr);
+      align-items: stretch;
+    }
+
+    .inheritance-path {
+      position: relative;
+      height: 2.5rem;
+    }
+
+    .inheritance-path svg {
+      display: none;
+    }
+
+    .inheritance-path span {
+      display: none;
+    }
+
+    .inheritance-path::before {
+      width: 1px;
+      height: 1.75rem;
+      background: var(--sl-color-accent);
+      content: "";
+    }
+
+    .inheritance-path::after {
+      position: absolute;
+      bottom: 0.4rem;
+      width: 0.45rem;
+      height: 0.45rem;
+      border-right: 1px solid var(--sl-color-accent);
+      border-bottom: 1px solid var(--sl-color-accent);
+      content: "";
+      transform: rotate(45deg);
+    }
+
+    .request {
+      grid-template-columns: minmax(7.5rem, 0.8fr) minmax(8rem, 1fr);
+    }
+
+    .secret-boundary {
+      grid-template-columns: auto minmax(0, 1fr);
+    }
+
+    .secret-boundary > span {
+      display: none;
+    }
+
+    .secret-boundary p:last-child {
+      grid-column: 2;
+    }
+  }
+
+  @media (max-width: 25rem) {
+    .request {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .request header {
+      grid-row: auto;
+      margin-bottom: 0.35rem;
+    }
+
+    .request > div,
+    .request > small {
+      grid-column: 1;
+    }
+  }
+</style>

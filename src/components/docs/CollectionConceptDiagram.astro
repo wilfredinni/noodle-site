@@ -1,0 +1,471 @@
+<figure class="collection-concept" aria-labelledby="collection-concept-caption">
+  <div class="collection-concept__diagram" aria-hidden="true">
+    <section class="collection-source">
+      <header>
+        <strong>Collection on disk</strong>
+        <code>my-collection/</code>
+      </header>
+
+      <div class="source-file source-file--request">
+        <span class="method">GET</span>
+        <div>
+          <code>auth/profile.yml</code>
+          <small>request source of truth</small>
+        </div>
+      </div>
+
+      <div class="source-file source-file--folder">
+        <code>folder.yml</code>
+        <small>headers + auth inherit</small>
+      </div>
+
+      <div class="source-file source-file--environment">
+        <code>.environments/dev.env</code>
+        <small><b>$VARS</b> substitute</small>
+      </div>
+    </section>
+
+    <div class="resolver">
+      <span>resolve</span>
+      <svg viewBox="0 0 48 16" focusable="false">
+        <path d="M1 8h42m-7-6 7 6-7 6"></path>
+      </svg>
+    </div>
+
+    <section class="tui-shell">
+      <header class="tui-titlebar">
+        <strong>noodle</strong>
+        <span><i></i> development</span>
+      </header>
+
+      <div class="tui-panes">
+        <div class="tui-pane tui-pane--sidebar">
+          <strong>Sidebar</strong>
+          <span>▾ auth</span>
+          <b><i>GET</i> profile</b>
+          <span>▸ public</span>
+        </div>
+
+        <div class="tui-pane tui-pane--url">
+          <strong>URL bar</strong>
+          <code>GET /profile</code>
+        </div>
+
+        <div class="tui-pane tui-pane--request">
+          <strong>Request</strong>
+          <span></span><span></span><span></span>
+        </div>
+
+        <div class="tui-pane tui-pane--response">
+          <strong>Response</strong>
+          <code>200 OK</code>
+          <span></span><span></span>
+        </div>
+      </div>
+
+      <div class="cookie-lane">
+        <strong>
+          <svg viewBox="0 0 20 20" focusable="false">
+            <path d="M15.8 11.4a6 6 0 0 1-7.2-7.2A6 6 0 1 0 15.8 11.4Z"></path>
+            <circle cx="7" cy="11" r=".8"></circle>
+            <circle cx="11" cy="14" r=".8"></circle>
+          </svg>
+          Cookie jar
+        </strong>
+        <span><code>Cookie</code> out · <code>Set-Cookie</code> back</span>
+      </div>
+    </section>
+  </div>
+
+  <figcaption id="collection-concept-caption">
+    Folder overrides and active environment values enrich the selected request
+    before it opens across Noodle's four panes. The collection cookie jar sends
+    matching cookies and stores <code>Set-Cookie</code> values from responses.
+  </figcaption>
+</figure>
+
+<style>
+  .collection-concept {
+    margin-block: 2.5rem;
+  }
+
+  .collection-concept__diagram {
+    display: grid;
+    grid-template-columns: minmax(10.25rem, 0.8fr) 3.25rem minmax(18.5rem, 1.55fr);
+    align-items: stretch;
+    gap: 0.7rem;
+    padding: 1rem;
+    overflow: hidden;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-hairline-light);
+    border-radius: 16px;
+    font-family: var(--sl-font-mono);
+  }
+
+  .collection-concept .collection-concept__diagram code {
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    font-family: inherit;
+  }
+
+  .collection-source,
+  .tui-shell {
+    min-width: 0;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 16px;
+  }
+
+  .collection-source {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.75rem;
+  }
+
+  .collection-source > header {
+    display: grid;
+    gap: 0.15rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+
+  .collection-source > header strong,
+  .tui-titlebar strong {
+    color: var(--sl-color-white);
+    font-size: 0.7rem;
+    line-height: 1.3;
+  }
+
+  .collection-source > header code {
+    color: var(--sl-color-gray-2);
+    font-size: 0.65rem;
+  }
+
+  .source-file {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.55rem 0.6rem;
+    background: var(--sl-color-bg-inline-code);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+  }
+
+  .source-file code,
+  .source-file small {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .source-file code {
+    color: var(--sl-color-white);
+    font-size: 0.65rem;
+    line-height: 1.35;
+  }
+
+  .source-file small {
+    color: var(--sl-color-gray-2);
+    font: 400 0.52rem/1.35 var(--sl-font-mono);
+  }
+
+  .source-file--request {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    border-color: var(--sl-color-border-accent);
+  }
+
+  .source-file--request > div {
+    display: grid;
+    gap: 0.15rem;
+  }
+
+  .method {
+    color: var(--sl-color-green-high);
+    font-size: 0.52rem;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .source-file--folder code {
+    color: var(--sl-color-purple-high);
+  }
+
+  .source-file--environment code,
+  .source-file--environment b {
+    color: var(--sl-color-blue-high);
+  }
+
+  .resolver {
+    display: grid;
+    place-content: center;
+    gap: 0.35rem;
+    color: var(--sl-color-gray-2);
+    text-align: center;
+  }
+
+  .resolver span {
+    font-size: 0.52rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .resolver svg {
+    width: 100%;
+    fill: none;
+    stroke: var(--sl-color-accent);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .tui-shell {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 0.5rem;
+  }
+
+  .tui-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-width: 0;
+    padding: 0.15rem 0.2rem 0.55rem;
+  }
+
+  .tui-titlebar strong {
+    color: var(--sl-color-purple-high);
+  }
+
+  .tui-titlebar span {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--sl-color-gray-2);
+    font-size: 0.52rem;
+    white-space: nowrap;
+  }
+
+  .tui-titlebar i {
+    width: 0.38rem;
+    height: 0.38rem;
+    background: var(--sl-color-green-high);
+    border-radius: 50%;
+  }
+
+  .tui-panes {
+    display: grid;
+    grid-template-columns: minmax(5.6rem, 0.72fr) minmax(0, 1.65fr);
+    grid-template-rows: auto 1fr 1fr;
+    min-height: 11.25rem;
+  }
+
+  .tui-pane {
+    min-width: 0;
+    margin-block-start: 0;
+    padding: 0.55rem;
+    border: 1px solid var(--sl-color-gray-5);
+  }
+
+  .tui-pane > strong {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: var(--sl-color-gray-2);
+    font-size: 0.52rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+
+  .tui-pane--sidebar {
+    grid-row: 1 / 4;
+    display: grid;
+    align-content: start;
+    gap: 0.42rem;
+    border-radius: 8px 0 0 8px;
+  }
+
+  .tui-pane--sidebar > span,
+  .tui-pane--sidebar > b {
+    color: var(--sl-color-gray-2);
+    font-size: 0.65rem;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  .tui-pane--sidebar > b {
+    color: var(--sl-color-white);
+  }
+
+  .tui-pane--sidebar i {
+    margin-right: 0.35rem;
+    color: var(--sl-color-green-high);
+    font-style: normal;
+  }
+
+  .tui-pane--url {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+    border-left: 0;
+    border-radius: 0 8px 0 0;
+  }
+
+  .tui-pane--url > strong {
+    margin: 0;
+  }
+
+  .tui-pane--url code {
+    overflow: hidden;
+    color: var(--sl-color-white);
+    font-size: 0.65rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tui-pane--request,
+  .tui-pane--response {
+    border-top: 0;
+    border-left: 0;
+  }
+
+  .tui-pane--request > span,
+  .tui-pane--response > span {
+    display: block;
+    width: 80%;
+    height: 1px;
+    margin-top: 0.55rem;
+    background: var(--sl-color-gray-5);
+  }
+
+  .tui-pane--request > span:nth-of-type(2) {
+    width: 58%;
+  }
+
+  .tui-pane--request > span:nth-of-type(3),
+  .tui-pane--response > span:nth-of-type(2) {
+    width: 68%;
+  }
+
+  .tui-pane--response {
+    position: relative;
+    border-radius: 0 0 8px;
+  }
+
+  .tui-pane--response code {
+    position: absolute;
+    top: 0.45rem;
+    right: 0.5rem;
+    color: var(--sl-color-green-high);
+    font-size: 0.52rem;
+  }
+
+  .cookie-lane {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    padding: 0.65rem 0.2rem 0.1rem;
+    color: var(--sl-color-gray-2);
+    font-size: 0.52rem;
+  }
+
+  .cookie-lane strong {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--sl-color-orange-high);
+    white-space: nowrap;
+  }
+
+  .cookie-lane svg {
+    width: 0.85rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.4;
+  }
+
+  .cookie-lane circle {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .cookie-lane span {
+    min-width: 0;
+    text-align: right;
+  }
+
+  .cookie-lane code {
+    color: var(--sl-color-white);
+    font-size: inherit;
+  }
+
+  figcaption {
+    margin-top: 0.75rem;
+    color: var(--sl-color-gray-2);
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+
+  figcaption code {
+    font-size: 0.82em;
+  }
+
+  @media (max-width: 40rem) {
+    .collection-concept__diagram {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      padding: 0.75rem;
+    }
+
+    .resolver {
+      min-height: 2rem;
+      gap: 0.15rem;
+    }
+
+    .resolver svg {
+      width: 2.5rem;
+      transform: rotate(90deg);
+    }
+
+    .collection-source {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .collection-source > header,
+    .source-file--request {
+      grid-column: 1 / -1;
+    }
+
+    .tui-panes {
+      min-height: 12rem;
+    }
+  }
+
+  @media (max-width: 28rem) {
+    .collection-source {
+      grid-template-columns: 1fr;
+    }
+
+    .collection-source > header,
+    .source-file--request {
+      grid-column: auto;
+    }
+
+    .cookie-lane {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .cookie-lane span {
+      text-align: left;
+    }
+  }
+</style>

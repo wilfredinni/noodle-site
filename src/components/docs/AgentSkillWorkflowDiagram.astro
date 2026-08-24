@@ -1,0 +1,470 @@
+<figure class="agent-workflow" aria-labelledby="agent-workflow-caption">
+  <div class="agent-workflow__diagram not-content" aria-hidden="true">
+    <section class="workflow-step workflow-prompt">
+      <header class="step-heading">
+        <span>1</span>
+        <strong>Human prompt</strong>
+      </header>
+      <p>“Create a users API collection with shared auth and a development environment.”</p>
+    </section>
+
+    <div class="flow-down">
+      <svg viewBox="0 0 16 32" focusable="false">
+        <path d="M8 1v25m-5-5 5 5 5-5"></path>
+      </svg>
+    </div>
+
+    <section class="workflow-step workflow-agent">
+      <header class="step-heading">
+        <span>2</span>
+        <strong>Agent + noodle-use</strong>
+      </header>
+
+      <div class="agent-workbench">
+        <div class="skill-core">
+          <strong>noodle-use</strong>
+          <small>supported automation first</small>
+        </div>
+        <div class="operations">
+          <div><b>CLI</b><code>collection create</code></div>
+          <div><b>FILES</b><code>users/*.yml + .env</code></div>
+          <div><b>CHECK</b><code>collection audit</code></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="flow-down">
+      <svg viewBox="0 0 16 32" focusable="false">
+        <path d="M8 1v25m-5-5 5 5 5-5"></path>
+      </svg>
+    </div>
+
+    <div class="workflow-output">
+      <section class="workflow-step collection-files">
+        <header class="step-heading">
+          <span>3</span>
+          <strong>Versioned collection</strong>
+        </header>
+        <div class="file-tree">
+          <code>users-api/</code>
+          <code>├── settings.yml</code>
+          <code>├── users/list.yml</code>
+          <code>└── .environments/development.env</code>
+        </div>
+        <small>plain files, ready for Git</small>
+      </section>
+
+      <div class="flow-across">
+        <svg viewBox="0 0 40 16" focusable="false">
+          <path d="M1 8h34m-5-5 5 5-5 5"></path>
+        </svg>
+      </div>
+
+      <section class="workflow-step tui-result">
+        <header class="step-heading">
+          <span>4</span>
+          <strong>Noodle TUI</strong>
+        </header>
+        <div class="tui-preview">
+          <header><b>noodle</b><small>development</small></header>
+          <div class="tui-preview__panes">
+            <div class="tui-preview__sidebar">
+              <small>USERS</small>
+              <span><b>GET</b> list</span>
+            </div>
+            <div class="tui-preview__request">
+              <code>GET /users</code>
+              <span></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="safety-rail">
+      <svg viewBox="0 0 20 20" focusable="false">
+        <path d="M10 2 16 4.5v4.8c0 3.9-2.4 6.5-6 8.7-3.6-2.2-6-4.8-6-8.7V4.5L10 2Z"></path>
+        <path d="m7.3 9.8 1.7 1.7 3.8-4"></path>
+      </svg>
+      <p><strong>Safety boundary</strong> Secrets stay in the OS vault. Browser authorization stays human.</p>
+    </div>
+  </div>
+
+  <figcaption id="agent-workflow-caption">
+    The <code>noodle-use</code> skill turns a prompt into a reviewable collection:
+    it prefers supported non-interactive commands, edits YAML or dotenv files
+    when needed, audits the result, and leaves the collection ready to open in
+    Noodle. Secret values and browser authorization remain outside agent-authored files.
+  </figcaption>
+</figure>
+
+<style>
+  .agent-workflow {
+    margin-block: 2.5rem;
+  }
+
+  .agent-workflow__diagram {
+    display: grid;
+    padding: 1rem;
+    overflow: hidden;
+    background: var(--sl-color-bg-nav);
+    border: 1px solid var(--sl-color-hairline-light);
+    border-radius: 16px;
+    font-family: var(--sl-font-mono);
+  }
+
+  .agent-workflow__diagram :where(div, section, header, p) {
+    margin-block: 0;
+  }
+
+  .agent-workflow .agent-workflow__diagram code {
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    font-family: inherit;
+  }
+
+  .workflow-step {
+    min-width: 0;
+    padding: 0.75rem;
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 16px;
+  }
+
+  .step-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--sl-color-white);
+  }
+
+  .step-heading > span {
+    display: grid;
+    flex: 0 0 1.5rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    place-items: center;
+    color: var(--sl-color-accent-high);
+    background: var(--sl-color-accent-low);
+    border: 1px solid var(--sl-color-border-accent);
+    border-radius: 50%;
+    font-size: 0.65rem;
+  }
+
+  .step-heading strong {
+    font-size: 0.7rem;
+    line-height: 1.3;
+  }
+
+  .workflow-prompt {
+    display: grid;
+    grid-template-columns: minmax(8.5rem, 0.72fr) minmax(0, 1.7fr);
+    align-items: center;
+  }
+
+  .workflow-prompt p {
+    padding-left: 1rem;
+    color: var(--sl-color-white);
+    border-left: 1px solid var(--sl-color-gray-5);
+    font: 500 0.85rem/1.5 var(--sl-font);
+  }
+
+  .flow-down,
+  .flow-across {
+    display: grid;
+    place-items: center;
+  }
+
+  .flow-down {
+    height: 2.25rem;
+  }
+
+  .flow-down svg {
+    width: 1rem;
+    height: 2rem;
+  }
+
+  .flow-across svg {
+    width: 2.5rem;
+  }
+
+  .flow-down svg,
+  .flow-across svg {
+    fill: none;
+    stroke: var(--sl-color-accent);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .workflow-agent {
+    border-color: var(--sl-color-border-accent);
+  }
+
+  .agent-workbench {
+    display: grid;
+    grid-template-columns: minmax(8.5rem, 0.72fr) minmax(0, 1.7fr);
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--sl-color-gray-5);
+  }
+
+  .skill-core {
+    display: grid;
+    align-content: center;
+    gap: 0.25rem;
+    padding-right: 0.75rem;
+    border-right: 1px solid var(--sl-color-gray-5);
+  }
+
+  .skill-core strong {
+    color: var(--sl-color-purple-high);
+    font-size: 0.85rem;
+  }
+
+  .skill-core small,
+  .collection-files > small {
+    color: var(--sl-color-gray-2);
+    font-size: 0.52rem;
+  }
+
+  .operations {
+    display: grid;
+    padding-left: 0.75rem;
+  }
+
+  .operations > div {
+    display: grid;
+    grid-template-columns: 3.25rem minmax(0, 1fr);
+    align-items: center;
+    min-width: 0;
+    padding-block: 0.35rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+
+  .operations > div:last-child {
+    border-bottom: 0;
+  }
+
+  .operations b {
+    color: var(--sl-color-blue-high);
+    font-size: 0.52rem;
+    letter-spacing: 0.06em;
+  }
+
+  .operations code {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--sl-color-white);
+    font-size: 0.65rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .workflow-output {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 2.5rem minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .collection-files,
+  .tui-result {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+  }
+
+  .file-tree {
+    display: grid;
+    align-content: center;
+    gap: 0.2rem;
+    padding-block: 0.75rem;
+  }
+
+  .file-tree code {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    color: var(--sl-color-gray-2);
+    font-size: 0.52rem;
+    line-height: 1.35;
+  }
+
+  .file-tree code:first-child {
+    color: var(--sl-color-purple-high);
+  }
+
+  .tui-preview {
+    display: grid;
+    align-self: end;
+    margin-top: 0.75rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+  }
+
+  .tui-preview > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+
+  .tui-preview > header b {
+    color: var(--sl-color-purple-high);
+    font-size: 0.52rem;
+  }
+
+  .tui-preview > header small {
+    color: var(--sl-color-green-high);
+    font-size: 0.52rem;
+  }
+
+  .tui-preview__panes {
+    display: grid;
+    grid-template-columns: minmax(4.25rem, 0.8fr) minmax(0, 1.5fr);
+    min-height: 5.25rem;
+  }
+
+  .tui-preview__sidebar,
+  .tui-preview__request {
+    min-width: 0;
+    padding: 0.5rem;
+  }
+
+  .tui-preview__sidebar {
+    display: grid;
+    align-content: start;
+    gap: 0.45rem;
+    border-right: 1px solid var(--sl-color-gray-5);
+  }
+
+  .tui-preview__sidebar small {
+    color: var(--sl-color-gray-2);
+    font-size: 0.52rem;
+  }
+
+  .tui-preview__sidebar span {
+    color: var(--sl-color-white);
+    font-size: 0.52rem;
+    white-space: nowrap;
+  }
+
+  .tui-preview__sidebar b {
+    margin-right: 0.3rem;
+    color: var(--sl-color-green-high);
+  }
+
+  .tui-preview__request code {
+    display: block;
+    overflow: hidden;
+    color: var(--sl-color-white);
+    font-size: 0.52rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tui-preview__request span {
+    display: block;
+    width: 84%;
+    height: 1px;
+    margin-top: 0.75rem;
+    background: var(--sl-color-gray-5);
+  }
+
+  .tui-preview__request span:nth-of-type(2) {
+    width: 62%;
+    margin-top: 0.5rem;
+  }
+
+  .tui-preview__request span:nth-of-type(3) {
+    width: 74%;
+    margin-top: 0.5rem;
+  }
+
+  .safety-rail {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    color: var(--sl-color-gray-2);
+    background: var(--sl-color-bg);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+  }
+
+  .safety-rail svg {
+    flex: 0 0 1rem;
+    width: 1rem;
+    fill: none;
+    stroke: var(--sl-color-orange-high);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .safety-rail p {
+    color: inherit;
+    font: 400 0.65rem/1.45 var(--sl-font);
+  }
+
+  .safety-rail strong {
+    color: var(--sl-color-orange-high);
+  }
+
+  figcaption {
+    margin-top: 0.75rem;
+    color: var(--sl-color-gray-2);
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+
+  figcaption code {
+    font-size: 0.82em;
+  }
+
+  @media (max-width: 40rem) {
+    .agent-workflow__diagram {
+      padding: 0.75rem;
+    }
+
+    .workflow-prompt,
+    .agent-workbench {
+      grid-template-columns: 1fr;
+    }
+
+    .workflow-prompt p {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      padding-left: 0;
+      border-top: 1px solid var(--sl-color-gray-5);
+      border-left: 0;
+    }
+
+    .skill-core {
+      padding-right: 0;
+      padding-bottom: 0.75rem;
+      border-right: 0;
+      border-bottom: 1px solid var(--sl-color-gray-5);
+    }
+
+    .operations {
+      padding-top: 0.4rem;
+      padding-left: 0;
+    }
+
+    .workflow-output {
+      grid-template-columns: 1fr;
+    }
+
+    .flow-across {
+      height: 2.25rem;
+    }
+
+    .flow-across svg {
+      transform: rotate(90deg);
+    }
+  }
+</style>
