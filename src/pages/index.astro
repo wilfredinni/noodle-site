@@ -9,7 +9,7 @@ const [latestRelease] = await getArticles("release")
 
 const capabilities = [
   ["Requests", "URL, params, headers, body, and auth"],
-  ["Responses", "Body, headers, cookies, status, and timing"],
+  ["Responses", "Body, headers, cookies, status, timing, and assertions"],
   ["Collections", "Folders, inherited context, and Git-friendly files"],
   ["Environments", "Switchable variables and secure values"],
   ["Transport", "Proxy, TLS, mTLS, and authentication"],
@@ -17,7 +17,7 @@ const capabilities = [
 ]
 
 const nextItems = [
-  ["v0.8", "Assertions and captures", "Validate responses and pass captured values into later requests."],
+  ["Next", "Captures and chaining", "Pass response values into later requests without leaving collection files."],
   ["v0.9", "Scripts and advanced tests", "Add reusable setup, teardown, and deeper request checks."],
   ["v0.10", "Richer CI reporting", "Expand collection runs with reports such as JUnit."],
 ]
@@ -138,7 +138,7 @@ const homeStructuredData = {
         <div class="terminal-proof" aria-label="Noodle CLI and agent commands">
           <div><span>$</span><code>noodle request run users/get --collection ./api</code></div>
           <div><span>$</span><code>noodle collection audit ./api</code></div>
-          <div><span>$</span><code>noodle collection run ./api --env staging --json</code></div>
+          <div><span>$</span><code>noodle collection run ./api smoke/ health --env staging --json</code></div>
           <div><span>$</span><code>noodle agent install</code></div>
           <p><span>status</span> success · exit 0 · JSON available</p>
         </div>
@@ -146,8 +146,8 @@ const homeStructuredData = {
         <div class="feature-copy">
           <span class="section-kicker">04 · Automation</span>
           <h2>One collection, more than one way to work.</h2>
-          <p>Explore interactively in the TUI, run requests from the CLI, automate collection checks, or give coding agents the supported Noodle skill.</p>
-          <a href="/docs/getting-started/cli/">CLI and automation</a>
+          <p>Explore interactively in the TUI, run selected requests from the CLI, enforce response assertions, or give coding agents the supported Noodle skill.</p>
+          <a href="/docs/guides/automation/">Automation guide</a>
         </div>
       </article>
     </section>

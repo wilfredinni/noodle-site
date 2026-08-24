@@ -1,6 +1,6 @@
 ---
 title: AI Agent Skills
-description: Give your coding agent a safe, supported way to create, organize, inspect, and convert Noodle collections.
+description: Give your coding agent a safe, supported way to create, organize, run, verify, and convert Noodle collections.
 ---
 
 import ArticlePlaceholder from "../../../../components/docs/ArticlePlaceholder.astro";
@@ -45,7 +45,11 @@ Once the skill is installed, ask your agent to:
 
 ### Create
 
-Scaffold collections, add requests with JSON or XML bodies (including `:name` URL path parameters), set up folders with inheritable auth and headers, create environments, and register the collection path in `~/.config/noodle/config.yml` so it appears in noodle's workspace switcher.
+Scaffold collections, add requests with JSON or XML bodies (including `:name`
+URL path parameters), declare response assertions, set up folders with
+inheritable auth and headers, create environments, and register the collection
+path in `~/.config/noodle/config.yml` so it appears in noodle's workspace
+switcher.
 
 ### Organize
 
@@ -88,6 +92,19 @@ flows require the human user to complete browser authorization in the TUI.
 Automation may reuse or refresh stored credentials, but it never opens a
 browser. Generated client-code snippets are unavailable for NTLMv2, AWS SigV4,
 OAuth 1.0a, and OAuth 2.0 requests.
+
+### Run and verify
+
+Run one request with `noodle request run`, selected request IDs or folder paths
+with `noodle collection run <dir> [<target>...]`, or omit targets to run the
+entire collection. Folder targets end in `/` and include nested requests;
+overlapping targets run once in collection order.
+
+Agents can add declarative response assertions for status, timing,
+case-insensitive headers, and JSON body paths. Failed HTTP responses or
+assertions make run commands exit nonzero. Human output does not print raw
+actual assertion values, but JSON output does, so agents must treat it as
+sensitive response data.
 
 ### Evaluate
 

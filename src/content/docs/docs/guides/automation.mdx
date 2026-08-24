@@ -1,0 +1,174 @@
+---
+title: Automation
+description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with predictable targets, assertions, JSON, and exit statuses.
+---
+
+A Noodle collection does not need a second representation before it can run in
+automation. The same request files you inspect in the TUI can be audited,
+selected, and sent from the command line.
+
+That keeps the feedback loop close to the collection. A small change can run one
+request or one folder, while a broader check can run every request in collection
+order.
+
+## Choose the requests that matter
+
+Run one saved request by its collection-relative ID. The ID omits the `.yml`
+extension:
+
+```bash
+noodle request run users/get --collection ./api --env staging
+```
+
+Use `collection run` when a check spans more than one request. Targets can mix
+request IDs with folder paths that end in `/`:
+
+```bash
+noodle collection run ./api smoke/ health users/get --env staging
+```
+
+A folder target includes its nested requests. Noodle validates every target
+before sending anything, removes overlaps, and runs the final selection once in
+collection order. Omit targets to run the whole collection:
+
+```bash
+noodle collection run ./api --env staging
+```
+
+Request IDs cannot be absolute paths or contain traversal, backslashes, hidden
+segments, or empty path segments.
+
+## Put success criteria beside the request
+
+An HTTP response only says what happened. Assertions let the request declare
+what a useful response looks like:
+
+```yaml
+name: Get User
+method: GET
+url: $base_url/users/:userId
+assert:
+  - expression: status
+    operator: equals
+    value: 200
+  - expression: body.id
+    operator: isNumber
+  - expression: headers.Content-Type
+    operator: contains
+    value: application/json
+  - expression: response.time
+    operator: lt
+    value: 500
+```
+
+`request run` and `collection run` evaluate these checks after the response
+arrives. Failed assertions make the request and command fail. An HTTP status of
+400 or higher also fails the run, even when a status assertion passes.
+
+Assertion expressions can inspect status, response time, case-insensitive
+headers, and JSON body paths. Expected string values support environment
+substitution at any depth. Values resolved from declared secrets are redacted
+from assertion results, while actual values remain raw response data. See the
+[response assertion reference](/docs/reference/collection-format/#response-assertions)
+for every expression and operator.
+
+## Let the exit status make the first decision
+
+Every automation command accepts `--json` and writes exactly one result envelope
+to stdout:
+
+```json
+{
+  "status": "success",
+  "data": {},
+  "errors": []
+}
+```
+
+Successful commands exit with status `0`. Invalid input, failed HTTP responses,
+and failed assertions exit nonzero. This makes the exit status enough for a
+simple gate, while JSON provides the detail needed for reports or follow-up
+steps.
+
+For `request run`, the request result is in `data.result`. For `collection run`,
+the ordered results are in `data.results`. Assertion results include whether
+evaluation happened and the result of each check. JSON run output also contains
+response headers and bodies, so treat it as sensitive server data.
+
+Without `--json`, Noodle prints a concise result for each request and a collection
+summary. Human output reports assertion pass and fail counts without printing
+raw actual response values.
+
+## Maintain collections without the TUI
+
+Automation covers the collection lifecycle, not only request execution. These
+commands can build, inspect, and repair the files before a run:
+
+| Task | Command |
+| ---- | ------- |
+| List registered collections | `noodle workspace list` |
+| Find or remove stale registered paths | `noodle workspace audit [--fix]` |
+| Create a starter collection | `noodle collection create <name> [-o <dir>]` |
+| Initialize an existing directory | `noodle collection init <path>` |
+| Print the request tree | `noodle collection list <path>` |
+| Inspect metadata, environments, and requests | `noodle collection inspect <path>` |
+| Canonicalize request YAML and valid JSON bodies | `noodle collection format <path>` |
+| Validate or repair valid collection files | `noodle collection audit <path> [--fix]` |
+| Create a minimal request | `noodle request create <id> --url <url> [--method <method>] [--collection <dir>]` |
+| Set an environment value | `noodle environment set <key> <value> --env <name> [--collection <dir>]` |
+| Store, inspect, or delete a secret | `noodle secret <set\|list\|delete> ... --env <name> [--collection <dir>]` |
+| Inspect or clear collection cookies | `noodle cookie <list\|clear> [--collection <dir>]` |
+
+`collection format` and the `--fix` audit variants modify files. Review their
+diffs before committing the collection.
+
+## Keep credentials and local state out of logs
+
+Run commands use `--env` when supplied. Otherwise, they use the environment named
+in the collection's `settings.yml`.
+
+`secret set` prompts without echo in an interactive terminal. In unattended
+workflows, pass the value through standard input so it never appears in command
+arguments:
+
+```bash
+noodle secret set API_TOKEN \
+  --env staging \
+  --collection ./api \
+  --stdin
+```
+
+On headless Linux, OS-vault storage requires a user D-Bus session and an unlocked
+GNOME Keyring or KWallet collection. A same-named process environment variable
+can supply the value when an external secret manager owns the credential. The
+[headless environment reference](/docs/reference/environment-format/#linux-and-headless-environments)
+covers setup and troubleshooting.
+
+`cookie list` includes live cookie values and should not be copied into shared
+logs. Request and collection runs can continue without jar cookies when storage
+is unavailable, and report a warning instead.
+
+Use `--noproxy` only when one run must bypass saved and system proxy policy. Use
+`--insecure` only when that run intentionally disables TLS certificate
+verification.
+
+## A reviewable workflow
+
+The smallest useful automated workflow creates files, validates them, and runs
+only the affected request:
+
+```bash
+noodle collection create demo
+noodle request create users/list \
+  --url https://api.example.com/users \
+  --collection ./demo
+noodle environment set base_url https://api.example.com \
+  --env development \
+  --collection ./demo
+noodle collection audit ./demo
+noodle collection run ./demo users/list --env development --json
+```
+
+The result remains a normal Noodle collection. Open it in the TUI for interactive
+work, commit the request files for review, and use the same commands again when
+the collection changes.

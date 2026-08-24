@@ -143,82 +143,12 @@ replaced; the installer keeps backups until all targets succeed and rolls back
 completed replacements if a later target fails. JSON mode returns the action,
 managed path, and linked paths in one result envelope.
 
-## Automation commands
+## Automation
 
-Use automation commands in scripts and agent workflows. They do not open the
-TUI. Collection paths are filesystem paths, and request IDs are
-collection-relative paths without the `.yml` extension (for example,
-`users/list`).
+Noodle's non-interactive commands let scripts, CI jobs, and coding agents
+create, inspect, audit, and run collections without opening the TUI.
 
-| Command                                                                           | Purpose                                                       |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `noodle workspace list`                                                           | List collections registered in the global config.             |
-| `noodle workspace audit [--fix]`                                                  | Validate registered collections; `--fix` removes stale paths. |
-| `noodle collection create <name> [-o <dir>]`                                      | Create and register a starter collection.                     |
-| `noodle collection init <path>`                                                   | Bootstrap collection markers in an existing directory.        |
-| `noodle collection list <path>`                                                   | Print a collection tree.                                      |
-| `noodle collection inspect <path>`                                                | Show collection metadata, environments, and its tree.         |
-| `noodle collection format <path>`                                                 | Canonicalize request YAML and pretty-print valid JSON bodies.  |
-| `noodle collection audit <path> [--fix]`                                          | Validate collection files; `--fix` canonicalizes valid files. |
-| `noodle collection run <path> [-e <env>] [--noproxy] [--insecure]`                | Run every request and fail if any request fails.              |
-| `noodle request create <id> --url <url> [--method <method>] [--collection <dir>]` | Create a minimal request.                                     |
-| `noodle request run <id> [--collection <dir>] [-e <env>] [--noproxy] [--insecure]`| Run one saved request.                                        |
-| `noodle environment set <key> <value> --env <name> [--collection <dir>]`          | Set and enable an environment variable.                       |
-| `noodle secret set <key> --env <name> [--collection <dir>] [--stdin]`             | Declare and securely store an environment value.              |
-| `noodle secret list --env <name> [--collection <dir>]`                            | List declared secret names and active sources.                |
-| `noodle secret delete <key> --env <name> [--collection <dir>]`                    | Remove the local vault value but keep its declaration.        |
-| `noodle cookie list [--collection <dir>]`                                        | List collection cookies and storage health.                   |
-| `noodle cookie clear [--collection <dir>]`                                       | Clear the collection jar or recover unreadable storage.       |
-
-`request run` and `collection run` use `--env` when supplied. Otherwise,
-they use the environment named by the collection's `settings.yml`.
-Add `--noproxy` to either run command to bypass saved and system proxy policy
-for that invocation. Add `--insecure` only when you intentionally want to
-disable TLS certificate verification for that run.
-
-`secret set` prompts without echo in an interactive terminal. Use `--stdin` for
-automation so the value is not exposed in command arguments. `secret list`
-reports each declaration as `process`, `keychain`, `missing`, or `disabled`;
-process environment values take precedence over locally stored values.
-
-On headless Linux, `secret set` also requires a user D-Bus session and an
-unlocked GNOME Keyring or KWallet collection. See [Linux and headless
-environments](/docs/reference/environment-format/#linux-and-headless-environments)
-for setup and troubleshooting.
-
-`cookie list` includes every cookie value, host-only scope, storage state, and
-non-fatal storage warnings. Treat its output as sensitive. `cookie clear`
-backs up unreadable storage before creating a clean jar and reports the backup
-path. Request and collection runs can still succeed when the jar is unavailable;
-those runs report a warning and continue without jar cookies.
-
-### JSON output and exit status
-
-Every automation command accepts `--json`. It writes exactly one JSON object
-to stdout:
-
-```json
-{ "status": "success", "data": {}, "errors": [] }
-```
-
-Successful commands exit with status `0`. Invalid input and failed request or
-collection runs exit nonzero. Without `--json`, commands print concise,
-human-readable results; interactive terminals also show progress and status
-colors (honoring `NO_COLOR`).
-
-### Example workflow
-
-```bash
-noodle collection create demo
-noodle request create users/list \
-  --url https://api.example.com/users \
-  --collection ./demo
-noodle environment set base_url https://api.example.com \
-  --env development \
-  --collection ./demo
-noodle collection audit ./demo
-noodle collection run ./demo --env development --json
-```
-
-For safety, request IDs cannot be absolute paths or contain traversal,
-backslashes, hidden segments, or empty path segments.
+The [Automation guide](/docs/guides/automation/) covers selective request and
+folder targets, response assertions, JSON results, exit statuses, secrets, and
+the full collection workflow. Use `noodle <command> --help` when you need the
+complete options for one command.

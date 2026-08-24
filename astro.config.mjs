@@ -177,6 +177,7 @@ export default defineConfig({
             { label: "Layout", slug: "docs/reference/layout" },
             { label: "Settings", slug: "docs/guides/settings" },
             { label: "Collections", slug: "docs/guides/collections" },
+            { label: "Automation", slug: "docs/guides/automation" },
             {
               label: "Using the Sidebar",
               slug: "docs/guides/using-the-sidebar",
