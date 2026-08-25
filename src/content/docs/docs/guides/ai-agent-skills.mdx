@@ -43,7 +43,7 @@ Once the skill is installed, ask your agent to:
 ### Create
 
 Scaffold collections, add requests with JSON or XML bodies (including `:name`
-URL path parameters), declare response assertions, set up folders with
+URL path parameters), declare response captures and assertions, set up folders with
 inheritable auth and headers, create environments, and register the collection
 path in `~/.config/noodle/config.yml` so it appears in noodle's workspace
 switcher.
@@ -102,6 +102,13 @@ case-insensitive headers, and JSON body paths. Failed HTTP responses or
 assertions make run commands exit nonzero. Human output does not print raw
 actual assertion values, but JSON output does, so agents must treat it as
 sensitive response data.
+
+Agents can also add `capture` mappings that pass typed response values to later
+requests in the same ordered collection run. Captures override same-named
+environment values for that run only, and the latest successful capture wins.
+A failed capture leaves any earlier value unchanged, fails the command, and
+does not stop the remaining collection requests. Agents must not write captured
+values back to request or environment files.
 
 ### Evaluate
 

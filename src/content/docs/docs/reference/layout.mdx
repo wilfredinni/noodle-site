@@ -1,6 +1,6 @@
 ---
 title: Layout
-description: TUI layout modes and navigation
+description: TUI layout modes, resizing, and navigation
 ---
 
 import { Image } from "astro:assets";
@@ -42,6 +42,19 @@ Press **Ctrl+L** to toggle between:
 - **Side-by-side**: request and response split horizontally
 
 Press **F2** to expand the focused pane to full width.
+
+## Resize with the mouse
+
+Drag the divider after the sidebar to change the collection tree width. Drag
+the boundary between the request and response panes to divide the remaining
+space. The boundary moves vertically in stacked mode and horizontally in
+side-by-side mode.
+
+Each layout keeps its own request/response proportion for the current session.
+Double-click the sidebar divider to restore its default width, or double-click
+the request/response divider to return to an even split. Noodle adjusts minimum
+pane widths when the terminal becomes narrow, then restores the preferred sizes
+when space returns.
 
 ## Editing
 

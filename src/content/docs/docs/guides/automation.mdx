@@ -1,6 +1,6 @@
 ---
 title: Automation
-description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with predictable targets, assertions, JSON, and exit statuses.
+description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with predictable targets, captures, assertions, JSON, and exit statuses.
 ---
 
 A Noodle collection does not need a second representation before it can run in
@@ -37,6 +37,42 @@ noodle collection run ./api --env staging
 
 Request IDs cannot be absolute paths or contain traversal, backslashes, hidden
 segments, or empty path segments.
+
+## Pass response values forward
+
+A request can capture a value from its response for later requests in the same
+ordered collection run:
+
+```yaml
+# users/create.yml
+name: Create User
+method: POST
+url: $base_url/users
+capture:
+  created_user_id: body.id
+
+# users/get.yml
+name: Get Created User
+method: GET
+url: $base_url/users/$created_user_id
+```
+
+Capture expressions inspect status, response time, case-insensitive headers, or
+JSON body paths. Noodle loads environment and secret values first, then overlays
+successful captures. The latest successful value with a given name wins.
+Strings substitute verbatim; other JSON-compatible values use their JSON
+representation.
+
+Captures follow collection order, including when a run selects only a few
+requests or folders. Successful values commit before assertions. A failed
+capture fails that request and the final command, but the collection keeps
+running and an earlier successful value is not replaced.
+
+The shared scope exists only for that `collection run`. It does not change the
+request files, environment, settings, or timeline. TUI sends preserve `capture`
+declarations but do not evaluate them. See the [response capture
+reference](/docs/reference/collection-format/#response-captures) for the exact
+expression grammar and failure behavior.
 
 ## Put success criteria beside the request
 
@@ -86,18 +122,20 @@ to stdout:
 ```
 
 Successful commands exit with status `0`. Invalid input, failed HTTP responses,
-and failed assertions exit nonzero. This makes the exit status enough for a
-simple gate, while JSON provides the detail needed for reports or follow-up
-steps.
+failed captures, and failed assertions exit nonzero. This makes the exit status
+enough for a simple gate, while JSON provides the detail needed for reports or
+follow-up steps.
 
 For `request run`, the request result is in `data.result`. For `collection run`,
-the ordered results are in `data.results`. Assertion results include whether
-evaluation happened and the result of each check. JSON run output also contains
-response headers and bodies, so treat it as sensitive server data.
+the ordered results are in `data.results`. Capture and assertion results include
+whether evaluation happened and each individual result. JSON run output also
+contains response headers, bodies, and successful capture values unless they
+match a known environment or settings secret, so treat it as sensitive server
+data.
 
 Without `--json`, Noodle prints a concise result for each request and a collection
-summary. Human output reports assertion pass and fail counts without printing
-raw actual response values.
+summary. Human output reports capture and assertion pass and fail counts without
+printing raw captured or actual response values.
 
 ## Maintain collections without the TUI
 

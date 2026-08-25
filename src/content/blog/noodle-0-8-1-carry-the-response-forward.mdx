@@ -1,0 +1,102 @@
+---
+title: "Noodle 0.8.1: Carry the Response Forward"
+description: Declarative response capture and mouse-resizable panes for automation that flows through a workspace that fits.
+date: 2026-08-26
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+import resizeVideo from "../../assets/resize.mp4";
+
+Noodle 0.8.0 let a request define what a useful response looks like. Version
+0.8.1 lets that response become useful to the next request. A collection can now
+capture typed values from one response and resolve them through the same
+variable syntax already used by environments.
+
+The terminal workspace also bends to the task. The sidebar and the boundary
+between request and response panes can be resized with the mouse without adding
+another settings screen or changing the keyboard workflow.
+
+## Capture once, use it next
+
+A request declares a `capture` mapping beside its assertions:
+
+```yaml
+name: Create User
+method: POST
+url: $base_url/users
+body_type: json
+body: |
+  {"name":"Ada"}
+capture:
+  created_user_id: body.id
+  request_id: headers.x-request-id
+```
+
+A later request in the same ordered `collection run` can use those names like
+ordinary environment variables:
+
+```yaml
+name: Get Created User
+method: GET
+url: $base_url/users/$created_user_id
+headers:
+  X-Request-ID: $request_id
+```
+
+Capture expressions use the same response vocabulary as assertions: status,
+response time, case-insensitive headers, and JSON body paths. Values keep their
+type inside the run. Strings substitute verbatim, while numbers, booleans, null,
+arrays, and objects use their JSON representation at the request boundary.
+
+Environment and secret values load first. Successful captures override names in
+that starting environment, and the latest successful capture wins. The scope
+belongs to one command, disappears when it returns, and never edits request
+YAML, environment files, settings, or timeline history.
+
+## A workspace that fits the request
+
+Drag the divider after the sidebar to give long request names more room. Drag
+the request/response boundary vertically in stacked mode or horizontally in
+side-by-side mode. Each layout remembers its own split for the current session,
+and a double-click returns a divider to its default.
+
+<video
+  src={resizeVideo}
+  controls
+  muted
+  loop
+  playsInline
+  preload="metadata"
+  aria-label="Noodle sidebar and request response panes being resized with the mouse"
+  style={{ width: "100%", borderRadius: "0.75rem" }}
+/>
+
+The minimum sizes adapt when the terminal narrows, then the preferred proportions
+return when more space is available. Resizing does not steal focus from the
+active pane, so mouse adjustments and keyboard navigation can stay in the same
+flow.
+
+## Failures without stale state
+
+Captures are evaluated after a response arrives and before assertions. Every
+successful value commits even if another capture, the HTTP status, or a later
+assertion fails. A failed recapture leaves the prior successful value intact,
+the request is marked failed, and the rest of a collection run continues in
+collection order.
+
+Human output reports capture counts without printing raw values. Structured
+output includes individual results for automation, with values matching known
+environment, proxy, or TLS secrets redacted. Response data can still be
+sensitive, so JSON run output should be handled like any other server payload.
+
+See the [collection format reference](/docs/reference/collection-format/#response-captures)
+for capture syntax and expression rules, the [Automation guide](/docs/guides/automation/)
+for chaining behavior, and the [layout reference](/docs/reference/layout/) for
+mouse resizing.

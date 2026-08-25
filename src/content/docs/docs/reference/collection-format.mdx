@@ -28,6 +28,7 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 | `file_path`       | string  | no       | None     | Path to binary upload file                                 |
 | `auth`            | object  | no       | None     | Auth config (omit for no auth)                             |
 | `tls`             | object  | no       | None     | Per-request TLS override; supports only `verify: true|false` |
+| `capture`         | map     | no       | None     | Response values for the current automation run             |
 | `assert`          | array   | no       | None     | Response assertions for non-interactive run commands       |
 
 ### Headers
@@ -74,6 +75,38 @@ path_params:
 ```
 
 Noodle synchronizes these entries with URL tokens when you edit the URL.
+
+### Response Captures
+
+An optional `capture` mapping assigns response expressions to temporary
+variables. Later requests in the same ordered `collection run` can use those
+variables through the normal `$VARNAME` syntax:
+
+```yaml
+capture:
+  user_id: body.user.id
+  request_id: headers.x-request-id
+```
+
+Variable names must match `^\w+$`. Expressions use `status`, `response.time`,
+case-insensitive `headers.<name>`, or `body` followed by dot properties and
+array indexes. They are validated when the request loads and are never
+variable-substituted.
+
+Each `request run` gets an isolated scope, while one `collection run` shares a
+scope across its ordered requests. Environment and secret values load first,
+then successful captures override values with the same name. The latest
+successful capture wins. Strings substitute verbatim; numbers, booleans, null,
+arrays, and objects use their JSON representation.
+
+Captures are evaluated before assertions. Successful values commit even when
+another capture, the HTTP status, or a later assertion fails. A missing or
+invalid traversal fails the capture without creating or replacing a variable;
+the request fails, but a collection run continues in collection order.
+
+Scope values disappear when the command returns. They never modify request
+YAML, environment files, collection settings, or timeline history. TUI sends
+preserve capture declarations but do not evaluate them.
 
 ### Response Assertions
 
