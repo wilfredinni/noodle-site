@@ -148,7 +148,13 @@ managed path, and linked paths in one result envelope.
 Noodle's non-interactive commands let scripts, CI jobs, and coding agents
 create, inspect, audit, and run collections without opening the TUI.
 
-The [Automation guide](/docs/guides/automation/) covers selective request and
-folder targets, response captures and assertions, JSON results, exit statuses,
-secrets, and the full collection workflow. Use `noodle <command> --help` when
-you need the complete options for one command.
+Run a dynamic suite by filtering request and inherited folder tags:
+
+```bash
+noodle collection run ./api --tag smoke --exclude-tag destructive --fail-fast --json
+```
+
+The [Automation guide](/docs/guides/automation/) covers tag suites, selective
+request and folder targets, fail-fast runs, response captures and assertions,
+JSON results, exit statuses, secrets, and the full collection workflow. Use
+`noodle <command> --help` when you need the complete options for one command.

@@ -1,6 +1,6 @@
 ---
 title: Automation
-description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with predictable targets, captures, assertions, JSON, and exit statuses.
+description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with tag suites, fail-fast execution, captures, assertions, and stable results.
 ---
 
 A Noodle collection does not need a second representation before it can run in
@@ -37,6 +37,41 @@ noodle collection run ./api --env staging
 
 Request IDs cannot be absolute paths or contain traversal, backslashes, hidden
 segments, or empty path segments.
+
+## Build dynamic suites with tags
+
+Requests and non-root folders can declare case-sensitive `tags`. Folder tags
+apply to every descendant request, so a workflow can define a suite once:
+
+```yaml
+# users/folder.yml
+tags:
+  - smoke
+
+# users/delete.yml
+tags:
+  - destructive
+```
+
+Run every request with the effective `smoke` tag while keeping destructive
+requests out:
+
+```bash
+noodle collection run ./api --tag smoke --exclude-tag destructive --env staging
+```
+
+Tag values must be non-empty and already trimmed. A root-level `folder.yml` is
+ignored, and descendants cannot remove inherited tags. Noodle resolves and
+validates positional targets first, then applies inclusion and exclusion before
+loading environment, proxy, TLS, cookies, or sending requests. Exclusion wins
+when both filters match. A filtered selection with no requests is a
+configuration failure.
+
+Add `--fail-fast` when later requests would add no useful signal after the first
+failure. Completed requests stay in `data.results`; every remaining selected
+request appears in order under `data.skipped` with reason `fail-fast`. Requests
+removed by tag filters appear in neither list and cannot change run-scoped
+captures.
 
 ## Pass response values forward
 
@@ -121,17 +156,22 @@ to stdout:
 }
 ```
 
-Successful commands exit with status `0`. Invalid input, failed HTTP responses,
-failed captures, and failed assertions exit nonzero. This makes the exit status
-enough for a simple gate, while JSON provides the detail needed for reports or
-follow-up steps.
+Successful commands exit with status `0`. A collection run exits `1` when an
+executed request fails and `2` when target, tag, environment, proxy, TLS, cookie,
+or other pre-run configuration fails. This makes the exit status enough for a
+simple gate, while JSON provides the detail needed for reports or follow-up
+steps.
 
 For `request run`, the request result is in `data.result`. For `collection run`,
-the ordered results are in `data.results`. Capture and assertion results include
-whether evaluation happened and each individual result. JSON run output also
-contains response headers, bodies, and successful capture values unless they
-match a known environment or settings secret, so treat it as sensitive server
-data.
+the ordered results are in `data.results`, fail-fast skips are in `data.skipped`,
+and `data.summary` counts selected, executed, skipped, successful, and failed
+requests plus assertion, capture, duration, and failure-category totals. Each
+request result also lists any `execution`, `transport`, `http`, `capture`, or
+`assertion` failure categories; pre-run failures use `configuration`. Capture
+and assertion results include whether evaluation happened and each individual
+result. JSON run output also contains response headers, bodies, and successful
+capture values unless they match a known environment or settings secret, so
+treat it as sensitive server data.
 
 Without `--json`, Noodle prints a concise result for each request and a collection
 summary. Human output reports capture and assertion pass and fail counts without

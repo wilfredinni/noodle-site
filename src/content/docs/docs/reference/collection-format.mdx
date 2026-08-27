@@ -16,6 +16,7 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 | `method`          | string  | yes      | Required | `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, `OPTIONS` |
 | `url`             | string  | yes      | Required | Full URL, supports `$VAR` substitution                     |
 | `timeout`         | number  | no       | `0`     | Request timeout in ms. `0` = no timeout                    |
+| `tags`            | array   | no       | `[]`    | Case-sensitive suite tags                                  |
 | `followRedirects` | boolean | no       | `true`  | Follow HTTP redirects                                      |
 | `maxRedirects`    | number  | no       | `5`     | Max redirect chain length                                  |
 | `sendCookies`     | boolean | no       | `true`  | Send matching collection jar cookies; `false` still captures responses |
@@ -30,6 +31,22 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 | `tls`             | object  | no       | None     | Per-request TLS override; supports only `verify: true|false` |
 | `capture`         | map     | no       | None     | Response values for the current automation run             |
 | `assert`          | array   | no       | None     | Response assertions for non-interactive run commands       |
+
+### Suite Tags
+
+Request tags are case-sensitive, non-empty strings with no surrounding
+whitespace. They combine with tags from every ancestor folder and can filter a
+`collection run` without creating another collection:
+
+```yaml
+tags:
+  - smoke
+  - users
+```
+
+Use `--tag smoke` to include requests with that effective tag and
+`--exclude-tag destructive` to remove matches. Exclusion wins when both filters
+match.
 
 ### Headers
 
@@ -347,12 +364,15 @@ timeout: 0
 
 ## Folder File (`folder.yml`)
 
-Optional. Defines display name, sort order, and inheritable overrides.
+Optional. Defines display name, sort order, suite tags, and inheritable
+overrides.
 
 ```yaml
 meta:
   name: Users
   seq: 1
+tags:
+  - smoke
 headers:
   X-Custom: value
 auth:
@@ -365,11 +385,15 @@ auth:
 | `meta`      | object | no       | Display metadata                             |
 | `meta.name` | string | no       | Display name (defaults to directory name)    |
 | `meta.seq`  | number | no       | Sort order (lower = first, undefined = last) |
+| `tags`      | array  | no       | Suite tags inherited by descendants          |
 | `headers`   | map    | no       | Inherited headers (merge additively)         |
 | `auth`      | object | no       | Inherited auth                               |
 
 ### Inheritance
 
+- **Tags**: Request tags combine with every ancestor folder's tags. Duplicates
+  have no additional effect, descendants cannot remove inherited tags, and a
+  root-level `folder.yml` is ignored.
 - **Headers**: Folder headers merge additively. Request's headers win on same key.
 - **Auth**: Requests with `type: inherit` use nearest ancestor folder's auth. Walk tree from child up.
 

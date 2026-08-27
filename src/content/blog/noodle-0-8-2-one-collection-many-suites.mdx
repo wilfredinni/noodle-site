@@ -1,0 +1,100 @@
+---
+title: "Noodle 0.8.2: One Collection, Many Suites"
+description: Dynamic tag suites, fail-fast execution, and stable CI summaries without another collection format.
+date: 2026-08-27
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+Noodle 0.8.0 made collection runs selective. Version 0.8.1 let requests pass
+response values forward. Version 0.8.2 gives those workflows stable suite names,
+so the same collection can describe a smoke check, a broader CI run, and the
+requests that should stay out of both.
+
+The suite is still ordinary YAML. There is no second runner file and no list of
+request IDs to keep synchronized as the collection changes.
+
+## Tags stay with the request
+
+A request can declare the suites it belongs to:
+
+```yaml
+name: Get User
+method: GET
+url: $base_url/users/$user_id
+tags:
+  - smoke
+  - users
+```
+
+Tags are case-sensitive, non-empty strings. They travel with the request file,
+so renaming or reorganizing the collection does not leave a separate suite
+manifest pointing at an old ID.
+
+Folders can provide the shared part once:
+
+```yaml
+# users/folder.yml
+tags:
+  - smoke
+  - users
+```
+
+Every request below that folder inherits both tags. A request can add more, such
+as `destructive`, but it cannot remove an inherited tag. Root-level `folder.yml`
+files remain ignored, keeping folder behavior scoped to an actual subtree.
+
+## Include what matters, exclude what does not
+
+Run the effective `smoke` suite while keeping destructive requests out:
+
+```bash
+noodle collection run ./api \
+  --tag smoke \
+  --exclude-tag destructive \
+  --env staging \
+  --json
+```
+
+Positional request and folder targets still work. Noodle resolves and validates
+those targets first, then applies the tag filters. Exclusion wins when a request
+matches both filters, and a selection with no tag matches fails before
+environment, proxy, TLS, cookie, or request setup begins.
+
+Filtered requests never execute and never contribute response captures to the
+run. The remaining requests keep collection order, so capture chains and
+assertions retain the same predictable sequence.
+
+## Stop early without losing the record
+
+Add `--fail-fast` when the first failed request is enough signal for the current
+job. Noodle stops sending, keeps every completed result in order, and records
+each later selected request as skipped:
+
+```bash
+noodle collection run ./api --tag smoke --fail-fast --json
+```
+
+The final summary counts selected, executed, and skipped requests, request and
+assertion outcomes, capture failures, duration, and the unique failure
+categories encountered. Categories distinguish configuration, execution,
+transport, HTTP, capture, and assertion failures. Collection runs now have
+stable exit meanings: `0` for success, `1` after a completed request failure,
+and `2` when configuration prevents the run from starting.
+
+## A quieter maintenance layer
+
+This release also keeps established timestamp, merge-key, and scalar parsing
+behavior while moving to the current `js-yaml`, and preserves large or precise
+numeric literals when writing OpenAPI YAML. Dependency auditing now runs in CI
+and release validation, backed by weekly update checks.
+
+See the [Automation guide](/docs/guides/automation/) for filtering and result
+semantics, and the [collection format reference](/docs/reference/collection-format/#suite-tags)
+for request and folder tag rules.

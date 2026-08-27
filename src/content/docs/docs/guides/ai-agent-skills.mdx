@@ -43,10 +43,10 @@ Once the skill is installed, ask your agent to:
 ### Create
 
 Scaffold collections, add requests with JSON or XML bodies (including `:name`
-URL path parameters), declare response captures and assertions, set up folders with
-inheritable auth and headers, create environments, and register the collection
-path in `~/.config/noodle/config.yml` so it appears in noodle's workspace
-switcher.
+URL path parameters), declare response captures, assertions, and suite tags, set
+up folders with inherited tags, auth, and headers, create environments, and
+register the collection path in `~/.config/noodle/config.yml` so it appears in
+noodle's workspace switcher.
 
 ### Organize
 
@@ -96,6 +96,14 @@ Run one request with `noodle request run`, selected request IDs or folder paths
 with `noodle collection run <dir> [<target>...]`, or omit targets to run the
 entire collection. Folder targets end in `/` and include nested requests;
 overlapping targets run once in collection order.
+
+Agents can run dynamic suites with `--tag`, remove matching requests with
+`--exclude-tag`, and stop after the first failed request with `--fail-fast`.
+Request tags combine with every ancestor folder's tags; exclusion wins when both
+filters match. Structured output keeps executed requests in `data.results`,
+fail-fast skips in `data.skipped`, and aggregate counts plus fixed failure
+categories in `data.summary`. Collection runs exit `0` on success, `1` after a
+completed request failure, and `2` for a pre-run configuration failure.
 
 Agents can add declarative response assertions for status, timing,
 case-insensitive headers, and JSON body paths. Failed HTTP responses or
