@@ -6,9 +6,9 @@ description: Shape an HTTP request from its URL and parameters through its body,
 import { Image } from "astro:assets";
 import noodleOwl from "../../../../assets/noodle-owl.png";
 
-The request pane sits in the center of the TUI. It shows every detail of
-the selected request: URL, method, headers, query and path params, auth, body, and
-settings.
+The request pane sits in the center of the TUI. It shows every detail of the
+selected request: URL, method, headers, query and path params, body, auth,
+assertions, captures, and settings.
 
 <Image
   src={noodleOwl}
@@ -26,7 +26,7 @@ When the request pane is focused, arrow keys navigate between sections:
 | **↑**/**↓** | Move between sections (URL, headers, params, auth, body) |
 | **←**/**→** | Move between items within a section                      |
 | **Return**  | Enter edit mode on the selected field                    |
-| **Space**   | Toggle header/param enabled/disabled                     |
+| **Space**   | Toggle header, param, assertion, or capture rows          |
 
 Disabled fields are preserved but not sent with the request.
 
@@ -78,6 +78,34 @@ shows different fields:
 
 For multipart entries, **Ctrl+T** toggles between text and file mode.
 
+## Assert and Capture
+
+The **Assert** tab defines response checks as expression, operator, and expected
+value rows. The **Capture** tab maps a variable name to a response expression
+and a persistence mode. Both tabs use **Space** to enable or disable the
+selected row, and disabled rows remain in the request file.
+
+Start typing a response expression to complete fields from the current response
+or the latest retained timeline response. Expressions cover status, response
+time, case-insensitive headers, and JSON body paths.
+
+![Noodle showing the Assert request tab beside ten passing assertion results](../../../../assets/assertions.png)
+
+Capture persistence has three choices:
+
+| Choice | Behavior |
+| ------ | -------- |
+| **Run only** | Keep the value in the current RunScope |
+| **Environment** | Persist an enabled plaintext value in the active environment |
+| **Secret** | Store the value in the OS vault and keep only a blank secret declaration |
+
+Manual sends and CLI `request run` honor persistence. CLI `collection run` and
+the TUI collection Runner always keep captures transient. A missing active
+environment or failed write appears as a capture failure without hiding the
+HTTP response, and secret capture values remain redacted in Results.
+
+![Noodle showing the Capture request tab with Run only, Environment, and Secret persistence choices beside capture results](../../../../assets/capure.png)
+
 ## Settings
 
 Below the body section, configure request behavior:
@@ -89,6 +117,7 @@ Below the body section, configure request behavior:
 | **Max redirects**    | Maximum number of redirects to follow                 |
 | **TLS verification** | Inherit the collection policy, require verification, or disable it for this request |
 | **Send Cookies**     | Send matching cookies from the collection jar          |
+| **Tags**             | Case-sensitive suite tags edited in an overlay          |
 
 Disabling TLS verification weakens transport security. Prefer configuring the
 required CA bundle in collection Settings; use the request override only when
@@ -98,6 +127,10 @@ Turning off **Send Cookies** prevents jar cookies from being added to this
 request and its redirect hops. Noodle still captures response cookies into the
 collection jar. Disable the jar in collection Settings when neither sending nor
 capturing should occur.
+
+Open a tag row to add or rename it with suggestions from the collection. Tags
+also expose a direct delete action. The request combines its own tags with tags
+from every ancestor folder.
 
 ## Variable Autocompletion
 

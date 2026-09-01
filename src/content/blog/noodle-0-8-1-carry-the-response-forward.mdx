@@ -35,8 +35,10 @@ body_type: json
 body: |
   {"name":"Ada"}
 capture:
-  created_user_id: body.id
-  request_id: headers.x-request-id
+  created_user_id:
+    value: body.id
+  request_id:
+    value: headers.x-request-id
 ```
 
 A later request in the same ordered `collection run` can use those names like

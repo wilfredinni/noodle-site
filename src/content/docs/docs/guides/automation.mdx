@@ -11,6 +11,17 @@ That keeps the feedback loop close to the collection. A small change can run one
 request or one folder, while a broader check can run every request in collection
 order.
 
+## Automation building blocks
+
+- [Run collections](#choose-the-requests-that-matter) with request targets,
+  folders, tags, fail-fast execution, or the TUI Runner.
+- [Capture values](#pass-response-values-forward) from one response and reuse
+  them in later requests.
+- [Assert behavior](#put-success-criteria-beside-the-request) against status,
+  response time, headers, and JSON body values.
+- [Consume results](#let-the-exit-status-make-the-first-decision) through exit
+  status, human-readable output, or a stable JSON envelope.
+
 ## Choose the requests that matter
 
 Run one saved request by its collection-relative ID. The ID omits the `.yml`
@@ -60,6 +71,10 @@ requests out:
 noodle collection run ./api --tag smoke --exclude-tag destructive --env staging
 ```
 
+Repeat `--tag` to require every listed tag. Repeat `--exclude-tag` to remove a
+request when any listed tag matches. Duplicate filters have no additional
+effect.
+
 Tag values must be non-empty and already trimmed. A root-level `folder.yml` is
 ignored, and descendants cannot remove inherited tags. Noodle resolves and
 validates positional targets first, then applies inclusion and exclusion before
@@ -73,6 +88,20 @@ request appears in order under `data.skipped` with reason `fail-fast`. Requests
 removed by tag filters appear in neither list and cannot change run-scoped
 captures.
 
+## Run the same workflow in the TUI
+
+Open the command palette and choose **Run Collection** to configure a transient
+run without leaving the TUI. Select requests or whole folders, choose an
+environment, add Include and Exclude tags, and enable fail-fast before starting.
+The Runner shows progress, keeps ordered results in memory, and expands request
+details with response, assertion, and capture outcomes. A folder context menu
+opens the same workspace scoped to that folder.
+
+Runner options are local to that workspace. It does not create another runner
+file, edit request declarations, persist captures, or write timeline entries.
+
+![Noodle collection Runner with environment, tag, fail-fast, request, and folder selection controls](../../../../assets/runner-workspace.png)
+
 ## Pass response values forward
 
 A request can capture a value from its response for later requests in the same
@@ -84,13 +113,25 @@ name: Create User
 method: POST
 url: $base_url/users
 capture:
-  created_user_id: body.id
+  created_user_id:
+    value: body.id
+  access_token:
+    value: body.access_token
+    persist: secret
+  optional_trace:
+    value: headers.x-trace
+    enabled: false
 
 # users/get.yml
 name: Get Created User
 method: GET
 url: $base_url/users/$created_user_id
 ```
+
+Every capture entry is an object with required `value`, optional
+`enabled: false`, and optional `persist: secret` or `persist: environment`.
+Scalar shorthand is invalid. Disabled captures remain in the request but do
+not resolve, change RunScope, produce results, or write values.
 
 Capture expressions inspect status, response time, case-insensitive headers, or
 JSON body paths. Noodle loads environment and secret values first, then overlays
@@ -103,11 +144,15 @@ requests or folders. Successful values commit before assertions. A failed
 capture fails that request and the final command, but the collection keeps
 running and an earlier successful value is not replaced.
 
-The shared scope exists only for that `collection run`. It does not change the
-request files, environment, settings, or timeline. TUI sends preserve `capture`
-declarations but do not evaluate them. See the [response capture
+One `collection run` shares a transient scope across its ordered requests. The
+TUI Runner uses the same transient rule. A manual TUI send or CLI `request run`
+uses an isolated scope and can persist a successful capture to the active or
+selected environment when `persist` is set. Secret values are stored in the OS
+vault and fully redacted from capture results. See the [response capture
 reference](/docs/reference/collection-format/#response-captures) for the exact
-expression grammar and failure behavior.
+expression, persistence, and failure behavior.
+
+![Noodle showing the Capture request tab with Run only, Environment, and Secret persistence choices beside capture results](../../../../assets/capure.png)
 
 ## Put success criteria beside the request
 
@@ -132,9 +177,10 @@ assert:
     value: 500
 ```
 
-`request run` and `collection run` evaluate these checks after the response
-arrives. Failed assertions make the request and command fail. An HTTP status of
-400 or higher also fails the run, even when a status assertion passes.
+Manual TUI sends, `request run`, and `collection run` evaluate enabled checks
+after the response arrives. The TUI shows the outcome in Results. Failed
+assertions make automation commands fail. An HTTP status of 400 or higher also
+fails a run command, even when a status assertion passes.
 
 Assertion expressions can inspect status, response time, case-insensitive
 headers, and JSON body paths. Expected string values support environment
@@ -142,6 +188,8 @@ substitution at any depth. Values resolved from declared secrets are redacted
 from assertion results, while actual values remain raw response data. See the
 [response assertion reference](/docs/reference/collection-format/#response-assertions)
 for every expression and operator.
+
+![Noodle showing the Assert request tab beside ten passing assertion results](../../../../assets/assertions.png)
 
 ## Let the exit status make the first decision
 

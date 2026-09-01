@@ -97,10 +97,11 @@ with `noodle collection run <dir> [<target>...]`, or omit targets to run the
 entire collection. Folder targets end in `/` and include nested requests;
 overlapping targets run once in collection order.
 
-Agents can run dynamic suites with `--tag`, remove matching requests with
-`--exclude-tag`, and stop after the first failed request with `--fail-fast`.
-Request tags combine with every ancestor folder's tags; exclusion wins when both
-filters match. Structured output keeps executed requests in `data.results`,
+Agents can run dynamic suites with repeated `--tag` filters, remove matching
+requests with repeated `--exclude-tag` filters, and stop after the first failed
+request with `--fail-fast`. Every include tag must match; any exclude tag removes
+a request. Request tags combine with every ancestor folder's tags, and exclusion
+wins when both filter types match. Structured output keeps executed requests in `data.results`,
 fail-fast skips in `data.skipped`, and aggregate counts plus fixed failure
 categories in `data.summary`. Collection runs exit `0` on success, `1` after a
 completed request failure, and `2` for a pre-run configuration failure.
@@ -111,12 +112,15 @@ assertions make run commands exit nonzero. Human output does not print raw
 actual assertion values, but JSON output does, so agents must treat it as
 sensitive response data.
 
-Agents can also add `capture` mappings that pass typed response values to later
-requests in the same ordered collection run. Captures override same-named
-environment values for that run only, and the latest successful capture wins.
-A failed capture leaves any earlier value unchanged, fails the command, and
-does not stop the remaining collection requests. Agents must not write captured
-values back to request or environment files.
+Agents can also add object-form `capture` mappings with required `value`,
+optional `enabled: false`, and optional `persist: secret|environment`. Captures
+override same-named environment values in RunScope, and the latest successful
+capture wins. A failed capture leaves any earlier value unchanged, fails the
+command, and does not stop the remaining collection requests. Persistence is
+available only to manual TUI sends and CLI `request run`; collection runs always
+stay transient. Agents should add persistence only when the user explicitly
+wants the active or selected environment changed, and must treat secret capture
+results as fully redacted.
 
 ### Evaluate
 

@@ -15,7 +15,7 @@ response time, headers, and body (auto-formatted if JSON).
 
 | Key | Action |
 |-----|--------|
-| **←**/**→** | Switch tabs (Body / Headers / Network / Timeline / Cookies) |
+| **←**/**→** | Switch tabs (Body / Headers / Network / Timeline / Cookies / Results) |
 | **↑**/**↓** | Scroll active tab |
 | **PgUp**/**PgDn** | Page scroll |
 | **F2** | Expand response pane to full width |
@@ -29,11 +29,25 @@ response time, headers, and body (auto-formatted if JSON).
 | **Network** | Live request, authentication, redirect, response, and failure events |
 | **Timeline** | History of every send for this request |
 | **Cookies** | Cookies sent on the final request leg and received in the final response |
+| **Results** | Assertion and capture outcomes from the latest manual send |
 
 The Network tab updates while a request is sending. OAuth 2 token acquisition,
 refresh, and browser authorization status appear as authentication events
 without exposing token values. Events are retained in timeline entries, so you
 can inspect the trace again after the response is complete.
+
+## Results
+
+The **Results** tab is always available at the end of the response tabs. Manual
+sends evaluate every enabled assertion and capture with a fresh RunScope. When
+outcomes exist, the tab shows `✓` for success, `✗` for a failed assertion or
+capture, or `–` when a network or setup failure prevented evaluation.
+
+Use **↑**/**↓** to select a result and **Return** or a click to expand its
+details. Captures show their type and redacted value; secret-persisted captures
+never reveal the value. Capture results and RunScope values are not written to
+timeline history. Assertion outcomes are stored with known secrets redacted so
+the Timeline tab can retain their status.
 
 ## Folding JSON Responses
 

@@ -154,6 +154,9 @@ Run a dynamic suite by filtering request and inherited folder tags:
 noodle collection run ./api --tag smoke --exclude-tag destructive --fail-fast --json
 ```
 
+Repeat `--tag` to require every listed tag. Repeat `--exclude-tag` to remove a
+request when any listed tag matches.
+
 The [Automation guide](/docs/guides/automation/) covers tag suites, selective
 request and folder targets, fail-fast runs, response captures and assertions,
 JSON results, exit statuses, secrets, and the full collection workflow. Use

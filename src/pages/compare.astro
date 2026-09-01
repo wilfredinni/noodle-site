@@ -86,7 +86,7 @@ const sections = [
     id: "automation",
     kicker: "04 · Testing and automation",
     title: "Testing grows without leaving YAML.",
-    description: "Bruno leads in mature testing. Noodle now has declarative response assertions, capture-based request chaining, and selective batch runs; its roadmap adds scripts and a richer runner.",
+    description: "Bruno leads in mature testing. Noodle now has declarative response assertions, capture-based request chaining, selective batch runs, and a transient collection Runner; its roadmap adds scripts and parallel execution.",
     rows: [
       ["Pre-request scripts", "🧭 v0.9 JavaScript", "✅ Python", "❌ Arbitrary scripts; under consideration", "✅ JavaScript"],
       ["Post-response scripts", "🧭 v0.9 JavaScript", "✅ Python", "❌ Arbitrary scripts; under consideration", "✅ JavaScript"],
@@ -95,8 +95,8 @@ const sections = [
       ["Assertions and tests", "✅ Declarative assertions; 🧭 advanced tests", "🧭 Test framework planned", "❌ No current framework", "✅ Chai/JS assertions"],
       ["Run one request headlessly", "✅", "❌ Documented runner", "✅", "✅"],
       ["Run folder/collection headlessly", "✅ Selective folders or full collection", "❌", "✅ Workspace/folder", "✅"],
-      ["Parallel and batch execution", "◐ Batch now; richer runner v0.10, parallel v1.5", "❌", "✅ CLI --parallel", "✅ Runner"],
-      ["Dedicated runner/results UI", "🧭 v0.10", "❌", "◐ Bulk CLI; data runner considered", "✅"],
+      ["Parallel and batch execution", "◐ Batch + Runner now; parallel v1.5", "❌", "✅ CLI --parallel", "✅ Runner"],
+      ["Dedicated runner/results UI", "✅ Transient collection Runner", "❌", "◐ Bulk CLI; data runner considered", "✅"],
       ["Data-driven CSV/JSON runs", "🧭 Planned", "❌", "🧭 Under consideration", "✅ CSV, paid feature"],
       ["CI-friendly structured output", "✅ JSON", "❌ Dedicated CI runner", "✅ CLI", "✅ CLI + JUnit/reports"],
       ["Docker runner", "❌ Official image", "❌", "❌ Official image found", "✅ Official CLI images"],
@@ -158,7 +158,7 @@ const comparisonStructuredData = {
   name: "Compare Noodle, Posting, Yaak, and Bruno",
   description: "A source-backed comparison of repository-native API clients and testing tools.",
   url: comparisonUrl.href,
-  dateModified: "2026-08-26",
+  dateModified: "2026-08-31",
   about: products.map((name) => ({ "@type": "SoftwareApplication", name })),
   citation: comparisonSources.flatMap(([, links]) => links.map(([, href]) => href)),
 }
