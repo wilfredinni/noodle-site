@@ -8,6 +8,7 @@ const assets = join(root, "src/assets/noodle")
 const publicDir = join(root, "public")
 const masterPath = join(assets, "logo-kraken-master.svg")
 const navy = "#08172D"
+const paper = "#F3EFE7"
 const saffron = "#F2C65A"
 const surface = "#181613"
 
@@ -27,6 +28,7 @@ const tile = (scale = 0.78) => {
 await Promise.all([
   writeFile(join(assets, "logo-kraken-dark.svg"), transparent(navy)),
   writeFile(join(assets, "logo-kraken-light.svg"), transparent(saffron)),
+  writeFile(join(assets, "logo-kraken-neutral.svg"), transparent(paper)),
   writeFile(join(assets, "logo-kraken-nav.svg"), transparent(saffron)),
   writeFile(join(assets, "logo-kraken-badge.svg"), tile()),
 ])

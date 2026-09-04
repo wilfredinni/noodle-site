@@ -44,7 +44,8 @@ export default defineConfig({
       description:
         "Terminal REST client for inspecting, sending, and iterating on HTTP requests from YAML files on disk.",
       logo: {
-        src: "./src/assets/noodle/logo-kraken-light.svg",
+        dark: "./src/assets/noodle/logo-kraken-neutral.svg",
+        light: "./src/assets/noodle/logo-kraken-dark.svg",
         alt: "Noodle",
       },
       expressiveCode: {
