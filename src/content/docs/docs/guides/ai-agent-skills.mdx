@@ -64,6 +64,10 @@ Declare secure environment values with blank `# @secret` placeholders and use
 never place proxy credentials, mTLS passphrases, or environment secrets in
 YAML, command arguments, or logs.
 
+Environment keys must match `^\w+$`, with `_color` reserved for metadata, and
+values preserve everything after the first `=`. Request variables use `$NAME`;
+write `$$NAME` when the request must contain the literal text `$NAME`.
+
 Agents must not assume the OS vault is available on headless Linux. If a secret
 operation reports that Secret Service or the `login` keyring collection is
 unavailable, direct the user to the [Linux and headless environment
@@ -106,6 +110,10 @@ fail-fast skips in `data.skipped`, and aggregate counts plus fixed failure
 categories in `data.summary`. Collection runs exit `0` on success, `1` after a
 completed request failure, and `2` for a pre-run configuration failure.
 
+Agents can add `--delay <milliseconds>` to wait between selected requests. The
+value must be a non-negative safe integer; no delay runs after the last request
+or after fail-fast stops the run.
+
 Agents can add declarative response assertions for status, timing,
 case-insensitive headers, and JSON body paths. Failed HTTP responses or
 assertions make run commands exit nonzero. Human output does not print raw
@@ -138,7 +146,8 @@ Import OpenAPI 3.0, Swagger 2.0, Postman, and Insomnia v4/v5 JSON exports with
 `noodle import`. For a format Noodle does not support, agents should map only
 directly supported behavior to Noodle files and report unsupported scripts,
 tests, and auth flows. Supported imports preserve XML bodies from OpenAPI,
-Swagger, Postman, and Insomnia sources.
+Swagger, Postman, and Insomnia sources. Postman dynamic, dotted, and hyphenated
+placeholders are rejected before Noodle writes an import.
 
 ### Export
 

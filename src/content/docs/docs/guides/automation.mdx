@@ -88,14 +88,25 @@ request appears in order under `data.skipped` with reason `fail-fast`. Requests
 removed by tag filters appear in neither list and cannot change run-scoped
 captures.
 
+Use `--delay <milliseconds>` when an API needs breathing room between requests:
+
+```bash
+noodle collection run ./api --delay 500 --env staging
+```
+
+The delay must be a non-negative safe integer. Noodle waits after a completed
+request only when another selected request remains. Failed requests are followed
+by the delay when execution continues; fail-fast skips it.
+
 ## Run the same workflow in the TUI
 
-Open the command palette and choose **Run Collection** to configure a transient
-run without leaving the TUI. Select requests or whole folders, choose an
-environment, add Include and Exclude tags, and enable fail-fast before starting.
-The Runner shows progress, keeps ordered results in memory, and expands request
-details with response, assertion, and capture outcomes. A folder context menu
-opens the same workspace scoped to that folder.
+Press **F5** or open the command palette and choose **Run Collection** to
+configure a transient run without leaving the TUI. Select requests or whole
+folders, choose an environment, add Include and Exclude tags, enable fail-fast,
+and optionally set a delay before starting. The Runner shows progress, keeps
+ordered results in memory, and expands request details with response, assertion,
+and capture outcomes. A folder context menu opens the same workspace scoped to
+that folder.
 
 Runner options are local to that workspace. It does not create another runner
 file, edit request declarations, persist captures, or write timeline entries.

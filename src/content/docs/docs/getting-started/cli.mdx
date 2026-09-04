@@ -151,13 +151,15 @@ create, inspect, audit, and run collections without opening the TUI.
 Run a dynamic suite by filtering request and inherited folder tags:
 
 ```bash
-noodle collection run ./api --tag smoke --exclude-tag destructive --fail-fast --json
+noodle collection run ./api --tag smoke --exclude-tag destructive --fail-fast --delay 500 --json
 ```
 
 Repeat `--tag` to require every listed tag. Repeat `--exclude-tag` to remove a
-request when any listed tag matches.
+request when any listed tag matches. Use `--delay <milliseconds>` to wait
+between selected requests; the value must be a non-negative safe integer.
 
 The [Automation guide](/docs/guides/automation/) covers tag suites, selective
-request and folder targets, fail-fast runs, response captures and assertions,
-JSON results, exit statuses, secrets, and the full collection workflow. Use
-`noodle <command> --help` when you need the complete options for one command.
+request and folder targets, fail-fast and paced runs, response captures and
+assertions, JSON results, exit statuses, secrets, and the full collection
+workflow. Use `noodle <command> --help` when you need the complete options for
+one command.

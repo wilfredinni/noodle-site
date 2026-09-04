@@ -23,6 +23,8 @@ api_key=
 - **`# @secret KEY` + blank `KEY=`**: Enabled secure declaration. The value comes from `process.env.KEY` when defined, otherwise from the OS credential vault.
 - **`# @secret KEY` + `# KEY=`**: Disabled secure declaration. Secure placeholders must stay blank and immediately follow their marker.
 - **`_color=<name>`**: Sets sidebar badge color for this environment
+- Public, disabled, and secret keys must match `^\w+$`; `_color` is reserved.
+- Values preserve everything after the first `=` exactly, including trailing spaces.
 
 Use the environment editor or `noodle secret set KEY --env <name>` to store a
 secret. Noodle uses macOS Keychain, Linux Secret Service, or Windows Credential
@@ -104,16 +106,20 @@ instead of depending on an interactively unlocked keyring.
 ## Variable Substitution
 
 All `$VARNAME` references in request files are resolved against the active
-environment. Variables are applied to:
+environment. Use `$$` for one literal dollar: `$$NAME` sends `$NAME`, while
+`$$$NAME` sends a literal `$` followed by the resolved value of `NAME`. Values
+resolve once and are not scanned again. Variables are applied to:
 
 - `url`
-- `headers` values
-- `params` values
+- enabled `headers` values
+- enabled `params` names and values
+- `path_params` names and values
 - `body`
-- `form_data` values
+- enabled `form_data` names and values
 - `file_path`
 - all string-valued `auth` fields, including OAuth credentials, endpoints,
   scopes, private keys, token placement names, and additional parameters
+- string values nested inside assertion expectations
 
 Unresolved variables cause noodle to throw an error at send time.
 

@@ -1,0 +1,84 @@
+---
+title: "Noodle 0.8.4: More Control, Less Friction"
+description: Pace collection runs, use predictable variable escaping, and move through a smoother terminal workflow.
+date: 2026-09-04
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+Noodle 0.8.4 gives collection runs a steadier rhythm. The CLI and TUI Runner
+can now pause between requests, F5 opens the Runner directly, and a set of
+focused fixes makes variables, environment files, code generation, and terminal
+interactions more predictable.
+
+## Give the API room to breathe
+
+Some APIs need a short pause between dependent requests or enforce a rate limit
+that makes a full-speed collection run impractical. Add a delay in milliseconds
+without changing the requests themselves:
+
+```bash
+noodle collection run ./api --delay 500 --env staging
+```
+
+The delay must be a non-negative safe integer. Noodle waits only after a
+completed request when another selected request remains. If a request fails and
+the run continues, the pause still applies; fail-fast stops without an extra
+wait.
+
+The same control is available in the collection Runner. Press **F5**, select the
+requests and filters, then set **Delay (ms)** before starting. Bulk fold and
+unfold actions remain available as configurable shortcuts, but no longer reserve
+F5 and F6 by default.
+
+## Make every dollar sign intentional
+
+Variable references now follow one shared scanner everywhere Noodle uses them:
+sending, previews, validation, search, code generation, and OpenAPI or Postman
+conversion. `$NAME` resolves a variable, `$$NAME` sends the literal text
+`$NAME`, and `$$$NAME` sends a literal dollar followed by the resolved value.
+Resolved values are inserted once and are not scanned again.
+
+Environment files now enforce the same `^\w+$` key grammar across public,
+disabled, and secret values, while reserving `_color` for metadata. Values keep
+everything after the first `=`, including trailing spaces. New, cloned, and
+renamed environments also refuse to overwrite an existing file.
+
+Imports validate these rules before writing requests or environments. Postman
+dynamic, dotted, and hyphenated placeholders are rejected with a clear error
+instead of becoming ambiguous Noodle variables.
+
+## Keep the terminal flow steady
+
+Modal overlays now close when you left-click their backdrop. Clicks inside the
+panel and non-left clicks do nothing, and an import in progress stays locked
+until it finishes.
+
+Large read-only JSON responses and timeline bodies reuse cached line metadata,
+which reduces work while scrolling and highlighting. Request deletion keeps the
+cursor on a valid request, root sidebar rows align while leaving more room for
+names, and assertion, cookie, and Runner columns stay easier to scan.
+
+Code generation also accepts incomplete scheme-bearing URLs such as `http://`
+while a request is still being drafted. Its internal placeholders no longer risk
+altering matching user text, and the deprecated URL parser is gone from that
+path.
+
+## A community fix for the URL bar
+
+Clearing the URL field now keeps it as an editable empty field instead of
+switching to the no-request state. You can clear the old value and immediately
+type a replacement without losing the input.
+
+Thank you to [@cturner8](https://github.com/cturner8) for contributing this fix
+in [pull request #204](https://github.com/wilfredinni/noodle/pull/204).
+
+See [Automation](/docs/guides/automation/) for paced collection runs,
+[Environment Format](/docs/reference/environment-format/) for variable rules,
+and [Keybindings](/docs/reference/keybindings/) for the current shortcuts.

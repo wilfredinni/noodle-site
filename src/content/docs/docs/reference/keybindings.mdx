@@ -34,6 +34,7 @@ listed, reflecting your current custom keybinds.
 | `Ctrl+O`             | Switch collection                                    |
 | `Ctrl+L`             | Toggle layout (stacked / side-by-side)               |
 | `F2`                 | Expand/collapse focused pane                         |
+| `F5`                 | Open collection Runner                               |
 | `F1`                 | Toggle help overlay                                  |
 | `Ctrl+T`             | Open theme picker                                    |
 | `Ctrl+E`             | Edit request in overlay                              |
@@ -84,12 +85,15 @@ swallowed while jump mode is active.
 | `x` | Request Path tab |
 | `b` | Request Body tab |
 | `a` | Request Auth tab |
+| `v` | Request Assert tab |
+| `c` | Request Capture tab |
 | `t` | Request Settings tab |
 | `r` | Response Body tab |
 | `e` | Response Headers tab |
 | `n` | Response Network tab |
 | `l` | Response Timeline tab |
 | `k` | Response Cookies tab |
+| `i` | Response Results tab |
 
 ### Folder targets
 
@@ -163,13 +167,13 @@ When a request or response JSON body or a YAML overlay has focus:
 | Key            | Action                      |
 | -------------- | --------------------------- |
 | `Ctrl+G`       | Toggle fold at current line |
-| `F5`           | Fold all foldable regions   |
-| `F6`           | Unfold all regions          |
 | `Ctrl+Z`       | Undo editable content       |
 | `Ctrl+Shift+Z` | Redo editable content       |
 | `Shift+Return` | Insert newline while editing |
 
 Response bodies are read-only, but their JSON fold controls remain available.
+Bulk fold and unfold actions are configurable in Settings under **Shortcuts**
+and are unbound by default.
 
 ## Sidebar
 
