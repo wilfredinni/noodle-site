@@ -30,8 +30,12 @@ noodle import ./openapi.json --format openapi
 Noodle creates one request per operation, groups tagged operations into folders,
 and imports supported parameters, request bodies, authentication, and servers.
 OAuth 2.0 authorization code, client credentials, implicit, and password flows
-retain their endpoints, scopes, and generated credential placeholders. OpenAPI
-3.0 does not represent OAuth 1.0a.
+retain their endpoints, scopes, and generated credential placeholders.
+`openIdConnect` schemes import as OAuth 2 with an exact discovery-document URL.
+The grant defaults to authorization code unless `x-noodle-oauth2-grant-type`
+specifies another supported grant; `x-noodle-oauth2-discovery-url-kind` preserves
+Noodle issuer semantics during a round-trip. OpenAPI 3.0 does not represent
+OAuth 1.0a.
 
 ## Swagger 2.0
 

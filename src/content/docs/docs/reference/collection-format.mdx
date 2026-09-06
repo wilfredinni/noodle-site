@@ -142,7 +142,7 @@ the OS vault and writes only a blank secret declaration. An active or selected
 environment is required. Persistence keeps partial successes, and a failed
 write fails that capture without discarding the HTTP response. CLI
 `collection run` and the TUI Runner ignore persistence. Secret capture values
-are always fully redacted from results.
+and values captured from sensitive response headers are always fully redacted from results.
 
 ### Response Assertions
 
@@ -173,7 +173,10 @@ summaries, or timeline assertion outcomes.
 
 Expressions are `status`, `response.time`, `headers.<name>` with
 case-insensitive header lookup, or `body` followed by dot properties and array
-indexes. Body expressions require valid JSON.
+indexes. Body expressions require valid JSON. Missing values differ from explicit
+JSON `null`, and `response.time` is measured in milliseconds. Equality compares
+typed JSON values recursively without coercion: array order matters, object key
+order does not, and strings are case-sensitive.
 
 Operators without `value`: `exists`, `notExists`, `isString`, `isNumber`,
 `isBoolean`, `isArray`, `isObject`, `isNull`, `notNull`.
@@ -183,12 +186,15 @@ Operators with a JSON-compatible `value`: `equals`, `notEquals`, `gt`, `gte`,
 finite numbers. Containment checks string substrings or deeply equal array
 members. `matches` accepts strings and a restricted JavaScript regular-expression
 subset that rejects backreferences, groups, alternation, braced quantifiers,
-and unsafe repetition.
+and unsafe repetition. Matching is case-sensitive, has no flags, and is
+unanchored unless the pattern includes `^` or `$`.
 
 String values recursively support `$VARNAME` substitution; expressions and
-operators do not. Expected secret values are redacted from run results. JSON
-output includes actual server values, so treat assertion results as sensitive
-response data.
+operators do not. Known secrets are recursively redacted from expected and
+actual result values. Secret capture expressions also mask overlapping capture
+and assertion results. Unrelated public numbers, booleans, and null values keep
+their types; arbitrary server data can remain visible, so treat JSON output as
+sensitive response data.
 
 ### Form Data
 
@@ -303,6 +309,8 @@ loopback HTTP.
 auth:
   type: oauth2
   grant_type: authorization_code
+  discovery_url: ""
+  discovery_url_kind: issuer
   authorization_url: https://identity.example.com/oauth/authorize
   access_token_url: https://identity.example.com/oauth/token
   refresh_token_url: https://identity.example.com/oauth/token
@@ -348,6 +356,15 @@ auth:
 `plain`. `implicit_response_type` is `token`, `id_token`, or `token id_token`.
 `credentials_placement` is `body` or `basic`. `credentials_id` is an optional
 stable key for sharing compatible stored token state.
+
+`discovery_url` fills missing authorization and token endpoints. With the
+default `discovery_url_kind: issuer`, it accepts an OIDC issuer or its standard
+`/.well-known/openid-configuration` URL and verifies the returned issuer.
+Use `discovery_url_kind: document` to request an exact metadata URL, including
+custom paths. Explicit endpoint fields take precedence; an empty
+`refresh_token_url` uses the token endpoint. Discovery supports environment
+variables, follows the request's proxy/TLS policy, and does not write resolved
+endpoints to YAML.
 
 For signed client authentication, set `client_authentication` to
 `client_assertion`. Assertion algorithms are HS, RS, PS, or ES with 256, 384,

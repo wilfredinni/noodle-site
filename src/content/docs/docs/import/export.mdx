@@ -22,7 +22,11 @@ NTLM and AWS SigV4 export as HTTP security schemes. Validate those schemes with
 the OpenAPI consumer that will read the document.
 
 OAuth 2.0 exports as standard authorization code, client credentials, implicit,
-or password flows with endpoint URLs and scopes. Client credentials, cached
+or password flows when explicit endpoints cover the selected grant.
+Discovery-only auth exports as `openIdConnect` with the normalized discovery
+URL, scopes, and Noodle extensions for the grant and issuer URL kind. Partial
+endpoint overrides with discovery are rejected because OpenAPI cannot preserve
+both sources faithfully. Client credentials, cached
 tokens, generated state, and other secure runtime values are omitted. OAuth
 1.0a auth is omitted because OpenAPI 3.0 has no matching security-scheme type.
 
@@ -46,7 +50,8 @@ OpenAPI or Postman output.
 Postman output uses its matching `ntlm`, `awsv4`, `oauth1`, and `oauth2` auth
 representations. OAuth configuration is preserved, but cached OAuth 2 tokens
 and generated OAuth 1 signatures are not exported. XML bodies use Postman's raw
-XML representation.
+XML representation. Discovery-backed OAuth 2 must supply every endpoint required
+by the selected grant before Postman export; Postman has no discovery field.
 
 On import, Noodle maps XML request examples from OpenAPI and Swagger, raw XML
 bodies from Postman, and XML bodies from Insomnia. It also maps OAuth 2.0 flows

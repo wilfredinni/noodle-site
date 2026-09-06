@@ -86,6 +86,9 @@ through request or folder YAML when the user provides the needed values. They
 should declare NTLM passwords, AWS secret keys and session tokens, OAuth
 consumer and token secrets, client secrets, passwords, and private signing keys
 as secrets. SigV4 and OAuth 1 body hashes do not support multipart bodies.
+OAuth 2 can use `discovery_url` for an OIDC issuer, or
+`discovery_url_kind: document` for an exact metadata URL. OpenAPI supports
+`openIdConnect`; Postman requires explicit endpoints for the selected grant.
 
 Agents must not place OAuth 2 tokens, authorization codes, PKCE verifiers, or
 generated state in collection files. First-time authorization code and implicit
@@ -117,8 +120,10 @@ or after fail-fast stops the run.
 Agents can add declarative response assertions for status, timing,
 case-insensitive headers, and JSON body paths. Failed HTTP responses or
 assertions make run commands exit nonzero. Human output does not print raw
-actual assertion values, but JSON output does, so agents must treat it as
-sensitive response data.
+actual assertion values. JSON output redacts known secrets from expected and
+actual values, but can still contain sensitive server data. Both `request run`
+and `collection run` exit `2` for pre-run configuration failures and `1` for
+completed request failures.
 
 Agents can also add object-form `capture` mappings with required `value`,
 optional `enabled: false`, and optional `persist: secret|environment`. Captures

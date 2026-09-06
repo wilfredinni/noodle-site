@@ -45,7 +45,7 @@ capture, or `–` when a network or setup failure prevented evaluation.
 
 Use **↑**/**↓** to select a result and **Return** or a click to expand its
 details. Captures show their type and redacted value; secret-persisted captures
-never reveal the value. Capture results and RunScope values are not written to
+and captures from sensitive response headers never reveal the value. Capture results and RunScope values are not written to
 timeline history. Assertion outcomes are stored with known secrets redacted so
 the Timeline tab can retain their status.
 
@@ -82,9 +82,12 @@ YAML, rather than truncating them.
 
 Timeline request snapshots resolve ordinary `$VAR` references at send time and
 redact declared secrets plus sensitive request headers, OAuth signatures,
-assertions, tokens, and other auth credentials. Server response fields remain
-intact, so timeline YAML and sidecars should still be treated as sensitive
-local data.
+assertions, tokens, and other auth credentials. Newly saved response headers
+and bodies receive known-secret redaction too, including compressed sidecars;
+sensitive headers such as `Set-Cookie` are masked. The live response remains
+available for inspection. Marking or updating a secret does not rewrite older
+history, and unknown server data stays visible, so treat timeline files as
+sensitive local data.
 
 ## Cookies
 

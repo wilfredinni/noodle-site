@@ -6,7 +6,7 @@ import { Image } from 'astro:assets';
 import noodleRosepine from '../../../../assets/noodle-rosepine.png';
 
 
-Noodle ships with **34 built-in themes** and uses the Noodle theme by default
+Noodle ships with **35 built-in themes** and uses the Noodle theme by default
 when no theme is saved. Press **Ctrl+T** to open the theme picker and browse
 available options.
 
@@ -17,6 +17,16 @@ badges, status bar, and dialog overlays.
 
 ![A selection of Noodle's built-in themes](../../../../assets/themes.png)
 
+## Follow your terminal
+
+Choose **system** in the theme picker to use your terminal's foreground,
+background, and ANSI palette. Noodle refreshes its colors when the terminal
+reports a palette or theme change during the session.
+
+If the terminal cannot provide its colors, Noodle uses its default colors and
+keeps `system` as the saved preference. Palette detection depends on terminal
+support.
+
 ## Available Themes
 
 opencode &middot; catppuccin &middot; catppuccin-frappe &middot; catppuccin-macchiato
@@ -25,4 +35,4 @@ opencode &middot; catppuccin &middot; catppuccin-frappe &middot; catppuccin-macc
 &middot; kanagawa &middot; rosepine &middot; material &middot; carbonfox
 &middot; synthwave84 &middot; cobalt2 &middot; cursor &middot; flexoki &middot; github
 &middot; matrix &middot; mercury &middot; nightowl &middot; noodle &middot; orng &middot; osaka-jade
-&middot; palenight &middot; vercel &middot; vesper &middot; zenburn
+&middot; palenight &middot; system &middot; vercel &middot; vesper &middot; zenburn

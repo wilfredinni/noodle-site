@@ -82,17 +82,19 @@ body remains available without bloating the YAML file.
 
 ## Security
 
-Timeline request snapshots resolve ordinary environment variables but redact
-declared environment secrets, proxy/TLS settings secrets, sensitive headers,
-and literal auth credentials before persistence. Network messages and errors
-receive the same known-secret redaction. Server response status text, headers,
-and bodies remain exactly as received, and ordinary variables are not treated
-as secrets.
+New timeline entries resolve ordinary environment variables and redact declared
+environment secrets, proxy/TLS secrets, request credentials, OAuth tokens and
+signatures, and known captured secrets. Response status text, headers, bodies,
+assertion results, network messages, and errors receive known-secret redaction.
+Sensitive headers such as `Set-Cookie` are masked by field, and body redaction
+happens before compression into sidecars. The live response view stays available
+for inspection.
 
-The stored snapshot represents the environment selected when the request was
-sent; switching environments does not rewrite old entries. Timeline YAML and
-compressed sidecars can still contain sensitive public variables or response
-payloads, so do not commit `.timeline/`.
+The snapshot uses the environment selected when the request was sent. Changing
+environments, marking a variable secret, or updating a stored secret does not
+rewrite older entries. Clear existing history if it contains data that should
+no longer be retained. Unknown server data and public variables can still be
+sensitive, so do not commit `.timeline/`.
 
 ### Body Sidecars
 

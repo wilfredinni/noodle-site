@@ -196,7 +196,8 @@ fails a run command, even when a status assertion passes.
 Assertion expressions can inspect status, response time, case-insensitive
 headers, and JSON body paths. Expected string values support environment
 substitution at any depth. Values resolved from declared secrets are redacted
-from assertion results, while actual values remain raw response data. See the
+from both expected and actual assertion results. Arbitrary server data remains
+visible, so structured results can still be sensitive. See the
 [response assertion reference](/docs/reference/collection-format/#response-assertions)
 for every expression and operator.
 
@@ -215,9 +216,9 @@ to stdout:
 }
 ```
 
-Successful commands exit with status `0`. A collection run exits `1` when an
-executed request fails and `2` when target, tag, environment, proxy, TLS, cookie,
-or other pre-run configuration fails. This makes the exit status enough for a
+Successful commands exit with status `0`. Both `request run` and `collection run`
+exit `1` when an executed request fails and `2` when environment, proxy, TLS,
+cookie, target, tag, or other applicable pre-run configuration fails. This makes the exit status enough for a
 simple gate, while JSON provides the detail needed for reports or follow-up
 steps.
 
@@ -228,13 +229,17 @@ requests plus assertion, capture, duration, and failure-category totals. Each
 request result also lists any `execution`, `transport`, `http`, `capture`, or
 `assertion` failure categories; pre-run failures use `configuration`. Capture
 and assertion results include whether evaluation happened and each individual
-result. JSON run output also contains response headers, bodies, and successful
-capture values unless they match a known environment or settings secret, so
-treat it as sensitive server data.
+result. JSON run output redacts known environment, proxy, TLS, request-credential,
+cookie, and secret-capture values from response data and results. Sensitive
+response headers are masked, and captures from those headers are fully redacted.
+Arbitrary server payload fields remain visible, so treat JSON output as sensitive
+server data.
 
 Without `--json`, Noodle prints a concise result for each request and a collection
 summary. Human output reports capture and assertion pass and fail counts without
-printing raw captured or actual response values.
+printing raw captured or actual response values. It also names failure categories
+such as configuration error, transport error, HTTP error, capture failure, and
+assertion failure.
 
 ## Maintain collections without the TUI
 

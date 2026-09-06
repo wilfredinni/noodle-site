@@ -17,6 +17,19 @@ assertions, captures, and settings.
   fetchpriority="high"
 />
 
+## Optional tabs
+
+Empty **Assert** and **Capture** tabs stay behind the **+** menu at the right
+of the tab bar. Choose a tab to reveal it; tabs that already contain declarations
+are always visible. Revealed tabs remain available for that request during the
+session, and already visible tabs are disabled in the menu.
+
+Click **+**, or press **g** then **o** to focus it and **Return** to open it.
+The existing **g** then **v** and **g** then **c** shortcuts reveal Assert and
+Capture directly. Arrow navigation skips hidden tabs.
+
+![Request pane with the optional Assert and Capture tab menu open](../../../../assets/request-optional-tabs.png)
+
 ## Browse Mode
 
 When the request pane is focused, arrow keys navigate between sections:
@@ -183,7 +196,7 @@ Navigate to the auth section to set authentication:
 | **API Key** | Key, value, and header or query placement |
 | **AWS SigV4** | Access key, secret key, region, service, optional session token |
 | **OAuth 1.0a** | Credentials, signature method, private key, placement, and optional signing fields |
-| **OAuth 2.0** | Grant, endpoints, client credentials, PKCE, token lifecycle, client assertion, and delivery fields |
+| **OAuth 2.0** | Grant, discovery URL and type, endpoints, client credentials, PKCE, token lifecycle, client assertion, and delivery fields |
 
 Press **Return** on the type field to cycle through options.
 For OAuth 2.0 requests, open the command palette to fetch or authorize, copy,

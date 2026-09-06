@@ -100,6 +100,39 @@ authorization, token, and refresh parameters. See
 [Collection Format](/docs/reference/collection-format/#oauth-20) for the full
 field schema.
 
+#### Discover endpoints with OIDC
+
+Use **Discovery URL** in the request or folder Auth editor to fill missing
+authorization and token endpoints:
+
+```yaml
+auth:
+  type: oauth2
+  grant_type: client_credentials
+  discovery_url: https://identity.example.com
+  client_id: $oauth2_client_id
+  client_secret: $oauth2_client_secret
+  scope: read:users
+```
+
+**Discovery URL Type** defaults to `issuer`. Noodle accepts an issuer or its
+standard `/.well-known/openid-configuration` URL and checks the returned issuer.
+For a provider with a custom metadata path, choose `document`:
+
+```yaml
+discovery_url: https://identity.example.com/metadata/oidc.json
+discovery_url_kind: document
+```
+
+Document mode requests the exact URL. Explicit **Authorization URL** and
+**Access Token URL** values take precedence; an empty refresh URL uses the token
+endpoint. Discovery uses the request's proxy and TLS policy, requires HTTPS
+except on loopback hosts, and never changes the saved endpoint fields.
+
+OpenAPI supports discovery through `openIdConnect`. Postman needs explicit
+endpoints for the selected grant. See [Collection Export](/docs/import/export/)
+for conversion limits.
+
 ### NTLMv2
 
 ```yaml
