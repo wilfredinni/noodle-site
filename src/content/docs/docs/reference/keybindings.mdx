@@ -33,13 +33,14 @@ listed, reflecting your current custom keybinds.
 | `F4`                 | Open [Settings](/docs/guides/settings/)              |
 | `Ctrl+O`             | Switch collection                                    |
 | `Ctrl+L`             | Toggle layout (stacked / side-by-side)               |
+| `Ctrl+B`             | Toggle sidebar (open/closed)                         |
 | `F2`                 | Expand/collapse focused pane                         |
 | `F5`                 | Open collection Runner                               |
 | `F1`                 | Toggle help overlay                                  |
 | `Ctrl+T`             | Open theme picker                                    |
 | `Ctrl+E`             | Edit request in overlay                              |
 | `Ctrl+Alt+E`         | Edit request YAML in overlay                         |
-| `Ctrl+B`             | Copy response body                                   |
+| `Ctrl+Alt+B`         | Copy response body                                   |
 | `/`                  | Filter a JSON response with JSONPath                 |
 | `Ctrl+Z`             | Undo all pending changes                             |
 | `Ctrl+Alt+N`         | New folder                                           |
@@ -98,6 +99,10 @@ swallowed while jump mode is active.
 
 The `v` and `c` targets also reveal an empty Assert or Capture tab. Press
 `Return` after focusing `+` to open its menu.
+
+:::tip
+You can still jump to the sidebar when it is collapsed.
+:::
 
 ### Folder targets
 
@@ -239,7 +244,7 @@ default and can be assigned with `cookie_jar_open`.
 | `Ctrl+N` | Add a cookie |
 | `Ctrl+E` | Edit the selected cookie |
 | `Return` | Expand or collapse the selected cookie |
-| `Ctrl+B` | Copy the selected cookie as `name=value` |
+| `Ctrl+Alt+B` | Copy the selected cookie as `name=value` |
 | `/` | Filter cookies; `Escape` clears and `Return` keeps the filter |
 | `Ctrl+W` | Delete the selected domain |
 | `Ctrl+D` | Delete the selected cookie |
@@ -283,7 +288,7 @@ cookie_delete: ctrl+w
 cookie_delete_domain: ctrl+d
 cookie_clear: ctrl+alt+w
 cookie_new: ctrl+n
-cookie_copy: ctrl+b
+cookie_copy: ctrl+alt+b
 
 # App
 command_palette: ctrl+p
@@ -293,7 +298,7 @@ help_toggle: f1
 theme_picker: ctrl+t
 layout_toggle: ctrl+l
 pane_expand: f2
-response_copy_body: ctrl+b
+response_copy_body: ctrl+alt+b
 response_query: /
 request_find: ctrl+f
 jump_mode: g
