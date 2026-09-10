@@ -24,7 +24,7 @@ response time, headers, and body (auto-formatted if JSON).
 
 | Tab | Content |
 |-----|---------|
-| **Body** | Read-only response body with JSON highlighting, line numbers, folding, and a scrollbar |
+| **Body** | Source text with highlighting and folding, or a Visual JSON/XML tree with previews and compact tables |
 | **Headers** | Response headers sorted alphabetically |
 | **Network** | Live request, authentication, redirect, response, and failure events |
 | **Timeline** | History of every send for this request |
@@ -49,7 +49,23 @@ and captures from sensitive response headers never reveal the value. Capture res
 timeline history. Assertion outcomes are stored with known secrets redacted so
 the Timeline tab can retain their status.
 
-## Folding JSON Responses
+## Source and Visual
+
+Focus the **Body** tab and press **m**, or click the footer action, to switch
+between **Source** and **Visual**. Visual supports JSON and XML, showing
+expandable rows, compact object previews, and tables where the data fits.
+Use **↑**/**↓** to select rows and **Return**, **Space**, or a click to expand.
+
+Press **/** in Visual to search labels and values. Search is literal and
+case-insensitive, highlights matches, and keeps surrounding structure visible.
+**Escape** clears the filter. Copying from Visual returns the original body.
+Unsupported or malformed bodies show a message directing you back to Source.
+Bodies larger than 5 MiB require choosing **view body** before rendering.
+
+Hide the main sidebar with **Ctrl+B** to give the response more room. **g** then
+**s** reopens and focuses it; Tab navigation skips it while hidden.
+
+## Folding JSON Responses in Source
 
 Use **Ctrl+G** to toggle the JSON block at the cursor, or click a fold marker in
 the line-number gutter. Bulk fold and unfold actions are configurable in
@@ -106,11 +122,11 @@ into the collection jar.
 
 | Key | Action |
 |-----|--------|
-| **Ctrl+B** | Copy response body to clipboard (OSC52, works over SSH) |
+| **Ctrl+Alt+B** | Copy response body to clipboard (OSC52, works over SSH) |
 
 ## Filter JSON with JSONPath
 
-When the response pane is focused and the body contains valid JSON, press
+When the Body tab is focused in **Source** and contains valid JSON, press
 **/** to enter a JSONPath expression. Noodle replaces the displayed body
 with the matching values and reports invalid expressions inline.
 

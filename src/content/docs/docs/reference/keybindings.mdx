@@ -39,13 +39,18 @@ listed, reflecting your current custom keybinds.
 | `Ctrl+T`             | Open theme picker                                    |
 | `Ctrl+E`             | Edit request in overlay                              |
 | `Ctrl+Alt+E`         | Edit request YAML in overlay                         |
-| `Ctrl+B`             | Copy response body                                   |
-| `/`                  | Filter a JSON response with JSONPath                 |
+| `Ctrl+Alt+B`         | Copy response body                                   |
+| `/`                  | JSONPath in Source or text search in Visual (Body tab focused) |
+| `m`                  | Toggle Source / Visual (Body tab focused) |
+| `Ctrl+B`             | Toggle the main sidebar (fixed) |
 | `Ctrl+Z`             | Undo all pending changes                             |
 | `Ctrl+Alt+N`         | New folder                                           |
 | `g`                  | Enter jump mode                                      |
 | `e`                  | Open searchable environment picker                   |
 | `Ctrl+C`             | Quit                                                 |
+
+The main sidebar can also be toggled with **Toggle Sidebar** in the command
+palette. Tab skips it while hidden; **g** then **s** reopens and focuses it.
 
 The command palette includes **Import Collection** and **Export Collection**
 alongside request and workspace actions. When the selected request's effective
@@ -239,7 +244,7 @@ default and can be assigned with `cookie_jar_open`.
 | `Ctrl+N` | Add a cookie |
 | `Ctrl+E` | Edit the selected cookie |
 | `Return` | Expand or collapse the selected cookie |
-| `Ctrl+B` | Copy the selected cookie as `name=value` |
+| `Ctrl+Alt+B` | Copy the selected cookie as `name=value` |
 | `/` | Filter cookies; `Escape` clears and `Return` keeps the filter |
 | `Ctrl+W` | Delete the selected domain |
 | `Ctrl+D` | Delete the selected cookie |
@@ -283,7 +288,7 @@ cookie_delete: ctrl+w
 cookie_delete_domain: ctrl+d
 cookie_clear: ctrl+alt+w
 cookie_new: ctrl+n
-cookie_copy: ctrl+b
+cookie_copy: ctrl+alt+b
 
 # App
 command_palette: ctrl+p
@@ -293,8 +298,9 @@ help_toggle: f1
 theme_picker: ctrl+t
 layout_toggle: ctrl+l
 pane_expand: f2
-response_copy_body: ctrl+b
+response_copy_body: ctrl+alt+b
 response_query: /
+response_body_view: m
 request_find: ctrl+f
 jump_mode: g
 
