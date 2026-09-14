@@ -1,0 +1,47 @@
+---
+title: "Noodle 0.8.7: Focus Stays Put"
+description: Toggle the sidebar without losing your place and keep Visual responses clean as the workspace resizes.
+date: 2026-09-14
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+Noodle 0.8.7 smooths out two interactions around the collapsible sidebar. Your
+active pane keeps focus while the sidebar opens or closes, and Response
+Visualization stays free of transient scrollbar artifacts as the available
+space changes.
+
+## Keep focus on the current pane
+
+Press **Ctrl+B** or choose **Toggle Sidebar** from the command palette while
+working in the URL bar, request, response, or folder pane. Focus now stays on
+that pane whether the sidebar is hidden or shown, so typing and navigation can
+continue where you left them.
+
+When the sidebar itself is focused and you hide it, Noodle moves focus to the
+URL bar or the folder pane because the hidden request tree cannot remain
+active. **g** then **s** still reopens and focuses the sidebar directly.
+
+## Keep Response Visualization clean
+
+Opening or closing the sidebar changes the width available to the response
+pane. Visual JSON and XML responses now adapt without briefly drawing vertical
+or horizontal scrollbar glyphs that the content does not need. The fix covers
+both stacked and side-by-side layouts while keeping horizontal scrolling for
+genuinely long values.
+
+## Updated foundations
+
+This release also updates OpenTUI, React, JOSE, Bun types, and the formatting
+and linting toolchain. The repository now includes GitHub Sponsors metadata and
+a README link for anyone who wants to support continued maintenance. Noodle
+remains free and open source.
+
+See [Using the Response Pane](/docs/guides/using-the-response-pane/) and
+[Keybindings](/docs/reference/keybindings/) for the complete controls.
