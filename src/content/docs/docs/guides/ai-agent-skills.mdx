@@ -43,10 +43,10 @@ Once the skill is installed, ask your agent to:
 ### Create
 
 Scaffold collections, add requests with JSON or XML bodies (including `:name`
-URL path parameters), declare response captures, assertions, and suite tags, set
-up folders with inherited tags, auth, and headers, create environments, and
-register the collection path in `~/.config/noodle/config.yml` so it appears in
-noodle's workspace switcher.
+URL path parameters), declare sandboxed inline pre-request scripts, response
+captures, assertions, and suite tags, set up folders with inherited tags, auth,
+and headers, create environments, and register the collection path in
+`~/.config/noodle/config.yml` so it appears in noodle's workspace switcher.
 
 ### Organize
 
@@ -117,6 +117,27 @@ Agents can add `--delay <milliseconds>` to wait between selected requests. The
 value must be a non-negative safe integer; no delay runs after the last request
 or after fail-fast stops the run.
 
+Agents should keep credentials in declared secret variables so Noodle can apply
+its redirect protections. Noodle rejects HTTPS-to-HTTP redirects. When the
+origin changes, it disables request auth, removes sensitive headers and headers
+containing known secrets, and refuses to preserve a body containing a known
+secret. Redirects that discard the body may continue. A configured request
+timeout appears as a transport failure, while caller-triggered cancellation
+continues to propagate to its owner.
+
+Agents can add synchronous `scripts.pre` request preparation through direct YAML
+edits. Scripts can mutate the prepared request, read the selected environment,
+share transient RunScope values, use bounded crypto helpers, and write captured
+console output. They run before HTTP through the same lifecycle in manual sends,
+`request run`, `collection run`, and the TUI Runner. Script failures skip HTTP,
+fail the request, and appear as redacted Results or JSON output. Treat scripted
+collections as trusted code because `env.get` can read a secret and place it in
+the outgoing request. Prefer declarative request fields, captures, and
+assertions when they express the behavior without code.
+
+See [Pre-request Scripting](/docs/guides/pre-request-scripting/) for the complete
+authoring and safety workflow.
+
 Agents can add declarative response assertions for status, timing,
 case-insensitive headers, and JSON body paths. Failed HTTP responses or
 assertions make run commands exit nonzero. Human output does not print raw
@@ -152,7 +173,9 @@ Import OpenAPI 3.0, Swagger 2.0, Postman, and Insomnia v4/v5 JSON exports with
 directly supported behavior to Noodle files and report unsupported scripts,
 tests, and auth flows. Supported imports preserve XML bodies from OpenAPI,
 Swagger, Postman, and Insomnia sources. Postman dynamic, dotted, and hyphenated
-placeholders are rejected before Noodle writes an import.
+placeholders are rejected before Noodle writes an import. Noodle supports
+request-level `scripts.pre`, but importers do not convert Postman or other
+provider scripts automatically.
 
 ### Export
 
@@ -178,3 +201,4 @@ examples and raw Postman XML.
 - "Order the folders on the Stripe collection from Z to A"
 - "Set up basic auth on the Posts folder for $basic_user and $basic_password"
 - "Configure OAuth 2 authorization code with S256 PKCE for this request"
+- "Add a pre-request script that signs this JSON body with a secret HMAC key"

@@ -201,6 +201,15 @@ export default defineConfig({
           ],
         },
         {
+          label: "Scripting",
+          items: [
+            {
+              label: "Pre-request Scripting",
+              slug: "docs/guides/pre-request-scripting",
+            },
+          ],
+        },
+        {
           label: "Import & Export",
           items: [
             { label: "Import Collections", slug: "docs/import/import" },

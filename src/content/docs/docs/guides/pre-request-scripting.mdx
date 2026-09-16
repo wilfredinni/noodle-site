@@ -1,0 +1,119 @@
+---
+title: Pre-request Scripting
+description: Prepare requests with bounded JavaScript before Noodle sends them.
+---
+
+Pre-request scripts handle synchronous request preparation that cannot be
+expressed with saved fields and variables. They can calculate signatures,
+generate timestamps or nonces, reshape a body, and share a transient value with
+later requests in the same collection run.
+
+## When to use a script
+
+Prefer declarative request fields and `$VARNAME` substitution when they are
+enough. Use `scripts.pre` when the outgoing request needs computed values or
+coordinated mutations immediately before HTTP.
+
+Scripts are a good fit for:
+
+- signing a request body with a secret key;
+- adding a timestamp, nonce, or digest;
+- transforming a JSON body before sending;
+- changing prepared authentication or query parameters; and
+- sharing a transient RunScope value with a later request.
+
+Use [captures](/docs/guides/automation/#pass-response-values-forward) to pass
+response values forward and
+[assertions](/docs/guides/automation/#put-success-criteria-beside-the-request)
+to check a response. Those jobs do not need scripting.
+
+## Add a pre-request script
+
+Add a string-valued `pre` member under the request's top-level `scripts` field:
+
+```yaml
+name: Create signed event
+method: POST
+url: $base_url/events
+body_type: json
+body: '{"name":"deploy"}'
+scripts:
+  pre: |-
+    const timestamp = new Date().toISOString();
+    request.body.setJson({ ...request.body.json(), timestamp });
+    request.headers.set("X-Timestamp", timestamp);
+    request.headers.set(
+      "X-Signature",
+      crypto.hmacSha256(env.get("SIGNING_SECRET"), request.body.text(), "hex"),
+    );
+    run.set("temporary_nonce", crypto.randomBytes(12, "base64"));
+    console.info("prepared", timestamp);
+```
+
+Author scripts directly in request YAML or open the YAML editor with
+**Ctrl+Alt+E**. Noodle does not provide a dedicated script editor. Script source
+is literal and does not receive `$VARNAME` substitution.
+
+## Available APIs
+
+The sandbox exposes five focused APIs:
+
+| API | Purpose |
+| --- | --- |
+| `request` | Read or update the prepared URL, method, headers, parameters, body, and auth |
+| `env` | Read the selected environment with `env.get` |
+| `run` | Read, set, or remove transient RunScope values |
+| `crypto` | Create SHA-256, HMAC-SHA256, and random-byte values |
+| `console` | Record bounded `log`, `info`, `warn`, and `error` messages |
+
+See the
+[Collection Format reference](/docs/reference/collection-format/#sandboxed-pre-request-script)
+for every method, accepted value, and fixed resource limit.
+
+## Execution order
+
+Every manual send, `request run`, `collection run`, and TUI Runner request uses
+the same order:
+
+1. Apply folder overrides.
+2. Substitute environment and current RunScope variables.
+3. Run `scripts.pre`.
+4. Send the prepared request.
+5. Evaluate captures.
+6. Evaluate assertions.
+
+Request and RunScope mutations are staged until the complete script succeeds.
+If the script throws or exceeds a limit, Noodle discards its changes and does
+not send HTTP. Successful request mutations remain in memory and are never
+written back to YAML.
+
+Successful `run.set` values become available to later requests in the same
+ordered collection run, even when transport or response evaluation later fails.
+Manual sends and `request run` use a fresh scope.
+
+## Inspect script results
+
+The TUI **Results** tab shows script status, duration, log count, normalized
+errors, and expandable redacted console messages. Human CLI output reports the
+status and log count without printing log text. `--json` output includes the
+redacted `scripts` result group.
+
+Script source, results, logs, and RunScope values do not enter timeline history.
+A successful manual send does store the prepared request snapshot after normal
+timeline redaction. See [Using the Response Pane](/docs/guides/using-the-response-pane/#results)
+for the complete Results workflow.
+
+## Sandbox and trust boundary
+
+Each invocation receives a fresh synchronous QuickJS runtime and context with
+fixed time, memory, stack, source, bridge, crypto, and console limits. Imports,
+Bun and process APIs, filesystem and shell access, network access, timers,
+workers, Promises, and queued asynchronous work are unavailable.
+
+Treat every scripted collection as code you trust. `env.get` can read a secret
+from the selected environment, and a script can place that value in the URL,
+headers, or body sent immediately afterward. Review unfamiliar scripts before
+running the collection.
+
+For CI, fail-fast, structured output, captures, and assertions around scripted
+requests, continue with [Automation](/docs/guides/automation/).

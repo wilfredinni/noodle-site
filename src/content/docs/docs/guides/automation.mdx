@@ -1,6 +1,6 @@
 ---
 title: Automation
-description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with tag suites, fail-fast execution, captures, assertions, and stable results.
+description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with pre-request scripts, tag suites, captures, assertions, and stable results.
 ---
 
 A Noodle collection does not need a second representation before it can run in
@@ -15,6 +15,8 @@ order.
 
 - [Run collections](#choose-the-requests-that-matter) with request targets,
   folders, tags, fail-fast execution, or the TUI Runner.
+- [Prepare requests](#prepare-requests-before-http-with-a-script) with a
+  synchronous sandboxed script when declarative fields are not enough.
 - [Capture values](#pass-response-values-forward) from one response and reuse
   them in later requests.
 - [Assert behavior](#put-success-criteria-beside-the-request) against status,
@@ -105,13 +107,30 @@ configure a transient run without leaving the TUI. Select requests or whole
 folders, choose an environment, add Include and Exclude tags, enable fail-fast,
 and optionally set a delay before starting. The Runner shows progress, keeps
 ordered results in memory, and expands request details with response, assertion,
-and capture outcomes. A folder context menu opens the same workspace scoped to
-that folder.
+script, assertion, and capture outcomes. A folder context menu opens the same
+workspace scoped to that folder.
 
 Runner options are local to that workspace. It does not create another runner
 file, edit request declarations, persist captures, or write timeline entries.
 
 ![Noodle collection Runner with environment, tag, fail-fast, request, and folder selection controls](../../../../assets/runner-workspace.png)
+
+## Prepare requests before HTTP with a script
+
+Use top-level `scripts.pre` when a request needs synchronous preparation that
+cannot be expressed with variables and saved request fields. The
+[Pre-request Scripting](/docs/guides/pre-request-scripting/) guide covers
+authoring, available APIs, execution order, results, and the trust boundary.
+
+Request and RunScope changes commit only when the entire script succeeds. A
+failure skips HTTP, marks later capture and assertion groups unevaluated, and
+participates in fail-fast. Successful RunScope values remain available to
+later requests in the same collection run, even if a later phase of the current
+request fails. Request mutations remain in memory and are never written back to
+YAML.
+
+Treat scripted collections as trusted code. A script can read a selected
+environment secret with `env.get` and place it in the outgoing request.
 
 ## Pass response values forward
 
@@ -225,21 +244,24 @@ steps.
 For `request run`, the request result is in `data.result`. For `collection run`,
 the ordered results are in `data.results`, fail-fast skips are in `data.skipped`,
 and `data.summary` counts selected, executed, skipped, successful, and failed
-requests plus assertion, capture, duration, and failure-category totals. Each
-request result also lists any `execution`, `transport`, `http`, `capture`, or
-`assertion` failure categories; pre-run failures use `configuration`. Capture
-and assertion results include whether evaluation happened and each individual
-result. JSON run output redacts known environment, proxy, TLS, request-credential,
-cookie, and secret-capture values from response data and results. Sensitive
-response headers are masked, and captures from those headers are fully redacted.
-Arbitrary server payload fields remain visible, so treat JSON output as sensitive
-server data.
+requests plus assertion, capture, duration, and failure-category totals. There
+are no aggregate script counters. Each request result also lists any
+`execution`, `script`, `transport`, `http`, `capture`, or `assertion` failure
+categories; pre-run failures use `configuration`. Script, capture, and
+assertion groups include whether evaluation happened and each individual
+result. Script rows include phase, scope, source kind, status, duration,
+redacted logs, and an optional normalized error. JSON run output redacts known
+environment, proxy, TLS, request-credential, cookie, script-created, and secret
+RunScope values from response data and results. Sensitive response headers are
+masked, and captures from those headers are fully redacted. Arbitrary server
+payload fields remain visible, so treat JSON output as sensitive server data.
 
 Without `--json`, Noodle prints a concise result for each request and a collection
 summary. Human output reports capture and assertion pass and fail counts without
-printing raw captured or actual response values. It also names failure categories
-such as configuration error, transport error, HTTP error, capture failure, and
-assertion failure.
+printing raw captured or actual response values. It reports script status,
+duration, log count, and redacted failures without printing console messages.
+It also names failure categories such as configuration error, script failure,
+transport error, HTTP error, capture failure, and assertion failure.
 
 ## Maintain collections without the TUI
 

@@ -1,0 +1,109 @@
+---
+title: "Noodle 0.9.0: Pre-request Scripting"
+description: Prepare requests with a bounded sandboxed script, inspect redacted results everywhere, and keep redirect secrets on their original origin.
+date: 2026-09-16
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+Noodle 0.9.0 adds a small scripting surface at the point where static request
+fields stop being enough. An inline pre-request script can prepare a request,
+derive a signature, or share a transient value with later requests without
+creating a second execution path for the TUI and automation.
+
+## Prepare the request at the last responsible moment
+
+Add `scripts.pre` to request YAML when preparation needs code:
+
+```yaml
+name: Create signed event
+method: POST
+url: $base_url/events
+body_type: json
+body: '{"name":"deploy"}'
+scripts:
+  pre: |-
+    const timestamp = new Date().toISOString();
+    request.body.setJson({ ...request.body.json(), timestamp });
+    request.headers.set("X-Timestamp", timestamp);
+    request.headers.set(
+      "X-Signature",
+      crypto.hmacSha256(env.get("SIGNING_SECRET"), request.body.text(), "hex"),
+    );
+    run.set("temporary_nonce", crypto.randomBytes(12, "base64"));
+    console.info("prepared", timestamp);
+```
+
+The script runs after folder overrides and variable substitution, but before
+HTTP. It can update the prepared URL, method, headers, query parameters, body,
+and auth. It can also read the selected environment, work with the current
+RunScope, create SHA-256 or HMAC-SHA256 values, generate bounded random bytes,
+and record console messages for the result.
+
+All request and RunScope mutations are staged. If the script throws or exceeds
+a limit, Noodle discards those changes and does not send the request. When it
+succeeds, request changes stay in memory and RunScope values become available
+to later requests in the same collection run.
+
+## One lifecycle everywhere
+
+Manual sends, `request run`, `collection run`, and the TUI Runner now use the
+same sequence: merge folder overrides, substitute once, run the pre-script,
+send, capture, then assert. A script behaves the same way whether the request is
+being explored interactively or checked in CI.
+
+The existing **Results** view is the visible TUI surface. It shows script
+status, duration, log count, normalized errors, and expandable redacted console
+messages beside capture and assertion outcomes. Human CLI output reports the
+status without printing console text, while `--json` includes the redacted
+`scripts` group. Script source and results remain transient and do not enter
+timeline history.
+
+## A deliberately narrow boundary
+
+Each script gets a fresh synchronous QuickJS runtime and context. The available
+globals are limited to `request`, `env`, `run`, `crypto`, and captured
+`console`. Bun, process, filesystem, shell, network, timers, workers, module
+loading, Promises, and queued async work are unavailable.
+
+Execution time, runtime memory, stack, source, bridged values, JSON depth,
+random bytes, and console output all have fixed limits. Local builds and every
+release target also run a compiled-binary smoke check so the scripting runtime
+is verified in the artifact users receive.
+
+This boundary limits accidental reach, but it does not make an untrusted
+collection safe. A script can read a selected-environment secret and place it
+in the outgoing request. Review scripted collections as code before running
+them.
+
+## Keep secrets on their origin
+
+Cross-origin redirect handling is stricter in 0.9.0. Noodle removes sensitive
+headers and headers containing known secrets before following a request to
+another origin. It also refuses a redirect that would preserve a known secret
+inside the request body. Redirect responses that discard the body continue
+normally.
+
+Request timeouts now report as transport failures, while caller-triggered
+cancellation continues to propagate to its owner. This keeps collection runs
+moving after a timed-out request and makes the failure category more useful in
+human and structured output.
+
+## Easier tags and ready-to-read examples
+
+Request tags now appear as accent badges with a `#` prefix in request Settings
+and throughout the collection Runner. The sample collection also includes two
+audited pre-request scripts: one adds a timestamp and SHA-256 digest to a GET,
+and one mutates a JSON POST with a random request ID and transient run value.
+
+Start with [Pre-request Scripting](/docs/guides/pre-request-scripting/) for the
+guided workflow. The
+[collection format reference](/docs/reference/collection-format/#sandboxed-pre-request-script)
+contains the complete API and limits, while [Automation](/docs/guides/automation/)
+covers collection-run output and failure behavior.
