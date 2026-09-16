@@ -207,6 +207,10 @@ export default defineConfig({
               label: "Pre-request Scripting",
               slug: "docs/guides/pre-request-scripting",
             },
+            {
+              label: "Script Cookbook",
+              slug: "docs/guides/script-cookbook",
+            },
           ],
         },
         {
