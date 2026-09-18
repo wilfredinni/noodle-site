@@ -39,7 +39,9 @@ listed, reflecting your current custom keybinds.
 | `Ctrl+T`             | Open theme picker                                    |
 | `Ctrl+E`             | Edit request in overlay                              |
 | `Ctrl+Alt+E`         | Edit request YAML in overlay                         |
-| `Ctrl+Alt+B`         | Copy response body                                   |
+| `Ctrl+Alt+B`         | Copy text response body                              |
+| `Ctrl+Alt+S`         | Save live binary response file (Body tab focused)     |
+| `Ctrl+Alt+O`         | Open that binary response after saving (Body tab focused) |
 | `/`                  | JSONPath in Source or text search in Visual (Body tab focused) |
 | `m`                  | Toggle Source / Visual (Body tab focused) |
 | `Ctrl+B`             | Toggle the main sidebar (fixed) |
@@ -199,10 +201,15 @@ When the response pane is focused:
 
 | Key             | Action                                  |
 | --------------- | --------------------------------------- |
-| `←` / `→`       | Switch tabs (Body / Headers / Network / Timeline / Cookies) |
+| `←` / `→`       | Switch tabs (Body / Headers / Network / Timeline / Cookies / Results) |
 | `↑` / `↓`       | Scroll active tab                       |
 | `PgUp` / `PgDn` | Page scroll                             |
 | `Return`        | Expand/collapse timeline entry          |
+
+Binary Save/Open shortcuts can be changed with `response_save_file` and
+`response_open_file` in `keybinds.yml` or **F4 → Global → Keyboard**. Open is
+available only after that live response has been saved. See
+[Images and binary responses](/docs/guides/using-the-response-pane/#images-and-binary-responses).
 
 ## Help Overlay
 

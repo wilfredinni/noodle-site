@@ -3,7 +3,7 @@ title: Timeline
 description: Understand how Noodle stores response history, protects known secrets, and keeps large bodies available on disk.
 ---
 
-noodle stores response history for every request under `<collection>/.timeline/`.
+Manual Noodle sends store response history for each request under `<collection>/.timeline/`.
 One file per request, mirroring the request ID structure.
 
 ![Timeline entries for a request in the response pane](../../../../assets/timeline.png)
@@ -25,7 +25,9 @@ One file per request, mirroring the request ID structure.
 Each timeline file is a YAML array of entries. Max 50 entries, newest first
 (prepended on save). Request and response bodies larger than 10 KB are stored
 in a sibling `.yml.bodies/` directory as gzip-compressed sidecars, so the full
-body remains available without bloating the YAML file.
+textual body remains available without bloating the YAML file. Binary responses
+retain redacted metadata only, with no body or sidecar. CLI automation and the
+TUI Runner do not create timeline entries.
 
 ```yaml
 - timestamp: 1783374564216
@@ -61,6 +63,7 @@ body remains available without bloating the YAML file.
 | `request` | object | Snapshot of the request at send time |
 | `response` | object | Response data (present on success) |
 | `error` | object | Error data (present on failure, instead of `response`) |
+| `scripts` | object | Optional bounded, redacted pre/post diagnostics and persistence outcomes |
 
 ### Response Fields
 
@@ -69,10 +72,22 @@ body remains available without bloating the YAML file.
 | `status` | number | HTTP status code |
 | `statusText` | string | HTTP status text |
 | `headers` | map | Response headers |
-| `body` | string | Response body, when it is stored inline |
+| `body` | string | Text response body, when stored inline |
+| `bodyKind` | string | `binary` for metadata-only binary history |
+| `contentType` | string | Normalized MIME type for binary responses |
+| `filename` | string | Optional redacted binary filename |
 | `bodyRef` | object | Reference to a gzip sidecar for a body larger than 10 KB |
 | `timeMs` | number | Response time in milliseconds |
 | `size` | number | Response body size in bytes |
+
+### Script diagnostics
+
+The optional `scripts: { evaluated, results }` group keeps executed phases in
+pre/post order, including status, duration, redacted logs/errors, and persistence
+outcomes. Timeline details render these with the same expandable Results rows.
+Individual diagnostic text and combined serialized logs are capped at 10,000
+bytes with `[TRUNCATED]` markers. Script source, capture results, and RunScope
+values are excluded. Legacy entries without diagnostics remain readable.
 
 ### Error Fields
 
@@ -85,7 +100,8 @@ body remains available without bloating the YAML file.
 New timeline entries resolve ordinary environment variables and redact declared
 environment secrets, proxy/TLS secrets, request credentials, OAuth tokens and
 signatures, and known captured secrets. Response status text, headers, bodies,
-assertion results, network messages, and errors receive known-secret redaction.
+assertion results, script diagnostics and logs, network messages, and errors
+receive known-secret redaction.
 Sensitive headers such as `Set-Cookie` are masked by field, and body redaction
 happens before compression into sidecars. The live response view stays available
 for inspection.

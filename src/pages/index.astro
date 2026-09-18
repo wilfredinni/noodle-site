@@ -9,15 +9,16 @@ const [latestRelease] = await getArticles("release")
 
 const capabilities = [
   ["Requests", "URL, params, headers, body, and auth"],
-  ["Responses", "Body, headers, cookies, status, timing, and assertions"],
+  ["Responses", "Text, image previews, binary downloads, headers, cookies, and results"],
   ["Collections", "Folders, inherited context, and Git-friendly files"],
   ["Environments", "Switchable variables and secure values"],
+  ["Scripting", "Inline pre/post processing, seeded test data, and explicit persistence"],
   ["Transport", "Proxy, TLS, mTLS, and authentication"],
   ["Portability", "Import OpenAPI, Swagger, Postman, and Insomnia. Export OpenAPI and Postman."],
 ]
 
 const nextItems = [
-  ["v0.9", "Scripts and advanced tests", "Add reusable setup, teardown, and deeper request checks."],
+  ["v0.9", "Advanced tests", "Build deeper request checks on inline pre/post scripting."],
   ["v0.10", "Richer CI reporting", "Expand collection runs with reports such as JUnit."],
 ]
 

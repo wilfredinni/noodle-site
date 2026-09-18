@@ -1,6 +1,6 @@
 ---
 title: Automation
-description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with pre-request scripts, tag suites, captures, assertions, and stable results.
+description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with inline pre/post scripts, tag suites, captures, assertions, and stable results.
 ---
 
 A Noodle collection does not need a second representation before it can run in
@@ -119,7 +119,7 @@ file, edit request declarations, persist captures, or write timeline entries.
 
 Use top-level `scripts.pre` when a request needs synchronous preparation that
 cannot be expressed with variables and saved request fields. The
-[Pre-request Scripting](/docs/guides/pre-request-scripting/) guide covers
+[Inline Scripting](/docs/guides/pre-request-scripting/) guide covers
 authoring, available APIs, execution order, results, and the trust boundary.
 The [Script Cookbook](/docs/guides/script-cookbook/) provides copyable examples
 for request preparation and sharing generated data across a collection run.
@@ -132,7 +132,40 @@ request fails. Request mutations remain in memory and are never written back to
 YAML.
 
 Treat scripted collections as trusted code. A script can read a selected
-environment secret with `env.get` and place it in the outgoing request.
+environment secret with `noodle.env.get` and place it in the outgoing request.
+
+Post runs after captures and before assertions for every completed response,
+including HTTP/capture failures. It reads `noodle.response`, the read-only final
+prepared request, and optional URL-scoped cookies. Post failure preserves the
+response/captures and still runs assertions. Successful post RunScope values
+reach later collection requests even after assertion failure.
+
+Both phases support `noodle.run.set/unset` with optional
+`{ persist: "environment" | "secret" }`. `request run` and manual sends honor
+these options for an existing selected environment, in pre, capture, post
+order. Collection runs and the Runner keep them transient and report suppression.
+Storage failure retains successful runtime changes and fails script diagnostics.
+`noodle.random` provides isolated, seedable English test-data generation.
+All Noodle script APIs require the `noodle.` prefix.
+
+## Download a response
+
+```bash
+noodle request run files/download --collection ./api --output ./downloads/file.bin --json
+```
+
+`request run --output/-o <file>` saves original received bytes after normal HTTP
+decompression, independently of redacted diagnostics. The destination must be
+new: invalid or existing paths exit `2` before sending. Completed responses are
+saved even after HTTP, post-script, capture, or assertion failures, which still
+exit `1`. Pre-script and transport failures create no file. Later write failures
+retain response diagnostics and exit `1`; successful saves report `outputFile`.
+Downloads contain unredacted server data.
+
+Binary JSON results omit body text and bytes and report `bodyKind`, byte `size`,
+normalized `contentType`, and optional `filename`. Collection runs and Runner
+details retain binary metadata only. Status/header/time expressions still work;
+JSON body captures and assertions fail clearly for binary responses.
 
 ## Pass response values forward
 
@@ -172,14 +205,15 @@ Strings substitute verbatim; other JSON-compatible values use their JSON
 representation.
 
 Captures follow collection order, including when a run selects only a few
-requests or folders. Successful values commit before assertions. A failed
+requests or folders. Successful values commit before post and assertions; post can read them. A failed
 capture fails that request and the final command, but the collection keeps
 running and an earlier successful value is not replaced.
 
 One `collection run` shares a transient scope across its ordered requests. The
 TUI Runner uses the same transient rule. A manual TUI send or CLI `request run`
 uses an isolated scope and can persist a successful capture to the active or
-selected environment when `persist` is set. Secret values are stored in the OS
+selected environment when `persist` is set, using the original capture even
+when post overwrites it or fails. Secret values are stored in the OS
 vault and fully redacted from capture results. See the [response capture
 reference](/docs/reference/collection-format/#response-captures) for the exact
 expression, persistence, and failure behavior.
@@ -252,7 +286,8 @@ are no aggregate script counters. Each request result also lists any
 categories; pre-run failures use `configuration`. Script, capture, and
 assertion groups include whether evaluation happened and each individual
 result. Script rows include phase, scope, source kind, status, duration,
-redacted logs, and an optional normalized error. JSON run output redacts known
+redacted logs, an optional normalized error, and optional persistence outcomes.
+Human output distinguishes Pre-script/Post-script labels. JSON run output redacts known
 environment, proxy, TLS, request-credential, cookie, script-created, and secret
 RunScope values from response data and results. Sensitive response headers are
 masked, and captures from those headers are fully redacted. Arbitrary server

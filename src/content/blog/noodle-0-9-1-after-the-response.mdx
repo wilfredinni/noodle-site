@@ -1,0 +1,138 @@
+---
+title: "Noodle 0.9.1: After the Response"
+description: Process responses with inline scripts, persist selected values, generate seeded test data, and save image and binary responses.
+date: 2026-09-18
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+Noodle 0.9.1 extends scripting through the response side of a request. Inline
+post scripts can process a completed response, selected values can survive a
+manual send, and seeded generators make test data easier to reproduce. Image
+and binary responses also keep their received bytes for downloads and supported
+terminal previews.
+
+## Update existing scripts first
+
+All Noodle APIs now live under the frozen `noodle` namespace. Add `noodle.` to
+existing `request`, `response`, `env`, `run`, `crypto`, `random`, and `cookies`
+API accesses. The old bare globals are removed; `console` and JavaScript
+built-ins remain global.
+
+For example, `request.headers.set(...)` becomes
+`noodle.request.headers.set(...)`. The [Inline Scripting guide](/docs/guides/pre-request-scripting/)
+and [cookbook](/docs/guides/script-cookbook/) use the new API throughout.
+
+## Continue after HTTP
+
+Use a capture for simple response extraction. Add `scripts.post` when processing
+needs a condition:
+
+```yaml
+scripts:
+  post: |-
+    if (noodle.response.status === 201) {
+      noodle.run.set("event_id", noodle.response.json().id);
+      console.info("created event");
+    }
+```
+
+Post runs after captures and before assertions for every completed response,
+including HTTP and capture failures. It sees committed captures, response
+metadata, case-insensitive headers, lazy text, cached JSON, and a read-only view
+of the final prepared HTTP leg. When the cookie jar is enabled and available,
+it also provides final-URL-scoped cookie get/set/delete operations.
+
+Successful RunScope and cookie changes commit together. A failed post script
+discards only its staged changes, preserving the response and captures while
+assertions still run. Successful values reach later requests in a collection
+run even when an assertion fails. The shared lifecycle continues to govern
+manual sends, CLI runs, and the TUI Runner.
+
+## Choose what survives a manual send
+
+Both phases can pass an explicit persistence option:
+
+```js
+noodle.run.set("ACCESS_TOKEN", token, { persist: "secret" });
+noodle.run.set("LAST_EVENT_ID", eventId, { persist: "environment" });
+```
+
+Manual sends and `request run` honor these options for an existing selected
+environment. Collection runs and the Runner keep them transient and report
+suppression. Durable precedence is pre, capture, post, and captures keep their
+original saved values even if post changes the runtime value.
+
+Persistent unset is available too. Environment operations cannot alter
+declared secrets; secret unset removes both the vault value and declaration.
+Storage failures retain successful runtime changes and appear as redacted
+persistence diagnostics. Storage locks are no longer reclaimed by age:
+interrupted writers require an explicit consistency check and confirmation
+that no writer remains active before recovery.
+
+## Repeatable test data
+
+The bounded `noodle.random` API generates English identifiers, names, contact
+details, dates, and other test data. Each invocation has independent state:
+
+```js
+noodle.random.seed(42);
+noodle.request.body.setJson({
+  id: noodle.random.uuid(),
+  name: noodle.random.name(),
+  email: noodle.random.exampleEmail(),
+});
+```
+
+Use this example in pre. Seeded sequences are reproducible within pinned
+Faker 10.5.0; relative dates also need an explicit reference date. Passwords
+become known secrets immediately. IDs and passwords are test data without a
+security or uniqueness guarantee. Generated image URLs and paths perform no
+network or filesystem access.
+
+Manual history now keeps bounded, redacted pre/post diagnostics, logs, and
+persistence outcomes so earlier script failures remain inspectable in timeline
+details. Oversized diagnostic text uses `[TRUNCATED]` markers. Source, capture
+results, and RunScope values remain excluded.
+
+## Save what the server sent
+
+Image and binary responses preserve their received bytes. The live Body tab
+previews PNG, JPEG, static WebP, and the first GIF frame; images above 5 MiB
+require explicit activation. Other formats show file metadata.
+
+**Save file** opens Save As with a suggested Downloads path. Noodle creates
+missing directories and chooses `(1)`, `(2)`, and later filename suffixes when
+needed, without overwriting files. **Open in default app** opens that response
+after saving. With the binary Body tab focused, the configurable defaults are
+**Ctrl+Alt+S** to save and **Ctrl+Alt+O** to open. Pane sizing now keeps footers
+and actions inside their borders, and image previews dim beneath modal
+backdrops.
+
+The CLI can download any response to a new destination:
+
+```bash
+noodle request run files/download --collection ./api --output ./downloads/file.bin --json
+```
+
+Invalid or existing destinations fail before HTTP. Completed responses are
+saved even when HTTP or response evaluation fails; those failures still exit
+nonzero. Pre-script and transport failures create no file. Downloads contain
+original server data without diagnostic redaction, and native saves anchor
+directory operations against parent symlink races.
+
+Binary JSON results report metadata without body text or bytes, and successful
+downloads report `outputFile`. Binary timeline history and Runner details retain
+metadata only, with no body to download or preview. Text responses keep their
+existing Source and Visual views.
+
+Start with [Inline Scripting](/docs/guides/pre-request-scripting/) for the
+expanded lifecycle, or [Using the Response Pane](/docs/guides/using-the-response-pane/)
+for previews and Save As. The [Automation guide](/docs/guides/automation/)
+documents download output and failure behavior.

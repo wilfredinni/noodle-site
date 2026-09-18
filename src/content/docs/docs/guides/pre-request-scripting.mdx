@@ -1,15 +1,23 @@
 ---
-title: Pre-request Scripting
-description: Prepare requests with bounded JavaScript before Noodle sends them.
+title: Inline Scripting
+description: Prepare requests and process responses with bounded JavaScript in Noodle’s shared lifecycle.
 ---
 
-Pre-request scripts handle synchronous request preparation that cannot be
-expressed with saved fields and variables. They can calculate signatures,
-generate timestamps or nonces, reshape a body, and share a transient value with
-later requests in the same collection run.
+Inline scripts handle synchronous preparation and conditional response
+processing that saved fields, variables, and captures cannot express. Use pre
+for signatures, timestamps, test data, and request mutations; use post to process
+a completed response after captures and before assertions.
 
 For copyable examples of timestamps, identifiers, test data, validation, signing,
 and shared collection-run values, see the [Script Cookbook](/docs/guides/script-cookbook/).
+
+## Migrate existing scripts
+
+Noodle 0.9.1 moves every Noodle API under the frozen `noodle` namespace. Change
+`request.headers.set(...)` to `noodle.request.headers.set(...)`, and prefix
+`response`, `env`, `run`, `crypto`, `random`, and `cookies` API accesses the same
+way. Bare API globals are unavailable. `console` and JavaScript built-ins such
+as `Date`, `JSON`, and `Math` remain global.
 
 ## When to use a script
 
@@ -28,7 +36,8 @@ Scripts are a good fit for:
 Use [captures](/docs/guides/automation/#pass-response-values-forward) to pass
 response values forward and
 [assertions](/docs/guides/automation/#put-success-criteria-beside-the-request)
-to check a response. Those jobs do not need scripting.
+to check a response. Those jobs do not need scripting. Use `scripts.post` for
+conditional processing after captures and before assertions.
 
 ## Add a pre-request script
 
@@ -43,13 +52,13 @@ body: '{"name":"deploy"}'
 scripts:
   pre: |-
     const timestamp = new Date().toISOString();
-    request.body.setJson({ ...request.body.json(), timestamp });
-    request.headers.set("X-Timestamp", timestamp);
-    request.headers.set(
+    noodle.request.body.setJson({ ...noodle.request.body.json(), timestamp });
+    noodle.request.headers.set("X-Timestamp", timestamp);
+    noodle.request.headers.set(
       "X-Signature",
-      crypto.hmacSha256(env.get("SIGNING_SECRET"), request.body.text(), "hex"),
+      noodle.crypto.hmacSha256(noodle.env.get("SIGNING_SECRET"), noodle.request.body.text(), "hex"),
     );
-    run.set("temporary_nonce", crypto.randomBytes(12, "base64"));
+    noodle.run.set("temporary_nonce", noodle.crypto.randomBytes(12, "base64"));
     console.info("prepared", timestamp);
 ```
 
@@ -57,16 +66,24 @@ Author scripts directly in request YAML or open the YAML editor with
 **Ctrl+Alt+E**. Noodle does not provide a dedicated script editor. Script source
 is literal and does not receive `$VARNAME` substitution.
 
+An optional `post` string can accompany `pre` or stand alone. Empty strings are
+valid no-ops; empty mappings, unknown keys, non-string sources, and standalone
+external script paths are rejected. Noodle never reads script files or inherits
+folder scripts.
+
 ## Available APIs
 
-The sandbox exposes five focused APIs:
+The sandbox exposes the following APIs:
 
 | API | Purpose |
 | --- | --- |
-| `request` | Read or update the prepared URL, method, headers, parameters, body, and auth |
-| `env` | Read the selected environment with `env.get` |
-| `run` | Read, set, or remove transient RunScope values |
-| `crypto` | Create SHA-256, HMAC-SHA256, and random-byte values |
+| `noodle.request` | Read the prepared request; mutate it in pre only |
+| `noodle.env` | Read the selected-environment snapshot |
+| `noodle.run` | Read, set, or remove RunScope values, with optional persistence |
+| `noodle.crypto` | Create SHA-256, HMAC-SHA256, and random-byte values |
+| `noodle.random` | Bounded English test-data generators with per-invocation seeds |
+| `noodle.response` | Post only: status, status text, timing, headers, text, and cached JSON |
+| `noodle.cookies` | Post only, when available: final-URL-scoped get/set/delete |
 | `console` | Record bounded `log`, `info`, `warn`, and `error` messages |
 
 See the
@@ -83,26 +100,116 @@ the same order:
 3. Run `scripts.pre`.
 4. Send the prepared request.
 5. Evaluate captures.
-6. Evaluate assertions.
+6. Run post against the response and committed captures.
+7. Evaluate assertions, including after post failure.
 
-Request and RunScope mutations are staged until the complete script succeeds.
-If the script throws or exceeds a limit, Noodle discards its changes and does
-not send HTTP. Successful request mutations remain in memory and are never
-written back to YAML.
+Pre stages request and RunScope mutations until complete success. If pre throws
+or exceeds a limit, Noodle discards its changes and does not send HTTP.
+Successful request mutations remain in memory and are never written back to YAML.
 
-Successful `run.set` values become available to later requests in the same
+Successful `noodle.run.set` values become available to later requests in the same
 ordered collection run, even when transport or response evaluation later fails.
 Manual sends and `request run` use a fresh scope.
 
+## Process a response
+
+```yaml
+scripts:
+  post: |-
+    if (noodle.response.status === 201) {
+      noodle.run.set("event_id", noodle.response.json().id);
+      console.info("created event");
+    }
+```
+
+Post runs once per completed HTTP response, including HTTP/capture failures,
+but not transport failures or intermediate redirects/authentication challenges.
+Request readers reflect the final prepared HTTP leg after signing and
+cookie/header preparation; every request mutator throws a read-only API error.
+Post failure discards only its staged RunScope/cookie changes, preserving the
+response, captures, earlier writes, and logs. Assertions still run. Successful
+post values reach later collection requests even when assertions fail.
+
+`noodle.response` exposes `status`, `statusText`, `timeMs`, case-insensitive
+`headers.get/has`, lazy `text()`, and cached `json()`. Missing headers return
+null; invalid JSON throws a structured API error. Body readers have a separate
+5 MiB UTF-8 cap; extracted RunScope values retain 256 KiB/depth-32 limits.
+
+When cookies are enabled and available, post also exposes
+`noodle.cookies.get(name)`, `set({ name, value })`, and `delete(name)`. These
+operations are scoped to the final URL; cookies are host-only and `domain` is
+rejected. Cookie and RunScope changes commit together after complete validation,
+with deferred cookie persistence. `sendCookies: false` removes the capability
+but still processes response Set-Cookie. See the reference for exact attributes.
+
+## Save environment and secret values
+
+Both phases can persist or delete selected values:
+
+```js
+noodle.run.set("BASE_URL", "https://api.example.com", { persist: "environment" });
+noodle.run.set("ACCESS_TOKEN", token, { persist: "secret" });
+noodle.run.unset("BASE_URL", { persist: "environment" });
+noodle.run.unset("ACCESS_TOKEN", { persist: "secret" });
+```
+
+Manual sends and `request run` honor these options for an existing selected
+environment. Collection runs and the Runner keep them transient and report
+suppression. Without options, writes remain transient. `noodle.env.get` keeps
+its initial snapshot; `noodle.run.get` sees staged or committed scope writes.
+Persistent unset hides the baseline for the remaining run until another
+successful set or capture; plain unset removes only the transient override.
+
+Environment operations cannot alter declared secrets. Secret set may promote
+an ordinary variable; secret unset removes its vault value and declaration,
+whereas CLI `secret delete` retains the declaration. Secret unset cannot delete
+an ordinary entry, empty secrets and reserved `_color` names are rejected, and
+secret writes never fall back to plaintext.
+
+Successful pre persistence happens before HTTP. Captures save their original
+values before post persistence, so durable precedence is pre, capture, post.
+Each phase saves its latest explicit intent per key; later transient writes do
+not change the saved snapshot. Script failure discards that phase's intents.
+Storage failure attempts rollback, retains successful runtime/request/cookie
+changes, and fails script diagnostics without skipping remaining phases.
+Each invocation permits 100 persistence keys and a 256 KiB intent batch; host
+storage work runs outside the VM deadline.
+
+## Test data with a seed
+
+Both phases expose bounded English `noodle.random` generators:
+
+```js
+noodle.random.seed(42);
+noodle.run.set("test_user", {
+  id: noodle.random.uuid(),
+  name: noodle.random.name(),
+  email: noodle.random.exampleEmail(),
+  age: noodle.random.number({ min: 18, max: 80 }),
+});
+```
+
+Each invocation has independent Faker 10.5.0 state; a seed resets only its
+sequence. Use RunScope to share generated values. Relative dates also need an
+explicit timezone-bearing `refDate` for reproducibility; current timestamps
+remain clock-based. Passwords become known secrets immediately, including
+after failure. Other generated data stays visible. IDs and passwords are test
+data with no security or uniqueness guarantee; generated URLs and paths perform
+no network or filesystem access. See the
+[catalog and options](/docs/reference/collection-format/#script-random-api).
+
 ## Inspect script results
 
-The TUI **Results** tab shows script status, duration, log count, normalized
-errors, and expandable redacted console messages. Human CLI output reports the
-status and log count without printing log text. `--json` output includes the
-redacted `scripts` result group.
+The TUI **Results** tab shows Pre-request/Post-response rows with status,
+duration, log count, normalized errors, persistence outcomes, and expandable
+redacted messages. Human output uses Pre-script/Post-script labels and reports
+status and log count without printing log text. JSON includes
+`scripts: { evaluated, results }` in executed pre/post order.
 
-Script source, results, logs, and RunScope values do not enter timeline history.
-A successful manual send does store the prepared request snapshot after normal
+Manual timeline entries retain bounded, redacted script diagnostics, logs, and
+persistence outcomes, with `[TRUNCATED]` markers for oversized text. Script
+source, capture results, and RunScope values stay excluded. Automation does not
+create timeline history. A successful manual send does store the prepared request snapshot after normal
 timeline redaction. See [Using the Response Pane](/docs/guides/using-the-response-pane/#results)
 for the complete Results workflow.
 
@@ -113,7 +220,7 @@ fixed time, memory, stack, source, bridge, crypto, and console limits. Imports,
 Bun and process APIs, filesystem and shell access, network access, timers,
 workers, Promises, and queued asynchronous work are unavailable.
 
-Treat every scripted collection as code you trust. `env.get` can read a secret
+Treat every scripted collection as code you trust. `noodle.env.get` can read a secret
 from the selected environment, and a script can place that value in the URL,
 headers, or body sent immediately afterward. Review unfamiliar scripts before
 running the collection.

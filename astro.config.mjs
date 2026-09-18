@@ -204,7 +204,7 @@ export default defineConfig({
           label: "Scripting",
           items: [
             {
-              label: "Pre-request Scripting",
+              label: "Inline Scripting",
               slug: "docs/guides/pre-request-scripting",
             },
             {

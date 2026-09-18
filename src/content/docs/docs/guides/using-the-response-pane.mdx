@@ -24,7 +24,7 @@ response time, headers, and body (auto-formatted if JSON).
 
 | Tab | Content |
 |-----|---------|
-| **Body** | Source text with highlighting and folding, or a Visual JSON/XML tree with previews and compact tables |
+| **Body** | Source/Visual text views, supported image previews, or binary file metadata |
 | **Headers** | Response headers sorted alphabetically |
 | **Network** | Live request, authentication, redirect, response, and failure events |
 | **Timeline** | History of every send for this request |
@@ -39,22 +39,43 @@ can inspect the trace again after the response is complete.
 ## Results
 
 The **Results** tab is always available at the end of the response tabs. Manual
-sends run an optional pre-request script, then evaluate every enabled capture
-and assertion with a fresh RunScope. When outcomes exist, the tab shows `✓` for
+sends run pre, HTTP, captures, post, then assertions with a fresh RunScope.
+Post runs for completed responses even after HTTP/capture failure; assertions
+still run after post failure. When outcomes exist, the tab shows `✓` for
 success, `✗` for a failed script, assertion, or capture, or `–` when an earlier
 failure prevented evaluation.
 
 Use **↑**/**↓** to select a result and **Return** or a click to expand its
-details. Script rows show status, duration, log count, normalized errors, and
-expandable redacted console messages. Captures show their type and redacted
+details. Pre-request/Post-response rows show status, duration, log count, normalized
+errors, persistence outcomes, and expandable redacted console messages. Captures show their type and redacted
 value; secret-persisted captures and captures from sensitive response headers
-never reveal the value. Script source, script results, capture results, and
-RunScope values are not written to timeline history. Assertion outcomes are
-stored with known secrets redacted, and a successful timeline request snapshot
-reflects script mutations to the prepared request.
+never reveal the value. Script source, capture results, and RunScope values stay out of timeline
+history. Bounded script diagnostics and logs, persistence outcomes, and
+assertion outcomes are stored with known secrets redacted. A successful request
+snapshot reflects script mutations to the prepared request.
 
-See [Pre-request Scripting](/docs/guides/pre-request-scripting/) to add a script
+See [Inline Scripting](/docs/guides/pre-request-scripting/) to add a script
 and understand its execution and trust boundaries.
+
+## Images and binary responses
+
+The live **Body** tab preserves received bytes and previews PNG, JPEG, static
+WebP, and the first GIF frame using the terminal's supported image protocol.
+Images above 5 MiB require explicit preview activation. Other formats or
+decoder failures show file metadata and a preview-unavailable message.
+
+Choose **Save file**, or press **Ctrl+Alt+S** with the binary Body tab focused,
+to open Save As. Noodle suggests a path in Downloads, creates missing
+directories, and adds `(1)`, `(2)`, and later suffixes before the extension
+when a filename is occupied. Saves never overwrite files. After saving,
+**Open in default app** or **Ctrl+Alt+O** opens that response's saved file.
+Configure these shortcuts in **F4 → Global → Keyboard** or with
+`response_save_file` and `response_open_file` in `keybinds.yml`.
+
+Downloads contain original server data without diagnostic redaction. Binary
+timeline history and Runner details keep redacted metadata only, with no
+download, preview, or open action. History says “Binary body was not retained.”
+Text responses retain their Source and Visual views.
 
 ## Source and Visual
 
@@ -84,7 +105,8 @@ body.
 
 ## Timeline
 
-Every request send is stored on disk as a timeline entry.
+Manual sends create timeline entries, subject to collection retention settings.
+CLI automation and the TUI Runner do not create timeline history.
 
 | Key | Action |
 |-----|--------|
@@ -97,7 +119,7 @@ Inside a timeline detail view, you can copy request headers, copy the
 response body, or export the full entry as YAML to your downloads
 directory.
 
-Large request and response bodies remain available in timeline details. Noodle
+Large textual request and response bodies remain available in timeline details. Noodle
 stores bodies larger than 10 KB as compressed sidecars next to the timeline
 YAML, rather than truncating them.
 
@@ -111,6 +133,10 @@ sensitive headers such as `Set-Cookie` are masked. The live response remains
 available for inspection. Marking or updating a secret does not rewrite older
 history, and unknown server data stays visible, so treat timeline files as
 sensitive local data.
+
+Timeline details also show bounded Pre-request/Post-response diagnostics,
+redacted logs, and persistence outcomes. Oversized diagnostic text uses
+`[TRUNCATED]` markers; source and RunScope values remain excluded.
 
 ## Cookies
 

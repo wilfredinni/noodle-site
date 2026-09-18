@@ -125,6 +125,22 @@ resolve once and are not scanned again. Variables are applied to:
 
 Unresolved variables cause noodle to throw an error at send time.
 
+## Script persistence and storage recovery
+
+Inline pre/post scripts can call `noodle.run.set/unset` with
+`{ persist: "environment" | "secret" }`. Manual sends and `request run` save to
+an existing selected environment; collection runs and the Runner keep changes
+transient. Environment operations cannot replace declared secrets. Secret set
+can promote an ordinary entry; secret unset removes both the vault value and
+declaration. CLI `secret delete` retains the declaration. Secret writes never
+fall back to plaintext. See [Inline Scripting](/docs/guides/pre-request-scripting/#save-environment-and-secret-values).
+
+Environment metadata and vault changes share a cross-process lock through
+load, save, and rollback. Locks are never reclaimed by age. After an interrupted
+writer, check vault/file consistency and confirm that no writer is active before
+manually removing `.environments/.mutation.lock`; timeout errors identify the
+exact path.
+
 ## Best Practices
 
 - Always keep the same set of variable names across all environments.

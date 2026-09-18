@@ -107,6 +107,20 @@ Press `Ctrl+P` and choose **Export Collection** to select OpenAPI or Postman
 and preview the output target. When the usual Postman target directory is
 occupied, the TUI chooses the next numbered directory.
 
+## Download a response
+
+```bash
+noodle request run files/download --collection ./api --output ./downloads/file.bin --json
+```
+
+`request run --output/-o <file>` writes original response bytes to a new file.
+Invalid or existing destinations exit `2` before HTTP; completed response
+failures still save the bytes and exit `1`. Pre-script/transport failures create
+no file, and later write failures preserve diagnostics. Downloads are
+unredacted; successful saves report `outputFile`. Binary JSON results contain
+metadata rather than body text or bytes. See the
+[Automation guide](/docs/guides/automation/#download-a-response) for details.
+
 ## Update
 
 Updates noodle to the latest version. Homebrew installs run `brew upgrade noodle` instead. Standalone binaries use Noodle's update manifest and verify the downloaded SHA-256 checksum before replacement.
