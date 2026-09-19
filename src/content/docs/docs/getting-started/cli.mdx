@@ -123,7 +123,7 @@ metadata rather than body text or bytes. See the
 
 ## Update
 
-Updates noodle to the latest version. Homebrew installs run `brew upgrade noodle` instead. Standalone binaries use Noodle's update manifest and verify the downloaded SHA-256 checksum before replacement.
+Updates noodle to the latest version. Homebrew installs run `brew upgrade noodle` instead. Standalone binaries use Noodle's update manifest and verify the downloaded SHA-256 checksum. Unix replaces the executable atomically; Windows stages the `.exe` for replacement after the running process exits.
 
 ```bash
 noodle update
@@ -137,6 +137,11 @@ up to seven days. When a managed `noodle-use` skill is already installed, a
 successful standalone, Homebrew, or TUI update refreshes it with the new
 Noodle version. Skill refresh failure does not roll back the Noodle update and
 reports `noodle agent install` as the retry.
+
+On Windows, successful staging returns `status: "restart_required"` in JSON and
+the TUI shows **Restart to apply**. The completion helper preserves the verified
+staged binary and prints its recovery location if replacement fails. Linux musl
+is unsupported.
 
 ## Agent skill
 

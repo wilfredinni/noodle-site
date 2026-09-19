@@ -11,6 +11,11 @@
   status = 301
 
 [[redirects]]
+  from = "/install.ps1"
+  to = "https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.ps1"
+  status = 301
+
+[[redirects]]
   from = "/docs/import/openapi/"
   to = "/docs/import/import/#openapi-30"
   status = 301
