@@ -146,6 +146,16 @@ button[aria-label="Menu"] {
   text-transform: uppercase;
 }
 
+.sidebar-content summary {
+  font-family: var(--sl-font);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.sidebar-content summary .large {
+  font-size: 1rem;
+}
+
 .sidebar-content a,
 .right-sidebar a {
   border-radius: 8px;
