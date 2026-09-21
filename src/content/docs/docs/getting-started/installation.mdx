@@ -54,7 +54,9 @@ bun install
 bun run build:bin
 ```
 
-The binary lands at `./noodle`. Move it somewhere on your `$PATH`.
+The binary lands at `./noodle`. On macOS, the build ad-hoc signs and verifies
+it before running the compiled scripting smoke check. Move it somewhere on
+your `$PATH`.
 
 ## Did it work?
 
@@ -75,10 +77,13 @@ Prebuilt binaries for these combos: others need to build from source.
 | Platform | Architecture | Binary |
 | -------- | ------------ | ------ |
 | macOS    | arm64        | ✅     |
+| macOS    | x86_64       | ✅     |
 | Linux    | x86_64       | ✅     |
 | Linux    | arm64        | ✅     |
 
-Running an Intel Mac? Build from source above.
+Both Apple Silicon and Intel Macs have prebuilt binaries. macOS release
+artifacts are ad-hoc signed and verified before publication, including checks
+of the downloaded artifact's checksum, signature, version, and script sandbox.
 
 ## Updating
 

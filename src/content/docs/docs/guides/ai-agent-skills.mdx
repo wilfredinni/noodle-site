@@ -130,7 +130,8 @@ direct YAML edits using the frozen `noodle` namespace. Pre prepares a request;
 post reads the completed response after captures and before assertions, with
 optional URL-scoped cookie operations. Pre failure skips HTTP; post failure
 preserves the response/captures and still runs assertions. Both phases support
-seeded English test data and explicit environment/secret persistence through
+seeded English test data, `noodle.time` helpers for timestamps, timezones, and
+elapsed durations, and explicit environment/secret persistence through
 `noodle.run.set/unset`. Manual sends and `request run` honor persistence;
 collection runs and the Runner report transient suppression.
 

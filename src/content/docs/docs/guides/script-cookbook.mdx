@@ -50,9 +50,9 @@ body_type: json
 body: '{"event":"deployment"}'
 scripts:
   pre: |-
-    const now = new Date();
-    const timestamp = now.toISOString();
-    const unixSeconds = Math.floor(now.getTime() / 1000);
+    const now = noodle.time.now();
+    const timestamp = noodle.time.iso(now);
+    const unixSeconds = noodle.time.unix(now);
     noodle.request.headers.set("X-Timestamp", timestamp);
     noodle.request.body.setJson({
       ...noodle.request.body.json(),
@@ -62,9 +62,40 @@ scripts:
 ```
 
 The outgoing header and `created_at` field contain the same UTC ISO timestamp.
-The numeric `timestamp` field uses Unix **seconds**. Use `now.getTime()` when
-your API expects milliseconds. These values use your machine's clock, so keep
+The numeric `timestamp` field uses Unix **seconds**. The captured `now` value
+is already in milliseconds. These values use your machine's clock, so keep
 it synchronized if the server checks timestamp freshness.
+
+## Expiration windows and timezones
+
+Use a shared instant to send an expiration window and inspect it in post.
+This recipe needs no environment values:
+
+```yaml
+name: Check timestamp window
+method: GET
+url: https://api.example.com/health
+scripts:
+  pre: |-
+    const now = noodle.time.now();
+    const expiresAt = noodle.time.add(now, 15, "minutes");
+    noodle.request.headers.set("X-Timestamp", noodle.time.iso(now));
+    noodle.request.headers.set("X-Expires-At", noodle.time.iso(expiresAt));
+    noodle.request.headers.set("X-Local-Time", noodle.time.format(now, "YYYY-MM-DD HH:mm:ss Z", {
+      timeZone: "America/Santiago",
+    }));
+    noodle.run.set("expiresAt", expiresAt);
+  post: |-
+    const remaining = noodle.time.diff(noodle.run.get("expiresAt"), noodle.time.now(), "seconds");
+    console.info("Expiration window remaining (seconds):", remaining);
+```
+
+The window is 15 elapsed minutes. `diff(a, b, unit)` returns signed `a - b`,
+so the log can be negative if the response arrives after expiration. Formatting
+defaults to UTC; the explicit timezone changes only `X-Local-Time`. A `days`
+duration is always 24 hours, even across daylight-saving changes. See the
+[time API](/docs/reference/collection-format/#script-time-api) for ISO parsing,
+format tokens, and supported units.
 
 ## Identifiers and nonces
 
@@ -155,13 +186,10 @@ scripts:
     if (!Number.isFinite(hours) || hours <= 0) {
       throw new Error("LOOKBACK_HOURS must be a positive number");
     }
-    const to = new Date();
-    const from = new Date(to.getTime() - hours * 60 * 60 * 1000);
-    if (!Number.isFinite(from.getTime())) {
-      throw new Error("LOOKBACK_HOURS produces an invalid start date");
-    }
-    noodle.request.params.set("from", from.toISOString());
-    noodle.request.params.set("to", to.toISOString());
+    const to = noodle.time.now();
+    const from = noodle.time.subtract(to, hours, "hours");
+    noodle.request.params.set("from", noodle.time.iso(from));
+    noodle.request.params.set("to", noodle.time.iso(to));
     noodle.request.params.append("tag", "deployment");
     noodle.request.params.append("tag", "release");
 ```

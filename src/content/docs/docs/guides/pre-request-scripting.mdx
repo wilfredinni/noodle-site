@@ -82,6 +82,7 @@ The sandbox exposes the following APIs:
 | `noodle.run` | Read, set, or remove RunScope values, with optional persistence |
 | `noodle.crypto` | Create SHA-256, HMAC-SHA256, and random-byte values |
 | `noodle.random` | Bounded English test-data generators with per-invocation seeds |
+| `noodle.time` | Timestamps, ISO parsing, timezone formatting, and elapsed durations |
 | `noodle.response` | Post only: status, status text, timing, headers, text, and cached JSON |
 | `noodle.cookies` | Post only, when available: final-URL-scoped get/set/delete |
 | `console` | Record bounded `log`, `info`, `warn`, and `error` messages |
@@ -197,6 +198,31 @@ after failure. Other generated data stays visible. IDs and passwords are test
 data with no security or uniqueness guarantee; generated URLs and paths perform
 no network or filesystem access. See the
 [catalog and options](/docs/reference/collection-format/#script-random-api).
+
+## Timestamps and elapsed durations
+
+Both phases expose `noodle.time`. Capture one instant when multiple values
+must agree, then apply generated values directly to the request in pre:
+
+```js
+const now = noodle.time.now();
+noodle.request.headers.set("X-Timestamp", noodle.time.iso(now));
+noodle.run.set("expiresAt", noodle.time.add(now, 15, "minutes"));
+const local = noodle.time.format(now, "YYYY-MM-DD HH:mm:ss Z", {
+  timeZone: "America/Santiago",
+});
+```
+
+`now()` returns Unix milliseconds; `unix()` returns seconds. `parse()` accepts
+ISO dates at midnight UTC or timestamps with an explicit offset. Formatting
+defaults to UTC and supports named timezones. Arithmetic measures elapsed time:
+`days` always means 24 hours, including across daylight-saving changes.
+
+Read `expiresAt` with `noodle.run.get` in post or substitute it in a later
+collection request. JavaScript `Date` and random timestamp generators remain
+available. See the [time API reference](/docs/reference/collection-format/#script-time-api)
+for methods, tokens, and limits, or the
+[expiration recipe](/docs/guides/script-cookbook/#expiration-windows-and-timezones).
 
 ## Inspect script results
 
