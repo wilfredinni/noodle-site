@@ -1,5 +1,5 @@
 ---
-title: Inline Scripting
+title: Inline scripting
 description: Prepare requests and process responses with bounded JavaScript in Noodle’s shared lifecycle.
 ---
 
@@ -33,9 +33,9 @@ Scripts are a good fit for:
 - changing prepared authentication or query parameters; and
 - sharing a transient RunScope value with a later request.
 
-Use [captures](/docs/guides/automation/#pass-response-values-forward) to pass
+Use [captures](/docs/guides/captures/) to pass
 response values forward and
-[assertions](/docs/guides/automation/#put-success-criteria-beside-the-request)
+[assertions](/docs/guides/assertions/)
 to check a response. Those jobs do not need scripting. Use `scripts.post` for
 conditional processing after captures and before assertions. Use
 [Scripted Tests](/docs/guides/scripted-tests/) for programmable response checks
@@ -90,7 +90,7 @@ The sandbox exposes the following APIs:
 | `console` | Record bounded `log`, `info`, `warn`, and `error` messages |
 
 See the
-[Collection Format reference](/docs/reference/collection-format/#sandboxed-pre-request-script)
+[Script API reference](/docs/reference/script-api/)
 for every method, accepted value, and fixed resource limit.
 
 ## Execution order
@@ -202,7 +202,7 @@ remain clock-based. Passwords become known secrets immediately, including
 after failure. Other generated data stays visible. IDs and passwords are test
 data with no security or uniqueness guarantee; generated URLs and paths perform
 no network or filesystem access. See the
-[catalog and options](/docs/reference/collection-format/#script-random-api).
+[catalog and options](/docs/reference/script-api/#script-random-api).
 
 ## Timestamps and elapsed durations
 
@@ -225,7 +225,7 @@ defaults to UTC and supports named timezones. Arithmetic measures elapsed time:
 
 Read `expiresAt` with `noodle.run.get` in post or substitute it in a later
 collection request. JavaScript `Date` and random timestamp generators remain
-available. See the [time API reference](/docs/reference/collection-format/#script-time-api)
+available. See the [time API reference](/docs/reference/script-api/#script-time-api)
 for methods, tokens, and limits, or the
 [expiration recipe](/docs/guides/script-cookbook/#expiration-windows-and-timezones).
 
@@ -241,7 +241,7 @@ Manual timeline entries retain bounded, redacted script diagnostics, logs, and
 persistence outcomes, with `[TRUNCATED]` markers for oversized text. Script
 source, capture results, and RunScope values stay excluded. Automation does not
 create timeline history. A successful manual send does store the prepared request snapshot after normal
-timeline redaction. See [Using the Response Pane](/docs/guides/using-the-response-pane/#results)
+timeline redaction. See [Inspect and save responses](/docs/guides/using-the-response-pane/#results)
 for the complete Results workflow.
 
 ## Sandbox and trust boundary

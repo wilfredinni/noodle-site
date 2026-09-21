@@ -1,7 +1,17 @@
 ---
-title: Collection Export
+title: Export
 description: Export Noodle collections as OpenAPI or Postman files
 ---
+
+Export an existing collection for another tool. Review literal request values
+and local file paths before sharing the result.
+
+## Export in the TUI
+
+Open the command palette with `Ctrl+P` and choose **Export Collection**.
+Select OpenAPI or Postman and an output folder; the overlay previews the exact
+target before exporting. If the default Postman target already exists, Noodle
+uses the next numbered directory.
 
 ## OpenAPI
 
@@ -62,10 +72,3 @@ sensitive values and private keys to secret environment declarations before
 sending.
 
 For either format, use an output path outside the collection directory.
-
-## Export in the TUI
-
-Open the command palette with `Ctrl+P` and choose **Export Collection**.
-Select OpenAPI or Postman and an output folder; the overlay previews the exact
-target before exporting. If the default Postman target already exists, Noodle
-uses the next numbered directory.

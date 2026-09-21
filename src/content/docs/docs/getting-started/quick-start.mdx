@@ -1,78 +1,73 @@
 ---
-title: Quick Start
-description: Create a collection, save one request, and inspect its response in a few minutes.
+title: Your first request
+description: Create my-api, send a GET request in the TUI, and find the saved YAML file.
 ---
 
-import { Image } from "astro:assets";
-import noodleCatppuccin from "../../../../assets/noodle-catppuccin.png";
-import noodleEmpty from "../../../../assets/noodle-empty.png";
+You will create a collection named `my-api`, save a GET request, and inspect
+its response. [Install Noodle](/docs/getting-started/installation/) first.
+This example calls the public httpbin service and needs internet access.
 
-<Image
-  src={noodleCatppuccin}
-  alt="Quick Start"
-  loading="eager"
-  fetchpriority="high"
-/>
+## Create and open a collection
 
-Launch the TUI (no setup needed):
-
-```bash
-noodle
-```
-
-This opens an empty workspace in read-only mode. Initialize it from the
-command palette (`Ctrl+P`) or save your first request to bootstrap the
-collection directory.
-
-To create a named collection, use `noodle collection create`:
+In a directory where you keep API work, run:
 
 ```bash
 noodle collection create my-api
+noodle ./my-api
 ```
 
-This creates the directory, adds collection markers, and registers it.
-Open it and start sending:
+The first command creates `my-api`, a starter `example.yml`, a `development`
+environment, and collection settings. It also registers the collection.
+The second command opens that exact directory in the TUI.
 
-```bash
-noodle --collection ./my-api
-```
+If `my-api` already exists, open it with `noodle ./my-api`. If it opens in
+read-only browse or empty mode, press **Ctrl+P** and choose
+**Initialize Collection** before creating or sending requests.
 
-You can have as many collections as you want, each with its own requests
-and environments. Use `Ctrl+O` to switch between them at runtime.
+Bare `noodle` opens the first existing registered collection, or the current
+directory when none is available. It does not always open an empty workspace.
 
-<Image
-  src={noodleEmpty}
-  alt="Noodle empty workspace"
-  loading="eager"
-  fetchpriority="high"
-/>
+## Create a GET request
 
-Press **Ctrl+N** to open the new request overlay. Enter a name, method, and
-URL, then press **Ctrl+S** to save.
+1. Press **Ctrl+N** to open **New Request**.
+2. Keep the request at the collection root and enter these values:
 
-![New request overlay](../../../../assets/new-request.png)
+   | Field | Value |
+   | --- | --- |
+   | Request Name | `Example Request` |
+   | Method | `GET` |
+   | URL | `https://httpbin.org/get` |
 
-Try it with a simple GET:
+3. Press **Ctrl+S** to save.
 
-```
-Name:       Example Request
-Method:     GET
-Request URL: https://httpbin.org/get
-```
+![The new request overlay](../../../../assets/new-request.png)
 
-Press **Ctrl+Return** to send. The response pane shows the status code,
-headers, body, and timing.
+## Send and inspect
 
-![Request and response](../../../../assets/quickstart-response.png)
+Press **Ctrl+Return** or click **Send**. A successful call shows status `200`,
+response headers, timing, and a JSON body in the response pane.
+
+Focus the response pane and select **Headers** to inspect headers, or **Body**
+to read the returned JSON. Press **F1** for keyboard help at any time.
+If the request fails, use the **Network** tab and
+[Troubleshooting](/docs/guides/troubleshooting/#a-request-fails-before-a-response).
+
+![A request and its response](../../../../assets/quickstart-response.png)
 
 ## What just happened?
 
-Noodle wrote a `.yml` file on disk at `./collections/example-request.yml`.
-Every request is a file: edit it directly, commit it to version control,
-or share it with your team.
+Your request is saved at `./my-api/example-request.yml`. Its request ID is
+`example-request`, the path relative to the collection without `.yml`.
+You can edit the file directly or keep using the TUI.
+
+To send the same saved request from the CLI:
+
+```bash
+noodle request run example-request --collection ./my-api
+```
 
 ## Next Steps
 
-- Add [environment variables](/docs/guides/using-environments/) with `$VARNAME` syntax
-- Configure [authentication](/docs/guides/authentication/) for your APIs
-- Explore the [keybindings](/docs/reference/keybindings/) reference
+- [Learn layout and navigation](/docs/reference/layout/) to move between panes.
+- [Add environments and secrets](/docs/guides/using-environments/) to reuse URLs and credentials.
+- [Configure authentication](/docs/guides/authentication/) for a protected API.

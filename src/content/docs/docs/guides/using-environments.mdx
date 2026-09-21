@@ -1,16 +1,89 @@
 ---
-title: Using Environments
-description: Manage and switch between environment contexts
+title: Environments and secrets
+description: Create and select environments, reuse variables, and store credentials as secrets.
 ---
 
 import { Image } from "astro:assets";
 import noodelOpencodeEnvironment from "../../../../assets/noodel-opencode-environment.png";
 
-Environments let you switch between sets of variables: dev, staging,
-production: without editing your requests.
+Environments let the same request use different URLs and credentials without
+editing the request itself. This walkthrough uses the `my-api` collection from
+[Your first request](/docs/getting-started/quick-start/).
 
-For the dotenv syntax, disabled variables, badge colors, and substitution
-rules, see [Environment Format](/docs/reference/environment-format/).
+## Create an environment and add a variable
+
+1. Press **F3** to open the environment editor.
+2. Press **Ctrl+N**, name the environment `staging`, choose a color if useful,
+   and save the new environment.
+3. In its variable grid, move to the empty row after the existing variables.
+   Enter key `BASE_URL` and value `https://httpbin.org`; **Tab** moves between
+   key and value, and **Return** commits the edit.
+4. Press **Ctrl+S** to save the environment and **Escape** to return to requests.
+5. Press **e**, choose `staging`, and press **Return** to activate it.
+
+The header shows the selected environment. New collections created by
+`collection create` already include a `development` environment, which you can
+edit instead of creating another.
+
+## Use a variable in a request
+
+Set your GET request URL to `$BASE_URL/get`, save, and send it. With `staging`
+selected, Noodle sends to `https://httpbin.org/get`. The response contains the
+resolved URL. Variable names are case-sensitive.
+
+Variables also work in headers, parameters, bodies, auth fields, file paths,
+and assertion expectations. Substitution happens once; `$$` sends a literal
+dollar sign. See [Environment files](/docs/reference/environment-format/#variable-substitution)
+for the complete rules.
+
+## Store a secret
+
+For a protected API, add an `API_TOKEN` row in the environment editor. Mark the
+row as secret with **s** before entering its value, then save with **Ctrl+S**.
+Use `$API_TOKEN` in the request's **Auth** tab, such as its Bearer Token field.
+Use a token only with the API it belongs to, not with the public httpbin example.
+
+Noodle stores the value in the OS credential vault. The environment file keeps
+only this declaration:
+
+```ini
+# @secret API_TOKEN
+API_TOKEN=
+```
+
+Press **r** on a secret row to reveal or mask its value for the current session.
+A same-named process environment variable takes precedence over the vault.
+Known secrets are redacted from diagnostics; ordinary variables remain plaintext.
+
+## Set values from the CLI
+
+```bash
+noodle environment set BASE_URL https://httpbin.org --env staging --collection ./my-api
+noodle secret set API_TOKEN --env staging --collection ./my-api
+noodle secret list --env staging --collection ./my-api
+```
+
+`secret set` prompts without echo. `secret list` shows names and resolution
+status, not values. For unattended jobs, use a declared secret with a process
+environment value as shown in [CLI automation and CI](/docs/guides/automation/#run-in-github-actions-ci).
+
+## Select the environment for a run
+
+Use the header picker for manual sends and the environment selector in the
+[Collection Runner](/docs/guides/collection-runner/). CLI run commands accept
+`--env`; otherwise they use `environment` in collection `settings.yml`:
+
+```bash
+noodle request run example-request --collection ./my-api --env staging
+```
+
+## Fix a missing value
+
+If `$BASE_URL` or `$API_TOKEN` is unresolved, confirm the selected environment,
+exact key spelling, enabled state, and saved changes. A secret declaration alone
+does not provide a value: set it in the vault or supply its process environment
+variable. See [Troubleshooting](/docs/guides/troubleshooting/#a-variable-or-secret-is-unresolved)
+for headless and keyring errors.
 
 <Image
   src={noodelOpencodeEnvironment}

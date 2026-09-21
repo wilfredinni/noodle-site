@@ -32,12 +32,13 @@ control. The [Timeline](/docs/reference/timeline/) reference explains the stored
 history format and redaction boundaries.
 
 For the complete request, folder, and settings schema, see the
-[Collection Format](/docs/reference/collection-format/) reference.
+[Collection YAML](/docs/reference/collection-format/) reference.
 
 ## Starting a collection
 
-Create a collection from the TUI by saving a request, or create one directly
-for automation:
+For an existing directory open in browse or empty mode, choose
+**Initialize Collection** from **Ctrl+P**. To create a new collection directory
+from the CLI:
 
 ```bash
 noodle collection create my-api
@@ -46,8 +47,9 @@ noodle request create health \
   --collection ./my-api
 ```
 
-The default TUI collection is `./collections`. A new collection directory is
-created when you first save a request.
+Open it with `noodle ./my-api`. Without an explicit path, the TUI opens the
+first existing registered collection, falling back to the current directory.
+`collection create` also adds a starter request and a `development` environment.
 
 ![An empty collection ready for its first request](../../../../assets/empty-collection.png)
 
@@ -92,8 +94,8 @@ file after confirmation.
 
 Use folders to group related requests. A `folder.yml` can give a folder a
 name and sort order, and can apply shared headers or authentication to its
-children. The [Using Folders](/docs/guides/using-folders/) guide covers the
-TUI workflow; the [Collection Format](/docs/reference/collection-format/)
+children. The [Folders and inheritance](/docs/guides/using-folders/) guide covers the
+TUI workflow; the [Collection YAML](/docs/reference/collection-format/)
 reference defines inheritance and file fields.
 
 ## Default environment

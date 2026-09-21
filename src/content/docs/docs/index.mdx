@@ -1,55 +1,52 @@
 ---
 title: Noodle Docs
-description: Learn how Noodle turns request files into a fast, inspectable API workflow in your terminal.
+description: Start with one request, then find the guide for your next API task.
 ---
 
-Noodle keeps HTTP work close to the code it belongs with. Requests live as YAML
-files, environments remain portable, and the terminal gives you one place to
-edit, send, inspect, and repeat.
-
-![A Noodle workspace with a request and response open](../../../assets/noodle.png)
+Noodle keeps requests in YAML files and gives you a terminal workspace to edit,
+send, and inspect them. Start with the interactive client, then run the same
+files from the CLI when you need repeatable checks.
 
 ## Start with one request
 
-If Noodle is not installed yet, begin with [Installation](/docs/getting-started/installation/).
-Then follow the [Quick Start](/docs/getting-started/quick-start/) to create a
-collection, save a request, and inspect its first response. The whole path takes
-only a few minutes and leaves you with real files you can keep.
+1. [Install Noodle](/docs/getting-started/installation/).
+2. [Create and send your first request](/docs/getting-started/quick-start/).
+3. [Learn the layout and navigation](/docs/reference/layout/).
 
-Read [Concepts](/docs/getting-started/concepts/) when you want the mental model
-behind collections, folders, environments, focus, and the command palette. The
-[CLI guide](/docs/getting-started/cli/) covers everything you can launch outside
-the TUI. Continue to [Automation](/docs/guides/automation/) when a collection
-needs to run in scripts, CI jobs, or coding-agent workflows.
+## Find your next task
+
+| I want to… | Start here |
+| --- | --- |
+| Bring a Postman, Insomnia, or API specification into Noodle | [Import collections](/docs/import/import/) |
+| Switch API URLs or keep credentials out of request files | [Environments and secrets](/docs/guides/using-environments/) |
+| Call an API that requires a token or login | [Authentication](/docs/guides/authentication/) |
+| Inspect JSON, downloads, cookies, or previous responses | [Inspect and save responses](/docs/guides/using-the-response-pane/) |
+| Run several requests in the terminal interface | [Collection Runner](/docs/guides/collection-runner/) |
+| Check a response or pass its ID to another request | [Assertions](/docs/guides/assertions/) and [captures](/docs/guides/captures/) |
+| Run API checks in CI | [CLI automation and CI](/docs/guides/automation/#run-in-github-actions-ci) |
+| Fix a failed request or setup problem | [Troubleshooting](/docs/guides/troubleshooting/) |
+
+![A Noodle workspace with a request and response open](../../../assets/noodle.png)
 
 ## Settle into the workspace
 
-The interface is built around a short loop: choose a request in the
-[sidebar](/docs/guides/using-the-sidebar/), edit it in the
-[request pane](/docs/guides/using-the-request-pane/), and inspect the result in
-the [response pane](/docs/guides/using-the-response-pane/). The
-[layout guide](/docs/reference/layout/) explains how focus moves between them.
-
-Once that loop feels natural, add [environments](/docs/guides/using-environments/)
-for reusable values, [folders](/docs/guides/using-folders/) for structure and
-inheritance, and [authentication](/docs/guides/authentication/) for protected
-APIs. The [code editor](/docs/guides/code-editor/) guide covers larger JSON,
-XML, and YAML edits.
+Use [Core concepts](/docs/getting-started/concepts/) to understand collections,
+requests, environments, and focus. [Find requests](/docs/guides/using-the-sidebar/)
+explains the collection tree and search. [Create and send requests](/docs/guides/using-the-request-pane/)
+covers headers, parameters, bodies, cURL import, and generated client code.
 
 ## Bring existing work with you
 
-You do not need to rebuild an existing API collection by hand. Noodle can
-[import collections](/docs/import/import/) from OpenAPI, Swagger, Postman, and
-Insomnia, then [export collections](/docs/import/export/) as OpenAPI or Postman
-when another tool needs them.
+[Import](/docs/import/import/) collections from OpenAPI, Swagger, Postman, or
+Insomnia. [Export](/docs/import/export/) as OpenAPI or Postman when another tool
+needs the files. [AI agent skills](/docs/guides/ai-agent-skills/) lets a coding
+agent help maintain the same collections.
 
 ## Keep the reference close
 
-Use the reference pages when you need an exact answer rather than a walkthrough:
-
-- [Keybindings](/docs/reference/keybindings/) for every default shortcut
-- [Collection format](/docs/reference/collection-format/) for request, folder, and settings YAML
-- [Environment format](/docs/reference/environment-format/) for dotenv and secure-value rules
-- [Timeline](/docs/reference/timeline/) for stored response history
-- [Configuration](/docs/reference/configuration/) for global settings
-- [Themes](/docs/reference/theming/) for the available color schemes
+- [CLI commands](/docs/getting-started/cli/) for command syntax and flags
+- [Collection YAML](/docs/reference/collection-format/) for request, folder, and settings fields
+- [Environment files](/docs/reference/environment-format/) for dotenv syntax
+- [Script API](/docs/reference/script-api/) for JavaScript methods and limits
+- [Keybindings](/docs/reference/keybindings/) for shortcuts
+- [Global configuration](/docs/reference/configuration/) and [Timeline storage](/docs/reference/timeline/) for files on disk

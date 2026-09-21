@@ -1,5 +1,5 @@
 ---
-title: Concepts
+title: Core concepts
 description: Understand how collections, requests, environments, and panes fit together before you build a larger workflow.
 ---
 
@@ -27,8 +27,9 @@ my-collection/
     └── production.env
 ```
 
-Point Noodle at a collection directory with `--collection` (default:
-`./collections`) and it builds the TUI from whatever it finds on disk.
+Open a collection with `noodle ./my-collection` or `--collection`. Without an
+explicit path, Noodle uses the first existing registered collection, then the
+current directory. It builds the TUI from the files in that directory.
 
 Collections are version-control friendly: every request is a text file,
 every environment is a `.env` file. Commit them, share them, diff them.
@@ -41,15 +42,15 @@ runtime.
 When you open a directory, Noodle determines its mode:
 
 - **Collection mode**: the directory has collection markers
-  (`.environments/` or `settings.yml`). Full editing, sending, and
+  (`.environments/` or `settings.yml`), or a request `.yml` file at its root. Full editing, sending, and
   saving is available.
-- **Browse mode**: the directory contains request `.yml` files but no
-  collection markers. Requests are visible and inspectable, but editing
+- **Browse mode**: the directory contains request `.yml` files only in subdirectories,
+  with no root request or collection markers. Requests are visible and inspectable, but editing
   and sending are blocked. Initialize it from the command palette to
   enable collection mode.
-- **Empty mode**: the directory is empty. Same read-only restrictions as
-  browse mode. Initialize via command palette or save your first request
-  to bootstrap the collection.
+- **Empty mode**: no collection markers or request files were found. Same read-only restrictions as
+  browse mode. Choose **Initialize Collection** in the command palette
+  before creating or sending requests.
 
 Use `noodle collection init <path>` to bootstrap collection markers
 from the CLI without opening the TUI.
@@ -63,11 +64,12 @@ request `"auth/login"`.
 A minimal request file:
 
 ```yaml
+name: List users
 method: GET
 url: https://api.example.com/users
 ```
 
-Requests support headers, query parameters, body (JSON, form, text, binary),
+Requests support headers, query parameters, body (JSON, XML, form, binary),
 authentication, and settings like timeout and cookie sending.
 
 The request file is the source of truth. Edit it in the TUI or open it in
@@ -145,19 +147,10 @@ dev/staging/production.
 
 ## Cookie Jar
 
-Noodle keeps one cookie jar per collection. It captures `Set-Cookie` headers
-from responses and sends matching cookies on later requests and redirect hops.
-A `Cookie` header written in the request wins when it has the same cookie name.
-
-Open **Cookies** from the command palette to inspect and manage jars by domain.
-The response pane's **Cookies** tab separates cookies sent on the final request
-leg from `Set-Cookie` values received in the final response.
-
-The jar is enabled by default. Disable it for a collection in Settings, or turn
-off **Send Cookies** for one request. The request control suppresses outgoing
-jar cookies but still captures response cookies. Jars use OS-vault-backed
-encryption under `~/.config/noodle/cookies/`; when the vault is unavailable,
-Noodle uses a mode-`0600` plaintext file and displays a persistent warning.
+Noodle can capture response cookies and send applicable cookies on later requests
+in the same collection. Open **Cookies** from **Ctrl+P** to inspect the jar. The
+[Cookies guide](/docs/guides/cookies/) covers editing, clearing, per-request
+controls, and storage.
 
 ## Pane
 
@@ -204,7 +197,7 @@ which view is active:
 | Workspace   | Switch collection, reload collection, new folder, initialize, Cookies |
 | App         | Help, theme picker, toggle layout, expand pane, undo all, about    |
 
-**Env editor view** (when **e** is pressed):
+**Env editor view** (when **F3** is pressed):
 
 | Section     | Actions                         |
 | ----------- | ------------------------------- |

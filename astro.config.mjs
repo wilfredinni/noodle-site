@@ -155,90 +155,73 @@ export default defineConfig({
       ],
       sidebar: [
         {
-          label: "Getting Started",
+          label: "Get started",
           items: [
-            {
-              label: "Installation",
-              slug: "docs/getting-started/installation",
-            },
-            { label: "Quick Start", slug: "docs/getting-started/quick-start" },
-            { label: "Concepts", slug: "docs/getting-started/concepts" },
-            { label: "CLI Commands", slug: "docs/getting-started/cli" },
+            { label: "Docs overview", slug: "docs" },
+            { label: "Installation", slug: "docs/getting-started/installation" },
+            { label: "Your first request", slug: "docs/getting-started/quick-start" },
+            { label: "Core concepts", slug: "docs/getting-started/concepts" },
+            { label: "Layout and navigation", slug: "docs/reference/layout" },
           ],
         },
         {
-          label: "AI Agents",
+          label: "Requests and responses",
           items: [
-            { label: "Agent Skills", slug: "docs/guides/ai-agent-skills" },
-          ],
-        },
-        {
-          label: "Guides",
-          items: [
-            { label: "Layout", slug: "docs/reference/layout" },
-            { label: "Settings", slug: "docs/guides/settings" },
-            { label: "Collections", slug: "docs/guides/collections" },
-            { label: "Automation", slug: "docs/guides/automation" },
-            {
-              label: "Using the Sidebar",
-              slug: "docs/guides/using-the-sidebar",
-            },
-            {
-              label: "Using the Request Pane",
-              slug: "docs/guides/using-the-request-pane",
-            },
-            { label: "Code Editor", slug: "docs/guides/code-editor" },
-            {
-              label: "Using the Response Pane",
-              slug: "docs/guides/using-the-response-pane",
-            },
-            {
-              label: "Using Environments",
-              slug: "docs/guides/using-environments",
-            },
-            { label: "Using Folders", slug: "docs/guides/using-folders" },
+            { label: "Create and send requests", slug: "docs/guides/using-the-request-pane" },
             { label: "Authentication", slug: "docs/guides/authentication" },
+            { label: "Inspect and save responses", slug: "docs/guides/using-the-response-pane" },
+            { label: "Cookies", slug: "docs/guides/cookies" },
+            { label: "Code editor", slug: "docs/guides/code-editor" },
+          ],
+        },
+        {
+          label: "Collections and environments",
+          items: [
+            { label: "Collections", slug: "docs/guides/collections" },
+            { label: "Find requests", slug: "docs/guides/using-the-sidebar" },
+            { label: "Folders and inheritance", slug: "docs/guides/using-folders" },
+            { label: "Environments and secrets", slug: "docs/guides/using-environments" },
+            { label: "Import", slug: "docs/import/import" },
+            { label: "Export", slug: "docs/import/export" },
+          ],
+        },
+        {
+          label: "Testing and automation",
+          items: [
+            { label: "Collection Runner", slug: "docs/guides/collection-runner" },
+            { label: "Capture and reuse values", slug: "docs/guides/captures" },
+            { label: "Response assertions", slug: "docs/guides/assertions" },
+            { label: "CLI automation and CI", slug: "docs/guides/automation" },
+            { label: "AI agent skills", slug: "docs/guides/ai-agent-skills" },
           ],
         },
         {
           label: "Scripting",
           items: [
-            {
-              label: "Inline Scripting",
-              slug: "docs/guides/pre-request-scripting",
-            },
-            {
-              label: "Scripted Tests",
-              slug: "docs/guides/scripted-tests",
-            },
-            {
-              label: "Script Cookbook",
-              slug: "docs/guides/script-cookbook",
-            },
+            { label: "Inline scripting", slug: "docs/guides/pre-request-scripting" },
+            { label: "Scripted tests", slug: "docs/guides/scripted-tests" },
+            { label: "Script cookbook", slug: "docs/guides/script-cookbook" },
+            { label: "Script API", slug: "docs/reference/script-api" },
           ],
         },
         {
-          label: "Import & Export",
+          label: "Settings and help",
           items: [
-            { label: "Import Collections", slug: "docs/import/import" },
-            { label: "Collection Export", slug: "docs/import/export" },
+            { label: "Settings", slug: "docs/guides/settings" },
+            { label: "Proxies and TLS", slug: "docs/guides/proxies-and-tls" },
+            { label: "Themes", slug: "docs/reference/theming" },
+            { label: "Troubleshooting", slug: "docs/guides/troubleshooting" },
           ],
         },
         {
           label: "Reference",
           items: [
-            {
-              label: "Collection Format",
-              slug: "docs/reference/collection-format",
-            },
-            {
-              label: "Environment Format",
-              slug: "docs/reference/environment-format",
-            },
-            { label: "Timeline", slug: "docs/reference/timeline" },
+            { label: "CLI commands", slug: "docs/getting-started/cli" },
+            { label: "Collection YAML", slug: "docs/reference/collection-format" },
+            { label: "Environment files", slug: "docs/reference/environment-format" },
+            { label: "Global configuration", slug: "docs/reference/configuration" },
             { label: "Keybindings", slug: "docs/reference/keybindings" },
-            { label: "Themes", slug: "docs/reference/theming" },
-            { label: "Configuration", slug: "docs/reference/configuration" },
+            { label: "Timeline storage", slug: "docs/reference/timeline" },
           ],
         },
       ],

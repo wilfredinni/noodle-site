@@ -1,5 +1,5 @@
 ---
-title: Script Cookbook
+title: Script cookbook
 description: Copy practical inline pre/post scripts for test data, signing, conditional response handling, and persistence.
 ---
 
@@ -16,8 +16,8 @@ placeholder. Scripts belong to individual requests; there is no collection-wide
 script or shared JavaScript context.
 
 Prefer saved request fields and `$VARNAME` substitution for static values. Use
-[captures](/docs/guides/automation/#pass-response-values-forward) to save response
-values and [assertions](/docs/guides/automation/#put-success-criteria-beside-the-request)
+[captures](/docs/guides/captures/) to save response
+values and [assertions](/docs/guides/assertions/)
 to check responses. You do not need a script for those jobs.
 
 Keep these execution rules in mind:
@@ -94,7 +94,7 @@ The window is 15 elapsed minutes. `diff(a, b, unit)` returns signed `a - b`,
 so the log can be negative if the response arrives after expiration. Formatting
 defaults to UTC; the explicit timezone changes only `X-Local-Time`. A `days`
 duration is always 24 hours, even across daylight-saving changes. See the
-[time API](/docs/reference/collection-format/#script-time-api) for ISO parsing,
+[time API](/docs/reference/script-api/#script-time-api) for ISO parsing,
 format tokens, and supported units.
 
 ## Identifiers and nonces
@@ -350,7 +350,7 @@ use `--fail-fast` if later requests depend on a successful creation.
 The value disappears when the collection run ends. Separate manual sends and
 `request run` calls have isolated scopes, so they cannot share this value. Do
 not put `$customer_email` in the first request: its substitution would run before
-the script creates the variable. Use a [capture](/docs/guides/automation/#pass-response-values-forward)
+the script creates the variable. Use a [capture](/docs/guides/captures/)
 when you need a server-generated customer ID instead.
 
 ## Inspect results
@@ -392,7 +392,7 @@ Sequences are isolated per invocation and reproducible within Faker 10.6.0.
 Relative dates also need an explicit ISO `refDate` with a timezone. Passwords
 are registered for redaction; other generated data remains visible. IDs and
 passwords have no security or uniqueness guarantee. See the
-[catalog and options](/docs/reference/collection-format/#script-random-api).
+[catalog and options](/docs/reference/script-api/#script-random-api).
 
 ## Process a response conditionally
 

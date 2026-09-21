@@ -1,0 +1,60 @@
+---
+title: Collection Runner
+description: Select requests, run an ordered collection in the TUI, and inspect each result.
+---
+
+Run a group of saved requests without leaving the terminal interface. You need
+an initialized collection with requests, and an environment if they use variables.
+Save pending request and folder changes before starting.
+
+## Configure a run
+
+1. Press **F5**, or open **Ctrl+P** and choose **Run Collection**.
+2. Select the requests or folders to include. A folder includes its descendants.
+3. Choose the environment. Add **Include** or **Exclude** tags to narrow the selection.
+4. Enable **Fail-fast** if later requests should stop after a failure. Set a delay
+   in milliseconds if the API needs time between requests.
+5. Choose **Run** to start. Inspect the ordered results as they arrive.
+
+A folder's context menu opens the Runner scoped to that folder. Selection uses
+collection order. Within each directory, folders come first, ordered by their
+`meta.seq` when set, then by name. Requests follow, ordered by their display name.
+For a sequence such as create then fetch, prefix request names with `01` and `02`
+to make the intended order explicit. See [Collection YAML](/docs/reference/collection-format/).
+
+## Filter with tags
+
+Request tags and tags inherited from non-root folders form dynamic suites.
+Include tags must all match; any matching Exclude tag removes a request.
+Exclusion wins. Tags are case-sensitive. A selection with no matching requests
+cannot run. See [CLI tag examples](/docs/guides/automation/#build-dynamic-suites-with-tags)
+for the same selection rules in scripts.
+
+## Inspect results
+
+The Runner shows progress and a result for each executed request. Expand a
+request to inspect its response and script, capture, assertion, and test outcomes.
+With fail-fast enabled, later selected requests are recorded as skipped after
+all available diagnostics for the failed request finish.
+
+![Collection Runner with environment, tag, fail-fast, request, and folder controls](../../../../assets/runner-workspace.png)
+
+## Share values within a run
+
+[Captures](/docs/guides/captures/) and script writes can pass values to later
+requests in the same run. Each new run starts with a fresh scope. The Runner
+keeps those values transient even when a request declares persistence.
+
+Runner options and results belong to this workspace. They do not create a new
+runner file, edit request declarations, or write timeline entries. Binary
+responses retain metadata only in Runner details.
+
+## Run the same collection from the CLI
+
+```bash
+noodle collection run ./my-api --env development
+```
+
+Use [CLI automation and CI](/docs/guides/automation/) for targets, tags, JSON
+output, exit statuses, and GitHub Actions. Add [response assertions](/docs/guides/assertions/)
+to make a run check behavior rather than just send HTTP requests.

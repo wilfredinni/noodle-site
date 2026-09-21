@@ -1,5 +1,5 @@
 ---
-title: Automation
+title: CLI automation and CI
 description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with inline pre/post scripts, tag suites, captures, assertions, and stable results.
 ---
 
@@ -7,19 +7,22 @@ A Noodle collection does not need a second representation before it can run in
 automation. The same request files you inspect in the TUI can be audited,
 selected, and sent from the command line.
 
+For interactive runs, start with the [Collection Runner](/docs/guides/collection-runner/).
+For CI setup, jump to [Run in GitHub Actions CI](#run-in-github-actions-ci).
+
 That keeps the feedback loop close to the collection. A small change can run one
 request or one folder, while a broader check can run every request in collection
 order.
 
 ## Automation building blocks
 
-- [Run collections](#choose-the-requests-that-matter) with request targets,
+- [Run collections](/docs/guides/collection-runner/) with request targets,
   folders, tags, fail-fast execution, or the TUI Runner.
-- [Prepare requests](#prepare-requests-before-http-with-a-script) with a
+- [Prepare requests](/docs/guides/pre-request-scripting/) with a
   synchronous sandboxed script when declarative fields are not enough.
-- [Capture values](#pass-response-values-forward) from one response and reuse
+- [Capture values](/docs/guides/captures/) from one response and reuse
   them in later requests.
-- [Assert behavior](#put-success-criteria-beside-the-request) against status,
+- [Assert behavior](/docs/guides/assertions/) against status,
   response time, headers, and JSON body values.
 - [Consume results](#let-the-exit-status-make-the-first-decision) through exit
   status, human-readable output, or a stable JSON envelope.
@@ -56,12 +59,16 @@ segments, or empty path segments.
 Requests and non-root folders can declare case-sensitive `tags`. Folder tags
 apply to every descendant request, so a workflow can define a suite once:
 
+In `users/folder.yml`:
+
 ```yaml
-# users/folder.yml
 tags:
   - smoke
+```
 
-# users/delete.yml
+In `users/delete.yml`, alongside the request fields:
+
+```yaml
 tags:
   - destructive
 ```
@@ -102,51 +109,11 @@ by the delay when execution continues; fail-fast skips it.
 
 ## Run the same workflow in the TUI
 
-Press **F5** or open the command palette and choose **Run Collection** to
-configure a transient run without leaving the TUI. Select requests or whole
-folders, choose an environment, add Include and Exclude tags, enable fail-fast,
-and optionally set a delay before starting. The Runner shows progress, keeps
-ordered results in memory, and expands request details with response, script,
-capture, assertion, and scripted-test outcomes. A folder context menu opens the
-same workspace scoped to that folder.
-
-Runner options are local to that workspace. It does not create another runner
-file, edit request declarations, persist captures, or write timeline entries.
-
-![Noodle collection Runner with environment, tag, fail-fast, request, and folder selection controls](../../../../assets/runner-workspace.png)
+Press **F5** to select requests, configure a run, and inspect results in the [Collection Runner](/docs/guides/collection-runner/).
 
 ## Prepare requests before HTTP with a script
 
-Use top-level `scripts.pre` when a request needs synchronous preparation that
-cannot be expressed with variables and saved request fields. The
-[Inline Scripting](/docs/guides/pre-request-scripting/) guide covers
-authoring, available APIs, execution order, results, and the trust boundary.
-The [Script Cookbook](/docs/guides/script-cookbook/) provides copyable examples
-for request preparation and sharing generated data across a collection run.
-
-Request and RunScope changes commit only when the entire script succeeds. A
-failure skips HTTP, marks later capture, assertion, and test groups unevaluated,
-and participates in fail-fast. Successful RunScope values remain available to
-later requests in the same collection run, even if a later phase of the current
-request fails. Request mutations remain in memory and are never written back to
-YAML.
-
-Treat scripted collections as trusted code. A script can read a selected
-environment secret with `noodle.env.get` and place it in the outgoing request.
-
-Post runs after captures and before assertions for every completed response,
-including HTTP/capture failures. It reads `noodle.response`, the read-only final
-prepared request, and optional URL-scoped cookies. Post failure preserves the
-response/captures and still runs assertions and tests. Successful post RunScope
-values reach later collection requests even after assertion failure.
-
-Both phases support `noodle.run.set/unset` with optional
-`{ persist: "environment" | "secret" }`. `request run` and manual sends honor
-these options for an existing selected environment, in pre, capture, post
-order. Collection runs and the Runner keep them transient and report suppression.
-Storage failure retains successful runtime changes and fails script diagnostics.
-`noodle.random` provides isolated, seedable English test-data generation.
-All Noodle script APIs require the `noodle.` prefix.
+Use [Inline scripting](/docs/guides/pre-request-scripting/) for pre-request preparation and post-response processing. The same scripts run in the TUI and CLI. Collection runs keep script writes transient.
 
 ## Download a response
 
@@ -169,107 +136,15 @@ JSON body captures and assertions fail clearly for binary responses.
 
 ## Pass response values forward
 
-A request can capture a value from its response for later requests in the same
-ordered collection run:
-
-```yaml
-# users/create.yml
-name: Create User
-method: POST
-url: $base_url/users
-capture:
-  created_user_id:
-    value: body.id
-  access_token:
-    value: body.access_token
-    persist: secret
-  optional_trace:
-    value: headers.x-trace
-    enabled: false
-
-# users/get.yml
-name: Get Created User
-method: GET
-url: $base_url/users/$created_user_id
-```
-
-Every capture entry is an object with required `value`, optional
-`enabled: false`, and optional `persist: secret` or `persist: environment`.
-Scalar shorthand is invalid. Disabled captures remain in the request but do
-not resolve, change RunScope, produce results, or write values.
-
-Capture expressions inspect status, response time, case-insensitive headers, or
-JSON body paths. Noodle loads environment and secret values first, then overlays
-successful captures. The latest successful value with a given name wins.
-Strings substitute verbatim; other JSON-compatible values use their JSON
-representation.
-
-Captures follow collection order, including when a run selects only a few
-requests or folders. Successful values commit before post and assertions; post can read them. A failed
-capture fails that request and the final command, but the collection keeps
-running and an earlier successful value is not replaced.
-
-One `collection run` shares a transient scope across its ordered requests. The
-TUI Runner uses the same transient rule. A manual TUI send or CLI `request run`
-uses an isolated scope and can persist a successful capture to the active or
-selected environment when `persist` is set, using the original capture even
-when post overwrites it or fails. Secret values are stored in the OS
-vault and fully redacted from capture results. See the [response capture
-reference](/docs/reference/collection-format/#response-captures) for the exact
-expression, persistence, and failure behavior.
-
-![Noodle showing the Capture request tab with Run only, Environment, and Secret persistence choices beside capture results](../../../../assets/capure.png)
+Use [Capture and reuse values](/docs/guides/captures/) to pass IDs or tokens between requests in one ordered run. Separate manual sends require explicit persistence to share values.
 
 ## Put success criteria beside the request
 
-An HTTP response only says what happened. Assertions let the request declare
-what a useful response looks like:
-
-```yaml
-name: Get User
-method: GET
-url: $base_url/users/:userId
-assert:
-  - expression: status
-    operator: equals
-    value: 200
-  - expression: body.id
-    operator: isNumber
-  - expression: headers.Content-Type
-    operator: contains
-    value: application/json
-  - expression: response.time
-    operator: lt
-    value: 500
-```
-
-Manual TUI sends, `request run`, and `collection run` evaluate enabled checks
-after the response arrives. The TUI shows the outcome in Results. Failed
-assertions make automation commands fail. An HTTP status of 400 or higher also
-fails a run command, even when a status assertion passes.
-
-Assertion expressions can inspect status, response time, case-insensitive
-headers, and JSON body paths. Expected string values support environment
-substitution at any depth. Values resolved from declared secrets are redacted
-from both expected and actual assertion results. Arbitrary server data remains
-visible, so structured results can still be sensitive. See the
-[response assertion reference](/docs/reference/collection-format/#response-assertions)
-for every expression and operator.
-
-![Noodle showing the Assert request tab beside ten passing assertion results](../../../../assets/assertions.png)
+Add [Response assertions](/docs/guides/assertions/) to check status, headers, JSON fields, and timing. Failed assertions make a run command fail.
 
 ## Add programmable response checks
 
-Use a request-level `tests` string when a response check needs conditions,
-loops, or related JSON values. Global `test(name, callback)` and `expect(actual)`
-run after declarative assertions, with read-only access to the request, response,
-environment, RunScope, and applicable cookies. Use `scripts.post` for mutations.
-
-Tests still execute after HTTP, capture, post, or assertion failures when a
-response exists. A failed callback does not stop later tests; a top-level script
-error preserves completed results. Fail-fast waits for these diagnostics before
-skipping later requests. See [Scripted Tests](/docs/guides/scripted-tests/) for
-examples, all supported matchers, and the synchronous-only limitation.
+Use [Scripted tests](/docs/guides/scripted-tests/) for conditional checks with `test()` and `expect()`. Tests run after declarative assertions when a response exists; fail-fast waits for these diagnostics.
 
 ## Let the exit status make the first decision
 
@@ -319,35 +194,19 @@ transport error, HTTP error, capture failure, assertion failure, and test failur
 
 ## Maintain collections without the TUI
 
-Automation covers the collection lifecycle, not only request execution. These
-commands can build, inspect, and repair the files before a run:
-
-| Task | Command |
-| ---- | ------- |
-| List registered collections | `noodle workspace list` |
-| Find or remove stale registered paths | `noodle workspace audit [--fix]` |
-| Create a starter collection | `noodle collection create <name> [-o <dir>]` |
-| Initialize an existing directory | `noodle collection init <path>` |
-| Print the request tree | `noodle collection list <path>` |
-| Inspect metadata, environments, and requests | `noodle collection inspect <path>` |
-| Canonicalize request YAML and valid JSON bodies | `noodle collection format <path>` |
-| Validate or repair valid collection files | `noodle collection audit <path> [--fix]` |
-| Create a minimal request | `noodle request create <id> --url <url> [--method <method>] [--collection <dir>]` |
-| Set an environment value | `noodle environment set <key> <value> --env <name> [--collection <dir>]` |
-| Store, inspect, or delete a secret | `noodle secret <set\|list\|delete> ... --env <name> [--collection <dir>]` |
-| Inspect or clear collection cookies | `noodle cookie <list\|clear> [--collection <dir>]` |
-
-`collection format` and the `--fix` audit variants modify files. Review their
-diffs before committing the collection.
+Use the [CLI command reference](/docs/getting-started/cli/#collection-management)
+to create, initialize, inspect, format, and audit collections. It also covers
+workspace registrations, request creation, environment variables, secrets, and
+cookie management. `collection format` and audit `--fix` modify files; review
+their diffs before committing.
 
 ## Keep credentials and local state out of logs
 
 Run commands use `--env` when supplied. Otherwise, they use the environment named
 in the collection's `settings.yml`.
 
-`secret set` prompts without echo in an interactive terminal. In unattended
-workflows, pass the value through standard input so it never appears in command
-arguments:
+`secret set` prompts without echo in an interactive terminal. For unattended workflows that have a working vault, use `--stdin` so the
+value never appears in command arguments:
 
 ```bash
 noodle secret set API_TOKEN \
@@ -359,7 +218,7 @@ noodle secret set API_TOKEN \
 On headless Linux, OS-vault storage requires a user D-Bus session and an unlocked
 GNOME Keyring or KWallet collection. A same-named process environment variable
 can supply the value when an external secret manager owns the credential. The
-[headless environment reference](/docs/reference/environment-format/#linux-and-headless-environments)
+[headless environment reference](/docs/guides/troubleshooting/#linux-and-headless-environments)
 covers setup and troubleshooting.
 
 `cookie list` includes live cookie values and should not be copied into shared
@@ -369,6 +228,100 @@ is unavailable, and report a warning instead.
 Use `--noproxy` only when one run must bypass saved and system proxy policy. Use
 `--insecure` only when that run intentionally disables TLS certificate
 verification.
+
+## Run in GitHub Actions CI
+
+This example runs a saved health check on pushes to `main` or a manual workflow
+dispatch. It uses a reachable staging API with bearer authentication. Replace
+the example URL and `/health` path with your API's endpoint, which should return
+HTTP `200` when healthy. Only run trusted collection files with credentials.
+
+Commit these three collection files. In `my-api/settings.yml`:
+
+```yaml
+environment: ci
+cookies:
+  enabled: false
+```
+
+In `my-api/.environments/ci.env`:
+
+```ini
+BASE_URL=https://api.example.com
+# @secret API_TOKEN
+API_TOKEN=
+```
+
+In `my-api/health.yml`:
+
+```yaml
+name: Health check
+method: GET
+url: $BASE_URL/health
+auth:
+  type: bearer
+  token: $API_TOKEN
+assert:
+  - expression: status
+    operator: equals
+    value: 200
+```
+
+Add a repository Actions secret named `NOODLE_API_TOKEN` containing the staging
+token. Create `.github/workflows/api-checks.yml` in the repository containing
+`my-api`:
+
+```yaml
+name: API checks
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  api-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Noodle
+        env:
+          NOODLE_VERSION: v0.9.2
+        run: |
+          curl -fsSL "https://raw.githubusercontent.com/wilfredinni/noodle/$NOODLE_VERSION/scripts/install.sh" -o "$RUNNER_TEMP/noodle-install.sh"
+          bash "$RUNNER_TEMP/noodle-install.sh"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Validate collection
+        run: noodle collection audit ./my-api
+
+      - name: Run API checks
+        env:
+          API_TOKEN: ${{ secrets.NOODLE_API_TOKEN }}
+        run: |
+          test -n "$API_TOKEN" || { echo "NOODLE_API_TOKEN is not configured" >&2; exit 2; }
+          noodle collection run ./my-api --env ci --fail-fast
+```
+
+The installer pins Noodle to `v0.9.2` and verifies its binary checksum. Change
+that version deliberately when upgrading the workflow. The Actions secret
+supplies the declared `API_TOKEN` through the process environment, so this
+example needs no interactive keyring. Cookies are disabled because this bearer
+health check does not need a session jar.
+
+The job fails on an audit error or a nonzero run exit status. Human output gives
+request results, failed checks, and a summary in the Actions log. To process
+structured results instead, use `--json` and inspect `data.results`; do not
+swallow the command's exit status. Known secrets are redacted, but arbitrary
+server data can remain in JSON, so review reports before sharing them.
+
+This example intentionally runs the committed collection only on trusted pushes
+or manual dispatch. If you extend it to pull requests, account for which events
+can access your staging credentials. See GitHub's [workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
+and [checkout action](https://github.com/actions/checkout) for platform setup.
 
 ## A reviewable workflow
 

@@ -1,13 +1,15 @@
 ---
-title: CLI Commands
+title: CLI commands
 description: Open the TUI, move collections between formats, and automate repeatable API work from the command line.
 ---
 
-The `noodle` command can open the interactive client or perform collection work
-without leaving the shell. Start with the TUI, then reach for the subcommands
-when a task needs to be scripted or repeated.
+Look up command syntax, flags, and defaults here. For an interactive walkthrough,
+use [Your first request](/docs/getting-started/quick-start/). For scripts and CI,
+use [CLI automation and CI](/docs/guides/automation/).
 
-![Noodle's command palette inside the terminal](../../../../assets/command.png)
+`<value>` denotes a required argument; `[value]` denotes an optional one.
+Use `noodle --version` for the installed version and `--help` on a command
+for its usage, for example `noodle collection run --help`.
 
 ## TUI (default)
 
@@ -22,26 +24,29 @@ noodle --collection ./api --noproxy     # force direct connections
 noodle --collection ./api --insecure    # disable TLS verification once
 ```
 
-A positional `<path>` overrides `--collection`; supplying both is invalid.
+Choose a positional `<path>` or `--collection`; supplying both is invalid.
 Without either, Noodle uses the first existing collection registered in
 `~/.config/noodle/config.yml`, falling back to the current directory.
 
 ### Path modes
 
-Existing collection roots open in full collection mode. Directories that
-contain request `.yml` files but no collection markers (`.environments/`,
-`settings.yml`) open in read-only **browse** mode. Empty directories open in
-read-only **empty** mode. Use the command palette (`Ctrl+P`) to initialize
-browse or empty directories before editing or sending.
+A directory with `.environments/`, `settings.yml`, or a request `.yml` file at
+its root opens in full collection mode. If requests exist only in subdirectories
+and there are no collection markers, it opens in read-only **browse** mode.
+Without any recognized requests or markers, it opens in read-only **empty** mode.
+Use **Initialize Collection** in the command palette (`Ctrl+P`) before editing or
+sending in browse or empty mode.
 
 | Flag           | Short | Default         | Description                                            |
 | -------------- | ----- | --------------- | ------------------------------------------------------ |
-| `--collection` | `-c`  | `./collections` | Path to request directory                              |
-| `--env`        | `-e`  | None            | Environment to activate. Exits with error if not found |
+| `--collection` | `-c`  | Registered collection, then current directory | Path to request directory                              |
+| `--env`        | `-e`  | Saved collection default, then first available environment | Environment to activate. Exits with error if not found |
 | `--noproxy`    |      | `false`         | Force direct connections for this invocation           |
 | `--insecure`   |      | `false`         | Disable TLS certificate verification for this invocation |
 
-`--help` and `--version` are available on every command.
+This fallback applies to opening the TUI. The automation commands documented
+below that accept `--collection` default to `./collections`; they do not reuse
+the TUI's registered-collection fallback.
 
 ## Import
 
@@ -64,6 +69,7 @@ noodle import ./spec.json -o ./my-apis                  # custom output dir
 | ---------- | ----- | --------------- | ---------------------- |
 | `--format` | `-i`  | auto-detect     | `openapi`, `swagger`, `postman`, or `insomnia` |
 | `--output` | `-o`  | `./collections` | Output directory       |
+| `--json` | | `false` | Write a JSON result envelope |
 
 After writing the collection, import canonicalizes each request's YAML and
 pretty-prints valid JSON bodies. Its JSON result includes the number of
@@ -71,9 +77,7 @@ formatted bodies in `data.formattedJsonBodies`.
 
 ### Import in the TUI
 
-From an open collection, press `Ctrl+P` and choose **Import Collection**. Pick
-whether the source should become a new collection or be added to the current
-one. Save pending changes before choosing the current collection.
+See [Import](/docs/import/import/#import-in-the-tui) for the interactive workflow and format limitations.
 
 ## Export
 
@@ -91,8 +95,9 @@ noodle export ./collections --format postman --output ./exports/postman --json
 
 | Flag | Short | Description |
 | ---- | ----- | ----------- |
-| `--format` | | `openapi` or `postman` |
-| `--output` | `-o` | Output file for OpenAPI, or new/empty directory for Postman |
+| `--format` | | Required. `openapi` or `postman` |
+| `--output` | `-o` | Required. Output file for OpenAPI, or new/empty directory for Postman |
+| `--json` | | Write a JSON result envelope |
 
 The output path must be outside the collection. OpenAPI includes enabled
 parameters and headers, supported auth, request-body examples, folders as
@@ -103,23 +108,14 @@ formats, so review exports for secrets before sharing them.
 
 ### Export in the TUI
 
-Press `Ctrl+P` and choose **Export Collection** to select OpenAPI or Postman
-and preview the output target. When the usual Postman target directory is
-occupied, the TUI chooses the next numbered directory.
+See [Export](/docs/import/export/#export-in-the-tui) for the interactive workflow and format limitations.
 
 ## Download a response
 
-```bash
-noodle request run files/download --collection ./api --output ./downloads/file.bin --json
-```
-
-`request run --output/-o <file>` writes original response bytes to a new file.
-Invalid or existing destinations exit `2` before HTTP; completed response
-failures still save the bytes and exit `1`. Pre-script/transport failures create
-no file, and later write failures preserve diagnostics. Downloads are
-unredacted; successful saves report `outputFile`. Binary JSON results contain
-metadata rather than body text or bytes. See the
-[Automation guide](/docs/guides/automation/#download-a-response) for details.
+Use `request run --output/-o <file>` to save the original response bytes. See
+[request run](#request-run) for options and [download behavior](/docs/guides/automation/#download-a-response)
+for validation, failures, and binary diagnostics. For the TUI workflow, see
+[Inspect and save responses](/docs/guides/using-the-response-pane/#images-and-binary-responses).
 
 ## Update
 
@@ -159,21 +155,144 @@ managed path, and linked paths in one result envelope.
 
 ## Automation
 
-Noodle's non-interactive commands let scripts, CI jobs, and coding agents
-create, inspect, audit, and run collections without opening the TUI.
+Every workspace, collection, request, environment, secret, and cookie command
+below accepts optional `--json` (default `false`). It writes one
+`{ status, data, errors }` envelope to stdout. Without it, output is human-readable.
+See [results and exit statuses](/docs/guides/automation/#let-the-exit-status-make-the-first-decision).
 
-Run a dynamic suite by filtering request and inherited folder tags:
+For commands that accept `--collection`, supply the path explicitly in scripts.
+Their default is `./collections`, and `-c` is a TUI-only alias.
+
+## Workspace
+
+| Command | Arguments and options | Behavior |
+| --- | --- | --- |
+| `noodle workspace list` | `--json` | List registered collections |
+| `noodle workspace audit` | `--fix`, `--json` | Validate registrations; `--fix` removes invalid registered paths |
+
+`--fix` defaults to `false` and modifies the saved registration list, not the
+collection directories.
+
+## Collection management
+
+| Command | Arguments and options | Behavior |
+| --- | --- | --- |
+| `noodle collection create <name>` | `--output/-o <dir>` (default `.`), `--json` | Create `<dir>/<name>` with settings, a development environment, and a starter request; register it |
+| `noodle collection init <path>` | `--json` | Add collection markers to an existing directory and register it |
+| `noodle collection list <path>` | `--json` | Print the collection tree |
+| `noodle collection inspect <path>` | `--json` | Inspect metadata, environments, and requests |
+| `noodle collection format <path>` | `--json` | Canonicalize request YAML and pretty-print valid JSON bodies |
+| `noodle collection audit <path>` | `--fix`, `--json` | Validate files; optionally rewrite supported fixable content |
+
+`create` requires a new destination. `init` requires an existing directory that
+is not already a collection. `format` modifies request files; invalid JSON body
+text is preserved. Audit `--fix` defaults to `false`. Review changes from format
+and fix commands before committing.
+
+## Collection run
 
 ```bash
-noodle collection run ./api --tag smoke --exclude-tag destructive --fail-fast --delay 500 --json
+noodle collection run <path> [<target>...] [options]
 ```
 
-Repeat `--tag` to require every listed tag. Repeat `--exclude-tag` to remove a
-request when any listed tag matches. Use `--delay <milliseconds>` to wait
-between selected requests; the value must be a non-negative safe integer.
+`path` is required. Targets are request IDs without `.yml` or folder paths ending
+in `/`; omitting them selects the whole collection. Overlapping targets run once
+in collection order. Folder targets include descendants.
 
-The [Automation guide](/docs/guides/automation/) covers tag suites, selective
-request and folder targets, fail-fast and paced runs, response captures and
-assertions, JSON results, exit statuses, secrets, and the full collection
-workflow. Use `noodle <command> --help` when you need the complete options for
-one command.
+| Option | Default | Behavior |
+| --- | --- | --- |
+| `--env/-e <name>` | Collection `settings.yml` environment | Select the environment |
+| `--tag <tag>` | No include filter | Repeatable; every include tag must match |
+| `--exclude-tag <tag>` | No exclude filter | Repeatable; any matching tag excludes |
+| `--fail-fast` | `false` | Skip remaining selected requests after a failure |
+| `--delay <milliseconds>` | `0` | Wait between selected requests; non-negative safe integer |
+| `--noproxy` | `false` | Force direct connections for this invocation |
+| `--insecure` | `false` | Disable TLS certificate verification for this invocation |
+| `--json` | `false` | Write a JSON result envelope |
+
+Tags are case-sensitive, inherited from non-root folders, and exclusion wins.
+An empty filtered selection is a configuration failure. Captures and script
+writes remain transient across one ordered run.
+
+```bash
+noodle collection run ./my-api users/ health --env staging --tag smoke --exclude-tag destructive --fail-fast --delay 500
+```
+
+Use [Collection Runner](/docs/guides/collection-runner/) for the TUI equivalent.
+
+## Request create
+
+```bash
+noodle request create <id> --url <url> [options]
+```
+
+The required ID is a collection-relative path without `.yml`, for example
+`users/list`. IDs reject absolute paths, traversal, backslashes, hidden segments,
+and empty segments. The target collection must exist and be initialized.
+
+| Option | Default | Behavior |
+| --- | --- | --- |
+| `--url <url>` | Required | Request URL |
+| `--method <method>` | `GET` | `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `HEAD`, or `OPTIONS` |
+| `--collection <dir>` | `./collections` | Destination collection |
+| `--json` | `false` | Write a JSON result envelope |
+
+## Request run
+
+```bash
+noodle request run <id> [options]
+```
+
+The required ID addresses a saved request relative to its collection, without
+the `.yml` extension.
+
+| Option | Default | Behavior |
+| --- | --- | --- |
+| `--collection <dir>` | `./collections` | Collection containing the request |
+| `--env/-e <name>` | Collection `settings.yml` environment | Select the environment |
+| `--output/-o <file>` | No file | Save original received bytes to a new destination |
+| `--noproxy` | `false` | Force direct connections for this invocation |
+| `--insecure` | `false` | Disable TLS certificate verification for this invocation |
+| `--json` | `false` | Write a JSON result envelope |
+
+Each invocation has an isolated run scope and honors explicit capture/script
+persistence. Existing or invalid output destinations fail before HTTP. See
+[download behavior](/docs/guides/automation/#download-a-response) for completed-response
+failures and output metadata.
+
+## Environment set
+
+```bash
+noodle environment set <key> <value> --env <name> [--collection <dir>] [--json]
+```
+
+`key`, `value`, and `--env` are required. `--collection` defaults to
+`./collections`. This saves an enabled public value; it cannot replace a declared
+secret. Use [Environments and secrets](/docs/guides/using-environments/) for setup
+and `secret set` for credentials.
+
+## Secrets
+
+| Command | Required | Optional |
+| --- | --- | --- |
+| `noodle secret set <key>` | `--env <name>` | `--collection <dir>`, `--stdin`, `--json` |
+| `noodle secret list` | `--env <name>` | `--collection <dir>`, `--json` |
+| `noodle secret delete <key>` | `--env <name>` | `--collection <dir>`, `--json` |
+
+`--collection` defaults to `./collections`. `set` prompts without echo in a TTY;
+`--stdin` reads the value from standard input and removes one final line ending.
+It stores the value in the OS vault, with a blank declaration in the environment
+file. `list` returns names and status without values. `delete` removes the local
+vault value but retains its declaration; a process environment value can still
+resolve it. No secret value is accepted as a positional command argument.
+
+## Cookies
+
+```bash
+noodle cookie list [--collection <dir>] [--json]
+noodle cookie clear [--collection <dir>] [--json]
+```
+
+`--collection` defaults to `./collections`. `list` includes live cookie values,
+grouped by domain. `clear` empties the collection jar. Use the [Cookies guide](/docs/guides/cookies/)
+for the TUI and storage behavior.

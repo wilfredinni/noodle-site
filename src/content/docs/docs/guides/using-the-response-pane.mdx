@@ -1,5 +1,5 @@
 ---
-title: Using the Response Pane
+title: Inspect and save responses
 description: Read the latest response, follow its network trace, and return to earlier sends without leaving the terminal.
 ---
 import { Image } from 'astro:assets';
@@ -8,6 +8,13 @@ import noodleOpencode from '../../../../assets/noodle-opencode.png';
 
 The response pane shows results after sending a request: status code,
 response time, headers, and body (auto-formatted if JSON).
+
+## Inspect the latest response
+
+Send a request with **Ctrl+Return**, then focus the response pane. Read its
+status and timing, select **Body** or **Headers**, and use **Network** when the
+connection or authentication needs investigation. **Results** explains failed
+checks. For a live binary response, use **Save file** as described below.
 
 <Image src={noodleOpencode} alt="Response pane" loading="eager" fetchpriority="high" />
 
@@ -29,7 +36,7 @@ response time, headers, and body (auto-formatted if JSON).
 | **Network** | Live request, authentication, redirect, response, and failure events |
 | **Timeline** | History of every send for this request |
 | **Cookies** | Cookies sent on the final request leg and received in the final response |
-| **Results** | Script, assertion, and capture outcomes from the latest manual send |
+| **Results** | Script, capture, assertion, and test outcomes from the latest manual send |
 
 The Network tab updates while a request is sending. OAuth 2 token acquisition,
 refresh, and browser authorization status appear as authentication events
@@ -39,10 +46,10 @@ can inspect the trace again after the response is complete.
 ## Results
 
 The **Results** tab is always available at the end of the response tabs. Manual
-sends run pre, HTTP, captures, post, then assertions with a fresh RunScope.
+sends run pre, HTTP, captures, post, assertions, then tests with a fresh RunScope.
 Post runs for completed responses even after HTTP/capture failure; assertions
 still run after post failure. When outcomes exist, the tab shows `✓` for
-success, `✗` for a failed script, assertion, or capture, or `–` when an earlier
+success, `✗` for a failed script, assertion, capture, or test, or `–` when an earlier
 failure prevented evaluation.
 
 Use **↑**/**↓** to select a result and **Return** or a click to expand its
@@ -113,7 +120,8 @@ CLI automation and the TUI Runner do not create timeline history.
 | **↑**/**↓** | Navigate entries |
 | **Return** | Expand entry: shows full request and response snapshots |
 
-Entries with errors show `ERR` in red. Max 50 entries per request.
+Entries with errors show `ERR` in red. The default retention is 50 entries per
+request; change it in [Settings](/docs/guides/settings/#general).
 
 Inside a timeline detail view, you can copy request headers, copy the
 response body, or export the full entry as YAML to your downloads
@@ -140,16 +148,9 @@ redacted logs, and persistence outcomes. Oversized diagnostic text uses
 
 ## Cookies
 
-The **Cookies** tab separates sent and received cookie rows. Press **Return** or
-click a row to expand its value and attributes. Received rows show path, domain,
-expiry, Secure, HttpOnly, and SameSite metadata when present; expired response
-cookies are marked as deleted.
-
-![Sent and received cookies in the response pane](../../../../assets/cookie-tab.png)
-
-The tab shows the final request leg and final response. Noodle still captures
-`Set-Cookie` headers from intermediate redirects and NTLM handshake responses
-into the collection jar.
+Use the response **Cookies** tab to compare cookies sent on the final request
+leg with those received. Expand a row with **Return**. The [Cookies guide](/docs/guides/cookies/)
+covers jar management, sending rules, storage, and CLI commands.
 
 ## Copy Body
 
@@ -171,3 +172,8 @@ Errors display inline in the response pane for:
 - DNS failures
 - Timeouts
 - Malformed responses
+
+
+Follow [Troubleshooting](/docs/guides/troubleshooting/) for diagnostic steps.
+Use [Response assertions](/docs/guides/assertions/) to turn an expected response
+into a repeatable check.

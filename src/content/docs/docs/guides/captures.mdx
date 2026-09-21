@@ -1,0 +1,96 @@
+---
+title: Capture and reuse values
+description: Capture a response value and reuse it in later requests or save it for a later manual send.
+---
+
+Use a capture when one response supplies an ID, token, or other value needed by
+another request. Start with a saved request and an initialized collection.
+
+## Add a capture in the TUI
+
+1. Select the request that returns the value and open its **Capture** tab.
+   If hidden, reveal it from the **+** menu at the right of the request tabs.
+2. Add a variable name such as `created_user_id` and a response expression such
+   as `body.id`. Expression completion can use the latest response.
+3. Choose **Run only**, **Environment**, or **Secret**, then save with **Ctrl+S**.
+4. Send the request and inspect **Response → Results**. A successful capture
+   shows its type and value, with known secrets redacted.
+
+Use **Space** to disable a selected capture without removing it from the file.
+
+![Capture entries and persistence choices beside their results](../../../../assets/capure.png)
+
+## Pass a value to the next request
+
+Save these as two separate files inside the same collection. Replace the example
+API URL with your server. The create endpoint must return JSON containing `id`.
+
+In `users/create.yml`:
+
+```yaml
+name: Create User
+method: POST
+url: https://api.example.com/users
+body_type: json
+body: '{"name":"Noodle example"}'
+capture:
+  created_user_id:
+    value: body.id
+```
+
+In `users/get.yml`:
+
+```yaml
+name: Get Created User
+method: GET
+url: https://api.example.com/users/$created_user_id
+```
+
+Open the [Collection Runner](/docs/guides/collection-runner/) with **F5** and
+select both requests, or run their folder:
+
+```bash
+noodle collection run ./my-api users/
+```
+
+The create request runs first and captures `id`; the next request substitutes
+it into its URL. Two separate manual sends do not share transient captures.
+
+## Choose how long to keep a value
+
+| Choice | Manual send or `request run` | Runner or `collection run` |
+| --- | --- | --- |
+| **Run only** | Available to the same request's post script, then discarded | Available to later requests until the run ends |
+| **Environment** | Save a public value to the selected environment | Keep transient; persistence is suppressed |
+| **Secret** | Save to the OS vault with a blank environment declaration | Keep transient; persistence is suppressed |
+
+For later manual sends, select an existing environment and use **Environment**
+for public IDs or **Secret** for tokens. For example:
+
+```yaml
+capture:
+  access_token:
+    value: body.access_token
+    persist: secret
+```
+
+The original captured value is persisted even if a later post script overwrites
+it or fails. Secret captures and values from sensitive response headers are
+fully redacted in results.
+
+## Understand failures and replacement
+
+Captures read status, response time, headers, or JSON body paths. Binary bodies
+cannot supply JSON paths. Successful captures commit before post scripts and
+assertions, including on HTTP error responses. The latest successful write wins
+over the environment or an earlier run value.
+
+A missing or invalid path fails that capture without replacing an earlier value.
+Other successful captures remain committed. A failed capture fails the request;
+the collection continues unless fail-fast is enabled. Persistence failures keep
+the HTTP response available and are reported in Results.
+
+See [capture syntax and constraints](/docs/reference/collection-format/#response-captures)
+for the full schema. Use [response assertions](/docs/guides/assertions/) to check
+the returned value, or a [post script](/docs/guides/pre-request-scripting/#process-a-response)
+when extraction needs conditions or transformation.

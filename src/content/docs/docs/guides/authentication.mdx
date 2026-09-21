@@ -9,6 +9,18 @@ Authentication can live on one request or flow down from a folder. In either
 case, keep credentials in environment variables and declare sensitive values
 as secrets so collection files stay safe to share.
 
+## Authenticate a request
+
+Open a saved request and select an [environment](/docs/guides/using-environments/)
+containing your credentials. In the request's **Auth** tab, choose the scheme
+required by the API and fill its fields with variables such as `$API_TOKEN`.
+Save with **Ctrl+S**, then send with **Ctrl+Return**.
+
+Check the response status and the **Network** tab for authentication events.
+A `401` or `403` usually requires checking the token, permissions, or selected
+environment. For shared auth, configure the folder's **Auth** tab and set child
+requests to inherit. The sections below describe each supported scheme.
+
 <AuthInheritanceDiagram />
 
 ## Auth Types
@@ -97,7 +109,7 @@ never writes plaintext OAuth tokens, authorization codes, PKCE verifiers, or
 generated state to request YAML. OAuth 2 also supports signed client
 assertions, access or ID token delivery, header or query placement, and custom
 authorization, token, and refresh parameters. See
-[Collection Format](/docs/reference/collection-format/#oauth-20) for the full
+[Collection YAML](/docs/reference/collection-format/#oauth-20) for the full
 field schema.
 
 #### Discover endpoints with OIDC
@@ -195,8 +207,8 @@ Auth can be defined on a folder or a request. A request with `type: inherit`
 uses the nearest parent folder's auth configuration. Request auth overrides
 folder auth; use `type: none` to opt out for one request.
 
-See [Using Folders](/docs/guides/using-folders/) for the interactive workflow
-and [Collection Format](/docs/reference/collection-format/#auth) for the
+See [Folders and inheritance](/docs/guides/using-folders/) for the interactive workflow
+and [Collection YAML](/docs/reference/collection-format/#auth) for the
 canonical auth field schema.
 
 ## Disabling Auth

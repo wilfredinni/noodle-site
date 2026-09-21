@@ -1,5 +1,5 @@
 ---
-title: Using Folders
+title: Folders and inheritance
 description: Organize requests with folders, overrides, and activity stats
 ---
 import { Image } from 'astro:assets';
@@ -8,6 +8,17 @@ import folderAuth from '../../../../assets/folder-auth.png';
 
 Folders group requests and can apply shared headers and auth to
 everything inside them.
+
+## Create a folder and share configuration
+
+Open an initialized collection and press **Ctrl+Alt+N** to create a folder.
+Create requests inside it, or use **Ctrl+E** on an existing request to change its
+folder. Select the folder and edit its **Headers** or **Auth** tab, then save
+with **Ctrl+S**. Set a child's auth to **Inherit** when it should use folder auth.
+Send that child request to verify the shared configuration.
+
+Use the folder context menu to open the [Collection Runner](/docs/guides/collection-runner/)
+for that part of the collection.
 
 <Image src={folderAuth} alt="Folder pane" loading="eager" fetchpriority="high" />
 

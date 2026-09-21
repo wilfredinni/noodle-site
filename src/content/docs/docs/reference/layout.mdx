@@ -1,10 +1,15 @@
 ---
-title: Layout
+title: Layout and navigation
 description: TUI layout modes, resizing, and navigation
 ---
 
 import { Image } from "astro:assets";
 import noodleAura from "../../../../assets/noodle-aura.png";
+
+Use **Tab** to move focus, **Return** to edit a field, **Escape** to leave it,
+and **Ctrl+P** to find an action in the command palette. **F1** opens keyboard
+help. Start with [Your first request](/docs/getting-started/quick-start/) if you
+have not opened a collection yet.
 
 ## Panes
 
@@ -20,8 +25,7 @@ The main Noodle view has four panes:
 | Pane         | Description                                                         |
 | ------------ | ------------------------------------------------------------------- |
 | **Sidebar**  | Collection tree with folders and requests                           |
-| **URL bar**  | Edit and inspect the request URL. **Tab** switches between method
-                 selector and URL field within the URL bar. Click **Send** at the right to run the request. |
+| **URL bar** | Edit the method and URL. **Tab** switches between them; **Send** runs the request. |
 | **Request**  | Request detail view with inline editing                             |
 | **Response** | Response rendering (idle / sending / done / error)                  |
 

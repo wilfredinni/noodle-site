@@ -1,7 +1,29 @@
 ---
-title: Import Collections
+title: Import
 description: Bring an OpenAPI, Swagger, Postman, or Insomnia collection into Noodle without rebuilding every request by hand.
 ---
+
+Convert an OpenAPI, Swagger, Postman, or Insomnia export into editable Noodle
+requests. You need the source file on disk. In the TUI, start from an initialized
+collection; the CLI can create the imported collection directly.
+
+## Import in the TUI
+
+1. Open a collection, press **Ctrl+P**, and choose **Import Collection**.
+2. Enter the export path in **Source File**. The format is detected automatically.
+3. Choose **New collection** or **Current collection** as the **Destination**.
+   For a new collection, choose a **Parent Folder** outside the current collection.
+   Save all pending changes before importing into the current collection.
+4. Press **Ctrl+S** to import.
+
+The current collection reloads after a successful import. A new collection is
+saved in a folder named from the source collection and added to **Ctrl+O**.
+Existing destination files are protected: resolve any reported path conflicts
+before trying again.
+
+![Choosing a collection source in the import overlay](../../../../assets/import-overlay.png)
+
+## Import from the CLI
 
 Use `noodle import` to convert supported API descriptions and collections into
 Noodle `.yml` requests. The format is detected from the source file when
@@ -12,14 +34,8 @@ noodle import ./api.yaml --output ./collections
 noodle import ./collection.json --format postman --output ./collections
 ```
 
-## Import in the TUI
-
-Open a collection, press `Ctrl+P`, then choose **Import Collection**. The
-overlay detects the same four formats and can create a new collection from the
-source or import into the current collection. Save unsaved work before
-importing into the current collection.
-
-![Choosing a collection source in the import overlay](../../../../assets/import-overlay.png)
+The command prints the created directory under `./collections`. Open that exact
+directory with `noodle <printed-path>`, then follow the checks below.
 
 ## OpenAPI 3.0
 
@@ -72,5 +88,10 @@ Supported OAuth 1.0a and OAuth 2.0 fields map to Noodle's matching auth types.
 ## After import
 
 Import canonicalizes request YAML and pretty-prints valid JSON bodies. Inspect
-the new collection, then run a few requests to verify variable substitution and
-authentication.
+the new collection, then:
+
+1. Review the import summary and the format limitations above.
+2. Select an [environment](/docs/guides/using-environments/) and resolve required variables.
+3. Move credentials into secret declarations and check [authentication](/docs/guides/authentication/).
+4. Send a known request and compare its status and body with the original tool.
+5. Recreate unsupported scripts or tests explicitly before using the [Runner](/docs/guides/collection-runner/).
