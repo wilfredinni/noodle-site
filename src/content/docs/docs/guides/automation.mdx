@@ -106,9 +106,9 @@ Press **F5** or open the command palette and choose **Run Collection** to
 configure a transient run without leaving the TUI. Select requests or whole
 folders, choose an environment, add Include and Exclude tags, enable fail-fast,
 and optionally set a delay before starting. The Runner shows progress, keeps
-ordered results in memory, and expands request details with response, assertion,
-script, assertion, and capture outcomes. A folder context menu opens the same
-workspace scoped to that folder.
+ordered results in memory, and expands request details with response, script,
+capture, assertion, and scripted-test outcomes. A folder context menu opens the
+same workspace scoped to that folder.
 
 Runner options are local to that workspace. It does not create another runner
 file, edit request declarations, persist captures, or write timeline entries.
@@ -125,8 +125,8 @@ The [Script Cookbook](/docs/guides/script-cookbook/) provides copyable examples
 for request preparation and sharing generated data across a collection run.
 
 Request and RunScope changes commit only when the entire script succeeds. A
-failure skips HTTP, marks later capture and assertion groups unevaluated, and
-participates in fail-fast. Successful RunScope values remain available to
+failure skips HTTP, marks later capture, assertion, and test groups unevaluated,
+and participates in fail-fast. Successful RunScope values remain available to
 later requests in the same collection run, even if a later phase of the current
 request fails. Request mutations remain in memory and are never written back to
 YAML.
@@ -137,8 +137,8 @@ environment secret with `noodle.env.get` and place it in the outgoing request.
 Post runs after captures and before assertions for every completed response,
 including HTTP/capture failures. It reads `noodle.response`, the read-only final
 prepared request, and optional URL-scoped cookies. Post failure preserves the
-response/captures and still runs assertions. Successful post RunScope values
-reach later collection requests even after assertion failure.
+response/captures and still runs assertions and tests. Successful post RunScope
+values reach later collection requests even after assertion failure.
 
 Both phases support `noodle.run.set/unset` with optional
 `{ persist: "environment" | "secret" }`. `request run` and manual sends honor
@@ -157,8 +157,8 @@ noodle request run files/download --collection ./api --output ./downloads/file.b
 `request run --output/-o <file>` saves original received bytes after normal HTTP
 decompression, independently of redacted diagnostics. The destination must be
 new: invalid or existing paths exit `2` before sending. Completed responses are
-saved even after HTTP, post-script, capture, or assertion failures, which still
-exit `1`. Pre-script and transport failures create no file. Later write failures
+saved even after HTTP, post-script, capture, assertion, or test failures, which
+still exit `1`. Pre-script and transport failures create no file. Later write failures
 retain response diagnostics and exit `1`; successful saves report `outputFile`.
 Downloads contain unredacted server data.
 
@@ -258,6 +258,19 @@ for every expression and operator.
 
 ![Noodle showing the Assert request tab beside ten passing assertion results](../../../../assets/assertions.png)
 
+## Add programmable response checks
+
+Use a request-level `tests` string when a response check needs conditions,
+loops, or related JSON values. Global `test(name, callback)` and `expect(actual)`
+run after declarative assertions, with read-only access to the request, response,
+environment, RunScope, and applicable cookies. Use `scripts.post` for mutations.
+
+Tests still execute after HTTP, capture, post, or assertion failures when a
+response exists. A failed callback does not stop later tests; a top-level script
+error preserves completed results. Fail-fast waits for these diagnostics before
+skipping later requests. See [Scripted Tests](/docs/guides/scripted-tests/) for
+examples, all supported matchers, and the synchronous-only limitation.
+
 ## Let the exit status make the first decision
 
 Every automation command accepts `--json` and writes exactly one result envelope
@@ -280,13 +293,17 @@ steps.
 For `request run`, the request result is in `data.result`. For `collection run`,
 the ordered results are in `data.results`, fail-fast skips are in `data.skipped`,
 and `data.summary` counts selected, executed, skipped, successful, and failed
-requests plus assertion, capture, duration, and failure-category totals. There
-are no aggregate script counters. Each request result also lists any
-`execution`, `script`, `transport`, `http`, `capture`, or `assertion` failure
-categories; pre-run failures use `configuration`. Script, capture, and
-assertion groups include whether evaluation happened and each individual
+requests plus assertion, capture, duration, and failure-category totals. When
+test groups are present, it also includes `testPasses`, `testFailures`, and
+`testScriptErrors`. There are no aggregate pre/post script counters. Each
+request result also lists any
+`execution`, `script`, `transport`, `http`, `capture`, `assertion`, or `test` failure
+categories; pre-run failures use `configuration`. Script, capture, assertion,
+and test groups include whether evaluation happened and each individual
 result. Script rows include phase, scope, source kind, status, duration,
 redacted logs, an optional normalized error, and optional persistence outcomes.
+Test groups retain ordered named results, redacted logs, and an optional
+top-level script error; they are separate from pre/post results.
 Human output distinguishes Pre-script/Post-script labels. JSON run output redacts known
 environment, proxy, TLS, request-credential, cookie, script-created, and secret
 RunScope values from response data and results. Sensitive response headers are
@@ -294,11 +311,11 @@ masked, and captures from those headers are fully redacted. Arbitrary server
 payload fields remain visible, so treat JSON output as sensitive server data.
 
 Without `--json`, Noodle prints a concise result for each request and a collection
-summary. Human output reports capture and assertion pass and fail counts without
-printing raw captured or actual response values. It reports script status,
+summary. Human output reports capture, assertion, and test pass and fail counts
+without printing raw captured or actual response values. It reports script status,
 duration, log count, and redacted failures without printing console messages.
 It also names failure categories such as configuration error, script failure,
-transport error, HTTP error, capture failure, and assertion failure.
+transport error, HTTP error, capture failure, assertion failure, and test failure.
 
 ## Maintain collections without the TUI
 

@@ -32,6 +32,7 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 | `scripts`         | object  | no       | None     | Inline string-valued `pre` and/or `post` scripts      |
 | `capture`         | map     | no       | None     | Response capture objects for manual and automated runs     |
 | `assert`          | array   | no       | None     | Response assertions for manual and automated runs          |
+| `tests`           | string  | no       | None     | Inline read-only scripted tests after declarative assertions |
 
 ### Suite Tags
 
@@ -135,13 +136,13 @@ capture can overwrite a script value. Manual sends and `request run` use fresh
 scopes.
 
 The complete order is folder merge, environment/RunScope overlay, one
-substitution pass, pre, HTTP, capture commits, post, assertions. Assertion
+substitution pass, pre, HTTP, capture commits, post, assertions, tests. Assertion
 expectations keep the original substitution pass, not a second pass after post.
 Post runs once for every completed response, including HTTP and capture errors,
 but never for intermediate redirects/auth challenges or transport failures. It
 sees successful captures. A post error preserves the response, captures, and
 earlier successful writes, retains logs, rolls back only that invocation's
-staged RunScope/cookie changes, and still evaluates assertions. Successful post
+staged RunScope/cookie changes, and still evaluates assertions and tests. Successful post
 RunScope writes reach later collection requests even if assertions fail. Capture
 persistence remains manual/`request run` only and still applies after later
 post/assertion failures. Script writes are transient unless they explicitly
@@ -155,7 +156,7 @@ API accesses with `noodle.`; the old bare API globals are unavailable.
 
 | API | Members |
 | --- | --- |
-| `noodle.request` | `url: string` and `method: Method`; read/write in pre, read-only in post |
+| `noodle.request` | `url: string` and `method: Method`; read/write in pre, read-only in post and tests |
 | `noodle.request.headers` | `get(name)`, `has(name)`, `set(name, value)`, `delete(name)` |
 | `noodle.request.params` | `get(name)`, `getAll(name)`, `set(name, value)`, `append(name, value)`, `delete(name)` |
 | `noodle.request.body` | `text()`, `json()`, `setText(value)`, `setJson(value)`, `clear()` |
@@ -166,10 +167,10 @@ API accesses with `noodle.`; the old bare API globals are unavailable.
 | `noodle.random` | Frozen synchronous English test-data generators; see [catalog and options](#script-random-api) |
 | `noodle.time` | Frozen date/time helpers; see [methods and formats](#script-time-api) |
 | `console` | `log(...values)`, `info(...values)`, `warn(...values)`, `error(...values)` |
-| `noodle.response` (post only) | Read-only `status`, `statusText`, `timeMs`; `headers.get(name)`, `headers.has(name)`, `text()`, `json()` |
-| `noodle.cookies` (post only, when available) | `get(name)`, `set(input)`, `delete(name)` |
+| `noodle.response` (post and tests) | Read-only `status`, `statusText`, `timeMs`; `headers.get(name)`, `headers.has(name)`, `text()`, `json()` |
+| `noodle.cookies` (when available) | `get(name)` in post and tests; `set(input)` and `delete(name)` in post only |
 
-In post, request readers reflect the final
+In post and tests, request readers reflect the final
 Noodle-prepared HTTP leg after signing and cookie/header preparation: effective
 URL, method, query parameters and headers. Every request mutator, including
 URL/method assignment, centrally throws a clear read-only API error. Host
@@ -211,7 +212,8 @@ string without truncation, capped at 5 MiB of UTF-8 before copying.
 failure per invocation; JSON null is preserved. The text cap applies when either
 body reader is called, not to metadata-only post processing. Invalid JSON is a
 structured `ScriptApiValidationError`. Cached JSON objects belong only to that
-invocation, not the host response or the capture/assertion resolver. Ordinary
+invocation, not the host response or the capture/assertion resolver. In tests,
+cached response JSON is recursively frozen. Ordinary
 bridge and RunScope values still obey the 256 KiB/depth-32 limits, so extract
 small fields instead of copying an entire large response into `noodle.run.set`. VM allocation and
 deadline failures remain resource errors rather than invalid-JSON API errors;
@@ -463,6 +465,22 @@ logs, errors, and persistence outcomes; diagnostic text and combined serialized
 logs are limited to 10,000 bytes with `[TRUNCATED]` markers. Script source,
 capture results, and RunScope values are excluded. Successful manual request
 snapshots reflect prepared request mutations. Automation does not create history.
+
+### Scripted Tests
+
+Optional request-level `tests` accepts an inline JavaScript string. Non-string
+values and external path-looking sources are rejected. Empty source is valid;
+source whitespace survives canonical serialization and is never substituted.
+Tests run after declarative assertions whenever HTTP produced a response.
+
+Use global `test(name, callback)` and `expect(actual)` with read-only `noodle.*`
+readers. Failed callbacks remain individually ordered; a top-level error stops
+the script and retains completed results. Test failures use category `test`.
+Results use `tests: { evaluated, results, logs, error? }`, separately from pre/post
+`scripts`. Each named result contains `name`, `passed`, `message`, and `durationMs`.
+
+See [Scripted Tests](/docs/guides/scripted-tests/) for all matchers, `.not`,
+conditional and JSON examples, phase capabilities, limits, and result behavior.
 
 ### Response Captures
 

@@ -1,0 +1,135 @@
+---
+title: Scripted Tests
+description: Write synchronous response tests with test(), expect(), conditional checks, and JSON matchers.
+---
+
+Use [declarative `assert`](/docs/guides/automation/#put-success-criteria-beside-the-request)
+for simple response contracts and a request-level `tests` string for conditions,
+loops, or related JSON checks:
+
+```yaml
+tests: |
+  test("user is active", () => {
+    expect(noodle.response.json().status).toBe("active")
+  })
+  test("successful response has a user", () => {
+    if (noodle.response.status < 400) {
+      const user = noodle.response.json().user
+      expect(user.id).toBeDefined()
+      expect(user.roles).toContain("member")
+      expect(user.profile).toEqual({ active: true })
+    }
+  })
+```
+
+## Request schema and test declarations
+
+`test(name, callback)` runs synchronously and keeps declaration order, including
+duplicate names. Names must be non-empty strings and callbacks must be functions.
+A failed matcher or callback fails that test and later tests continue. A
+top-level error stops the script but preserves completed results. Empty source is a successful no-op. `tests` must be
+an inline string; file paths, inherited tests, modules, Promises, thenables, and
+queued asynchronous work are unsupported. Source is never variable-substituted.
+Omit `tests` to keep the existing request behavior and output; a non-string
+`tests` value is invalid.
+Canonical YAML serialization preserves source whitespace in a literal block.
+
+`test()` and `expect()` are global only in this phase. Continue to use the
+`noodle.` prefix for request, response, environment, and other Noodle APIs.
+
+## Matcher reference
+
+Every matcher supports `.not`, for example `expect(value).not.toBeNull()`.
+Type errors fail even with `.not`:
+
+| Matcher | Behavior |
+| --- | --- |
+| `toBe(expected)` | `Object.is`, including `NaN` and signed zero; objects compare by identity |
+| `toEqual(expected)` | Typed deep JSON equality; array order matters, object key order does not |
+| `toBeTruthy()` | Value is truthy in JavaScript |
+| `toBeFalsy()` | Value is falsy in JavaScript |
+| `toBeDefined()` | Value is not `undefined`; JSON `null` is defined |
+| `toBeNull()` | Value is exactly `null` |
+| `toContain(expected)` | String substring or deep-equal JSON array element |
+| `toMatch(pattern)` | String regex without flags, or RegExp with its explicit flags; leaves `lastIndex` unchanged |
+| `toBeGreaterThan(expected)` | Finite number strictly greater than expected |
+| `toBeGreaterThanOrEqual(expected)` | Finite number greater than or equal to expected |
+| `toBeLessThan(expected)` | Finite number strictly less than expected |
+| `toBeLessThanOrEqual(expected)` | Finite number less than or equal to expected |
+
+Numeric comparisons require finite numbers on both sides, without coercion.
+String containment requires a string substring; array containment compares
+JSON-compatible elements deeply. For example:
+
+```js
+expect([{ id: 1 }, { id: 2 }]).toContain({ id: 2 })
+expect("ACTIVE").toMatch(/^active$/i)
+expect("ACTIVE").not.toMatch("^active$")
+expect(null).toBeDefined()
+expect(undefined).not.toBeDefined()
+```
+
+Invalid regex patterns fail the current test.
+
+Cyclic values, unsafe prototypes/keys, accessors, non-transferable values, and
+oversized matcher values are rejected. Deep equality requires JSON-compatible
+values; scalar `undefined` and non-finite numbers remain available to identity
+and truthiness checks. No other matchers are supported.
+
+## Execution order and read-only access
+
+Manual sends, `request run`, `collection run`, and the TUI Runner use this order:
+
+1. Resolve folder overrides.
+2. Resolve the environment and RunScope.
+3. Substitute request values.
+4. Run the pre-request script.
+5. Send HTTP.
+6. Evaluate captures.
+7. Run the post-response script.
+8. Evaluate declarative assertions.
+9. Run scripted tests.
+
+Tests run whenever a response exists, including after HTTP, capture, post, or
+assertion failures. Pre and transport failures leave tests unevaluated. Use
+`scripts.post` for mutations. Tests read the final prepared request, response,
+environment, RunScope, and applicable final-URL cookies through `noodle.*`;
+crypto, random, time, and captured `console` helpers remain available. State
+mutators fail, response JSON is frozen, and tests cannot persist values.
+
+## Synchronous execution and limits
+
+The existing QuickJS limits apply, including a 500 ms script deadline, 32 MiB
+runtime memory, 256 KiB source/matcher values and retained test records, depth 32
+JSON values, and the lazy 5 MiB response text limit. Callbacks returning a
+Promise or thenable fail with `async tests are not supported`; pending jobs
+never execute. Resource limits stop the group while keeping completed results.
+
+## Results and failures
+
+Results add `tests: { evaluated, results, logs, error? }`. Each ordered result
+contains `name`, `passed`, `message`, and `durationMs`; `error` describes a
+separate top-level script failure. Known secrets are redacted from names,
+messages, errors, and logs, including before error cleanup and truncation.
+Oversized diagnostics are replaced with `[TRUNCATED]` instead of retaining a
+partial secret. Failed tests or a script error add failure category
+`test` and make automation exit nonzero. A request succeeds only when HTTP
+status is below 400, all captures and pre/post scripts succeed, all declarative
+assertions pass, and all scripted tests pass. Returning early from a conditional
+test does not override an HTTP or other execution failure.
+
+Collection summaries add `testPasses`, `testFailures`, and `testScriptErrors` when tests are present; fail-fast waits
+for all diagnostics. Requests without tests keep their previous output.
+
+## View results
+
+Human output shows counts and concise failures. JSON includes structured results
+and redacted logs. The existing TUI Results view shows expandable scripted tests
+and logs in manual sends, Runner details, and timeline history. Manual history
+retains bounded, redacted diagnostics, with the existing 10,000-byte diagnostic
+text/log limits; it excludes test source and runtime values. There is no test
+editor, autocomplete, dedicated Console panel, or importer conversion.
+
+See [Automation](/docs/guides/automation/) for running requests and collections,
+and [Inline Scripting](/docs/guides/pre-request-scripting/) for request preparation
+and response mutations.

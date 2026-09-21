@@ -208,6 +208,10 @@ export default defineConfig({
               slug: "docs/guides/pre-request-scripting",
             },
             {
+              label: "Scripted Tests",
+              slug: "docs/guides/scripted-tests",
+            },
+            {
               label: "Script Cookbook",
               slug: "docs/guides/script-cookbook",
             },

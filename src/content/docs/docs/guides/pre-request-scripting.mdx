@@ -37,7 +37,9 @@ Use [captures](/docs/guides/automation/#pass-response-values-forward) to pass
 response values forward and
 [assertions](/docs/guides/automation/#put-success-criteria-beside-the-request)
 to check a response. Those jobs do not need scripting. Use `scripts.post` for
-conditional processing after captures and before assertions.
+conditional processing after captures and before assertions. Use
+[Scripted Tests](/docs/guides/scripted-tests/) for programmable response checks
+with `test()` and `expect()` after assertions.
 
 ## Add a pre-request script
 
@@ -79,12 +81,12 @@ The sandbox exposes the following APIs:
 | --- | --- |
 | `noodle.request` | Read the prepared request; mutate it in pre only |
 | `noodle.env` | Read the selected-environment snapshot |
-| `noodle.run` | Read, set, or remove RunScope values, with optional persistence |
+| `noodle.run` | Read RunScope values; pre/post may set or remove them, with optional persistence |
 | `noodle.crypto` | Create SHA-256, HMAC-SHA256, and random-byte values |
 | `noodle.random` | Bounded English test-data generators with per-invocation seeds |
 | `noodle.time` | Timestamps, ISO parsing, timezone formatting, and elapsed durations |
-| `noodle.response` | Post only: status, status text, timing, headers, text, and cached JSON |
-| `noodle.cookies` | Post only, when available: final-URL-scoped get/set/delete |
+| `noodle.response` | Post and tests: status, status text, timing, headers, text, and cached JSON |
+| `noodle.cookies` | Final-URL-scoped get/set/delete in post; read-only get in tests, when available |
 | `console` | Record bounded `log`, `info`, `warn`, and `error` messages |
 
 See the
@@ -97,12 +99,14 @@ Every manual send, `request run`, `collection run`, and TUI Runner request uses
 the same order:
 
 1. Apply folder overrides.
-2. Substitute environment and current RunScope variables.
-3. Run `scripts.pre`.
-4. Send the prepared request.
-5. Evaluate captures.
-6. Run post against the response and committed captures.
-7. Evaluate assertions, including after post failure.
+2. Resolve the environment and current RunScope values.
+3. Substitute request variables.
+4. Run `scripts.pre`.
+5. Send the prepared request.
+6. Evaluate captures.
+7. Run post against the response and committed captures.
+8. Evaluate assertions, including after post failure.
+9. Run request-level `tests`, including after HTTP, capture, post, or assertion failure.
 
 Pre stages request and RunScope mutations until complete success. If pre throws
 or exceeds a limit, Noodle discards its changes and does not send HTTP.
@@ -128,8 +132,9 @@ but not transport failures or intermediate redirects/authentication challenges.
 Request readers reflect the final prepared HTTP leg after signing and
 cookie/header preparation; every request mutator throws a read-only API error.
 Post failure discards only its staged RunScope/cookie changes, preserving the
-response, captures, earlier writes, and logs. Assertions still run. Successful
-post values reach later collection requests even when assertions fail.
+response, captures, earlier writes, and logs. Assertions and scripted tests
+still run. Successful post values reach later collection requests even when
+assertions fail.
 
 `noodle.response` exposes `status`, `statusText`, `timeMs`, case-insensitive
 `headers.get/has`, lazy `text()`, and cached `json()`. Missing headers return
