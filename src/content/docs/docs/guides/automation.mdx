@@ -19,7 +19,7 @@ order.
 - [Run collections](/docs/guides/collection-runner/) with request targets,
   folders, tags, fail-fast execution, or the TUI Runner.
 - [Prepare requests](/docs/guides/pre-request-scripting/) with a
-  synchronous sandboxed script when declarative fields are not enough.
+  synchronous or async sandboxed script when declarative fields are not enough.
 - [Capture values](/docs/guides/captures/) from one response and reuse
   them in later requests.
 - [Assert behavior](/docs/guides/assertions/) against status,
@@ -289,7 +289,7 @@ jobs:
 
       - name: Install Noodle
         env:
-          NOODLE_VERSION: v0.9.2
+          NOODLE_VERSION: v0.9.3
         run: |
           curl -fsSL "https://raw.githubusercontent.com/wilfredinni/noodle/$NOODLE_VERSION/scripts/install.sh" -o "$RUNNER_TEMP/noodle-install.sh"
           bash "$RUNNER_TEMP/noodle-install.sh"
@@ -306,7 +306,7 @@ jobs:
           noodle collection run ./my-api --env ci --fail-fast
 ```
 
-The installer pins Noodle to `v0.9.2` and verifies its binary checksum. Change
+The installer pins Noodle to `v0.9.3` and verifies its binary checksum. Change
 that version deliberately when upgrading the workflow. The Actions secret
 supplies the declared `API_TOKEN` through the process environment, so this
 example needs no interactive keyring. Cookies are disabled because this bearer

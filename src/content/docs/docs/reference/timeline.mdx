@@ -63,8 +63,8 @@ TUI Runner do not create timeline entries.
 | `request` | object | Snapshot of the request at send time |
 | `response` | object | Response data (present on success) |
 | `error` | object | Error data (present on failure, instead of `response`) |
-| `scripts` | object | Optional bounded, redacted pre/post diagnostics and persistence outcomes |
-| `tests` | object | Optional bounded, redacted scripted-test results, logs, and group error |
+| `scripts` | object | Optional bounded, redacted pre/post diagnostics, persistence outcomes, origins, and child-call summaries |
+| `tests` | object | Optional bounded, redacted scripted-test results, logs, block errors, and origins |
 
 ### Response Fields
 
@@ -85,14 +85,19 @@ TUI Runner do not create timeline entries.
 
 The optional `scripts: { evaluated, results }` group keeps executed phases in
 pre/post order, including status, duration, redacted logs/errors, and persistence
-outcomes. Timeline details render these with the same expandable Results rows.
+outcomes. Inherited blocks include collection-relative source paths. Child calls
+retain concise summaries without bodies or separate timeline entries. Timeline
+details render these with the same expandable Results rows.
 Individual diagnostic text and combined serialized logs are capped at 10,000
 bytes with `[TRUNCATED]` markers. Script source, capture results, and RunScope
 values are excluded. Legacy entries without diagnostics remain readable.
 
-Scripted tests use an optional `tests: { evaluated, results, logs, error? }`
+Scripted tests use an optional `tests: { evaluated, results, logs, error?, errors? }`
 group. Each result retains `name`, `passed`, `message`, and `durationMs`, including
-completed tests before a later script error. The same text and log bounds apply.
+completed tests before a later script error. Optional `source` labels identify
+the originating collection, folder, or request file. `errors` retains all block
+errors and legacy `error` remains the first error. The same text and log bounds
+apply.
 Historical Results shows expandable test rows and group diagnostics. Test source
 and runtime values are excluded. See [Scripted Tests](/docs/guides/scripted-tests/).
 

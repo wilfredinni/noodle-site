@@ -62,7 +62,9 @@ A transient capture is shared only within one collection run. If a second manual
 send cannot find it, use explicit persistence or run both requests together.
 See [Captures](/docs/guides/captures/) and [Response assertions](/docs/guides/assertions/).
 For script errors, check the source location and [Script API limits](/docs/reference/script-api/#sandbox-limits).
-Promises, network calls, imports, and timers are unsupported inside scripts.
+Pre/post support top-level await and request calls through `noodle.runRequest`
+and `noodle.sendRequest`. Await each call; overlapping calls and unfinished
+work fail the script. Raw fetch, imports, and timers remain unavailable.
 
 ## CI or the Runner reports failure
 

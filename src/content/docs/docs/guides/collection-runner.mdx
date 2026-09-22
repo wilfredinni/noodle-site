@@ -14,7 +14,8 @@ Save pending request and folder changes before starting.
 3. Choose the environment. Add **Include** or **Exclude** tags to narrow the selection.
 4. Enable **Fail-fast** if later requests should stop after a failure. Set a delay
    in milliseconds if the API needs time between requests.
-5. Choose **Run** to start. Inspect the ordered results as they arrive.
+5. Optionally enter a CSV or JSON **Data file** path and check the iteration count.
+6. Choose **Run** to start. Inspect the ordered results as they arrive.
 
 A folder's context menu opens the Runner scoped to that folder. Selection uses
 collection order. Within each directory, folders come first, ordered by their
@@ -58,3 +59,53 @@ noodle collection run ./my-api --env development
 Use [CLI automation and CI](/docs/guides/automation/) for targets, tags, JSON
 output, exit statuses, and GitHub Actions. Add [response assertions](/docs/guides/assertions/)
 to make a run check behavior rather than just send HTTP requests.
+
+
+## CSV and JSON iteration data
+
+```bash
+noodle collection run ./my-api --data ./data/users.csv
+noodle collection run ./my-api users/ --data ./data/users.json --tag smoke --delay 100 --fail-fast --json
+```
+
+`--data` is optional and independent of the `--json` output flag. In F5, enter
+the optional **Data file** path, check the iteration count, and select **Run**.
+Relative CLI paths start at the current directory; relative F5 paths start at
+the collection root. Both accept absolute paths. The F5 field also completes
+paths and accepts `@/` for your home directory. F5 revalidates at run start.
+The path and results are temporary Runner options.
+
+CSV uses a header row as variable names and keeps cells as strings, including
+quoted commas and multiline fields; a UTF-8 BOM is accepted. JSON requires a
+non-empty array of objects and preserves JSON value types:
+
+```json
+[{ "user_id": 1, "active": true }, { "user_id": 2, "active": false }]
+```
+
+The entire file is validated before requests are sent. Empty files, invalid or
+unsafe variable names, duplicate CSV headers, and inconsistent CSV rows fail.
+Names use letters, digits, or underscores. Limits are 5 MiB per file, 1,000
+rows, and 10,000 selected request executions. Rows must fit the existing
+256 KiB/depth-32 bridge limits, including the iteration wrapper.
+
+Each row runs every selected request in collection order. Its variables
+override environment values for `$name` substitution and `noodle.run.get`;
+successful captures and scripts can replace them during that iteration.
+`noodle.env.get` continues to read the original environment snapshot.
+`noodle.iteration` is deeply read-only `{ index, count, data }`, with zero-based
+`index` and the original row in `data`. It is `null` without data and is shared
+with child requests. JavaScript objects in `data` retain their JSON types.
+
+Each row starts with fresh variables and an in-memory copy of the same initial
+cookie jar. Cookies change within that row only and are never persisted.
+Fail-fast skips every remaining request and row. Delay applies between all
+consecutive executions, including row boundaries. Results, skips, and details
+carry zero-based `iteration`; the collection result adds `iterations`. F5 groups
+results by iteration and counts progress across all executions. Human labels
+show iteration numbers starting at one. Datasets themselves are not included
+in results or history.
+
+Exit codes remain `0` for success, `1` for execution/response validation failure,
+and `2` for configuration or invalid data. Without `--data`, behavior and result
+shapes remain unchanged.

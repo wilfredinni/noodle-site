@@ -205,7 +205,8 @@ in collection order. Folder targets include descendants.
 | `--tag <tag>` | No include filter | Repeatable; every include tag must match |
 | `--exclude-tag <tag>` | No exclude filter | Repeatable; any matching tag excludes |
 | `--fail-fast` | `false` | Skip remaining selected requests after a failure |
-| `--delay <milliseconds>` | `0` | Wait between selected requests; non-negative safe integer |
+| `--delay <milliseconds>` | `0` | Wait between selected requests, including iteration boundaries; non-negative safe integer |
+| `--data <file.csv\|file.json>` | No data | Validate the file and run selected requests once per row |
 | `--noproxy` | `false` | Force direct connections for this invocation |
 | `--insecure` | `false` | Disable TLS certificate verification for this invocation |
 | `--json` | `false` | Write a JSON result envelope |
@@ -296,3 +297,6 @@ noodle cookie clear [--collection <dir>] [--json]
 `--collection` defaults to `./collections`. `list` includes live cookie values,
 grouped by domain. `clear` empties the collection jar. Use the [Cookies guide](/docs/guides/cookies/)
 for the TUI and storage behavior.
+
+See [CSV/JSON iteration data](/docs/guides/collection-runner/#csv-and-json-iteration-data)
+for formats, path resolution, limits, variable/cookie isolation, and result metadata.

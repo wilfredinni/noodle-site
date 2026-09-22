@@ -11,7 +11,7 @@ and the `expect()` matchers. Script YAML belongs in [Collection YAML](/docs/refe
 
 ## Execution and phases
 
-Script source is never variable-substituted. Pre runs synchronously
+Script source is never variable-substituted. Pre completes
 after folder overrides and one substitution pass, but before HTTP. Request and
 RunScope changes are staged and all are discarded on an uncaught script
 failure. On complete success, request mutations apply only to the in-memory
@@ -34,6 +34,32 @@ persistence remains manual/`request run` only and still applies after later
 post/assertion failures. Script writes are transient unless they explicitly
 request persistence on a manual send or `request run`.
 
+
+## Inherited scripts and tests
+
+Declare inline `scripts.pre`, `scripts.post`, and `tests` in collection
+`settings.yml`, nested `folder.yml`, or request YAML. Each phase accumulates
+blocks in this order: collection, outer folders, inner folders, request.
+An empty block is a no-op and does not disable inherited blocks.
+
+Every block has a fresh QuickJS invocation. JavaScript locals are isolated;
+successful RunScope writes are visible to later blocks. A pre failure stops
+remaining pre blocks and HTTP. A post failure rolls back only that block and
+continues later posts, assertions, and tests. A top-level test error stops only
+its block. Successful persistence intents keep execution order; collection
+runs and F5 suppress persistence as before. Saved `noodle.runRequest()` calls
+use the same inheritance and cycle protections.
+
+Inherited diagnostics include optional `source: { scope, path }`, where scope
+is `collection`, `folder`, or `request` and path is collection-relative.
+Tests also expose `errors` for multiple block errors; legacy `error` remains
+the first error. CLI, Results, and history show origins without retaining source
+code. Script logs and errors retain the existing redaction and size limits.
+
+Inherited blocks share a 64 KiB console-text budget and a 256 KiB test-record
+budget per request. Logs become `[TRUNCATED]` at the limit; exhausted test
+records produce a test script error, and later blocks are still invoked.
+
 ## API overview
 
 Noodle APIs are properties of the frozen, null-prototype `noodle` global.
@@ -47,6 +73,7 @@ API accesses with `noodle.`; the old bare API globals are unavailable.
 | `noodle.request.params` | `get(name)`, `getAll(name)`, `set(name, value)`, `append(name, value)`, `delete(name)` |
 | `noodle.request.body` | `text()`, `json()`, `setText(value)`, `setJson(value)`, `clear()` |
 | `noodle.request.auth` | `clear()`, `setBearer(token)`, `setBasic(username, password)`, `setApiKey(key, value, placement)` |
+| `noodle.iteration` | Read-only `{ index, count, data }` for a dataset row, otherwise `null`; shared with children |
 | `noodle.env` | `get(name)` |
 | `noodle.run` | `get(name)`, `set(name, value, options?)`, `unset(name, options?)`; options: `{ persist: "environment" \| "secret" }` |
 | `noodle.crypto` | `sha256(value, encoding)`, `hmacSha256(secret, value, encoding)`, `randomBytes(size, encoding)` |
@@ -326,7 +353,11 @@ fixed limits:
 
 | Limit | Value |
 | --- | ---: |
-| Execution deadline | 500 ms |
+| VM execution across resumptions | 500 ms |
+| Wall time including child calls | 30 seconds, bounded by ancestor deadline |
+| Script-initiated calls per top-level request | 10 |
+| Child nesting levels | 4 |
+| Outstanding calls per script | 1 |
 | QuickJS runtime memory | 32 MiB |
 | QuickJS stack | 512 KiB |
 | UTF-8 source | 256 KiB |
@@ -339,9 +370,10 @@ fixed limits:
 | Console serialization depth | 4 |
 
 The shared WASM memory is fixed at 64 MiB. Bun, process, filesystem, shell,
-network, timer, worker, module-loader, and other host APIs are absent. Static
-and dynamic imports, returned Promises, queued jobs, and other async execution
-are unsupported. Bridged objects must be plain or null-prototype JSON without
+raw network, timer, worker, module-loader, and other host APIs are absent.
+Top-level await and Promises are supported through controlled VM jobs; use only
+`noodle.runRequest` and `noodle.sendRequest` for network operations in pre/post.
+Imports and background work remain unsupported. Bridged objects must be plain or null-prototype JSON without
 cycles, unsafe keys, non-finite numbers, or unsupported members.
 
 Treat collections containing scripts as trusted code. `noodle.env.get` can read
@@ -367,3 +399,70 @@ logs, errors, and persistence outcomes; diagnostic text and combined serialized
 logs are limited to 10,000 bytes with `[TRUNCATED]` markers. Script source,
 capture results, and RunScope values are excluded. Successful manual request
 snapshots reflect prepared request mutations. Automation does not create history.
+
+## Async scripts and request chaining
+
+Existing synchronous scripts and helpers keep working. Pre and post also accept
+top-level `await`. Network operations return Promises; await every call before
+the script finishes. Tests accept async callbacks and top-level await, but
+remain read-only and cannot call either network API.
+
+| Method | Behavior |
+| --- | --- |
+| `await noodle.runRequest(id)` | Runs an exact saved request ID in the current collection snapshot, including folder overrides, scripts, captures, assertions, and tests. Use `auth/login`, without `.yml`. Invalid, missing, cross-collection, and recursive IDs fail. |
+| `await noodle.sendRequest(options)` | Sends literal script values. Required `url`; optional `method` (default `GET`), string-valued `headers`, string `body`, and non-negative integer `timeout` in milliseconds. Use `JSON.stringify` and an explicit Content-Type for JSON. No additional variable substitution occurs. |
+
+Both return a frozen response with `status`, `statusText`, `timeMs`,
+case-insensitive `headers.get/has`, and synchronous `text()`/`json()` readers.
+Readers use the same 5 MiB UTF-8 limit as `noodle.response`; JSON is frozen.
+Saved responses also expose bounded `execution` diagnostics. Validation,
+transport, and HTTP status 400 or higher reject the call. Saved calls also
+reject on script, capture, assertion, or test failures. Catch the error to read
+`failureCategories`, `execution`, and `response` when available.
+
+```js
+const login = await noodle.runRequest("auth/login")
+const token = login.json().token
+noodle.run.set("TOKEN", token)
+noodle.request.headers.set("Authorization", `Bearer ${token}`)
+const profile = await noodle.sendRequest({
+  url: "https://api.example.com/me",
+  headers: { Authorization: `Bearer ${token}` },
+})
+noodle.run.set("USER_ID", profile.json().id)
+```
+
+Children see the parent's staged RunScope writes. Successful child captures and
+script writes immediately become available to the parent and subsequent child
+calls. Failed children discard their variable changes. The enclosing script
+commits the combined changes only when it succeeds; the latest successful
+write wins. Known secrets remain registered for redaction after rollback.
+The current request was substituted before pre: use request setters to apply
+new values to it. Post cannot modify the completed request.
+
+Child persistence instructions are reported as `transient`. To persist a
+selected result from a manual send or `request run`, explicitly call
+`noodle.run.set("TOKEN", token, { persist: "secret" })` in the parent. Collection
+runs and the TUI Runner suppress all persistence. HTTP effects, received cookies,
+and successful child cookie edits cannot be undone by variable rollback;
+parent cookie edits remain staged until that parent invocation succeeds.
+
+Calls inherit collection proxy, TLS, cookie, and cancellation policies. Direct
+calls do not copy the parent's credentials or headers. Saved calls use their
+own authentication. Nested OAuth uses cached credentials and cannot open a browser.
+
+Only one network call may be outstanding per script. Calls can nest sequentially,
+up to four child levels and ten script-initiated calls per top-level request,
+shared across phases and descendants. Each script has a 30-second wall deadline
+including children; descendants inherit any earlier ancestor deadline. Shorter
+request timeouts still apply. The separate 500 ms VM execution budget counts all
+resumptions, excluding network waits. Unresolved Promises, pending calls at script
+completion, and limit failures stop the invocation and cancel pending work.
+There are no timers, raw `fetch`, imports, host access, or background tasks.
+
+Each script result may contain a flat `requests` list with call kind, saved ID,
+depth, method, redacted URL, HTTP status, duration, success, failure categories,
+and normalized error. Results, Runner details, CLI JSON, and concise human output
+show child calls, including caught failures. A caught failure does not fail the
+parent. Manual history retains bounded, redacted summaries without child bodies,
+variable values, or separate child timeline entries.

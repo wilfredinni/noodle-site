@@ -26,8 +26,9 @@ Keep these execution rules in mind:
   source itself is literal: read inputs with `noodle.env.get()` or `noodle.run.get()`.
 - Apply a newly generated value directly to the current request. `noodle.run.set()`
   makes it available for substitution in later requests in the same run.
-- Each script runs in a fresh synchronous sandbox. Imports, network calls,
-  filesystem access, timers, and asynchronous work are unavailable.
+- Each script runs in a fresh sandbox. Await saved or direct HTTP calls through
+  `noodle.runRequest` and `noodle.sendRequest` in pre/post. Raw fetch, imports,
+  filesystem access, timers, and background tasks are unavailable.
 - Pre failure discards its staged changes and skips HTTP. Post failure discards
   only its staged RunScope/cookie changes; the response and captures survive,
   and assertions still run. Request mutations never change saved YAML.
@@ -450,3 +451,54 @@ fallback. Use `persist: "environment"` only for intentionally public values.
 Both phases support persistent unset; secret unset removes the vault value and
 declaration. Durable ordering is pre, capture, post; storage failures appear in
 script diagnostics.
+
+## Saved requests and captured values
+
+Create `auth/login.yml` for your API's login endpoint, then use this pre script
+on a profile request. The child runs its scripts, captures, assertions, and tests.
+
+```yaml
+scripts:
+  pre: |-
+    const login = await noodle.runRequest("auth/login");
+    const token = login.json().token;
+    noodle.run.set("TOKEN", token);
+    noodle.request.headers.set("Authorization", `Bearer ${token}`);
+```
+
+Saved child captures and writes are readable with `noodle.run.get`. Later child
+calls see these and the parent's staged values. Failed children roll back their
+variables; a failed parent rolls back the combined variables. Nested persistence
+is transient. On a manual send, the parent may explicitly persist with
+`noodle.run.set("TOKEN", token, { persist: "secret" })`. Collection runs suppress
+persistence. HTTP and cookie effects cannot be rolled back.
+
+## Direct HTTP with fallback
+
+```yaml
+scripts:
+  pre: |-
+    try {
+      const profile = await noodle.sendRequest({
+        url: "https://api.example.com/me",
+        headers: { Authorization: `Bearer ${noodle.run.get("TOKEN")}` },
+        timeout: 5000,
+      });
+      noodle.run.set("USER_ID", profile.json().id);
+    } catch (error) {
+      if (!error.response || error.response.status !== 404) throw error;
+      noodle.run.set("USER_ID", "guest");
+    }
+    noodle.request.headers.set("X-User-ID", String(noodle.run.get("USER_ID")));
+```
+
+Direct values are literal, with no substitution or inherited parent credentials.
+For JSON uploads, set `method: "POST"`, `body: JSON.stringify(value)`, and
+`headers: { "Content-Type": "application/json" }`. Both call APIs throw on HTTP
+status 400 or higher, validation, or transport failures; saved calls also throw
+on failed execution diagnostics. Errors expose response and diagnostics when
+available. Caught failures remain visible in Results without failing the parent.
+
+Await calls sequentially: one outstanding call per script, ten calls per
+top-level request, four nested levels, and a 30-second ancestor-bounded wall
+deadline. See [the full contract](/docs/reference/script-api/#async-scripts-and-request-chaining).

@@ -1,0 +1,140 @@
+---
+title: "Noodle 0.9.3: Scripted Tests and Data Runs"
+description: Test responses with JavaScript and JSON Schema, chain HTTP calls, share scripts across folders, and repeat requests with CSV or JSON data.
+date: 2026-09-22
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+Noodle 0.9.3 brings response tests, request chaining, and repeated data runs to
+the same YAML collections you use for manual requests. Scripts and tests can
+now live at collection or folder level, so common preparation and checks do
+not need to be copied into every request.
+
+## Check more than one value
+
+The new inline `tests` field runs after declarative assertions. Use `test` to
+name a check and `expect` to describe what should hold:
+
+```yaml
+tests: |-
+  test("user response matches its contract", () => {
+    expect(noodle.response.status).toBe(200);
+    expect(noodle.response.json()).toMatchSchema({
+      type: "object",
+      required: ["id", "email"],
+      properties: {
+        id: { type: "integer" },
+        email: { type: "string", format: "email" }
+      }
+    });
+  });
+```
+
+Matchers cover equality, containment, regular expressions, numeric comparisons,
+literal properties, lengths, types, partial objects, and JSON Schema draft-07.
+Each supports `.not`. Schema compilation and validation stay inside the
+sandbox, with standard formats and local references. They do not coerce
+values, apply defaults, or fetch external schemas.
+
+Callbacks can be synchronous or async. Results retain declaration order, and
+a failed check does not prevent later tests from running. Tests read the final
+request, response, and run variables; they cannot mutate state or send HTTP.
+Failed tests and top-level test errors make automation exit nonzero and count
+toward fail-fast. Simple contracts can keep using declarative `assert`.
+
+## Await another request
+
+Pre and post scripts now support top-level `await`. Call a saved request with
+`noodle.runRequest`, then use its response to prepare the current request:
+
+```yaml
+scripts:
+  pre: |-
+    const login = await noodle.runRequest("auth/login");
+    const token = login.json().token;
+    noodle.run.set("TOKEN", token);
+    noodle.request.headers.set("Authorization", `Bearer ${token}`);
+```
+
+This example expects an existing `auth/login.yml` that returns a token. Saved
+calls run their own scripts, captures, assertions, and tests. For a literal
+HTTP call, use `noodle.sendRequest` with a URL and optional method, headers,
+body, or timeout.
+
+Successful child variables reach the parent, and the combined changes commit
+only when the enclosing script succeeds. Child persistence stays transient.
+HTTP effects and received cookies cannot be undone by variable rollback.
+The current request has already passed substitution, so apply newly obtained
+values with request setters as shown above.
+
+Await each call before starting another. Calls share a limit of ten per
+top-level request and four child levels, with cancellation and ancestor wall
+deadlines. The 500 ms VM execution budget excludes network waiting; each
+invocation has a 30-second wall limit. Raw fetch, timers, imports, and background
+work remain unavailable.
+
+## Share setup and checks
+
+Put common `scripts.pre`, `scripts.post`, or `tests` in collection
+`settings.yml` or a nested `folder.yml`. Every phase runs collection blocks,
+then outer-to-inner folder blocks, then the request block.
+
+Each block has a fresh sandbox. Share values through `noodle.run`, since
+JavaScript locals do not cross blocks. Empty blocks do not disable inherited
+ones. A pre failure stops the send; post and top-level test errors retain later
+blocks, with each error linked to its originating file.
+
+## Repeat a selection for each data row
+
+Pass a CSV or JSON dataset to the CLI:
+
+```bash
+noodle collection run ./my-api users/ --data ./data/users.json --fail-fast --json
+```
+
+A JSON file contains a non-empty array of objects:
+
+```json
+[{ "user_id": 1, "active": true }, { "user_id": 2, "active": false }]
+```
+
+Each row runs the selected requests in collection order. Row values override
+environment variables for substitution and remain typed in JSON; CSV cells
+are strings. Scripts and tests can read the original row through the frozen
+`noodle.iteration` object, alongside its zero-based index and total count.
+
+Every row starts with fresh variables and an in-memory copy of the initial
+cookie jar. Changes flow between requests within that row and disappear before
+the next row starts. The whole file is validated before HTTP, with limits of
+5 MiB, 1,000 rows, and 10,000 selected request executions.
+
+In the **F5 Runner**, use the **Data file** field, path completion, and iteration
+preview before choosing **Run**. CLI relative paths start at your current
+directory; Runner relative paths start at the collection root. Results group
+requests by iteration, and delay and fail-fast apply across row boundaries.
+
+## Follow the result back to its source
+
+Results, Runner details, CLI output, and manual history now include test
+outcomes, inherited source labels, and child-call summaries. Diagnostics stay
+bounded and redact known secrets; history excludes child bodies, script
+source, and runtime values.
+
+Test names and durations stay aligned as the pane resizes. Top-level test
+errors remain visible even when every completed test passed, with all block
+errors available in expanded details. URL credential and sensitive-query
+redaction also preserves valueless query parameter names.
+
+The updated `noodle-use` skill documents authoring and automation, while
+`noodle-dev` covers the shared lifecycle and regression checks. Start with
+[Scripted Tests](/docs/guides/scripted-tests/),
+[Inline Scripting](/docs/guides/pre-request-scripting/), or the
+[Collection Runner](/docs/guides/collection-runner/) guide for complete examples
+and limits.

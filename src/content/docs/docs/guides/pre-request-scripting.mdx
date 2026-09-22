@@ -3,7 +3,7 @@ title: Inline scripting
 description: Prepare requests and process responses with bounded JavaScript in Noodle’s shared lifecycle.
 ---
 
-Inline scripts handle synchronous preparation and conditional response
+Inline scripts handle synchronous or async preparation and conditional response
 processing that saved fields, variables, and captures cannot express. Use pre
 for signatures, timestamps, test data, and request mutations; use post to process
 a completed response after captures and before assertions.
@@ -106,7 +106,7 @@ the same order:
 6. Evaluate captures.
 7. Run post against the response and committed captures.
 8. Evaluate assertions, including after post failure.
-9. Run request-level `tests`, including after HTTP, capture, post, or assertion failure.
+9. Run inherited and request `tests`, including after HTTP, capture, post, or assertion failure.
 
 Pre stages request and RunScope mutations until complete success. If pre throws
 or exceeds a limit, Noodle discards its changes and does not send HTTP.
@@ -246,10 +246,13 @@ for the complete Results workflow.
 
 ## Sandbox and trust boundary
 
-Each invocation receives a fresh synchronous QuickJS runtime and context with
-fixed time, memory, stack, source, bridge, crypto, and console limits. Imports,
-Bun and process APIs, filesystem and shell access, network access, timers,
-workers, Promises, and queued asynchronous work are unavailable.
+Each invocation receives a fresh QuickJS runtime and context. Synchronous code,
+Promises, and top-level await use the same sandbox. Network calls use only
+`noodle.runRequest` and `noodle.sendRequest` in pre/post. Imports, Bun/process
+APIs, filesystem/shell access, raw fetch, timers, workers, and background tasks
+are unavailable. VM execution is limited to 500 ms across resumptions, with a
+30-second wall deadline including child calls. See the
+[full limits and transaction rules](/docs/reference/script-api/#async-scripts-and-request-chaining).
 
 Treat every scripted collection as code you trust. `noodle.env.get` can read a secret
 from the selected environment, and a script can place that value in the URL,
@@ -258,3 +261,52 @@ running the collection.
 
 For CI, fail-fast, structured output, captures, and assertions around scripted
 requests, continue with [Automation](/docs/guides/automation/).
+
+## Call another request
+
+```yaml
+scripts:
+  pre: |-
+    const login = await noodle.runRequest("auth/login");
+    const token = login.json().token;
+    noodle.run.set("TOKEN", token);
+    noodle.request.headers.set("Authorization", `Bearer ${token}`);
+```
+
+Create `auth/login.yml` first. The call runs its complete lifecycle and exposes
+its captures and script writes through `noodle.run.get`. The parent commits the
+combined variables only on success. The request already passed substitution,
+so use explicit setters for the current request. Nested persistence is suppressed;
+the parent can explicitly persist selected values. Received cookies and HTTP
+effects survive variable rollback.
+
+For direct HTTP and caught failures, see the
+[chaining recipes](/docs/guides/script-cookbook/#saved-requests-and-captured-values).
+Child summaries appear in expandable Results rows, Runner details, CLI output,
+and bounded manual history, including failures handled by `try/catch`.
+
+
+## Inherited scripts and tests
+
+Declare inline `scripts.pre`, `scripts.post`, and `tests` in collection
+`settings.yml`, nested `folder.yml`, or request YAML. Each phase accumulates
+blocks in this order: collection, outer folders, inner folders, request.
+An empty block is a no-op and does not disable inherited blocks.
+
+Every block has a fresh QuickJS invocation. JavaScript locals are isolated;
+successful RunScope writes are visible to later blocks. A pre failure stops
+remaining pre blocks and HTTP. A post failure rolls back only that block and
+continues later posts, assertions, and tests. A top-level test error stops only
+its block. Successful persistence intents keep execution order; collection
+runs and F5 suppress persistence as before. Saved `noodle.runRequest()` calls
+use the same inheritance and cycle protections.
+
+Inherited diagnostics include optional `source: { scope, path }`, where scope
+is `collection`, `folder`, or `request` and path is collection-relative.
+Tests also expose `errors` for multiple block errors; legacy `error` remains
+the first error. CLI, Results, and history show origins without retaining source
+code. Script logs and errors retain the existing redaction and size limits.
+
+Inherited blocks share a 64 KiB console-text budget and a 256 KiB test-record
+budget per request. Logs become `[TRUNCATED]` at the limit; exhausted test
+records produce a test script error, and later blocks are still invoked.

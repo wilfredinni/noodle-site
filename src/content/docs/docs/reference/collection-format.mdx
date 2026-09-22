@@ -98,7 +98,8 @@ Noodle synchronizes these entries with URL tokens when you edit the URL.
 
 ### Sandboxed Pre-request Script
 
-Declare inline pre-request and post-response scripts in request YAML. Start with
+Declare inline pre-request and post-response scripts in request YAML, collection
+`settings.yml`, or nested `folder.yml`. Start with
 [Inline scripting](/docs/guides/pre-request-scripting/) for a walkthrough.
 
 An optional `scripts` mapping accepts string-valued `pre` and/or `post` members.
@@ -149,7 +150,7 @@ Tests run after declarative assertions whenever HTTP produced a response.
 Use global `test(name, callback)` and `expect(actual)` with read-only `noodle.*`
 readers. Failed callbacks remain individually ordered; a top-level error stops
 the script and retains completed results. Test failures use category `test`.
-Results use `tests: { evaluated, results, logs, error? }`, separately from pre/post
+Results use `tests: { evaluated, results, logs, error?, errors? }`, separately from pre/post
 `scripts`. Each named result contains `name`, `passed`, `message`, and `durationMs`.
 
 See [Scripted Tests](/docs/guides/scripted-tests/) for all matchers, `.not`,
@@ -491,6 +492,34 @@ auth:
 | `tags`      | array  | no       | Suite tags inherited by descendants          |
 | `headers`   | map    | no       | Inherited headers (merge additively)         |
 | `auth`      | object | no       | Inherited auth                               |
+| `scripts` | object | no | Inline `pre` and/or `post` blocks, accumulated in ancestor order |
+| `tests` | string | no | Inline tests accumulated in ancestor order |
+
+
+### Inherited scripts and tests
+
+Declare inline `scripts.pre`, `scripts.post`, and `tests` in collection
+`settings.yml`, nested `folder.yml`, or request YAML. Each phase accumulates
+blocks in this order: collection, outer folders, inner folders, request.
+An empty block is a no-op and does not disable inherited blocks.
+
+Every block has a fresh QuickJS invocation. JavaScript locals are isolated;
+successful RunScope writes are visible to later blocks. A pre failure stops
+remaining pre blocks and HTTP. A post failure rolls back only that block and
+continues later posts, assertions, and tests. A top-level test error stops only
+its block. Successful persistence intents keep execution order; collection
+runs and F5 suppress persistence as before. Saved `noodle.runRequest()` calls
+use the same inheritance and cycle protections.
+
+Inherited diagnostics include optional `source: { scope, path }`, where scope
+is `collection`, `folder`, or `request` and path is collection-relative.
+Tests also expose `errors` for multiple block errors; legacy `error` remains
+the first error. CLI, Results, and history show origins without retaining source
+code. Script logs and errors retain the existing redaction and size limits.
+
+Inherited blocks share a 64 KiB console-text budget and a 256 KiB test-record
+budget per request. Logs become `[TRUNCATED]` at the limit; exhausted test
+records produce a test script error, and later blocks are still invoked.
 
 ### Inheritance
 
@@ -532,6 +561,8 @@ tls:
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | `collection_id` | UUID string | Generated credential-vault namespace. Preserve it when moving a collection; do not copy it into another collection. |
+| `scripts` | object | Optional inline `pre` and/or `post` blocks that run before descendant blocks in each phase. |
+| `tests` | string | Optional inline tests that run before descendant test blocks. |
 | `name` | string | Optional display name; defaults to the collection directory name. |
 | `description` | string | Optional collection notes. |
 | `timeline_max_entries` | non-negative integer | Per-request history retention. Defaults to `50`; `0` disables recording. |

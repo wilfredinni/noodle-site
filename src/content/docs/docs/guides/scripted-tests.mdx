@@ -1,6 +1,6 @@
 ---
 title: Scripted tests
-description: Write synchronous response tests with test(), expect(), conditional checks, and JSON matchers.
+description: Write synchronous or async response tests with test(), expect(), conditional checks, and JSON matchers.
 ---
 
 Use [declarative `assert`](/docs/guides/assertions/)
@@ -24,12 +24,13 @@ tests: |
 
 ## Request schema and test declarations
 
-`test(name, callback)` runs synchronously and keeps declaration order, including
-duplicate names. Names must be non-empty strings and callbacks must be functions.
-A failed matcher or callback fails that test and later tests continue. A
-top-level error stops the script but preserves completed results. Empty source is a successful no-op. `tests` must be
-an inline string; file paths, inherited tests, modules, Promises, thenables, and
-queued asynchronous work are unsupported. Source is never variable-substituted.
+`test(name, callback)` invokes callbacks immediately and awaits returned Promises
+or thenables before finalizing results. Results retain declaration order, including
+duplicate names. Names must be non-empty strings. A failed matcher or callback
+fails that test and later tests continue. A top-level error stops the script but
+preserves completed results. Empty source is a successful no-op. `tests` must be
+an inline string; file paths and modules are unsupported.
+Source is never variable-substituted. Network APIs and state mutations are unavailable.
 Omit `tests` to keep the existing request behavior and output; a non-string
 `tests` value is invalid.
 Canonical YAML serialization preserves source whitespace in a literal block.
@@ -56,6 +57,11 @@ Type errors fail even with `.not`:
 | `toBeGreaterThanOrEqual(expected)` | Finite number greater than or equal to expected |
 | `toBeLessThan(expected)` | Finite number strictly less than expected |
 | `toBeLessThanOrEqual(expected)` | Finite number less than or equal to expected |
+| `toMatchSchema(schema)` | JSON Schema draft-07 validation with standard formats and local references |
+| `toHaveProperty(key, expected?)` | Own literal string property, optionally compared with deep equality; dots do not traverse |
+| `toHaveLength(length)` | String or array length; expected length is a non-negative safe integer |
+| `toBeTypeOf(type)` | JavaScript `typeof`, including `object` for null; rejects invalid type names |
+| `toMatchObject(partial)` | Recursive object subset; arrays compare completely and in order |
 
 Numeric comparisons require finite numbers on both sides, without coercion.
 String containment requires a string substring; array containment compares
@@ -76,6 +82,59 @@ oversized matcher values are rejected. Deep equality requires JSON-compatible
 values; scalar `undefined` and non-finite numbers remain available to identity
 and truthiness checks. No other matchers are supported.
 
+
+## Inherited scripts and tests
+
+Declare inline `scripts.pre`, `scripts.post`, and `tests` in collection
+`settings.yml`, nested `folder.yml`, or request YAML. Each phase accumulates
+blocks in this order: collection, outer folders, inner folders, request.
+An empty block is a no-op and does not disable inherited blocks.
+
+Every block has a fresh QuickJS invocation. JavaScript locals are isolated;
+successful RunScope writes are visible to later blocks. A pre failure stops
+remaining pre blocks and HTTP. A post failure rolls back only that block and
+continues later posts, assertions, and tests. A top-level test error stops only
+its block. Successful persistence intents keep execution order; collection
+runs and F5 suppress persistence as before. Saved `noodle.runRequest()` calls
+use the same inheritance and cycle protections.
+
+Inherited diagnostics include optional `source: { scope, path }`, where scope
+is `collection`, `folder`, or `request` and path is collection-relative.
+Tests also expose `errors` for multiple block errors; legacy `error` remains
+the first error. CLI, Results, and history show origins without retaining source
+code. Script logs and errors retain the existing redaction and size limits.
+
+Inherited blocks share a 64 KiB console-text budget and a 256 KiB test-record
+budget per request. Logs become `[TRUNCATED]` at the limit; exhausted test
+records produce a test script error, and later blocks are still invoked.
+
+
+## JSON Schema validation
+
+```javascript
+test("valid user", () => {
+  expect(noodle.response.json()).toMatchSchema({
+    type: "object",
+    required: ["id", "email"],
+    properties: {
+      id: { type: "integer" },
+      email: { type: "string", format: "email" }
+    }
+  })
+})
+```
+
+`toMatchSchema(schema)` uses Ajv 8 and ajv-formats inside QuickJS. Compilation
+and validation share the invocation's CPU, memory, and stack limits. Schemas
+use draft-07 by default; explicit other dialects fail. Boolean schemas and
+local fragment references such as `#/definitions/user` are supported. Remote
+and file references, async schemas, and custom validators are unavailable.
+Validation never coerces types, applies defaults, or removes properties.
+
+`.not.toMatchSchema(schema)` passes only when valid schema validation fails.
+An invalid schema fails even under `.not`. Failure details show the first
+data path, failed keyword, and message, bounded and redacted like other tests.
+
 ## Execution order and read-only access
 
 Manual sends, `request run`, `collection run`, and the TUI Runner use this order:
@@ -83,10 +142,10 @@ Manual sends, `request run`, `collection run`, and the TUI Runner use this order
 1. Resolve folder overrides.
 2. Resolve the environment and RunScope.
 3. Substitute request values.
-4. Run the pre-request script.
+4. Run collection, folder, and request pre blocks.
 5. Send HTTP.
 6. Evaluate captures.
-7. Run the post-response script.
+7. Run collection, folder, and request post blocks.
 8. Evaluate declarative assertions.
 9. Run scripted tests.
 
@@ -97,17 +156,17 @@ environment, RunScope, and applicable final-URL cookies through `noodle.*`;
 crypto, random, time, and captured `console` helpers remain available. State
 mutators fail, response JSON is frozen, and tests cannot persist values.
 
-## Synchronous execution and limits
+## Execution and limits
 
-The existing QuickJS limits apply, including a 500 ms script deadline, 32 MiB
-runtime memory, 256 KiB source/matcher values and retained test records, depth 32
-JSON values, and the lazy 5 MiB response text limit. Callbacks returning a
-Promise or thenable fail with `async tests are not supported`; pending jobs
-never execute. Resource limits stop the group while keeping completed results.
+The existing QuickJS limits apply, including 500 ms of VM execution across
+resumptions, a 30-second wall deadline, 32 MiB runtime memory, 256 KiB
+source/matcher values and retained test records, depth 32 JSON values, and the
+lazy 5 MiB response text limit. Unresolved Promises and resource limits stop the
+group while keeping completed results.
 
 ## Results and failures
 
-Results add `tests: { evaluated, results, logs, error? }`. Each ordered result
+Results add `tests: { evaluated, results, logs, error?, errors? }`. Each ordered result
 contains `name`, `passed`, `message`, and `durationMs`; `error` describes a
 separate top-level script failure. Known secrets are redacted from names,
 messages, errors, and logs, including before error cleanup and truncation.
@@ -133,3 +192,17 @@ editor, autocomplete, dedicated Console panel, or importer conversion.
 See [Automation](/docs/guides/automation/) for running requests and collections,
 and [Inline Scripting](/docs/guides/pre-request-scripting/) for request preparation
 and response mutations.
+
+## Async callbacks
+
+```yaml
+tests: |-
+  test("has a user ID", async () => {
+    const user = await Promise.resolve(noodle.response.json());
+    expect(user.id).toBeGreaterThan(0);
+  });
+```
+
+Synchronous callbacks still execute immediately. Async callbacks settle before
+results are returned, with results kept in declaration order. Use pre/post
+scripts for HTTP calls and mutations; tests expose neither network API.
