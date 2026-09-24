@@ -1,6 +1,6 @@
 ---
 title: CLI automation and CI
-description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with inline pre/post scripts, tag suites, captures, assertions, and stable results.
+description: Run Noodle collections from scripts, CI jobs, and coding-agent workflows with pre/post scripts, tag suites, captures, assertions, and stable results.
 ---
 
 A Noodle collection does not need a second representation before it can run in
@@ -113,7 +113,7 @@ Press **F5** to select requests, configure a run, and inspect results in the [Co
 
 ## Prepare requests before HTTP with a script
 
-Use [Inline scripting](/docs/guides/pre-request-scripting/) for pre-request preparation and post-response processing. The same scripts run in the TUI and CLI. Collection runs keep script writes transient.
+Use [Scripting](/docs/guides/pre-request-scripting/) for pre-request preparation and post-response processing. Inline scripts and collection-relative JavaScript files run in the TUI and CLI. Sources for every selected request are checked before HTTP; invalid or missing sources are configuration failures (exit 2). Collection runs keep script writes transient.
 
 ## Download a response
 
@@ -289,7 +289,7 @@ jobs:
 
       - name: Install Noodle
         env:
-          NOODLE_VERSION: v0.9.3
+          NOODLE_VERSION: v0.9.4
         run: |
           curl -fsSL "https://raw.githubusercontent.com/wilfredinni/noodle/$NOODLE_VERSION/scripts/install.sh" -o "$RUNNER_TEMP/noodle-install.sh"
           bash "$RUNNER_TEMP/noodle-install.sh"
@@ -306,7 +306,7 @@ jobs:
           noodle collection run ./my-api --env ci --fail-fast
 ```
 
-The installer pins Noodle to `v0.9.3` and verifies its binary checksum. Change
+The installer pins Noodle to `v0.9.4` and verifies its binary checksum. Change
 that version deliberately when upgrading the workflow. The Actions secret
 supplies the declared `API_TOKEN` through the process environment, so this
 example needs no interactive keyring. Cookies are disabled because this bearer

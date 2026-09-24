@@ -198,7 +198,7 @@ export default defineConfig({
         {
           label: "Scripting",
           items: [
-            { label: "Inline scripting", slug: "docs/guides/pre-request-scripting" },
+            { label: "Scripting", slug: "docs/guides/pre-request-scripting" },
             { label: "Scripted tests", slug: "docs/guides/scripted-tests" },
             { label: "Script cookbook", slug: "docs/guides/script-cookbook" },
             { label: "Script API", slug: "docs/reference/script-api" },

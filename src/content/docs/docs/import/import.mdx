@@ -70,7 +70,7 @@ noodle import ./postman_collection.json --format postman
 
 Noodle preserves supported requests, folders, auth, headers, query parameters,
 body types, and collection variables. Pre-request scripts, post-response
-scripts, and tests are not imported.
+scripts, and tests are not converted; warnings identify the item and phase.
 OAuth 1.0a and OAuth 2.0 configuration map to Noodle's matching auth types;
 review imported signing methods, grant types, endpoints, and token placement.
 
@@ -82,8 +82,20 @@ noodle import ./insomnia-export.json --format insomnia
 
 Insomnia v4 and v5 JSON exports preserve supported workspaces, request groups,
 requests, environments, headers, parameters, body types, and auth. Cyclic
-request groups are skipped.
+request groups are skipped. Script warnings identify unconverted workspace,
+folder, and request hooks without exposing script source.
 Supported OAuth 1.0a and OAuth 2.0 fields map to Noodle's matching auth types.
+
+## Script warnings
+
+Postman and Insomnia scripts use foreign APIs and are not converted into Noodle
+scripts or tests. CLI output reports each warning; `noodle import ... --json`
+includes `data.warnings` with the source format, item path, phase, code, and
+message. The TUI summarizes affected items after import. Use **Ctrl+P → Show
+Last Notification** to read and scroll the message after it disappears.
+Warnings do not prevent supported requests from importing. Review and recreate
+required behavior with Noodle's [scripting APIs](/docs/guides/pre-request-scripting/)
+before running the imported collection.
 
 ## After import
 

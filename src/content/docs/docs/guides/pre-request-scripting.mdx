@@ -1,9 +1,9 @@
 ---
-title: Inline scripting
+title: Scripting
 description: Prepare requests and process responses with bounded JavaScript in Noodle’s shared lifecycle.
 ---
 
-Inline scripts handle synchronous or async preparation and conditional response
+Inline scripts and external JavaScript files handle synchronous or async preparation and conditional response
 processing that saved fields, variables, and captures cannot express. Use pre
 for signatures, timestamps, test data, and request mutations; use post to process
 a completed response after captures and before assertions.
@@ -69,9 +69,48 @@ Author scripts directly in request YAML or open the YAML editor with
 is literal and does not receive `$VARNAME` substitution.
 
 An optional `post` string can accompany `pre` or stand alone. Empty strings are
-valid no-ops; empty mappings, unknown keys, non-string sources, and standalone
-external script paths are rejected. Noodle never reads script files or inherits
-folder scripts.
+valid no-ops and are omitted when serializing YAML. Empty mappings, unknown keys,
+non-string sources, and malformed external paths are rejected.
+
+## External JavaScript files
+
+Move reusable code into `.js` files and reference them from request YAML,
+collection `settings.yml`, or a nested `folder.yml`:
+
+```yaml
+scripts:
+  pre: ./scripts/prepare.js
+  post: ./scripts/process.js
+tests: ./scripts/check-response.js
+```
+
+Paths always start at the **collection root**, even from a nested request or
+folder. A reference must begin with `./`, end with `.js`, and use forward
+slashes. Absolute paths, `..`, empty or `.` segments, backslashes, and NUL bytes
+are rejected. Files must be readable, valid UTF-8, regular files of at most
+256 KiB. Symlinks within the collection are supported; escapes are rejected.
+
+For example, `scripts/check-response.js` can contain:
+
+```js
+test("request succeeded", () => {
+  expect(noodle.response.status).toBe(200);
+});
+```
+
+A manual send or `request run` loads every applicable pre/post/test source
+before the first pre script. Collection runs and the F5 Runner preflight every
+selected request before any HTTP. Missing or invalid sources are configuration
+failures (CLI exit 2). Dynamically called saved children resolve their own
+sources before their pre scripts. Unselected requests do not block a run unless
+called this way.
+
+File reads are shared within one run, including dataset rows and saved children;
+the next manual send reads current contents. Files use the same sandbox as
+inline code, with no `import`, `require`, module loading, or filesystem access.
+You can mix file references and inline blocks. See the
+[external-script sample collection](https://github.com/wilfredinni/noodle/tree/main/collections/external-scripts)
+for preparation, response processing, inherited hooks, tests, and chaining.
 
 ## Available APIs
 
@@ -96,15 +135,15 @@ for every method, accepted value, and fixed resource limit.
 ## Execution order
 
 Every manual send, `request run`, `collection run`, and TUI Runner request uses
-the same order:
+the same order after source preflight:
 
 1. Apply folder overrides.
 2. Resolve the environment and current RunScope values.
-3. Substitute request variables.
-4. Run `scripts.pre`.
+3. Substitute request variables and [body templates](/docs/guides/using-the-request-pane/#random-and-time-body-values) once.
+4. Run pre blocks from collection to request.
 5. Send the prepared request.
 6. Evaluate captures.
-7. Run post against the response and committed captures.
+7. Run post blocks from request to collection against the response and committed captures.
 8. Evaluate assertions, including after post failure.
 9. Run inherited and request `tests`, including after HTTP, capture, post, or assertion failure.
 
@@ -288,10 +327,18 @@ and bounded manual history, including failures handled by `try/catch`.
 
 ## Inherited scripts and tests
 
-Declare inline `scripts.pre`, `scripts.post`, and `tests` in collection
-`settings.yml`, nested `folder.yml`, or request YAML. Each phase accumulates
-blocks in this order: collection, outer folders, inner folders, request.
-An empty block is a no-op and does not disable inherited blocks.
+Declare `scripts.pre`, `scripts.post`, and `tests` as inline JavaScript or
+[external file references](/docs/guides/pre-request-scripting/#external-javascript-files)
+in collection `settings.yml`, nested `folder.yml`, or request YAML.
+
+- Pre: collection → outermost folder → nearest folder → request.
+- Post, after captures: request → nearest folder → outermost folder → collection.
+- Tests, after assertions: collection → outermost folder → nearest folder → request.
+
+Post order changed in **0.9.4**. Review blocks that depend on another scope's
+writes when upgrading. Collection and folder blocks run once per request,
+including each dataset row. Root `folder.yml` is ignored. An empty block is a
+no-op and does not disable inherited blocks.
 
 Every block has a fresh QuickJS invocation. JavaScript locals are isolated;
 successful RunScope writes are visible to later blocks. A pre failure stops
@@ -301,11 +348,14 @@ its block. Successful persistence intents keep execution order; collection
 runs and F5 suppress persistence as before. Saved `noodle.runRequest()` calls
 use the same inheritance and cycle protections.
 
-Inherited diagnostics include optional `source: { scope, path }`, where scope
-is `collection`, `folder`, or `request` and path is collection-relative.
-Tests also expose `errors` for multiple block errors; legacy `error` remains
-the first error. CLI, Results, and history show origins without retaining source
-code. Script logs and errors retain the existing redaction and size limits.
+Executed blocks identify their phase, scope, scope ID, and source kind.
+`source.path` is the declaring YAML path; `source.scopeId` identifies the
+collection, folder path, or request ID. `source.sourceKind` is `inline` or
+`external`; external blocks add the collection-relative `source.sourcePath`.
+Test groups retain ordered `invocations`, including blocks declaring zero tests,
+and `errors` for multiple block errors; legacy `error` remains the first error.
+CLI, Results, and history show origins and bounded, redacted diagnostics and
+logs without retaining source code or RunScope values.
 
 Inherited blocks share a 64 KiB console-text budget and a 256 KiB test-record
 budget per request. Logs become `[TRUNCATED]` at the limit; exhausted test

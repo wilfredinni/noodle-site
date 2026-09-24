@@ -85,17 +85,19 @@ TUI Runner do not create timeline entries.
 
 The optional `scripts: { evaluated, results }` group keeps executed phases in
 pre/post order, including status, duration, redacted logs/errors, and persistence
-outcomes. Inherited blocks include collection-relative source paths. Child calls
+outcomes. Blocks include their scope ID, inline/external source kind, declaring
+YAML path, and collection-relative JavaScript path when external. Child calls
 retain concise summaries without bodies or separate timeline entries. Timeline
 details render these with the same expandable Results rows.
-Individual diagnostic text and combined serialized logs are capped at 10,000
+Individual diagnostic text and each serialized log array are capped at 10,000
 bytes with `[TRUNCATED]` markers. Script source, capture results, and RunScope
 values are excluded. Legacy entries without diagnostics remain readable.
 
-Scripted tests use an optional `tests: { evaluated, results, logs, error?, errors? }`
+Scripted tests use an optional `tests: { evaluated, results, logs, error?, errors?, invocations? }`
 group. Each result retains `name`, `passed`, `message`, and `durationMs`, including
 completed tests before a later script error. Optional `source` labels identify
-the originating collection, folder, or request file. `errors` retains all block
+the originating collection, folder, or request file. `invocations` retains
+block diagnostics even when a source declares no tests. `errors` retains all block
 errors and legacy `error` remains the first error. The same text and log bounds
 apply.
 Historical Results shows expandable test rows and group diagnostics. Test source

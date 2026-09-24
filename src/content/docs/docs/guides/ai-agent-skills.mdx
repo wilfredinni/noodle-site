@@ -43,7 +43,7 @@ Once the skill is installed, ask your agent to:
 ### Create
 
 Scaffold collections, add requests with JSON or XML bodies (including `:name`
-URL path parameters), declare sandboxed inline pre/post scripts, response
+URL path parameters), declare sandboxed inline or external pre/post scripts, response
 captures, assertions, and suite tags, set up folders with inherited tags, auth,
 and headers, create environments, and register the collection path in
 `~/.config/noodle/config.yml` so it appears in noodle's workspace switcher.
@@ -125,8 +125,8 @@ secret. Redirects that discard the body may continue. A configured request
 timeout appears as a transport failure, while caller-triggered cancellation
 continues to propagate to its owner.
 
-Agents can author synchronous or async inline `scripts.pre` and `scripts.post`
-through direct YAML edits using the frozen `noodle` namespace. Pre prepares a request;
+Agents can author synchronous or async `scripts.pre` and `scripts.post`
+inline in YAML or through collection-relative `./file.js` references using the frozen `noodle` namespace. Pre prepares a request;
 post reads the completed response after captures and before assertions, with
 optional URL-scoped cookie operations. Pre failure skips HTTP; post failure
 preserves the response/captures and still runs later post blocks, assertions,
@@ -142,6 +142,11 @@ HTTP calls with `noodle.sendRequest`. Agents can add read-only `tests` with
 descendants. See [Scripted Tests](/docs/guides/scripted-tests/) and the
 [Script API](/docs/reference/script-api/) for ordering, limits, and rollback.
 
+For generated payloads, use `$random` and `$time` body placeholders with
+JSON-literal arguments. Agents can use typed standalone JSON placeholders or
+escaped quoted text, with one substitution pass before pre scripts. See
+[body templates](/docs/guides/using-the-request-pane/#random-and-time-body-values).
+
 For repeated inputs, use `collection run --data <file>` with CSV or JSON. Each
 row gets fresh variables and a transient copy of the initial cookie jar;
 `noodle.iteration` exposes the original row to scripts and tests. The
@@ -150,7 +155,7 @@ documents validation, path resolution, and iteration results.
 
 Treat scripted collections as trusted code: `noodle.env.get` can read secrets
 and place them in the outgoing request. Prefer declarative fields, captures,
-and assertions when sufficient. See [Inline Scripting](/docs/guides/pre-request-scripting/)
+and assertions when sufficient. See [Scripting](/docs/guides/pre-request-scripting/)
 for the API migration, lifecycle, results, and storage restrictions.
 
 Agents can download original bytes with `noodle request run <id> --collection
@@ -195,8 +200,9 @@ directly supported behavior to Noodle files and report unsupported scripts,
 tests, and auth flows. Supported imports preserve XML bodies from OpenAPI,
 Swagger, Postman, and Insomnia sources. Postman dynamic, dotted, and hyphenated
 placeholders are rejected before Noodle writes an import. Noodle supports
-inline scripts and tests at request, folder, and collection level, but importers
-do not convert Postman or other provider scripts automatically.
+inline and external scripts and tests at request, folder, and collection level.
+Postman and Insomnia imports report unconverted script warnings with item and
+phase details, without copying foreign source or translating provider APIs.
 
 ### Export
 

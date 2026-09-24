@@ -93,7 +93,7 @@ an existing selected environment; collection runs and the Runner keep changes
 transient. Environment operations cannot replace declared secrets. Secret set
 can promote an ordinary entry; secret unset removes both the vault value and
 declaration. CLI `secret delete` retains the declaration. Secret writes never
-fall back to plaintext. See [Inline Scripting](/docs/guides/pre-request-scripting/#save-environment-and-secret-values).
+fall back to plaintext. See [Scripting](/docs/guides/pre-request-scripting/#save-environment-and-secret-values).
 
 Environment writes share a cross-process lock. For interrupted writers and
 timeouts, follow [environment lock recovery](/docs/guides/troubleshooting/#an-environment-write-is-blocked-by-a-lock).

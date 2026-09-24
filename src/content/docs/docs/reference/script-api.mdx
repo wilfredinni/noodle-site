@@ -4,7 +4,7 @@ description: Methods, phase capabilities, persistence rules, and limits for the 
 ---
 
 Use this reference to look up `noodle.*` methods and their constraints. For a
-walkthrough, start with [Inline scripting](/docs/guides/pre-request-scripting/).
+walkthrough, start with [Scripting](/docs/guides/pre-request-scripting/).
 [Script cookbook](/docs/guides/script-cookbook/) contains copyable recipes;
 [Scripted tests](/docs/guides/scripted-tests/#matcher-reference) defines `test()`
 and the `expect()` matchers. Script YAML belongs in [Collection YAML](/docs/reference/collection-format/#sandboxed-pre-request-script).
@@ -37,10 +37,18 @@ request persistence on a manual send or `request run`.
 
 ## Inherited scripts and tests
 
-Declare inline `scripts.pre`, `scripts.post`, and `tests` in collection
-`settings.yml`, nested `folder.yml`, or request YAML. Each phase accumulates
-blocks in this order: collection, outer folders, inner folders, request.
-An empty block is a no-op and does not disable inherited blocks.
+Declare `scripts.pre`, `scripts.post`, and `tests` as inline JavaScript or
+[external file references](/docs/guides/pre-request-scripting/#external-javascript-files)
+in collection `settings.yml`, nested `folder.yml`, or request YAML.
+
+- Pre: collection → outermost folder → nearest folder → request.
+- Post, after captures: request → nearest folder → outermost folder → collection.
+- Tests, after assertions: collection → outermost folder → nearest folder → request.
+
+Post order changed in **0.9.4**. Review blocks that depend on another scope's
+writes when upgrading. Collection and folder blocks run once per request,
+including each dataset row. Root `folder.yml` is ignored. An empty block is a
+no-op and does not disable inherited blocks.
 
 Every block has a fresh QuickJS invocation. JavaScript locals are isolated;
 successful RunScope writes are visible to later blocks. A pre failure stops
@@ -50,15 +58,27 @@ its block. Successful persistence intents keep execution order; collection
 runs and F5 suppress persistence as before. Saved `noodle.runRequest()` calls
 use the same inheritance and cycle protections.
 
-Inherited diagnostics include optional `source: { scope, path }`, where scope
-is `collection`, `folder`, or `request` and path is collection-relative.
-Tests also expose `errors` for multiple block errors; legacy `error` remains
-the first error. CLI, Results, and history show origins without retaining source
-code. Script logs and errors retain the existing redaction and size limits.
+Executed blocks identify their phase, scope, scope ID, and source kind.
+`source.path` is the declaring YAML path; `source.scopeId` identifies the
+collection, folder path, or request ID. `source.sourceKind` is `inline` or
+`external`; external blocks add the collection-relative `source.sourcePath`.
+Test groups retain ordered `invocations`, including blocks declaring zero tests,
+and `errors` for multiple block errors; legacy `error` remains the first error.
+CLI, Results, and history show origins and bounded, redacted diagnostics and
+logs without retaining source code or RunScope values.
 
 Inherited blocks share a 64 KiB console-text budget and a 256 KiB test-record
 budget per request. Logs become `[TRUNCATED]` at the limit; exhausted test
 records produce a test script error, and later blocks are still invoked.
+
+## Body placeholders
+
+The same random catalog, except `seed`, is available as `$random.method` in
+supported body fields. Time methods use `$time.method`. Calls accept JSON
+literals; current-time placeholders share one instant per request execution.
+Script `noodle.time` calls retain their live-clock behavior and script random
+seeds do not control body generation. See
+[body template syntax and limits](/docs/guides/using-the-request-pane/#random-and-time-body-values).
 
 ## API overview
 
@@ -383,7 +403,7 @@ headers, or body that Noodle sends immediately afterward.
 ## Results and diagnostics
 
 Requests with scripts return `scripts: { evaluated, results }` containing only
-executed results in pre/post order with `phase: pre|post`, `scope: request`, `sourceKind: inline`, `success`,
+executed results in pre/post order with `phase: pre|post`, `scope: collection|folder|request`, `sourceKind: inline|external`, `success`,
 `durationMs`, redacted `logs`, an optional normalized error, and optional
 `persistence` outcomes with variable, target, operation, status
 (`saved|transient|failed`), and redacted errors only. `success` records VM
@@ -395,8 +415,8 @@ expandable logs and phase-specific error locations. Script failures participate
 in the fixed failure-category order and collection continuation/fail-fast only
 after available response diagnostics finish. No Console panel or script editor
 is added. Manual `.timeline` entries retain bounded, redacted pre/post results,
-logs, errors, and persistence outcomes; diagnostic text and combined serialized
-logs are limited to 10,000 bytes with `[TRUNCATED]` markers. Script source,
+logs, errors, and persistence outcomes; individual diagnostic text and each
+serialized log array are limited to 10,000 bytes with `[TRUNCATED]` markers. Script source,
 capture results, and RunScope values are excluded. Successful manual request
 snapshots reflect prepared request mutations. Automation does not create history.
 

@@ -78,8 +78,16 @@ when you need multi-line input.
 
 Type `$` in the code editor to trigger the variable autocompletion popup.
 Navigate suggestions with **up/down**, accept with **Tab** or **Return**,
-dismiss with **Escape**. The popup lists available environment variables
-filtered by your typed prefix.
+dismiss with **Escape**, or click a suggestion. The scrollable menu matches
+text within variable names and highlights matches. Exact completed tokens stay
+intact.
+
+In the request body editor, `$random.` and `$time.` also suggest generated
+values, with descriptions, signatures, and examples. Methods requiring arguments
+insert parentheses and place the cursor inside. Existing arguments are preserved.
+See [body templates](/docs/guides/using-the-request-pane/#random-and-time-body-values)
+for supported fields and JSON quoting. Validation and completion never generate
+data; JSON validation uses safe placeholders to check the prepared structure.
 
 ![Environment variable suggestions in the code editor](../../../../assets/autocomplete.png)
 

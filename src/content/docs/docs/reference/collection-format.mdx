@@ -29,10 +29,10 @@ One request per file. Extension must be `.yml` (not `.yaml`).
 | `file_path`       | string  | no       | None     | Path to binary upload file                                 |
 | `auth`            | object  | no       | None     | Auth config (omit for no auth)                             |
 | `tls`             | object  | no       | None     | Per-request TLS override; supports only `verify: true` or `verify: false` |
-| `scripts`         | object  | no       | None     | Inline string-valued `pre` and/or `post` scripts      |
+| `scripts`         | object  | no       | None     | Inline JavaScript or `./file.js` references for `pre` and/or `post`      |
 | `capture`         | map     | no       | None     | Response capture objects for manual and automated runs     |
 | `assert`          | array   | no       | None     | Response assertions for manual and automated runs          |
-| `tests`           | string  | no       | None     | Inline read-only scripted tests after declarative assertions |
+| `tests`           | string  | no       | None     | Inline JavaScript or `./file.js` read-only tests after assertions |
 
 ### Suite Tags
 
@@ -96,16 +96,29 @@ path_params:
 
 Noodle synchronizes these entries with URL tokens when you edit the URL.
 
+### Body templates
+
+In JSON, text/XML bodies, and enabled text form values, `$random.method` and
+`$time.method` generate values during the single substitution pass before pre
+scripts. Optional calls accept JSON literals. Quoted JSON placeholders insert
+escaped text; standalone placeholders preserve JSON types. URLs, headers, auth,
+form names, file paths, and assertion expectations do not support generation.
+Saved YAML retains the templates. See
+[random and time body values](/docs/guides/using-the-request-pane/#random-and-time-body-values)
+for examples, escaping, limits, and lifecycle rules.
+
 ### Sandboxed Pre-request Script
 
-Declare inline pre-request and post-response scripts in request YAML, collection
+Declare inline or external pre-request and post-response scripts in request YAML, collection
 `settings.yml`, or nested `folder.yml`. Start with
-[Inline scripting](/docs/guides/pre-request-scripting/) for a walkthrough.
+[Scripting](/docs/guides/pre-request-scripting/) for a walkthrough.
 
 An optional `scripts` mapping accepts string-valued `pre` and/or `post` members.
 Empty mappings, unknown members, and non-string sources are invalid. Empty
-strings are valid no-ops. Standalone external-path-looking sources are rejected
-with a phase-specific explanation; Noodle never resolves or reads script files.
+strings are valid no-ops and omitted during serialization. External references
+use `./path/to/file.js`, always relative to the collection root. See
+[external JavaScript files](/docs/guides/pre-request-scripting/#external-javascript-files)
+for source validation and preflight; malformed file references are rejected.
 Canonical YAML preserves source whitespace in literal blocks ordered pre then
 post immediately before `capture` and `assert`:
 
@@ -142,9 +155,9 @@ The generator catalog and options are now in [Script API: random](/docs/referenc
 
 ### Scripted Tests
 
-Optional request-level `tests` accepts an inline JavaScript string. Non-string
-values and external path-looking sources are rejected. Empty source is valid;
-source whitespace survives canonical serialization and is never substituted.
+Optional `tests` accepts an inline JavaScript string or a collection-relative
+`./path/to/file.js` reference. Non-string values and malformed paths are rejected.
+Empty source is valid; source whitespace survives canonical serialization and is never substituted.
 Tests run after declarative assertions whenever HTTP produced a response.
 
 Use global `test(name, callback)` and `expect(actual)` with read-only `noodle.*`
@@ -492,16 +505,24 @@ auth:
 | `tags`      | array  | no       | Suite tags inherited by descendants          |
 | `headers`   | map    | no       | Inherited headers (merge additively)         |
 | `auth`      | object | no       | Inherited auth                               |
-| `scripts` | object | no | Inline `pre` and/or `post` blocks, accumulated in ancestor order |
-| `tests` | string | no | Inline tests accumulated in ancestor order |
+| `scripts` | object | no | Inline or external `pre`/`post` blocks; see phase order below |
+| `tests` | string | no | Inline or external tests accumulated in ancestor order |
 
 
 ### Inherited scripts and tests
 
-Declare inline `scripts.pre`, `scripts.post`, and `tests` in collection
-`settings.yml`, nested `folder.yml`, or request YAML. Each phase accumulates
-blocks in this order: collection, outer folders, inner folders, request.
-An empty block is a no-op and does not disable inherited blocks.
+Declare `scripts.pre`, `scripts.post`, and `tests` as inline JavaScript or
+[external file references](/docs/guides/pre-request-scripting/#external-javascript-files)
+in collection `settings.yml`, nested `folder.yml`, or request YAML.
+
+- Pre: collection → outermost folder → nearest folder → request.
+- Post, after captures: request → nearest folder → outermost folder → collection.
+- Tests, after assertions: collection → outermost folder → nearest folder → request.
+
+Post order changed in **0.9.4**. Review blocks that depend on another scope's
+writes when upgrading. Collection and folder blocks run once per request,
+including each dataset row. Root `folder.yml` is ignored. An empty block is a
+no-op and does not disable inherited blocks.
 
 Every block has a fresh QuickJS invocation. JavaScript locals are isolated;
 successful RunScope writes are visible to later blocks. A pre failure stops
@@ -511,11 +532,14 @@ its block. Successful persistence intents keep execution order; collection
 runs and F5 suppress persistence as before. Saved `noodle.runRequest()` calls
 use the same inheritance and cycle protections.
 
-Inherited diagnostics include optional `source: { scope, path }`, where scope
-is `collection`, `folder`, or `request` and path is collection-relative.
-Tests also expose `errors` for multiple block errors; legacy `error` remains
-the first error. CLI, Results, and history show origins without retaining source
-code. Script logs and errors retain the existing redaction and size limits.
+Executed blocks identify their phase, scope, scope ID, and source kind.
+`source.path` is the declaring YAML path; `source.scopeId` identifies the
+collection, folder path, or request ID. `source.sourceKind` is `inline` or
+`external`; external blocks add the collection-relative `source.sourcePath`.
+Test groups retain ordered `invocations`, including blocks declaring zero tests,
+and `errors` for multiple block errors; legacy `error` remains the first error.
+CLI, Results, and history show origins and bounded, redacted diagnostics and
+logs without retaining source code or RunScope values.
 
 Inherited blocks share a 64 KiB console-text budget and a 256 KiB test-record
 budget per request. Logs become `[TRUNCATED]` at the limit; exhausted test
@@ -561,8 +585,8 @@ tls:
 | Field | Type | Description |
 | ----- | ---- | ----------- |
 | `collection_id` | UUID string | Generated credential-vault namespace. Preserve it when moving a collection; do not copy it into another collection. |
-| `scripts` | object | Optional inline `pre` and/or `post` blocks that run before descendant blocks in each phase. |
-| `tests` | string | Optional inline tests that run before descendant test blocks. |
+| `scripts` | object | Optional inline or external `pre`/`post` blocks; collection pre runs first and collection post runs last. |
+| `tests` | string | Optional inline or external tests that run before descendant test blocks. |
 | `name` | string | Optional display name; defaults to the collection directory name. |
 | `description` | string | Optional collection notes. |
 | `timeline_max_entries` | non-negative integer | Per-request history retention. Defaults to `50`; `0` disables recording. |

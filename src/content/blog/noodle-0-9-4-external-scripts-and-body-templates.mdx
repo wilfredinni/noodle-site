@@ -1,0 +1,122 @@
+---
+title: "Noodle 0.9.4: External Scripts and Body Templates"
+description: Reuse JavaScript files, generate request data and timestamps, and inspect clearer script diagnostics and import warnings.
+date: 2026-09-24
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+Noodle 0.9.4 makes common request preparation easier to reuse. Keep scripts
+in JavaScript files when they grow beyond a short YAML block, or use body
+placeholders when all you need is fresh test data or a timestamp. Searchable
+completion menus help you find variables and methods as you edit.
+
+## Reuse JavaScript files
+
+A request, folder, or collection can now reference a `.js` file for any script
+phase:
+
+```yaml
+scripts:
+  pre: ./scripts/prepare.js
+  post: ./scripts/process.js
+tests: ./scripts/check-response.js
+```
+
+Every path starts at the collection root, even from a nested request. You can
+mix inline blocks and file references, or point several requests at the same
+file. Each invocation still gets its own sandbox, with the existing async APIs
+and test matchers.
+
+Noodle checks applicable sources before a manual send and all selected sources
+before a collection run starts HTTP. Files must be readable, valid UTF-8,
+regular files no larger than 256 KiB, and confined to the collection. Reads are
+shared within a run; the next send picks up edits. The sandbox gets source text,
+without filesystem access or module loading.
+
+The [external-script examples](https://github.com/wilfredinni/noodle/tree/main/collections/external-scripts)
+cover preparation, response processing, tests, inherited hooks, and chaining.
+
+## Generate values in the body
+
+![Noodle showing random body placeholder completion with method descriptions and examples](../../assets/random_body_templates.png)
+
+For simple generated data, write the placeholders directly in the body:
+
+```yaml
+body_type: json
+body: |-
+  {
+    "id": "$random.uuid",
+    "email": "$random.exampleEmail()",
+    "age": $random.number({"min":18,"max":80}),
+    "active": $random.boolean,
+    "createdAt": $time.iso,
+    "timestampMs": $time.now
+  }
+```
+
+Standalone JSON placeholders keep their generated type. Quoted placeholders
+insert escaped text. The same helpers work in text/XML bodies and enabled text
+form values, with JSON-literal arguments and the existing random and time
+method validation. Generated passwords enter secret redaction automatically.
+
+Values expand once before pre scripts, and redirects reuse the prepared body.
+Current-time placeholders share one instant within each request execution.
+Saved child requests and dataset iterations generate their own values. Saved
+YAML keeps the templates, and editor validation and completion do not generate
+data.
+
+Type `$random.` or `$time.` in a supported body field to explore methods,
+signatures, and examples without setting up an environment. Variable,
+response-expression, and path menus are also searchable and scrollable, with
+highlighted matches and mouse selection. Completion preserves exact variable
+tokens and existing call arguments, and bounds its rendering for long lists.
+
+![Noodle showing time body placeholder completion with timestamp helpers and a parse example](../../assets/time-body-templates.png)
+
+See [body templates](/docs/guides/using-the-request-pane/#random-and-time-body-values)
+for quoting, escaping, supported fields, and lifecycle details.
+
+## Check inherited post order when upgrading
+
+Post-response scripts now run from the request outward:
+
+1. Request post.
+2. Nearest folder post, then each outer folder.
+3. Collection post.
+
+Captures still run before post scripts. Pre scripts and tests keep their
+collection-to-request order. If a post block relied on values written by a
+parent scope in 0.9.3, review that dependency before upgrading.
+
+Results, CLI output, and manual history identify scope IDs, inline or external
+sources, and collection-relative JavaScript paths. Test invocation details
+remain available even for a block with no declared tests. Timeline truncation
+also preserves safe script and test logs alongside redaction and size limits.
+
+## Read warnings without rushing
+
+Postman and Insomnia imports now identify scripts that were not converted,
+including the source item and phase. Supported requests still import, but
+foreign script APIs are not translated or copied into Noodle scripts.
+
+Open **Ctrl+P → Show Last Notification** to read the latest message in a
+persistent, keyboard-scrollable view, even after the toast disappears.
+Notifications fit small terminals and leave editor focus intact. Import
+warnings and completed test status are clearer in their summaries.
+
+Cookie storage also recovers on a later request after a temporary lock clears.
+While storage is unavailable, Noodle omits stored cookies and ignores response
+cookies, preserving the stored jar.
+
+The updated `noodle-use` skill covers authoring and automation, and `noodle-dev`
+covers source resolution, body templates, completion, and regression checks.
+Start with [Scripting](/docs/guides/pre-request-scripting/) and
+[Scripted Tests](/docs/guides/scripted-tests/) for the full contract.

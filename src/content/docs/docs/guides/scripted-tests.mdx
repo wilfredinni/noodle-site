@@ -29,7 +29,9 @@ or thenables before finalizing results. Results retain declaration order, includ
 duplicate names. Names must be non-empty strings. A failed matcher or callback
 fails that test and later tests continue. A top-level error stops the script but
 preserves completed results. Empty source is a successful no-op. `tests` must be
-an inline string; file paths and modules are unsupported.
+an inline string or a collection-relative `./path/to/file.js` reference.
+See [external JavaScript files](/docs/guides/pre-request-scripting/#external-javascript-files)
+for preflight and path limits. Modules are unsupported.
 Source is never variable-substituted. Network APIs and state mutations are unavailable.
 Omit `tests` to keep the existing request behavior and output; a non-string
 `tests` value is invalid.
@@ -85,10 +87,18 @@ and truthiness checks. No other matchers are supported.
 
 ## Inherited scripts and tests
 
-Declare inline `scripts.pre`, `scripts.post`, and `tests` in collection
-`settings.yml`, nested `folder.yml`, or request YAML. Each phase accumulates
-blocks in this order: collection, outer folders, inner folders, request.
-An empty block is a no-op and does not disable inherited blocks.
+Declare `scripts.pre`, `scripts.post`, and `tests` as inline JavaScript or
+[external file references](/docs/guides/pre-request-scripting/#external-javascript-files)
+in collection `settings.yml`, nested `folder.yml`, or request YAML.
+
+- Pre: collection → outermost folder → nearest folder → request.
+- Post, after captures: request → nearest folder → outermost folder → collection.
+- Tests, after assertions: collection → outermost folder → nearest folder → request.
+
+Post order changed in **0.9.4**. Review blocks that depend on another scope's
+writes when upgrading. Collection and folder blocks run once per request,
+including each dataset row. Root `folder.yml` is ignored. An empty block is a
+no-op and does not disable inherited blocks.
 
 Every block has a fresh QuickJS invocation. JavaScript locals are isolated;
 successful RunScope writes are visible to later blocks. A pre failure stops
@@ -98,11 +108,14 @@ its block. Successful persistence intents keep execution order; collection
 runs and F5 suppress persistence as before. Saved `noodle.runRequest()` calls
 use the same inheritance and cycle protections.
 
-Inherited diagnostics include optional `source: { scope, path }`, where scope
-is `collection`, `folder`, or `request` and path is collection-relative.
-Tests also expose `errors` for multiple block errors; legacy `error` remains
-the first error. CLI, Results, and history show origins without retaining source
-code. Script logs and errors retain the existing redaction and size limits.
+Executed blocks identify their phase, scope, scope ID, and source kind.
+`source.path` is the declaring YAML path; `source.scopeId` identifies the
+collection, folder path, or request ID. `source.sourceKind` is `inline` or
+`external`; external blocks add the collection-relative `source.sourcePath`.
+Test groups retain ordered `invocations`, including blocks declaring zero tests,
+and `errors` for multiple block errors; legacy `error` remains the first error.
+CLI, Results, and history show origins and bounded, redacted diagnostics and
+logs without retaining source code or RunScope values.
 
 Inherited blocks share a 64 KiB console-text budget and a 256 KiB test-record
 budget per request. Logs become `[TRUNCATED]` at the limit; exhausted test
@@ -141,11 +154,11 @@ Manual sends, `request run`, `collection run`, and the TUI Runner use this order
 
 1. Resolve folder overrides.
 2. Resolve the environment and RunScope.
-3. Substitute request values.
+3. Substitute request values and body templates once, after source preflight.
 4. Run collection, folder, and request pre blocks.
 5. Send HTTP.
 6. Evaluate captures.
-7. Run collection, folder, and request post blocks.
+7. Run request, nearest-to-outermost folder, and collection post blocks.
 8. Evaluate declarative assertions.
 9. Run scripted tests.
 
@@ -190,7 +203,7 @@ text/log limits; it excludes test source and runtime values. There is no test
 editor, autocomplete, dedicated Console panel, or importer conversion.
 
 See [Automation](/docs/guides/automation/) for running requests and collections,
-and [Inline Scripting](/docs/guides/pre-request-scripting/) for request preparation
+and [Scripting](/docs/guides/pre-request-scripting/) for request preparation
 and response mutations.
 
 ## Async callbacks

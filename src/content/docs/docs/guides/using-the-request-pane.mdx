@@ -148,8 +148,9 @@ Type `$` in any text field to trigger the autocompletion popup:
 | **Tab** / **Return** | Accept selected suggestion |
 | **Escape**           | Dismiss popup              |
 
-The popup lists available environment variables filtered by your typed
-prefix. It appears at your cursor position and works in the URL bar,
+The popup filters available environment variables by case-insensitive matches
+within their names and highlights matching text. Scroll or click to select a
+suggestion. It appears at your cursor position and works in the URL bar,
 header values, param values, body editor, and auth fields.
 
 ![Environment variable suggestions inside a request field](../../../../assets/autocomplete.png)
@@ -174,6 +175,69 @@ header exists. Press **Return** on the body field to edit it; **Escape** returns
 to the body-type selector without discarding the draft.
 
 For multipart entries, **Ctrl+T** toggles between text and file mode.
+
+## Random and time body values
+
+Use body placeholders when a request only needs generated test data or a
+timestamp. They work in JSON, text/XML bodies, and enabled text form values:
+
+```yaml
+body_type: json
+body: |-
+  {
+    "id": "$random.uuid",
+    "email": "$random.exampleEmail()",
+    "age": $random.number({"min":18,"max":80}),
+    "role": $random.pick(["admin","user"]),
+    "active": $random.boolean,
+    "createdAt": $time.iso,
+    "timestampMs": $time.now,
+    "timestampSeconds": $time.unix(),
+    "date": $time.format("2026-01-01", "YYYY-MM-DD")
+  }
+```
+
+`$random` uses the [script random catalog](/docs/reference/script-api/#script-random-api),
+except `seed`; `$time` uses the [time methods](/docs/reference/script-api/#script-time-api).
+Parentheses are optional when no arguments are needed. Arguments must be JSON
+literals, with double-quoted strings and object keys. JavaScript expressions,
+nested calls, unknown methods, and invalid options fail before that request's
+pre scripts and HTTP. Argument and result values retain the 256 KiB/depth-32
+limits and each helper's option limits.
+
+In JSON, a standalone placeholder preserves the generated type. Quotes make it
+text and escape it for JSON. Escape argument quotes inside JSON strings:
+
+```json
+{"label": "user-$random.pick([\"admin\",\"user\"])"}
+```
+
+Text/XML bodies insert strings literally, without XML escaping; non-string
+values become compact JSON text. Form encoders escape generated text values as
+usual. Generation does not apply to URLs, headers, parameters, auth, assertion
+expectations, form names, file fields, or file paths. `$random.` and `$time.`
+are reserved in supported body values; plain `$random` and `$time` remain
+ordinary variables. Use `$$random.uuid` or `$$time.now` for literal text.
+
+Each occurrence expands once before pre scripts on every manual send, CLI run,
+Runner selection, dataset iteration, or saved child request. Current-time calls
+share one instant within that request; redirects and authentication retries reuse
+the prepared body. Generated random values are independent of script seeds.
+Use a pre script and explicit setters to reuse a generated value across fields.
+Variables, generated values, script writes, and direct `noodle.sendRequest`
+inputs are never scanned again for placeholders.
+
+Type `$random.` or `$time.` while editing a body or text form value to see
+methods with descriptions, signatures, and examples. Suggestions work without
+an environment and preserve existing arguments. Editing, validation, formatting,
+and inspection do not generate random data or read the current clock. Saved
+YAML keeps the placeholders. Generated passwords are registered for redaction;
+other test data stays visible. Generators do not provide cryptographic
+credentials or guaranteed uniqueness.
+
+Try the [random body](https://github.com/wilfredinni/noodle/blob/main/collections/scripts/random-body.yml)
+and [time body](https://github.com/wilfredinni/noodle/blob/main/collections/scripts/time-body.yml)
+examples.
 
 ## Auth
 
