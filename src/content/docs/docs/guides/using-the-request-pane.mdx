@@ -197,6 +197,8 @@ body: |-
   }
 ```
 
+![Noodle showing random body placeholder completion with method descriptions and examples](../../../../assets/random_body_templates.png)
+
 `$random` uses the [script random catalog](/docs/reference/script-api/#script-random-api),
 except `seed`; `$time` uses the [time methods](/docs/reference/script-api/#script-time-api).
 Parentheses are optional when no arguments are needed. Arguments must be JSON
@@ -234,6 +236,8 @@ and inspection do not generate random data or read the current clock. Saved
 YAML keeps the placeholders. Generated passwords are registered for redaction;
 other test data stays visible. Generators do not provide cryptographic
 credentials or guaranteed uniqueness.
+
+![Noodle showing time body placeholder completion with timestamp helpers and a parse example](../../../../assets/time-body-templates.png)
 
 Try the [random body](https://github.com/wilfredinni/noodle/blob/main/collections/scripts/random-body.yml)
 and [time body](https://github.com/wilfredinni/noodle/blob/main/collections/scripts/time-body.yml)
