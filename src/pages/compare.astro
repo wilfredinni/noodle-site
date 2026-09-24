@@ -16,7 +16,7 @@ const sections = [
       ["Terminal-first", "⭐ Yes", "⭐ Yes", "No", "No"],
       ["Protocol breadth", "HTTP today", "HTTP today", "⭐ Very high", "⭐ Very high"],
       ["Auth and networking", "⭐ Very high", "Basic", "⭐ Very high", "⭐ Very high"],
-      ["Scripting and testing today", "✅ Inline pre/post scripts + declarative assertions", "Good scripting, tests planned", "Chaining/templates, no arbitrary scripting", "⭐ Most complete"],
+      ["Scripting and testing today", "✅ Async scripts + assertions + scripted tests", "Good scripting, tests planned", "Chaining/templates, no arbitrary scripting", "⭐ Most complete"],
       ["Headless and CI automation", "⭐ Yes", "Limited", "⭐ Yes", "⭐ Very mature"],
       ["AI-agent workflow", "⭐ Skill + files + CLI", "Minimal", "⭐ Skill + CLI + MCP", "In-app BYOK AI + CLI"],
       ["Main differentiator", "The repository is the workspace", "HTTP client inside the terminal", "Local-first GUI without Postman weight", "Git-native testing powerhouse"],
@@ -51,7 +51,8 @@ const sections = [
       ["Server-Sent Events", "🧭 Planned", "🧭 Planned", "✅", "◐ Supported, not a separate top-level type"],
       ["SOAP", "❌", "❌", "❌ dedicated type", "✅"],
       ["Variables and environments", "✅", "✅", "✅", "✅"],
-      ["Folder inheritance", "✅ Headers + auth", "❌ Limited collection model", "✅ Workspace/folder/request", "✅"],
+      ["Folder inheritance", "✅ Headers + auth + scripts + tests", "❌ Limited collection model", "✅ Workspace/folder/request", "✅"],
+      ["Generated body data and timestamps", "✅ $random / $time templates + completion", "◐ Via Python scripts", "✅ Template functions + Faker", "✅ Dynamic variables"],
       ["JSON body editor", "✅ Tree-sitter, validation, folding, completion", "✅ Syntax highlighting", "✅", "✅"],
       ["Multipart and file upload", "✅", "🧭 Richer uploads planned", "✅", "✅"],
       ["Client code generation", "✅ Multiple languages and libraries", "◐ cURL export", "✅ Code snippets", "✅"],
@@ -85,19 +86,19 @@ const sections = [
   {
     id: "automation",
     kicker: "04 · Testing and automation",
-    title: "Testing grows without leaving YAML.",
-    description: "Bruno leads in mature testing. Noodle now has bounded inline pre/post scripts, declarative response assertions, capture-based request chaining, selective batch runs, and a transient collection Runner; parallel execution remains on its roadmap.",
+    title: "Testing and automation in the collection.",
+    description: "Noodle 0.9.4 supports inline or external JavaScript, inherited scripts and tests, async request chaining, and CSV/JSON runs in the CLI and TUI Runner. Bruno offers a broader testing platform; parallel execution remains on Noodle's roadmap.",
     rows: [
-      ["Pre-request scripts", "✅ Bounded inline JavaScript", "✅ Python", "❌ Arbitrary scripts; under consideration", "✅ JavaScript"],
-      ["Post-response scripts", "✅ Bounded inline JavaScript", "✅ Python", "❌ Arbitrary scripts; under consideration", "✅ JavaScript"],
-      ["Extract response into variables", "✅ Declarative capture", "✅ Via Python", "✅ Request chaining", "✅"],
-      ["Request chaining", "✅ Run-scoped capture variables", "◐ Python/session variables", "✅ Declarative response()", "✅ Extensive"],
-      ["Assertions and tests", "✅ Declarative assertions; 🧭 advanced tests", "🧭 Test framework planned", "❌ No current framework", "✅ Chai/JS assertions"],
+      ["Pre-request scripts", "✅ Bounded async JS; inline or .js files", "✅ Python", "❌ Arbitrary scripts; under consideration", "✅ JavaScript"],
+      ["Post-response scripts", "✅ Bounded async JS; inline or .js files", "✅ Python", "❌ Arbitrary scripts; under consideration", "✅ JavaScript"],
+      ["Extract response into variables", "✅ Captures + post-script writes", "✅ Via Python", "✅ Request chaining", "✅"],
+      ["Request chaining", "✅ Captures + async saved/direct requests", "◐ Python/session variables", "✅ Declarative response()", "✅ Extensive"],
+      ["Assertions and tests", "✅ Declarative + async JS + JSON Schema", "🧭 Test framework planned", "❌ No current framework", "✅ Chai/JS assertions"],
       ["Run one request headlessly", "✅", "❌ Documented runner", "✅", "✅"],
       ["Run folder/collection headlessly", "✅ Selective folders or full collection", "❌", "✅ Workspace/folder", "✅"],
       ["Parallel and batch execution", "◐ Batch + Runner now; parallel v1.5", "❌", "✅ CLI --parallel", "✅ Runner"],
       ["Dedicated runner/results UI", "✅ Transient collection Runner", "❌", "◐ Bulk CLI; data runner considered", "✅"],
-      ["Data-driven CSV/JSON runs", "🧭 Planned", "❌", "🧭 Under consideration", "✅ CSV, paid feature"],
+      ["Data-driven CSV/JSON runs", "✅ CLI + TUI Runner", "❌", "🧭 Under consideration", "✅ CSV/JSON; free CLI, paid desktop"],
       ["CI-friendly structured output", "✅ JSON", "❌ Dedicated CI runner", "✅ CLI", "✅ CLI + JUnit/reports"],
       ["Docker runner", "❌ Official image", "❌", "❌ Official image found", "✅ Official CLI images"],
       ["GitHub Action", "❌ Dedicated action", "❌", "❌ Dedicated action found", "✅ Official action"],
@@ -145,10 +146,10 @@ const bestFits = [
 ]
 
 const comparisonSources = [
-  ["Noodle", [["Documentation", "/docs/"], ["GitHub", "https://github.com/wilfredinni/noodle"]]],
-  ["Posting", [["Website", "https://posting.sh/"], ["GitHub", "https://github.com/darrenburns/posting"]]],
-  ["Yaak", [["Documentation", "https://yaak.app/docs"], ["GitHub", "https://github.com/mountain-loop/yaak"]]],
-  ["Bruno", [["Documentation", "https://docs.usebruno.com/v2/introduction/what-is-bruno"], ["Pricing", "https://www.usebruno.com/pricing"], ["GitHub", "https://github.com/usebruno/bruno"]]],
+  ["Noodle", [["Documentation", "/docs/"], ["Scripting", "/docs/guides/pre-request-scripting/"], ["Tests", "/docs/guides/scripted-tests/"], ["Runner", "/docs/guides/collection-runner/"], ["Body templates", "/docs/guides/using-the-request-pane/#random-and-time-body-values"], ["GitHub", "https://github.com/wilfredinni/noodle"]]],
+  ["Posting", [["Website", "https://posting.sh/"], ["Scripting", "https://posting.sh/guide/scripting/"], ["Roadmap", "https://posting.sh/roadmap/"], ["GitHub", "https://github.com/darrenburns/posting"]]],
+  ["Yaak", [["Documentation", "https://yaak.app/docs"], ["Scripting and templates", "https://yaak.app/docs/templating/pre-post-request-scripting"], ["Runner", "https://yaak.app/docs/advanced/running-multiple-requests"], ["GitHub", "https://github.com/mountain-loop/yaak"]]],
+  ["Bruno", [["Documentation", "https://docs.usebruno.com/"], ["CLI data runs", "https://docs.usebruno.com/bru-cli/runCollection"], ["CLI licensing", "https://www.usebruno.com/product/cli"], ["Dynamic variables", "https://docs.usebruno.com/testing/script/dynamic-variables"], ["Pricing", "https://www.usebruno.com/pricing"], ["GitHub", "https://github.com/usebruno/bruno"]]],
 ] as const
 
 const comparisonUrl = new URL("/compare/", Astro.site ?? Astro.url)
@@ -158,7 +159,7 @@ const comparisonStructuredData = {
   name: "Compare Noodle, Posting, Yaak, and Bruno",
   description: "A source-backed comparison of repository-native API clients and testing tools.",
   url: comparisonUrl.href,
-  dateModified: "2026-08-31",
+  dateModified: "2026-09-24",
   about: products.map((name) => ({ "@type": "SoftwareApplication", name })),
   citation: comparisonSources.flatMap(([, links]) => links.map(([, href]) => href)),
 }
@@ -235,7 +236,7 @@ const comparisonStructuredData = {
     <section id="sources" class="comparison-section source-section" aria-labelledby="sources-title">
       <header>
         <div><span class="section-kicker">Verification</span><h2 id="sources-title">Official sources, checked recently.</h2></div>
-        <p>Features, licensing, and pricing were verified against the linked product documentation on <time datetime="2026-08-19">August 19, 2026</time>. Products change, so use these sources for the latest details.</p>
+        <p>Noodle features reflect v0.9.4. Scripting, runners, generated data, and related pricing were reviewed against the linked documentation on <time datetime="2026-09-24">September 24, 2026</time>. Products change, so use these sources for the latest details.</p>
       </header>
       <ul class="source-list">
         {comparisonSources.map(([product, links]) => (
