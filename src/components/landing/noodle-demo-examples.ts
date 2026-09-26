@@ -173,3 +173,28 @@ export const examples: Example[] = [
     cookies: [{ name: "theme", value: "noodle", domain: "httpbin.org", path: "/" }],
   },
 ]
+
+export const tourChapters: { request: string; title: string; description: string; responseTab?: string }[] = [
+  { request: "create", title: "Random request data", description: "Put names, email addresses, and text directly into a JSON body with $random placeholders. Compare the template with its sample response." },
+  { request: "random-post", title: "Keep generated values typed", description: "Generate numbers, booleans, UUIDs, and choices in your request body. Whole-value placeholders keep their JSON types." },
+  { request: "time-post", title: "Timestamps without a script", description: "Use $time placeholders for ISO dates, milliseconds, and Unix seconds. One request uses a shared timestamp across its body." },
+  { request: "bearer-auth", title: "Authenticate with variables", description: "Reference an environment variable in the Auth tab to send a bearer token. The sample response keeps the token redacted." },
+  { request: "oauth2-auth", title: "OAuth 2.0 with PKCE", description: "Configure discovery, scopes, and PKCE in the Auth tab. This read-only example shows the setup and a sample profile response." },
+  { request: "create-post", title: "Pre-request scripts", description: "Prepare a request before it is sent. This script adds a unique request ID and timestamp to the headers; Results shows a sample successful execution.", responseTab: "Results" },
+  { request: "get-user", title: "Post-request scripts", description: "Read the response and save values for later requests in the same run. This script saves the user's email and name after a successful response.", responseTab: "Results" },
+  { request: "external-script", title: "Scripts in their own files", description: "Keep reusable JavaScript in a .js file beside your collection. The source selector shows the file path and a preview of its contents.", responseTab: "Results" },
+  { request: "signed-request", title: "Sign a request", description: "Read a secret from the environment, sign the body with HMAC-SHA256, and attach the signature as a header before sending." },
+  { request: "chain-request", title: "Chain requests in a script", description: "Await a saved request, use its response in another call, then prepare the current request. Results shows a sample script execution.", responseTab: "Results" },
+  { request: "capture-post", title: "Capture response values", description: "Save response fields and headers as variables for the current run. Open a captured result to inspect its sample value.", responseTab: "Results" },
+  { request: "use-captures", title: "Reuse captured values", description: "Use the previous request's captures in a URL, query parameter, or header. Here, the captured user ID identifies the next request's user." },
+  { request: "assert-post", title: "Check a response", description: "Check status, headers, body values, and response time without writing a script. Results pairs each assertion with its sample outcome.", responseTab: "Results" },
+  { request: "update-todo", title: "Write named tests", description: "Describe expected behavior with test() and expect(). Each test appears by name in Results, with details you can expand.", responseTab: "Results" },
+  { request: "schema-test", title: "Validate a JSON Schema", description: "Check required fields, value types, and formats together. This test validates a user's ID, name, and email against a schema.", responseTab: "Results" },
+  { request: "data-test", title: "Test with CSV or JSON data", description: "In Noodle's runner, choose a data file to repeat requests with different inputs. This sample test compares the response with the current row.", responseTab: "Results" },
+  { request: "get", title: "Readable path parameters", description: "Keep a named parameter in the URL and set its value in the Path tab. This example requests the comment with ID 1." },
+  { request: "get-posts", title: "Control query parameters", description: "Set query values and keep optional parameters disabled until you need them. This request filters posts by user and limits the results." },
+  { request: "form-post", title: "Send form fields", description: "Send URL-encoded fields from a name-and-value table. The sample response shows the form data received by the server." },
+  { request: "multipart-post", title: "Upload files with fields", description: "Combine text fields and file paths in a multipart request. This example pairs a username with a README upload." },
+  { request: "xml-post", title: "Send an XML body", description: "Choose the body format your API expects. This request sends an XML message with the matching Content-Type header." },
+  { request: "cookie-request", title: "Inspect response cookies", description: "See captured cookies alongside their values, domains, and paths. This sample response sets a theme cookie for httpbin.org.", responseTab: "Cookies" },
+]

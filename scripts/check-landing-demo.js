@@ -1,5 +1,6 @@
 // At a viewport of at least 680px, paste this file into the landing page's browser console, then run:
 // await checkNoodleDemo()
+// Guided tour checks: await checkNoodleTour()
 async function checkNoodleDemo(doc = document) {
   const demo = doc.querySelector("[data-noodle-demo]")
   const checks = []
@@ -10,6 +11,13 @@ async function checkNoodleDemo(doc = document) {
   assert(demo, "Demo exists")
   const view = doc.defaultView
   const wait = () => new Promise((resolve) => view.setTimeout(resolve, 550))
+  const waitForStyle = async (condition) => {
+    const deadline = view.performance.now() + 2000
+    while (!condition()) {
+      if (view.performance.now() > deadline) throw new Error("Timed out waiting for browser styles")
+      await new Promise((resolve) => view.requestAnimationFrame(resolve))
+    }
+  }
   const choice = (id) => demo.querySelector(`[data-request="${id}"]`)
   const active = () => demo.querySelector("[data-example]:not([hidden])")
   const live = demo.querySelector("[data-demo-status]")
@@ -93,6 +101,7 @@ async function checkNoodleDemo(doc = document) {
           const context = group.dataset.group === "Request" ? "request-base" : tab.textContent === "Body" ? "response-body" : tab.textContent === "Cookies" ? "response-cookies" : "response-base"
           assert(footer().dataset.footerContext === context, `${id}: ${group.dataset.group} ${tab.textContent} footer matches the selected tab`)
           panel.focus()
+          if (group.dataset.group === "Response") await waitForStyle(() => view.getComputedStyle(metrics).color === color("text"))
           if (group.dataset.group === "Response") assert(view.getComputedStyle(metrics).color === color("text"), `${id}: focused response metrics use theme text`)
           const panelContext = group.dataset.group !== "Request" ? context : ["Headers", "Params"].includes(tab.textContent) ? "request-fields" : tab.textContent === "Path" ? "request-path" : tab.textContent === "Body" ? "request-body" : tab.textContent === "Assert" ? "request-assert" : "request-base"
           assert(footer().dataset.footerContext === panelContext, `${id}: ${tab.textContent} panel focus updates the shortcuts`)
@@ -253,6 +262,7 @@ async function checkNoodleDemo(doc = document) {
   const state = preserved()
   for (const option of themeOptions) {
     option.click()
+    await waitForStyle(() => view.getComputedStyle(demo.querySelector(".terminal")).backgroundColor === color("background-panel"))
     assert(doc.documentElement.dataset.siteTheme === option.dataset.themeOption, `${option.dataset.themeOption}: theme applied`)
     assert(preserved() === state && doc.activeElement === picker, `${option.dataset.themeOption}: request, tabs, folders, scroll, and focus preserved`)
     assert(view.getComputedStyle(demo.querySelector(".terminal")).backgroundColor === color("background-panel"), `${option.dataset.themeOption}: panel palette updated`)
@@ -273,5 +283,93 @@ async function checkNoodleDemo(doc = document) {
   choice("create").click()
   tree.scrollTop = 0
   assert(fetches() === before, "Demo interactions made no fetch/XHR requests")
+  return { passed: checks.length, checks }
+}
+
+async function checkNoodleTour(doc = document) {
+  const demo = doc.querySelector("[data-noodle-demo]")
+  const view = doc.defaultView
+  const checks = []
+  const assert = (condition, message) => {
+    if (!condition) throw new Error(message)
+    checks.push(message)
+  }
+  const chapters = [...demo.querySelectorAll("[data-tour-chapter]")]
+  const select = demo.querySelector("[data-tour-select]")
+  const play = demo.querySelector("[data-tour-play]")
+  const previous = demo.querySelector("[data-tour-previous]")
+  const next = demo.querySelector("[data-tour-next]")
+  const active = () => demo.querySelector("[data-example]:not([hidden])")
+  const choose = (id) => { select.value = id; select.dispatchEvent(new view.Event("change", { bubbles: true })) }
+  assert(chapters.length === 22 && !select.disabled && !play.disabled, "22 guided chapters initialize")
+  select.focus({ preventScroll: true })
+  const scroll = view.scrollY
+  const height = demo.getBoundingClientRect().height
+  for (const chapter of chapters) {
+    choose(chapter.dataset.tourChapter)
+    const workspace = active()
+    const request = demo.querySelector(`[data-request="${chapter.dataset.tourChapter}"]`)
+    const tree = demo.querySelector(".request-tree").getBoundingClientRect()
+    const row = request.getBoundingClientRect()
+    assert(workspace.dataset.example === chapter.dataset.tourChapter && request.getAttribute("aria-pressed") === "true", `${select.value}: chapter selects its request`)
+    assert(request.closest("details").open && demo.querySelectorAll(".request-folder[open]").length === 1, `${select.value}: matching folder is open`)
+    assert(row.top >= tree.top - 1 && row.bottom <= tree.bottom + 1, `${select.value}: selected request is visible in the sidebar`)
+    assert(workspace.querySelector('.request [aria-selected="true"]').dataset.tab === workspace.querySelector(".request").dataset.defaultTab, `${select.value}: relevant request tab is selected`)
+    assert(workspace.querySelector('.response [aria-selected="true"]').dataset.tab === chapter.dataset.responseTab, `${select.value}: relevant response tab is selected`)
+    assert(chapter.getAttribute("aria-hidden") === "false" && demo.querySelectorAll('.tour-copy [aria-hidden="false"]').length === 1, `${select.value}: one matching explanation is exposed`)
+    assert(Math.abs(demo.getBoundingClientRect().height - height) < 1 && view.scrollY === scroll && doc.activeElement === select, `${select.value}: chapter changes preserve layout, page scroll, and focus`)
+    assert(play.textContent === "Play", `${select.value}: chapter selection pauses playback`)
+  }
+  assert(next.disabled && !previous.disabled, "Last chapter disables Next")
+  previous.click()
+  assert(select.value === chapters.at(-2).dataset.tourChapter, "Previous selects the preceding chapter")
+  next.click()
+  assert(select.value === chapters.at(-1).dataset.tourChapter, "Next selects the following chapter")
+  choose(chapters[0].dataset.tourChapter)
+  assert(previous.disabled && !next.disabled, "First chapter disables Previous")
+  play.click()
+  assert(play.textContent === "Pause", "Play starts playback")
+  play.click()
+  assert(play.textContent === "Play", "Pause stops playback")
+  for (const event of ["pointerdown", "keydown", "focusin", "wheel", "click"]) {
+    play.click()
+    active().querySelector('.request [role=tabpanel]:not([hidden])').dispatchEvent(new view.Event(event, { bubbles: true }))
+    assert(play.textContent === "Play", `${event}: interacting with the demo pauses playback`)
+  }
+  demo.querySelector('[data-request="basic-auth"]').click()
+  assert(select.value === "" && demo.querySelector('[data-tour-explore]').getAttribute("aria-hidden") === "false", "Manual exploration outside the tour has its own explanation")
+  play.click()
+  assert(active().dataset.example === chapters[0].dataset.tourChapter && select.value === chapters[0].dataset.tourChapter, "Play returns from exploration to the current chapter")
+  play.click()
+  const durations = chapters.map((chapter) => chapter.dataset.duration)
+  const waitFor = async (condition) => {
+    const deadline = view.performance.now() + 2000
+    while (!condition()) {
+      if (view.performance.now() > deadline) throw new Error("Timed out waiting for tour playback")
+      await new Promise((resolve) => view.requestAnimationFrame(resolve))
+    }
+  }
+  try {
+    demo.scrollIntoView({ block: "center", behavior: "instant" })
+    // Let the browser deliver intersection changes before testing its timers.
+    await new Promise((resolve) => view.requestAnimationFrame(() => view.requestAnimationFrame(resolve)))
+    chapters.forEach((chapter) => { chapter.dataset.duration = "100" })
+    play.click()
+    await waitFor(() => select.value === chapters[1].dataset.tourChapter)
+    play.click()
+    const paused = select.value
+    await new Promise((resolve) => view.setTimeout(resolve, 250))
+    assert(select.value === paused, "Paused playback cancels its pending advance")
+    choose(chapters.at(-1).dataset.tourChapter)
+    play.click()
+    await waitFor(() => play.textContent === "Replay")
+    await new Promise((resolve) => view.setTimeout(resolve, 250))
+    assert(select.value === chapters.at(-1).dataset.tourChapter, "Tour stops after its last chapter without looping")
+    play.click()
+    assert(select.value === chapters[0].dataset.tourChapter && play.textContent === "Pause", "Replay restarts at the first chapter")
+  } finally {
+    if (play.textContent === "Pause") play.click()
+    chapters.forEach((chapter, index) => { chapter.dataset.duration = durations[index] })
+  }
   return { passed: checks.length, checks }
 }

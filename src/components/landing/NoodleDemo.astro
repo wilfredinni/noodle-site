@@ -1,6 +1,6 @@
 ---
 import { formatSize, formatStatus, statusColorToken } from "./noodle-demo"
-import { examples, folders, type Example } from "./noodle-demo-examples"
+import { examples, folders, tourChapters, type Example } from "./noodle-demo-examples"
 
 interface Props {
   version?: string
@@ -67,6 +67,32 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
 ---
 
 <figure class="noodle-demo" data-noodle-demo aria-label="Interactive Noodle demo with sample responses">
+  <div class="demo-tour">
+    <div class="tour-copy">
+      {tourChapters.map((chapter, index) => {
+        const example = examples.find((example) => example.id === chapter.request)!
+        return <div data-tour-chapter={chapter.request} data-response-tab={chapter.responseTab ?? "Body"} data-duration={example.scripts || example.tests ? 16000 : 12000} aria-hidden={index !== 0 ? "true" : "false"}>
+          <h2>{chapter.title}</h2>
+          <p>{chapter.description}</p>
+        </div>
+      })}
+      <div data-tour-explore aria-hidden="true">
+        <h2>Explore Noodle</h2>
+        <p>Explore this request's tabs and sample response. Choose a chapter or play the tour to return to the guided walkthrough.</p>
+      </div>
+    </div>
+    <div class="tour-controls" role="group" aria-label="Guided tour controls">
+      <select data-tour-select aria-label="Tour chapter" disabled>
+        <option value="" disabled>Explore on your own</option>
+        {tourChapters.map((chapter, index) => <option value={chapter.request} selected={index === 0}>{index + 1} / {tourChapters.length} · {chapter.title}</option>)}
+      </select>
+      <div class="tour-buttons">
+        <button type="button" data-tour-previous aria-label="Previous chapter" disabled>Previous</button>
+        <button type="button" data-tour-play aria-label="Play tour" disabled>Play</button>
+        <button type="button" data-tour-next aria-label="Next chapter" disabled>Next</button>
+      </div>
+    </div>
+  </div>
   <div class="terminal">
     <div class="terminal-title">
       <div>
@@ -81,7 +107,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
         <h2 class="pane-title">Requests</h2>
         <div class="request-tree">
           {folders.map((folder) => (
-            <details class="request-folder" open={!["authentication", "requests"].includes(folder)}>
+            <details class="request-folder" open={folder === examples[0]!.folder}>
               <summary class="folder-name"><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg>{folder}</summary>
               {examples.filter((example) => example.folder === folder).map((example) => (
                 <button type="button" class="request-choice" title={example.name} data-request={example.id} aria-pressed={example.id === "create" ? "true" : "false"} aria-controls={`demo-${example.id}`} disabled>
@@ -257,6 +283,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       <button type="button" class="footer-send" data-footer-send disabled><kbd>^return</kbd><span>send</span></button>
     </div>
   </div>
+  <figcaption>Interactive demo · Sample responses <span>Explore any request to pause the tour.</span></figcaption>
   <p class="sr-only" id="noodle-demo-shortcuts">Shortcuts from the Noodle app. Expand, copy, and send work in this demo. Other commands are shown for reference and disabled.</p>
   <p class="sr-only" role="status" data-demo-status></p>
 </figure>
@@ -359,7 +386,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       demo.querySelector('[data-footer-action="copy"]')!.setAttribute("aria-disabled", String(sending))
     }
 
-    choices.forEach((choice) => choice.addEventListener("click", () => {
+    const selectRequest = (choice: HTMLButtonElement) => {
       clearTimeout(pending)
       pending = undefined
       setSending(false)
@@ -376,7 +403,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       })
       status.textContent = `${active.dataset.name}. Sample response: ${active.dataset.status}.`
       showFooter(choice)
-    }))
+    }
 
     demo.querySelectorAll<HTMLElement>("[data-group]").forEach((group) => {
       const tabs = [...group.querySelectorAll<HTMLButtonElement>("[role=tab]")]
@@ -468,6 +495,114 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     examples.forEach((example) => example.querySelector<HTMLButtonElement>("[data-send]")!.addEventListener("click", sendSample))
     footerSend.addEventListener("click", sendSample)
     demo.querySelectorAll<HTMLButtonElement>("[data-request], [data-send], [role=tab], [data-footer-action], [data-footer-send], [data-add-tab]").forEach((button) => { button.disabled = false })
+
+    const chapters = [...demo.querySelectorAll<HTMLElement>("[data-tour-chapter]")]
+    const chapterSelect = demo.querySelector<HTMLSelectElement>("[data-tour-select]")!
+    const play = demo.querySelector<HTMLButtonElement>("[data-tour-play]")!
+    const previous = demo.querySelector<HTMLButtonElement>("[data-tour-previous]")!
+    const next = demo.querySelector<HTMLButtonElement>("[data-tour-next]")!
+    const explore = demo.querySelector<HTMLElement>("[data-tour-explore]")!
+    const tree = demo.querySelector<HTMLElement>(".request-tree")!
+    const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
+    let chapterIndex = 0
+    let playing = false
+    let complete = false
+    let inView = false
+    let autostart = !reducedMotion.matches
+    let tourTimer: ReturnType<typeof setTimeout> | undefined
+
+    const updatePlayback = () => {
+      play.textContent = playing ? "Pause" : complete ? "Replay" : "Play"
+      play.setAttribute("aria-label", `${play.textContent} tour`)
+      status.setAttribute("aria-live", playing ? "off" : "polite")
+      previous.disabled = chapterIndex === 0
+      next.disabled = chapterIndex === chapters.length - 1
+    }
+    const pauseTour = () => {
+      autostart = false
+      playing = false
+      clearTimeout(tourTimer)
+      updatePlayback()
+    }
+    const showChapterCopy = (index: number) => {
+      if (index >= 0) chapterIndex = index
+      chapters.forEach((chapter, i) => chapter.setAttribute("aria-hidden", String(i !== index)))
+      explore.setAttribute("aria-hidden", String(index >= 0))
+      explore.querySelector("h2")!.textContent = active.dataset.name!
+      chapterSelect.value = index >= 0 ? chapters[index]!.dataset.tourChapter! : ""
+      complete = false
+      updatePlayback()
+    }
+    const showChapter = (index: number) => {
+      const chapter = chapters[index]!
+      const choice = choices.find((button) => button.dataset.request === chapter.dataset.tourChapter)!
+      demo.querySelectorAll<HTMLDetailsElement>(".request-folder").forEach((folder) => { folder.open = folder.contains(choice) })
+      selectRequest(choice)
+      const response = active.querySelector<HTMLElement>('.response')!
+      selectTab(response, response.querySelector<HTMLButtonElement>(`[data-tab="${chapter.dataset.responseTab}"]`)!)
+      active.querySelectorAll<HTMLElement>(".tab-panel").forEach((panel) => { panel.scrollTop = 0; panel.scrollLeft = 0 })
+      const row = choice.getBoundingClientRect()
+      const bounds = tree.getBoundingClientRect()
+      if (row.top < bounds.top) tree.scrollTop += row.top - bounds.top
+      else if (row.bottom > bounds.bottom) tree.scrollTop += row.bottom - bounds.bottom
+      showChapterCopy(index)
+      status.textContent = `${chapter.querySelector("h2")!.textContent}. ${chapter.querySelector("p")!.textContent}`
+    }
+    const scheduleChapter = () => {
+      clearTimeout(tourTimer)
+      if (!playing || !inView || document.hidden) return
+      tourTimer = setTimeout(() => {
+        if (chapterIndex === chapters.length - 1) {
+          complete = true
+          pauseTour()
+          status.textContent = "Tour complete. Explore the requests or replay the tour."
+          return
+        }
+        showChapter(chapterIndex + 1)
+        scheduleChapter()
+      }, Number(chapters[chapterIndex]!.dataset.duration))
+    }
+    const syncVisibility = () => {
+      if (autostart && inView && !document.hidden) {
+        autostart = false
+        playing = true
+        updatePlayback()
+      }
+      scheduleChapter()
+    }
+    choices.forEach((choice) => choice.addEventListener("click", () => {
+      pauseTour()
+      selectRequest(choice)
+      showChapterCopy(chapters.findIndex((chapter) => chapter.dataset.tourChapter === choice.dataset.request))
+    }))
+    chapterSelect.addEventListener("change", () => {
+      pauseTour()
+      showChapter(chapters.findIndex((chapter) => chapter.dataset.tourChapter === chapterSelect.value))
+    })
+    previous.addEventListener("click", () => { pauseTour(); showChapter(chapterIndex - 1) })
+    next.addEventListener("click", () => { pauseTour(); showChapter(chapterIndex + 1) })
+    play.addEventListener("click", () => {
+      if (playing) { pauseTour(); return }
+      autostart = false
+      playing = true
+      showChapter(complete ? 0 : chapterIndex)
+      scheduleChapter()
+    })
+    for (const type of ["pointerdown", "keydown", "focusin", "wheel", "click"]) {
+      demo.addEventListener(type, (event) => {
+        if (!(event.target as HTMLElement).closest("[data-tour-play]")) pauseTour()
+      }, { capture: true, passive: true })
+    }
+    reducedMotion.addEventListener("change", () => { if (reducedMotion.matches) pauseTour() })
+    document.addEventListener("visibilitychange", syncVisibility)
+    const observer = new IntersectionObserver(([entry]) => {
+      inView = !!entry?.isIntersecting && entry.intersectionRatio >= 0.5
+      syncVisibility()
+    }, { threshold: [0, 0.5] })
+    observer.observe(demo)
+    chapterSelect.disabled = false
+    play.disabled = false
+    updatePlayback()
   })
 </script>
 
@@ -481,6 +616,21 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     color-scheme: dark;
   }
   .noodle-demo [hidden] { display: none !important; }
+  .demo-tour { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; align-items: end; gap: 2rem; margin-bottom: 1.5rem; color: var(--fg); font-family: var(--font-sans); }
+  .tour-copy { display: grid; }
+  .tour-copy > div { grid-area: 1 / 1; }
+  .tour-copy [aria-hidden="true"] { visibility: hidden; }
+  .tour-copy h2 { margin: 0 0 0.65rem; font: 400 clamp(1.75rem, 3vw, 2.5rem)/1.15 var(--font-display); text-wrap: balance; }
+  .tour-copy p { max-width: 68ch; margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+  .tour-controls { display: grid; gap: 0.5rem; }
+  .tour-controls select { width: 100%; min-width: 0; min-height: 44px; padding: 0.5rem 2rem 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; color: var(--fg); background: var(--panel); font: inherit; font-size: 0.875rem; text-overflow: ellipsis; cursor: pointer; }
+  .tour-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
+  .tour-buttons button { min-height: 44px; padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.875rem; }
+  .tour-buttons button:disabled { color: var(--muted); border-color: transparent; }
+  .tour-buttons [data-tour-play] { color: var(--accent-text); background: var(--accent); border-color: var(--accent); }
+  .tour-buttons [data-tour-play]:not(:disabled):hover { color: var(--accent-text); background: var(--accent-dim); }
+  .tour-controls :is(button, select):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 1rem; margin-top: 0.75rem; color: var(--muted); font: 0.75rem/1.5 var(--font-sans); }
   .terminal {
     padding: 0 2ch;
     background: var(--demo-background-panel);
@@ -609,6 +759,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   table { width: 100%; border-collapse: collapse; font: inherit; margin-top: calc(var(--demo-line) / 2); }
   th, td { padding: 0 1ch; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
   th { width: var(--header-width, 50%); color: var(--demo-primary); font-weight: 400; }
+  table[aria-label="Request form data"] th { width: auto; }
   tbody tr:nth-child(even) { background: var(--demo-stripe); }
   .disabled-param :is(th, td) { color: var(--demo-text-muted); }
   .native-panel, .native-empty { padding-top: calc(var(--demo-line) / 2); }
@@ -643,6 +794,8 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     .request-choice, .folder-name, .tab-menu button, .result-entry summary, .timeline-row { min-height: 24px; }
   }
   @media (max-width: 900px) {
+    .demo-tour { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+    .tour-controls { grid-template-columns: minmax(0, 1fr) 18rem; gap: 1rem; }
     .terminal-layout { grid-template-columns: 190px minmax(0, 1fr); }
     .request-choice { font-size: 0.75rem; }
   }
