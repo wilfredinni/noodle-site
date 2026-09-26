@@ -1,8 +1,11 @@
 ---
+import { noodleTheme, themeVariables, formatSize, formatStatus, statusColorToken, type DemoTheme } from "./noodle-demo"
+
 interface Props {
   version?: string
+  theme?: DemoTheme
 }
-const { version } = Astro.props
+const { version, theme = noodleTheme } = Astro.props
 
 // Local snapshots of noodle/collections; demo responses are illustrative.
 type Example = {
@@ -11,6 +14,10 @@ type Example = {
   pathParams?: Record<string, string>;
   headers?: Record<string, string>;
   params?: { name: string; value: string; enabled?: boolean }[];
+  assertions?: { expression: string; operator: string; value?: string | number; actual: string | number }[];
+  scripts?: { pre?: string; post?: string };
+  tests?: string;
+  testNames?: string[];
 }
 const user = { id: 1, name: "Ada Lovelace", username: "ada", email: "ada@example.com" }
 const todo = { userId: 1, id: 1, title: "my todo", completed: false }
@@ -23,6 +30,11 @@ const examples: Example[] = [
     body: '{\n  "id": $random.uuid,\n  "timestamp": $time.iso,\n  "name": $random.name,\n  "email": $random.email,\n  "body": $random.loremText\n}',
     response: { id: 501, timestamp: "2026-09-26T12:00:00.000Z", name: "Ada Lovelace", email: "ada@example.com", body: "A new comment, sent from Noodle." },
     status: "201 Created", duration: 124,
+    assertions: [
+      { expression: "status", operator: "equals", value: 201, actual: 201 },
+      { expression: "headers.Content-Type", operator: "contains", value: "application/json", actual: "application/json; charset=utf-8" },
+      { expression: "body.id", operator: "isNumber", actual: 501 },
+    ],
   },
   {
     id: "get", folder: "comments", name: "Get Comment by ID", method: "GET", path: "/comments/:commentId", pathParams: { commentId: "1" }, tab: "Path",
@@ -38,6 +50,7 @@ const examples: Example[] = [
     path: "/users/:userId", tab: "Path", body: "",
     pathParams: {"userId": "1"},
     response: user, status: "200 OK", duration: 108,
+    scripts: { post: 'const user = noodle.response.json();\nif (noodle.response.status === 200) {\n  noodle.run.set("USER_EMAIL", user.email);\n}' },
   },
   {
     id: "get-users", folder: "users", name: "Get Users", method: "GET",
@@ -79,12 +92,15 @@ const examples: Example[] = [
     pathParams: {"todoId": "1"},
     headers: {"Content-Type": "application/json"},
     response: { ...todo, completed: true }, status: "200 OK", duration: 108,
+    tests: 'test("todo is complete", () => {\n  expect(noodle.response.json().completed).toBe(true);\n});\ntest("todo belongs to user 1", () => {\n  expect(noodle.response.json().userId).toBe(1);\n});',
+    testNames: ["todo is complete", "todo belongs to user 1"],
   },
   {
     id: "create-post", folder: "posts", name: "Create Post", method: "POST",
     path: "/posts/", tab: "Body", body: createPostBody,
     headers: {"Content-Type": "application/json", "x-api-key": "$x_api_key"},
     response: { id: 101, ...JSON.parse(createPostBody), url: "https://jsonplaceholder.typicode.com" }, status: "201 Created", duration: 108,
+    scripts: { pre: 'const requestId = noodle.random.uuid();\nnoodle.request.headers.set("X-Request-ID", requestId);' },
   },
   {
     id: "delete-post", folder: "posts", name: "Delete Post", method: "DELETE",
@@ -126,8 +142,18 @@ const examples: Example[] = [
   },
 ]
 const folders = ["comments", "posts", "todos", "users"]
-const requestTabs = ["Headers", "Params", "Path", "Body", "Auth", "Settings"]
+const optionalTabs = ["Assert", "Capture", "Pre Script", "Post Script", "Tests"]
+const requestTabs = ["Headers", "Params", "Path", "Body", "Auth", ...optionalTabs, "Settings"]
 const responseTabs = ["Body", "Headers", "Network", "Timeline", "Cookies", "Results"]
+const scriptSource = (example: Example, tab: string) => tab === "Pre Script" ? example.scripts?.pre : tab === "Post Script" ? example.scripts?.post : tab === "Tests" ? example.tests : undefined
+const hasContent = (example: Example, tab: string) => {
+  if (tab === "Headers") return Object.keys(example.headers ?? {}).length > 0 || !!example.body
+  if (tab === "Params") return !!example.params?.some((param) => param.enabled !== false)
+  if (tab === "Path") return Object.keys(example.pathParams ?? {}).length > 0
+  if (tab === "Body") return !!example.body
+  return tab === "Assert" ? !!example.assertions?.length : !!scriptSource(example, tab)
+}
+const tabSlug = (tab: string) => tab.replaceAll(" ", "-")
 // These read-only values are shared by the copied collection requests.
 const requestSettings = [
   { label: "Timeout (ms)", value: "0ms", kind: "text", description: "Set maximum time to wait before aborting the request" },
@@ -145,19 +171,34 @@ const footerHints: Record<string, string[][]> = {
   "request-base": [expand, ["^s", "save"], commands],
   "request-fields": [expand, ["Space", "toggle"], ["^d", "revert"], ["^s", "save"], ["^r", "revert all"], commands],
   "request-path": [expand, ["^d", "revert"], ["^r", "revert all"], ["^s", "save"], commands],
+  "request-assert": [expand, ["Space", "toggle"], ["^d", "delete"], ["^s", "save"], ["^r", "revert all"], commands],
   "request-body": [expand, ["^g", "fold"], commands],
+  "request-script": [expand, commands],
   "response-body": [expand, ["m", "visual"], ["^g", "fold"], ["/", "filter"], ["^alt+b", "copy", "copy"], commands],
   "response-cookies": [expand, ["↑/↓", "select"], ["Enter", "details"], commands],
   "response-base": [expand, commands],
 }
-// Split only the small, fixed examples; Astro escapes each token as text.
+// ponytail: tokenize fixed examples only; use a parser if editable code is added. Astro escapes each token.
 const codeLines = (code: string) => code.split("\n").map((line) => {
-  const parts = `${line}\n`.split(/("(?:\\.|[^"\\])*"|\$(?:random|time)\.\w+|\b(?:\d+|true|false|null)\b)/g)
-  return parts.map((text, i) => ({ text, kind: text.startsWith("$") ? "variable" : text.startsWith('"') ? parts[i + 1]?.trimStart().startsWith(":") ? "key" : "string" : /^(?:\d+|true|false|null)$/.test(text) ? "number" : "plain" }))
+  const parts = `${line}\n`.split(/("(?:\\.|[^"\\])*"|\$(?:random|time)\.\w+|\b[a-zA-Z_]\w*\b|\b\d+(?:\.\d+)?\b|[{}\[\](),.:;=<>])/g)
+  let offset = 0
+  return parts.map((text) => {
+    const before = line.slice(0, offset)
+    offset += text.length
+    const after = line.slice(offset).trimStart()
+    const kind = text.startsWith("$") ? "variable"
+      : text.startsWith('"') ? after.startsWith(":") ? "key" : "string"
+      : /^\d/.test(text) ? "number"
+      : /^(true|false|null)$/.test(text) ? "constant"
+      : /^(const|if)$/.test(text) ? "keyword"
+      : /^[a-zA-Z_]/.test(text) ? after.startsWith("(") ? "function" : before.endsWith(".") ? "property" : "plain"
+      : /^[{}\[\](),.:;=<>]$/.test(text) ? "punctuation" : "plain"
+    return { text, kind }
+  })
 })
 ---
 
-<figure class="noodle-demo" data-noodle-demo aria-labelledby="noodle-demo-caption">
+<figure class="noodle-demo" data-noodle-demo data-theme={theme.name} style={themeVariables(theme)} aria-labelledby="noodle-demo-caption">
   <div class="terminal">
     <div class="terminal-title">
       <div>
@@ -193,24 +234,34 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
           { name: "Response", tabs: responseTabs, initial: "Body" },
         ]
         return (
-          <div class="workspace" id={`demo-${example.id}`} data-example={example.id} data-name={example.name} data-status={example.status} hidden={index !== 0}>
+          <div class="workspace" id={`demo-${example.id}`} data-example={example.id} data-name={example.name} data-status={example.status} style={`--demo-status: var(--demo-${statusColorToken(Number.parseInt(example.status, 10))})`} hidden={index !== 0}>
             <div class="url-bar">
               <span class:list={["method", "method-badge", example.method.toLowerCase()]}>{example.method}<svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></span>
-              <code tabindex="0" aria-label="Request URL"><span class="variable">$base_url</span>{example.path}</code>
-              <button class="send" type="button" data-send disabled>Send</button>
+              <code tabindex="0" aria-label="Request URL"><span class="variable">$base_url</span>{example.path.split(/(:\w+)/).map((part) => part.startsWith(":") ? <span class="variable">{part}</span> : part)}</code>
+              <button class="send" type="button" data-send disabled><span>Send</span></button>
             </div>
             {groups.map((group) => (
               <section class:list={["pane", "detail-pane", group.name.toLowerCase()]} data-group={group.name} data-default-tab={group.initial} aria-label={group.name}>
                 <div class="pane-heading">
                   <h2 class="pane-title">{group.name}</h2>
                   {group.name === "Response" && (
-                    <div class="response-summary"><span>{bytes} B <span class="sample-timing">· {example.duration} ms sample</span></span><strong>{example.status}</strong></div>
+                    <div class="response-summary"><span class="response-metrics">{formatSize(bytes)} in {Math.round(example.duration)}ms</span><strong class="response-status" title={example.status}>{formatStatus(example.status)}</strong></div>
                   )}
                 </div>
-                <div class="tabs" role="tablist" aria-label={`${group.name} views`}>
-                  {group.tabs.map((tab) => (
-                    <button type="button" role="tab" id={`demo-${example.id}-${group.name}-${tab}-tab`} aria-controls={`demo-${example.id}-${group.name}-${tab}`} aria-selected={tab === group.initial ? "true" : "false"} tabindex={tab === group.initial ? 0 : -1} data-tab={tab} disabled>{tab}</button>
-                  ))}
+                <div class="tab-bar">
+                  <div class="tabs" role="tablist" aria-label={`${group.name} views`}>
+                    {group.tabs.map((tab) => (
+                      <button type="button" role="tab" id={`demo-${example.id}-${group.name}-${tabSlug(tab)}-tab`} aria-controls={`demo-${example.id}-${group.name}-${tabSlug(tab)}`} aria-selected={tab === group.initial ? "true" : "false"} tabindex={tab === group.initial ? 0 : -1} data-tab={tab} class:list={{ "has-content": group.name === "Request" && hasContent(example, tab), "has-results": tab === "Results" && !!(example.assertions || example.scripts || example.tests) }} hidden={group.name === "Request" && optionalTabs.includes(tab) && !hasContent(example, tab)} disabled>{tab}</button>
+                    ))}
+                  </div>
+                  {group.name === "Request" && (
+                    <div class="optional-tabs">
+                      <button type="button" class="add-tab" data-add-tab aria-label="Add request tab" aria-haspopup="menu" aria-expanded="false" aria-controls={`demo-${example.id}-tab-menu`} disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10" /></svg></button>
+                      <div class="tab-menu" id={`demo-${example.id}-tab-menu`} role="menu" aria-label="Optional request tabs" data-tab-menu hidden>
+                        {optionalTabs.map((tab) => <button type="button" role="menuitem" tabindex="-1" data-reveal-tab={tab} disabled={hasContent(example, tab)}>{tab}</button>)}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div class="panels">
                   <p class="sending-message" hidden>Sending sample request…</p>
@@ -218,7 +269,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                     const panelCode = tab === "Body" ? group.name === "Request" ? example.body : response : ""
                     const rows = tab === "Headers" ? group.name === "Response" ? [["content-type", "application/json; charset=utf-8"], ["cache-control", "no-cache"]] : Object.entries(example.headers ?? (example.body ? { "Content-Type": "application/json" } : {})) : tab === "Path" ? Object.entries(example.pathParams ?? {}) : tab === "Params" ? (example.params ?? []).map((param) => [param.name, param.value, param.enabled === false ? "disabled" : ""]) : []
                     return (
-                      <div class="tab-panel" role="tabpanel" id={`demo-${example.id}-${group.name}-${tab}`} aria-labelledby={`demo-${example.id}-${group.name}-${tab}-tab`} tabindex="0" hidden={tab !== group.initial}>
+                      <div class="tab-panel" role="tabpanel" id={`demo-${example.id}-${group.name}-${tabSlug(tab)}`} aria-labelledby={`demo-${example.id}-${group.name}-${tabSlug(tab)}-tab`} tabindex="0" hidden={tab !== group.initial}>
                         {tab === "Body" && (panelCode ? (
                           <>
                             {group.name === "Request" && <div class="body-format">JSON<svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></div>}
@@ -228,8 +279,18 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                           </>
                         ) : <p class="empty-state">This {example.method} request has no body.</p>)}
                         {["Headers", "Params", "Path"].includes(tab) && (rows.length ? (
-                          <table aria-label={`${group.name} ${tab.toLowerCase()}`}><thead class="sr-only"><tr><th>Key</th><th>Value</th></tr></thead><tbody>{rows.map(([key, value, disabled]) => <tr class:list={{ "disabled-param": disabled }}><th scope="row">{key}{disabled && <span> (disabled)</span>}</th><td>{value}</td></tr>)}</tbody></table>
+                          <table style={group.name === "Response" ? `--header-width: ${Math.max(...rows.map(([key]) => key.length)) + 2}ch` : undefined} aria-label={`${group.name} ${tab.toLowerCase()}`}><thead class="sr-only"><tr><th>Key</th><th>Value</th></tr></thead><tbody>{rows.map(([key, value, disabled]) => <tr class:list={{ "disabled-param": disabled }}><th scope="row">{key}{disabled && <span> (disabled)</span>}</th><td>{value}</td></tr>)}</tbody></table>
                         ) : <p class="empty-state">{tab === "Headers" ? "No request headers." : tab === "Params" ? "No query parameters." : "No path parameters."}</p>)}
+                        {tab === "Assert" && (example.assertions?.length ? (
+                          <table class="assertions" aria-label="Response assertions"><colgroup><col class="assert-enabled" /><col /><col class="assert-operator" /><col /></colgroup><thead class="sr-only"><tr><th>Enabled</th><th>Expression</th><th>Operator</th><th>Expected</th></tr></thead><tbody>{example.assertions.map((assertion) => <tr><td><span class="checked-value" aria-hidden="true">[x]</span><span class="sr-only">Enabled</span></td><th scope="row">{assertion.expression}</th><td><select class="demo-select" aria-label={`${assertion.expression} operator`} disabled><option>{assertion.operator}</option></select></td><td>{assertion.value ?? ""}</td></tr>)}</tbody></table>
+                        ) : <p class="native-empty">No response assertions.</p>)}
+                        {tab === "Capture" && <p class="native-empty">No response captures.</p>}
+                        {["Pre Script", "Post Script", "Tests"].includes(tab) && (
+                          <>
+                            <div class="script-format"><select class="demo-select" aria-label={`${tab} source`} disabled><option>Inline</option></select><p class="setting-description">Write inline or use a .js file.</p></div>
+                            {scriptSource(example, tab) ? <pre class="script-code" aria-label={tab}><code>{codeLines(scriptSource(example, tab)!).map((line) => <span class="code-line">{line.map((token) => <span class={token.kind}>{token.text}</span>)}</span>)}</code></pre> : <p class="native-empty">{tab === "Tests" ? "No scripted tests." : `No ${tab === "Pre Script" ? "pre-request" : "post-response"} script.`}</p>}
+                          </>
+                        )}
                         {tab === "Auth" && (
                           <div class="native-panel">
                             <select class="demo-select" aria-label="Authentication type" disabled><option>None</option></select>
@@ -257,35 +318,42 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                           <>
                             <p class="network-note">Illustrative network timings</p>
                             <ol class="network-log">
-                              <li><span>0 ms</span><code>{example.method} {url}</code></li>
-                              <li><span>{example.duration} ms</span><code>{example.status}</code></li>
-                              <li><span>{example.duration} ms</span><code>Body received · {bytes} bytes</code></li>
-                              <li><span>{example.duration} ms</span><code>Completed in {example.duration} ms</code></li>
+                              <li><span>0ms</span><code>{example.method} {url}</code></li>
+                              <li><span>{example.duration}ms</span><code>{example.status}</code></li>
+                              <li><span>{example.duration}ms</span><code>Body received · {bytes} bytes</code></li>
+                              <li><span>{example.duration}ms</span><code>Completed in {example.duration}ms</code></li>
                             </ol>
                           </>
                         )}
                         {tab === "Timeline" && (
                           <div class="native-panel">
-                            <details class="timeline-entry">
-                              <summary class="timeline-row" aria-label={`${example.name} sample timeline details`}>
+                            <div class="timeline-row">
                                 <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12 3v7H3m3-3-3 3 3 3" /></svg>
                                 <span class:list={["method", example.method.toLowerCase()]}>{example.method === "DELETE" ? "DEL" : example.method}</span>
                                 <span class="timeline-status">{example.status.slice(0, 3)}</span>
                                 <span class="timeline-url">{url}</span>
                                 <span class="timeline-timing">{example.duration}ms <span>sample</span></span>
-                              </summary>
-                              <dl class="timeline-details">
-                                <dt>Request</dt><dd>{example.method} {url}</dd>
-                                <dt>Status</dt><dd>{example.status}</dd>
-                                <dt>Duration</dt><dd>{example.duration}ms (sample)</dd>
-                                <dt>Size</dt><dd>{bytes} B</dd>
-                                <dt>Recorded</dt><dd><time datetime="2026-09-26T12:00:00Z">2026-09-26 12:00:00 UTC</time> (sample)</dd>
-                              </dl>
-                            </details>
+                            </div>
                           </div>
                         )}
                         {tab === "Cookies" && <p class="native-empty">No cookies captured.</p>}
-                        {tab === "Results" && <p class="native-empty">No execution results.</p>}
+                        {tab === "Results" && (example.assertions || example.scripts || example.tests ? (
+                          <div class="sample-results" style={`--result-name-width: ${example.assertions ? Math.max(...example.assertions.map((item) => item.expression.length + 1)) : example.testNames ? Math.max(...example.testNames.map((name) => name.length + 1)) : example.scripts?.post ? 14 : 12}ch; --result-value-width: ${example.assertions ? 9 : example.tests ? 4 : 0}ch`}>
+                            <p class="sr-only">Sample results</p>
+                            {example.scripts && <>
+                              <h3><strong>Scripts</strong> <span>Passed</span></h3>
+                              {Object.keys(example.scripts).map((phase) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{phase === "pre" ? "Pre-request" : "Post-response"}</span><span class="result-meta">2ms, 0 logs</span></summary><dl><dt>Phase</dt><dd>{phase}</dd><dt>Scope</dt><dd>request</dd><dt>Kind</dt><dd>inline</dd><dt>Source</dt><dd>inline</dd><dt>Duration</dt><dd>2ms (sample)</dd></dl></details>)}
+                            </>}
+                            {example.assertions && <>
+                              <h3><strong>Assertions</strong> <span>{example.assertions.length} passed · 0 failed</span></h3>
+                              {example.assertions.map((assertion) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{assertion.expression}</span><span class="result-meta"> {assertion.operator}</span></summary><dl>{assertion.value !== undefined && <><dt>Expected</dt><dd>{assertion.value}</dd></>}<dt>Actual</dt><dd>{assertion.actual}</dd></dl></details>)}
+                            </>}
+                            {example.tests && <>
+                              <h3><strong>Scripted tests</strong> <span>{example.testNames!.length} passed · 0 failed</span></h3>
+                              {example.testNames!.map((name) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{name}</span><span class="result-meta"> 1ms</span></summary><dl><dt>Name</dt><dd>{name}</dd><dt>Message</dt><dd>Passed (sample)</dd><dt>Duration</dt><dd>1ms (sample)</dd></dl></details>)}
+                            </>}
+                          </div>
+                        ) : <p class="native-empty">No execution results.</p>)}
                       </div>
                     )
                   })}
@@ -335,6 +403,8 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       else if (group?.dataset.group === "Request") {
         context = inPanel && ["Headers", "Params"].includes(tab!) ? "request-fields"
           : inPanel && tab === "Path" ? "request-path"
+          : inPanel && ["Assert", "Capture"].includes(tab!) ? "request-assert"
+          : inPanel && ["Pre Script", "Post Script", "Tests"].includes(tab!) ? "request-script"
           : inPanel && tab === "Body" && group.querySelector("pre") ? "request-body" : "request-base"
       } else if (group?.dataset.group === "Response") {
         context = tab === "Body" ? "response-body" : tab === "Cookies" ? "response-cookies" : "response-base"
@@ -400,7 +470,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     const setSending = (sending: boolean) => {
       const button = active.querySelector<HTMLButtonElement>("[data-send]")!
       button.setAttribute("aria-disabled", String(sending))
-      button.textContent = sending ? "Sending…" : "Send"
+      button.querySelector("span")!.textContent = sending ? "Sending…" : "Send"
       footerSend.setAttribute("aria-disabled", String(sending))
       footerSend.querySelector("span")!.textContent = sending ? "sending…" : "send"
       const response = active.querySelector<HTMLElement>(".response")!
@@ -430,19 +500,78 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
 
     demo.querySelectorAll<HTMLElement>("[data-group]").forEach((group) => {
       const tabs = [...group.querySelectorAll<HTMLButtonElement>("[role=tab]")]
-      tabs.forEach((tab, index) => {
+      tabs.forEach((tab) => {
         tab.addEventListener("click", () => selectTab(group, tab))
         tab.addEventListener("keydown", (event) => {
+          const visibleTabs = tabs.filter((tab) => !tab.hidden)
+          const index = visibleTabs.indexOf(tab)
           let next: number
-          if (event.key === "ArrowRight") next = (index + 1) % tabs.length
-          else if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length
+          if (event.key === "ArrowRight") next = (index + 1) % visibleTabs.length
+          else if (event.key === "ArrowLeft") next = (index - 1 + visibleTabs.length) % visibleTabs.length
           else if (event.key === "Home") next = 0
-          else if (event.key === "End") next = tabs.length - 1
+          else if (event.key === "End") next = visibleTabs.length - 1
           else return
           event.preventDefault()
-          selectTab(group, tabs[next]!)
-          tabs[next]!.focus()
+          selectTab(group, visibleTabs[next]!)
+          visibleTabs[next]!.focus()
         })
+      })
+      const add = group.querySelector<HTMLButtonElement>("[data-add-tab]")
+      if (!add) return
+      const menu = group.querySelector<HTMLElement>("[data-tab-menu]")!
+      const items = [...menu.querySelectorAll<HTMLButtonElement>("[data-reveal-tab]")]
+      const closeMenu = (returnFocus = false) => {
+        menu.hidden = true
+        add.setAttribute("aria-expanded", "false")
+        if (returnFocus) add.focus()
+      }
+      const openMenu = (last = false) => {
+        menu.hidden = false
+        add.setAttribute("aria-expanded", "true")
+        const available = items.filter((item) => !item.disabled)
+        ;(last ? available.at(-1) : available[0])?.focus()
+      }
+      add.addEventListener("click", () => menu.hidden ? openMenu() : closeMenu())
+      add.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault()
+          openMenu(event.key === "ArrowUp")
+        } else if (event.key === "Escape") closeMenu(true)
+      })
+      menu.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" || event.key === "Tab") {
+          if (event.key === "Escape") event.preventDefault()
+          closeMenu(true)
+          return
+        }
+        const available = items.filter((item) => !item.disabled)
+        const index = available.indexOf(document.activeElement as HTMLButtonElement)
+        let next: number
+        if (event.key === "ArrowDown") next = (index + 1) % available.length
+        else if (event.key === "ArrowUp") next = (index - 1 + available.length) % available.length
+        else if (event.key === "Home") next = 0
+        else if (event.key === "End") next = available.length - 1
+        else return
+        event.preventDefault()
+        available[next]?.focus()
+      })
+      items.forEach((item) => item.addEventListener("click", () => {
+        const tab = tabs.find((tab) => tab.dataset.tab === item.dataset.revealTab)!
+        tab.hidden = false
+        item.disabled = true
+        closeMenu()
+        selectTab(group, tab)
+        tab.focus()
+      }))
+      add.parentElement!.addEventListener("focusout", (event) => {
+        if (!add.parentElement!.contains(event.relatedTarget as Node | null)) closeMenu()
+      })
+    })
+    document.addEventListener("click", (event) => {
+      demo.querySelectorAll<HTMLElement>("[data-tab-menu]:not([hidden])").forEach((menu) => {
+        if (menu.parentElement!.contains(event.target as Node)) return
+        menu.hidden = true
+        menu.parentElement!.querySelector("[data-add-tab]")!.setAttribute("aria-expanded", "false")
       })
     })
 
@@ -458,139 +587,182 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     }
     examples.forEach((example) => example.querySelector<HTMLButtonElement>("[data-send]")!.addEventListener("click", sendSample))
     footerSend.addEventListener("click", sendSample)
-    demo.querySelectorAll<HTMLButtonElement>("[data-request], [data-send], [role=tab], [data-footer-action], [data-footer-send]").forEach((button) => { button.disabled = false })
+    demo.querySelectorAll<HTMLButtonElement>("[data-request], [data-send], [role=tab], [data-footer-action], [data-footer-send], [data-add-tab]").forEach((button) => { button.disabled = false })
   })
 </script>
 
 <style>
   .noodle-demo {
-    --demo-bg: #181714;
-    --demo-panel: #24211d;
-    --demo-ink: #f3efe7;
-    --demo-muted: #aaa39a;
-    --demo-border: #514a42;
-    --demo-accent: #59c9be;
+    --demo-stripe: color-mix(in srgb, var(--demo-background-panel), var(--demo-background-element));
     margin-top: clamp(3rem, 9vw, 8rem);
     --demo-line: 22px;
     font: 400 0.8125rem/var(--demo-line) var(--font-mono);
-    color: var(--demo-ink);
+    color: var(--demo-text);
     color-scheme: dark;
   }
   .noodle-demo [hidden] { display: none !important; }
   .terminal {
     padding: 0 2ch;
-    background: var(--demo-bg);
-    border: 1px solid var(--demo-border);
+    background: var(--demo-background-panel);
+    border: 1px solid var(--demo-border-subtle);
     border-radius: 16px;
-    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.28);
+    box-shadow: 0 28px 70px color-mix(in srgb, var(--demo-background) 28%, transparent);
   }
-  .noodle-demo ::selection { color: var(--demo-bg); background: var(--demo-accent); }
-  .noodle-demo :is(pre, .tab-panel, .url-bar code, .request-tree, .tabs, .footer-context) { scrollbar-width: thin; scrollbar-color: var(--demo-border) var(--demo-bg); }
-  .noodle-demo :is(button, summary, [tabindex]):focus-visible { outline: 2px solid #8adbd4; outline-offset: -2px; }
+  .noodle-demo ::selection { color: var(--demo-background-panel); background: var(--demo-primary); }
+  .noodle-demo :is(pre, .tab-panel, .url-bar code, .request-tree, .footer-context) { scrollbar-width: thin; scrollbar-color: var(--demo-border-active) var(--demo-background); }
+  .noodle-demo :is(button, summary, [tabindex]):focus-visible { outline: 2px solid var(--demo-primary); outline-offset: -2px; }
   .terminal-title, .terminal-title > div, .environment, .terminal-foot { display: flex; align-items: center; }
   .terminal-title { justify-content: space-between; gap: 2ch; min-height: 36px; padding: 0 1ch; }
   .terminal-title > div { flex-wrap: wrap; gap: 0 2ch; min-width: 0; }
   .terminal-brand, .collection-label { white-space: nowrap; }
   .collection-label { display: inline-flex; align-items: center; gap: 2ch; }
-  .terminal-version { color: var(--demo-muted); }
+  .terminal-version { color: var(--demo-text-muted); }
   .chevron { flex: none; display: inline-block; width: 1ch; height: 0.6em; fill: currentColor; }
   .collection-chevron { width: 0.65ch; }
-  .terminal-title strong, .variable { color: var(--demo-accent); }
-  .title-divider, .terminal-foot, .folder-name { color: var(--demo-muted); }
+  .terminal-title strong, .variable { color: var(--demo-primary); }
+  .title-divider, .terminal-foot, .folder-name { color: var(--demo-text-muted); }
   .environment { gap: 1ch; }
-  .environment svg { width: 14px; height: 14px; fill: none; stroke: #9dcb82; stroke-width: 1; }
+  .environment svg { width: 14px; height: 14px; fill: none; stroke: var(--demo-success); stroke-width: 1; }
   .terminal-layout { display: grid; grid-template-columns: minmax(190px, 25%) minmax(0, 1fr); align-items: stretch; gap: 2ch; }
-  .pane { position: relative; min-width: 0; border: 1px solid var(--demo-border); }
-  .pane-heading, .collection > .pane-title { position: absolute; top: calc(var(--demo-line) / -2); right: 1ch; padding: 0 1ch; background: var(--demo-bg); }
+  .pane { position: relative; min-width: 0; background: var(--demo-background-panel); border: 1px solid var(--demo-border-subtle); }
+  .pane-heading, .collection > .pane-title { position: absolute; top: calc(var(--demo-line) / -2); right: 1ch; padding: 0 1ch; background: var(--demo-background-panel); }
   .pane-heading { display: flex; align-items: center; gap: 2ch; }
-  .pane-title { color: var(--demo-muted); font: inherit; }
-  .pane:focus-within { border-color: var(--demo-accent); }
-  .pane:focus-within .pane-title { color: var(--demo-accent); }
+  .pane-title { color: var(--demo-text-muted); font: inherit; }
+  .pane:focus-within { border-color: var(--demo-primary); }
+  .pane:focus-within .pane-title { color: var(--demo-primary); }
   .collection { padding: calc(var(--demo-line) / 2) 1ch; }
   .request-tree { max-height: 528px; overflow: auto; }
   .folder-name { display: flex; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; cursor: pointer; list-style: none; }
   .folder-name::-webkit-details-marker { display: none; }
-  .folder-name:hover { background: var(--demo-panel); }
+  .folder-name:hover { background: var(--demo-background-element); }
   .folder-name svg { width: 0.65ch; margin-inline: 0.175ch; }
   .request-folder:not([open]) .folder-name svg { transform: rotate(-90deg); }
   button { color: inherit; font: inherit; border: 0; background: transparent; cursor: pointer; }
   button:disabled { cursor: default; }
-  button:not(:disabled):hover { background: var(--demo-panel); }
+  button:not(:disabled):not(.add-tab):not(.send):hover { background: var(--demo-background-element); }
   .request-choice { display: flex; align-items: center; gap: 2ch; width: 100%; min-height: 44px; padding: 0 1ch 0 3ch; text-align: left; border-left: 1px solid transparent; }
   .request-choice > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .request-choice[aria-pressed="true"] { background: var(--demo-panel); border-left-color: var(--demo-accent); }
+  .request-choice[aria-pressed="true"] { background: var(--demo-background-element); border-left-color: var(--demo-primary); }
   .method { flex: none; width: 5ch; }
-  .post { color: #f0a96b; }
-  .get { color: #9dcb82; }
-  .patch, .put { color: #89b4fa; }
-  .delete { color: #ef7b63; }
+  .post { color: var(--demo-warning); }
+  .get { color: var(--demo-success); }
+  .patch, .put { color: var(--demo-info); }
+  .delete { color: var(--demo-error); }
   .workspace { display: grid; gap: var(--demo-line); min-width: 0; }
   .workspace.is-expanded .detail-pane:not(.is-expanded) { display: none; }
   .detail-pane.is-expanded .tab-panel, .detail-pane.is-expanded .sending-message { height: calc(var(--demo-line) * 20); }
-  .url-bar { display: flex; gap: 2ch; align-items: center; min-width: 0; min-height: 46px; padding: 0 1ch; border: 1px solid var(--demo-border); }
-  .method-badge { display: inline-flex; align-items: center; gap: 1ch; width: auto; padding: 0 1ch; background: #f0a96b; color: var(--demo-bg); }
-  .method-badge.get { background: #9dcb82; }
-  .method-badge.patch, .method-badge.put { background: #89b4fa; }
-  .method-badge.delete { background: #ef7b63; }
+  .url-bar { display: flex; gap: 2ch; align-items: center; min-width: 0; min-height: 46px; padding: 0 1ch; border: 1px solid var(--demo-border-subtle); }
+  .method-badge { display: inline-flex; align-items: center; gap: 1ch; width: auto; padding: 0 1ch; background: var(--demo-warning); color: var(--demo-background-panel); }
+  .method-badge.get { background: var(--demo-success); }
+  .method-badge.patch, .method-badge.put { background: var(--demo-info); }
+  .method-badge.delete { background: var(--demo-error); }
   .url-bar code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: inherit; }
-  .send { flex: none; min-width: 11ch; min-height: 44px; padding: 0 1ch; color: var(--demo-accent); }
-  .send[aria-disabled="true"] { color: var(--demo-muted); cursor: wait; }
+  .send { flex: none; min-width: 11ch; min-height: 44px; padding: 0; color: var(--demo-primary); }
+  .send span { display: inline-block; padding: 0 1ch; }
+  .send:not(:disabled):not([aria-disabled="true"]):hover span { background: var(--demo-background-element); }
+  .send[aria-disabled="true"] { color: var(--demo-text-muted); cursor: wait; }
   .detail-pane { padding: 0 1ch calc(var(--demo-line) / 2); }
-  .tabs { position: relative; display: flex; overflow-x: auto; border-bottom: 1px solid var(--demo-border); }
-  .tabs button { flex: 0 0 auto; min-width: 44px; min-height: 44px; padding: 0 2ch 0 1ch; color: var(--demo-muted); border-bottom: 1px solid transparent; white-space: nowrap; }
-  .tabs button[aria-selected="true"] { color: var(--demo-accent); border-bottom-color: var(--demo-accent); }
+  .tab-bar { display: flex; border-bottom: 1px solid var(--demo-border-subtle); }
+  .tabs { position: relative; display: flex; flex: 1; min-width: 0; overflow-x: auto; }
+  .noodle-demo .tabs { scrollbar-width: none; }
+  .tabs button { flex: 0 0 auto; min-width: 44px; min-height: 44px; padding: 0 2ch 0 1ch; color: var(--demo-text-muted); border-bottom: 1px solid transparent; white-space: nowrap; }
+  .tabs button[aria-selected="true"] { color: var(--demo-primary); border-bottom-color: var(--demo-primary); }
+  .tabs button:not(:disabled):hover { color: var(--demo-text); background: transparent; }
+  .tabs .has-content::after { content: " •"; }
+  .tabs .has-results::after { content: " ✓"; }
+  .optional-tabs { position: relative; flex: none; }
+  .add-tab { display: grid; place-items: center; width: 44px; min-height: 44px; color: var(--demo-text-muted); }
+  .add-tab svg { box-sizing: content-box; width: 12px; height: 12px; padding: 5px 1ch; background: var(--demo-background-element); fill: none; stroke: currentColor; stroke-width: 1.5; }
+  .add-tab:hover svg, .add-tab:focus-visible svg { background: var(--demo-border-subtle); color: var(--demo-primary); }
+  .add-tab[aria-expanded="true"] svg { background: var(--demo-primary); color: var(--demo-background-panel); }
+  .tab-menu { position: absolute; top: 100%; right: 0; z-index: 3; min-width: 15ch; padding: 0.5ch; border: 1px solid var(--demo-primary); background: var(--demo-background); }
+  .tab-menu button { display: block; width: 100%; min-height: 44px; padding: 0 1ch; text-align: left; }
+  .tab-menu button:disabled { color: var(--demo-text); opacity: 0.4; }
+  .tab-menu button:focus { color: var(--demo-text); background: var(--demo-background-element); font-weight: 700; }
   .tab-panel { height: calc(var(--demo-line) * 9); overflow: auto; }
   .panels { position: relative; }
-  .body-format { display: flex; align-items: center; justify-content: space-between; margin: calc(var(--demo-line) / 2) 0; padding: 0 1ch; background: var(--demo-panel); color: var(--demo-muted); }
-  pre { margin: 0; padding: 0; background: transparent; color: var(--demo-ink); font: inherit; counter-reset: code-line; tab-size: 2; }
+  .body-format { display: flex; align-items: center; justify-content: space-between; margin: calc(var(--demo-line) / 2) 0 var(--demo-line); padding: 0 1ch; background: var(--demo-background-element); color: var(--demo-text); }
+  pre { margin: 0; padding: 0; background: transparent; color: var(--demo-text); font: inherit; counter-reset: code-line; tab-size: 2; }
   pre code { font: inherit; }
   .response pre { padding-top: calc(var(--demo-line) / 2); }
   .code-line { counter-increment: code-line; }
-  .code-line::before { display: inline-block; width: 3ch; margin-right: 1ch; color: var(--demo-muted); text-align: right; content: counter(code-line); user-select: none; }
-  .key, .number { color: #f2c65a; }
-  .string { color: #9dcb82; }
-  .response-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1ch; color: var(--demo-muted); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
-  .response-summary strong { background: #9dcb82; padding: 0 1ch; color: var(--demo-bg); font-weight: 400; white-space: nowrap; }
-  .empty-state, .sending-message { padding: var(--demo-line) 1ch; color: var(--demo-muted); }
-  .sending-message { position: absolute; inset: 0; z-index: 1; background: var(--demo-bg); }
+  .code-line::before { display: inline-block; width: 3ch; margin-right: 1ch; color: var(--demo-text-muted); text-align: right; content: counter(code-line); user-select: none; }
+  .key, .property { color: var(--demo-secondary); }
+  .number { color: var(--demo-warning); }
+  .string { color: var(--demo-success); }
+  .keyword, .constant { color: var(--demo-info); }
+  .function { color: var(--demo-primary); }
+  .punctuation { color: var(--demo-text-muted); }
+  .script-format { margin: calc(var(--demo-line) / 2) 0 var(--demo-line); }
+  .script-code .code-line::before { width: 4ch; }
+  .assertions { min-width: 58ch; table-layout: fixed; }
+  .assertions th { width: auto; }
+  .assert-enabled { width: 4ch; }
+  .assert-operator { width: 15ch; }
+  .assertions th, .assertions td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .assertions td:nth-child(3) { padding: 0; }
+  .assertions td:first-child { padding: 0 0 0 1ch; }
+  .assertions td:last-child { padding-left: 3ch; }
+  .sample-results { padding-top: calc(var(--demo-line) / 2); }
+  .result-meta { color: var(--demo-text-muted); }
+  .sample-results h3 { display: flex; flex-wrap: wrap; gap: 0 1ch; font: inherit; }
+  .sample-results h3:not(:first-of-type) { margin-top: var(--demo-line); }
+  .sample-results h3 span, .result-pass { color: var(--demo-success); }
+  .result-entry summary { display: grid; grid-template-columns: 2ch 10ch minmax(0, var(--result-name-width)) minmax(var(--result-value-width), 1fr); align-items: center; min-height: 44px; padding: 0 1ch; cursor: pointer; list-style: none; }
+  .result-entry summary::-webkit-details-marker { display: none; }
+  .result-entry summary > span { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+  .result-entry:has(summary:hover), .result-entry:has(summary:focus), .result-entry[open] { background: var(--demo-background-element); }
+  .sample-results:not(:has(.result-entry[open], summary:focus)) .result-entry:first-of-type { background: var(--demo-background-element); }
+  .result-entry .chevron { color: var(--demo-text-muted); width: 0.65ch; }
+  .result-entry:not([open]) .chevron { transform: rotate(-90deg); }
+  .result-entry dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0 2ch; padding: 0 1ch 0 3ch; color: var(--demo-text-muted); }
+  .result-entry dd { margin: 0; overflow-wrap: anywhere; }
+  .response .pane-heading { right: 2ch; padding: 0; gap: 0; }
+  .response .pane-title { padding: 0 1ch; }
+  .response-summary { display: flex; align-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .response-metrics, .response-status { padding: 0 1ch; font-weight: 400; }
+  .response-metrics { color: var(--demo-text-muted); background: var(--demo-background-element); }
+  .response:focus-within .response-metrics { color: var(--demo-text); }
+  .response-status { color: var(--demo-background-panel); background: var(--demo-status); }
+  .empty-state, .sending-message { padding: var(--demo-line) 1ch; color: var(--demo-text-muted); }
+  .sending-message { position: absolute; inset: 0; z-index: 1; background: var(--demo-background-panel); }
   .response[aria-busy="true"] .response-summary { visibility: hidden; }
   table { width: 100%; border-collapse: collapse; font: inherit; margin-top: calc(var(--demo-line) / 2); }
   th, td { padding: 0 1ch; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
-  th { width: 38%; color: var(--demo-accent); font-weight: 400; }
-  tbody tr:nth-child(odd) { background: var(--demo-panel); }
-  .disabled-param :is(th, td) { color: var(--demo-muted); }
+  th { width: var(--header-width, 50%); color: var(--demo-primary); font-weight: 400; }
+  tbody tr:nth-child(even) { background: var(--demo-stripe); }
+  .disabled-param :is(th, td) { color: var(--demo-text-muted); }
   .native-panel, .native-empty { padding-top: calc(var(--demo-line) / 2); }
-  .native-empty, .setting-description { color: var(--demo-muted); }
-  .demo-select { width: 100%; max-width: 100%; height: var(--demo-line); padding: 0 3ch 0 1ch; border: 0; border-radius: 0; appearance: none; font: inherit; color: var(--demo-ink); opacity: 1; -webkit-text-fill-color: var(--demo-ink); background: var(--demo-panel) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%23aaa39a' d='M0 0h10L5 6z'/%3E%3C/svg%3E") no-repeat right 1ch center / 1ch auto; }
+  .native-empty, .setting-description { color: var(--demo-text-muted); }
+  .demo-select { width: 100%; max-width: 100%; height: var(--demo-line); padding: 0 3ch 0 1ch; border: 0; border-radius: 0; appearance: none; font: inherit; color: var(--demo-text); opacity: 1; -webkit-text-fill-color: var(--demo-text); background: var(--demo-background-element) var(--demo-select-chevron) no-repeat right 1ch center / 1ch auto; }
   .demo-select.fit-content { width: auto; }
   .setting-row { margin-top: var(--demo-line); }
-  .setting-value { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1ch; border-left: 1px solid var(--demo-border); padding-left: 1ch; }
-  .checked-value { color: var(--demo-accent); }
-  .tag-placeholder { padding: 0 1ch; color: var(--demo-muted); background: var(--demo-panel); }
-  .timeline-row { display: grid; grid-template-columns: 1ch 5ch 3ch minmax(0, 1fr) max-content; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; background: var(--demo-panel); cursor: pointer; list-style: none; }
-  .timeline-row::-webkit-details-marker { display: none; }
-  .timeline-row svg { width: 1ch; height: 1em; fill: none; stroke: var(--demo-muted); stroke-width: 1.4; }
-  .timeline-status { color: #9dcb82; }
+  .setting-value { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1ch; border-left: 1px solid var(--demo-border-subtle); padding-left: 1ch; }
+  .checked-value { color: var(--demo-primary); }
+  .tag-placeholder { padding: 0 1ch; color: var(--demo-text-muted); background: var(--demo-background-element); }
+  .timeline-row { display: grid; grid-template-columns: 1ch 5ch 3ch minmax(0, 1fr) max-content; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; background: var(--demo-background-element); }
+  .timeline-row svg { width: 1ch; height: 1em; fill: none; stroke: var(--demo-text-muted); stroke-width: 1.4; }
+  .timeline-status { color: var(--demo-status); }
   .timeline-url { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-  .timeline-timing { color: var(--demo-muted); white-space: nowrap; }
-  .timeline-details { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0 2ch; padding: calc(var(--demo-line) / 2) 1ch; }
-  .timeline-details dt { color: var(--demo-muted); }
-  .timeline-details dd { margin: 0; overflow-wrap: anywhere; }
-  .network-note { padding: calc(var(--demo-line) / 2) 1ch; color: var(--demo-muted); }
+  .timeline-timing { color: var(--demo-text-muted); white-space: nowrap; }
+  .network-note { padding: calc(var(--demo-line) / 2) 1ch; color: var(--demo-text-muted); }
   .network-log { list-style: none; padding: 0 1ch; }
   .network-log li { display: grid; grid-template-columns: 7ch minmax(0, 1fr); gap: 1ch; }
-  .network-log li > span { color: var(--demo-muted); font-variant-numeric: tabular-nums; }
+  .network-log li > span { color: var(--demo-text-muted); font-variant-numeric: tabular-nums; }
   .network-log code { font: inherit; overflow-wrap: anywhere; }
-  .network-log li:nth-child(2), .network-log li:last-child { color: #9dcb82; }
+  .network-log li:first-child { color: var(--demo-primary); }
+  .network-log li:nth-child(3) { color: var(--demo-text-muted); }
+  .network-log li:nth-child(2) { color: var(--demo-status); }
+  .network-log li:last-child { color: var(--demo-success); }
   .terminal-foot { justify-content: space-between; gap: 2ch; min-height: 44px; }
   .footer-context { display: flex; flex: 1; min-width: 0; gap: 1ch; overflow-x: auto; }
   .terminal-foot button { display: inline-flex; flex: none; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; white-space: nowrap; }
-  .terminal-foot kbd { color: var(--demo-ink); font: inherit; }
+  .terminal-foot kbd { color: var(--demo-text); font: inherit; }
   .footer-send[aria-disabled="true"] { cursor: wait; }
   figcaption { margin-top: 0.75rem; color: var(--muted); text-align: right; font-size: 0.6875rem; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
   @media (min-width: 680px) and (pointer: fine) {
-    .request-choice, .folder-name { min-height: 24px; }
+    .request-choice, .folder-name, .tab-menu button, .result-entry summary, .timeline-row { min-height: 24px; }
   }
   @media (max-width: 900px) {
     .terminal-layout { grid-template-columns: 190px minmax(0, 1fr); }
