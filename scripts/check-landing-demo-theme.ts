@@ -1,7 +1,26 @@
 // Run with: bun scripts/check-landing-demo-theme.ts
 import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
-import { noodleTheme, themeVariables, formatSize, formatStatus, statusColorToken } from "../src/components/landing/noodle-demo"
+import { noodleTheme, siteThemes, themeVariables, siteVariables, contrast } from "../src/lib/themes"
+import { formatSize, formatStatus, statusColorToken } from "../src/components/landing/noodle-demo"
+
+assert.equal(siteThemes.length, 8)
+assert.equal(new Set(siteThemes.map(({ theme }) => theme.name)).size, 8)
+for (const { label, theme } of siteThemes) {
+  const web = siteVariables(theme)
+  for (const background of ["--bg", "--bg-elevated", "--bg-card"]) {
+    for (const foreground of ["--fg", "--muted", "--accent", "--green", "--orange", "--coral", "--color-blue", "--color-red", "--color-purple"]) {
+      assert.ok(contrast(web[foreground]!, web[background]!) >= 4.5, `${label}: ${foreground} on ${background}`)
+    }
+  }
+  for (const background of ["--accent", "--accent-dim"]) assert.ok(contrast(web["--accent-text"]!, web[background]!) >= 4.5, `${label}: button contrast`)
+  assert.ok(contrast(web["--coral-ink"]!, web["--ivory"]!) >= 4.5, `${label}: paper panel contrast`)
+  assert.ok(label)
+  assert.deepEqual(Object.keys(theme).sort(), Object.keys(noodleTheme).sort(), `${label}: complete palette`)
+  for (const [role, value] of Object.entries(theme)) {
+    if (role !== "name") assert.match(value, /^#[\da-f]{6}$/i, `${label}: valid ${role}`)
+  }
+}
 
 for (const [bytes, expected] of [[0, "0B"], [292, "292B"], [1023, "1023B"], [1024, "1.0KB"], [1536, "1.5KB"], [1048576, "1.0MB"]] as const) {
   assert.equal(formatSize(bytes), expected)

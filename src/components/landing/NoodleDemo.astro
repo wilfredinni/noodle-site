@@ -1,11 +1,10 @@
 ---
-import { noodleTheme, themeVariables, formatSize, formatStatus, statusColorToken, type DemoTheme } from "./noodle-demo"
+import { formatSize, formatStatus, statusColorToken } from "./noodle-demo"
 
 interface Props {
   version?: string
-  theme?: DemoTheme
 }
-const { version, theme = noodleTheme } = Astro.props
+const { version } = Astro.props
 
 // Local snapshots of noodle/collections; demo responses are illustrative.
 type Example = {
@@ -198,7 +197,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
 })
 ---
 
-<figure class="noodle-demo" data-noodle-demo data-theme={theme.name} style={themeVariables(theme)} aria-labelledby="noodle-demo-caption">
+<figure class="noodle-demo" data-noodle-demo aria-labelledby="noodle-demo-caption">
   <div class="terminal">
     <div class="terminal-title">
       <div>
@@ -439,6 +438,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       button.addEventListener("click", () => button.dataset.footerAction === "expand" ? toggleExpanded() : void copyBody())
     })
     demo.addEventListener("keydown", (event) => {
+      if (!(event.target as HTMLElement).closest(".terminal")) return
       if (event.ctrlKey && event.key === "Enter") {
         event.preventDefault()
         footerSend.click()

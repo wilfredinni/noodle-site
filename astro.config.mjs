@@ -1,4 +1,5 @@
 // @ts-check
+import { syntaxThemes } from "./src/lib/themes.ts";
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 import starlight from "@astrojs/starlight";
@@ -49,6 +50,11 @@ export default defineConfig({
         alt: "Noodle",
       },
       expressiveCode: {
+        themes: syntaxThemes,
+        useStarlightDarkModeSwitch: false,
+        useStarlightUiThemeColors: false,
+        useDarkModeMediaQuery: false,
+        themeCssSelector: (theme) => `[data-site-theme='${theme.name}']`,
         defaultProps: {
           frame: "none",
         },
@@ -144,6 +150,8 @@ export default defineConfig({
       ],
       customCss: ["./src/styles/catppuccin.css"],
       components: {
+        ThemeProvider: "./src/components/ThemeProvider.astro",
+        ThemeSelect: "./src/components/ThemeSelect.astro",
         SiteTitle: "./src/components/SiteTitle.astro",
       },
       social: [

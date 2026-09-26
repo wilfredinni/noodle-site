@@ -1,5 +1,6 @@
 ---
 import Nav from "../components/Nav.astro"
+import ThemeProvider from "../components/ThemeProvider.astro"
 
 export interface Props {
   title: string
@@ -34,9 +35,10 @@ const jsonLd = structuredData
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
+    <ThemeProvider />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -82,64 +84,9 @@ const jsonLd = structuredData
       }
 
       :root {
-        --bg: #181613;
-        --bg-elevated: #201d19;
-        --bg-card: #24211d;
-        --panel: #24211d;
-        --fg: #f3efe7;
-        --muted: #aaa39a;
-        --accent: #59c9be;
-        --accent-glow: transparent;
-        --accent-dim: #3daaa1;
-        --border: #3b3630;
-        --border-hover: #514a42;
-        --rule: rgba(243, 239, 231, 0.12);
-        --violet: #59c9be;
-        --cyan: #59c9be;
-        --green: #9dcb82;
-        --orange: #f0a96b;
-        --noodle: #f2c65a;
-        --coral: #ef7b63;
-        --coral-ink: #9b3f31;
-        --ivory: #eee7da;
-        --ivory-ink: #211e1a;
         --section-space: clamp(3rem, 4vw, 4.5rem);
-        --shadow-strong: rgba(0, 0, 0, 0.35);
-        --mask-ink: #000;
         --font-display: 'Bodoni Moda', Georgia, serif;
-        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
         --font-sans: 'DM Sans', system-ui, sans-serif;
-        --accent-text: var(--bg);
-
-        /* Centralized Noodle accents */
-        --color-orange: var(--orange);
-        --color-green: var(--green);
-        --color-blue: #89b4fa;
-        --color-red: #f38ba8;
-        --color-purple: var(--violet);
-        --color-yellow: #f9e2af;
-      }
-
-      [data-theme="light"],
-      .sl-theme-light {
-        --bg: #eff1f5;
-        --bg-elevated: #e6e9ef;
-        --bg-card: #dce0e8;
-        --fg: #4c4f69;
-        --muted: #5c5f77;
-        --accent: #7287fd;
-        --accent-glow: transparent;
-        --accent-dim: #5f6cf0;
-        --border: #ccd0da;
-        --border-hover: #bcc0cc;
-        --shadow-strong: rgba(76, 79, 105, 0.2);
-        --color-orange: #fe640b;
-        --color-green: #40a02b;
-        --color-blue: #1e66f5;
-        --color-red: #d20f39;
-        --color-purple: #7c24ec; /* Darkened for WCAG AA contrast (4.51:1) */
-        --color-yellow: #df8e1d;
-        --accent-text: #11111b; /* Dark text for high contrast on light theme accent */
       }
 
       html {

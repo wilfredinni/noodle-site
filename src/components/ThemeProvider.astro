@@ -1,0 +1,17 @@
+---
+import { defaultSiteTheme, siteThemes, siteThemeCSS } from "../lib/themes"
+const names = siteThemes.map(({ theme }) => theme.name)
+---
+
+<style is:inline set:html={siteThemeCSS} />
+<script is:inline define:vars={{ names, defaultSiteTheme }}>
+  (() => {
+    let theme = defaultSiteTheme
+    try {
+      const saved = localStorage.getItem("noodle-site-theme")
+      if (names.includes(saved)) theme = saved
+    } catch { /* Storage may be unavailable; the default remains usable. */ }
+    document.documentElement.dataset.siteTheme = theme
+    document.documentElement.dataset.theme = "dark"
+  })()
+</script>

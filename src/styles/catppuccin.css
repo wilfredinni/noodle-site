@@ -1,77 +1,9 @@
 @import url("https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;1,400&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap");
 
 :root {
-  color-scheme: dark;
   --sl-content-width: 46rem;
   --sl-font: "DM Sans", system-ui, sans-serif;
   --sl-font-mono: "JetBrains Mono", monospace;
-  --sl-color-accent-low: #203b38;
-  --sl-color-accent: #59c9be;
-  --sl-color-accent-high: #eafaf8;
-  --sl-color-white: #f3efe7;
-  --sl-color-gray-1: #d7d1c8;
-  --sl-color-gray-2: #aaa39a;
-  --sl-color-gray-3: #857e75;
-  --sl-color-gray-4: #625b53;
-  --sl-color-gray-5: #474038;
-  --sl-color-gray-6: #302b26;
-  --sl-color-black: #181613;
-  --sl-color-bg: #181613;
-  --sl-color-bg-nav: #1a1815;
-  --sl-color-bg-sidebar: #1d1a17;
-  --sl-color-bg-inline-code: #24211d;
-  --sl-color-bg-accent: #59c9be;
-  --sl-color-hairline-light: #3b3630;
-  --sl-color-hairline-shade: #474038;
-  --sl-color-border: #3b3630;
-  --sl-color-border-accent: #59c9be;
-  --sl-color-orange-high: #f0a96b;
-  --sl-color-orange: #f0a96b;
-  --sl-color-green-high: #9dcb82;
-  --sl-color-green: #9dcb82;
-  --sl-color-blue-high: #8adbd4;
-  --sl-color-blue: #59c9be;
-  --sl-color-red-high: #f3a08f;
-  --sl-color-red: #ef7b63;
-  --sl-color-purple-high: #f2c65a;
-  --sl-color-purple: #f2c65a;
-  --sl-color-hero: #59c9be;
-}
-
-[data-theme="light"],
-.sl-theme-light {
-  color-scheme: light;
-  --sl-color-accent-low: #d7e9e6;
-  --sl-color-accent: #2f635e;
-  --sl-color-accent-high: #142b29;
-  --sl-color-white: #211e1a;
-  --sl-color-gray-1: #302b26;
-  --sl-color-gray-2: #554e46;
-  --sl-color-gray-3: #746c63;
-  --sl-color-gray-4: #9b9287;
-  --sl-color-gray-5: #c2b8aa;
-  --sl-color-gray-6: #ded5c8;
-  --sl-color-black: #f6f0e5;
-  --sl-color-bg: #f6f0e5;
-  --sl-color-bg-nav: #eee7da;
-  --sl-color-bg-sidebar: #eee7da;
-  --sl-color-bg-inline-code: #e6ddcf;
-  --sl-color-bg-accent: #2f635e;
-  --sl-color-hairline-light: #d0c7b9;
-  --sl-color-hairline-shade: #c2b8aa;
-  --sl-color-border: #d0c7b9;
-  --sl-color-border-accent: #2f635e;
-  --sl-color-orange-high: #7a4a1f;
-  --sl-color-orange: #9a5b25;
-  --sl-color-green-high: #3d651f;
-  --sl-color-green: #527c31;
-  --sl-color-blue-high: #245f59;
-  --sl-color-blue: #2f635e;
-  --sl-color-red-high: #7f3026;
-  --sl-color-red: #9b3f31;
-  --sl-color-purple-high: #6a5428;
-  --sl-color-purple: #8e7034;
-  --sl-color-hero: #2f635e;
 }
 
 html {
@@ -86,8 +18,8 @@ body {
 }
 
 ::selection {
-  color: #211e1a;
-  background: #f2c65a;
+  color: var(--ivory-ink);
+  background: var(--noodle);
 }
 
 * {
@@ -102,7 +34,7 @@ body {
 
 header.header {
   background-color: var(--sl-color-bg-nav);
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1600 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-140 120C260-80 490 250 900 75S1410 235 1740 15' stroke='%23f2c65a' stroke-width='20' opacity='.07'/%3E%3Cpath d='M-120 145C300-45 535 245 960 100S1390 205 1730 45' stroke='%2359c9be' stroke-width='12' opacity='.055'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: var(--header-pattern);
   background-position: center;
   background-size: cover;
   border-bottom-color: var(--sl-color-hairline-light);

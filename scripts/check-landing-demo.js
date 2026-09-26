@@ -28,7 +28,7 @@ async function checkNoodleDemo(doc = document) {
   assert(new Set(ids).size === ids.length, "All demo IDs are unique")
   assert([...demo.querySelectorAll("[data-request], [data-send], [role=tab], [data-footer-action], [data-footer-send], [data-add-tab]")].every((button) => !button.disabled), "Controls initialized")
   assert([...demo.querySelectorAll(".footer-context button:not([data-footer-action])")].every((button) => button.disabled), "App-only footer commands stay disabled")
-  assert([...demo.querySelectorAll("select, .tag-placeholder")].every((control) => control.disabled), "Read-only auth and settings controls stay disabled")
+  assert([...demo.querySelectorAll(".terminal select, .tag-placeholder")].every((control) => control.disabled), "Read-only auth and settings controls stay disabled")
   const folders = [...demo.querySelectorAll(".request-folder")]
   assert(folders.map((folder) => folder.querySelector("summary").textContent.trim()).join(",") === "comments,posts,todos,users", "All four collection folders are present")
   assert(demo.querySelectorAll("[data-request]").length === 18, "All 18 request examples are present")
@@ -229,6 +229,48 @@ async function checkNoodleDemo(doc = document) {
   assert(!demo.querySelector('.workspace.is-expanded'), "Changing requests restores the normal pane layout")
   choice("create").click()
   folders.forEach((folder) => { folder.open = ["posts", "todos"].includes(folder.querySelector("summary").textContent.trim()) })
+  const picker = doc.querySelector("[data-theme-picker]")
+  const themeOptions = [...doc.querySelectorAll("[data-theme-option]")]
+  const originalTheme = doc.documentElement.dataset.siteTheme
+  assert(!picker.disabled && themeOptions.length === 8, "All eight themes are available in the palette menu")
+  assert(themeOptions.map((option) => option.dataset.themeOption).join(",") === "noodle,aura,carbonfox,catppuccin,claude-code,cobalt2,dracula,synthwave84", "Theme names and order match Noodle")
+  choice("create-post").click()
+  active().querySelector('.response [data-tab="Headers"]').click()
+  const requestPanel = active().querySelector('.request [role=tabpanel]:not([hidden])')
+  const tree = demo.querySelector(".request-tree")
+  requestPanel.scrollTop = 60
+  tree.scrollTop = 48
+  picker.focus()
+  const preserved = () => JSON.stringify({
+    example: active().dataset.example,
+    tabs: [...active().querySelectorAll('[role=tab][aria-selected="true"]')].map((tab) => tab.id),
+    folders: folders.map((folder) => folder.open),
+    requestScroll: requestPanel.scrollTop,
+    treeScroll: tree.scrollTop,
+    pageScroll: view.scrollY,
+  })
+  const state = preserved()
+  for (const option of themeOptions) {
+    option.click()
+    assert(doc.documentElement.dataset.siteTheme === option.dataset.themeOption, `${option.dataset.themeOption}: theme applied`)
+    assert(preserved() === state && doc.activeElement === picker, `${option.dataset.themeOption}: request, tabs, folders, scroll, and focus preserved`)
+    assert(view.getComputedStyle(demo.querySelector(".terminal")).backgroundColor === color("background-panel"), `${option.dataset.themeOption}: panel palette updated`)
+    assert(view.getComputedStyle(active().querySelector(".response-status")).backgroundColor === color("success"), `${option.dataset.themeOption}: response badge palette updated`)
+    assert(view.getComputedStyle(active().querySelector(".variable")).color === color("primary"), `${option.dataset.themeOption}: URL palette updated`)
+    assert(view.getComputedStyle(active().querySelector(".key")).color === color("secondary"), `${option.dataset.themeOption}: syntax palette updated`)
+    const arrow = decodeURIComponent(view.getComputedStyle(active().querySelector(".demo-select")).backgroundImage)
+    assert(arrow.includes(theme.getPropertyValue("--demo-text-muted").trim()), `${option.dataset.themeOption}: dropdown arrow palette updated`)
+  }
+  picker.dispatchEvent(new view.KeyboardEvent("keydown", { key: "F2", bubbles: true }))
+  picker.dispatchEvent(new view.KeyboardEvent("keydown", { key: "Enter", ctrlKey: true, bubbles: true }))
+  assert(!demo.querySelector('.workspace.is-expanded') && active().querySelector('[data-send]').textContent === "Send", "Theme picker does not trigger terminal shortcuts")
+  active().querySelector('[data-send]').click()
+  themeOptions.find((option) => option.dataset.themeOption === originalTheme).click()
+  assert(active().querySelector('[data-send]').textContent === "Sending…", "Changing themes preserves a pending send")
+  await wait()
+  assert(active().querySelector('[data-send]').textContent === "Send" && live.textContent.includes("complete."), "Pending send finishes after changing themes")
+  choice("create").click()
+  tree.scrollTop = 0
   assert(fetches() === before, "Demo interactions made no fetch/XHR requests")
   return { passed: checks.length, checks }
 }

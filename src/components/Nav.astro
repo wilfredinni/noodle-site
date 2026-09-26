@@ -1,4 +1,5 @@
 ---
+import ThemeSelect from "./ThemeSelect.astro"
 import { Image } from "astro:assets"
 import krakenLogo from "../assets/noodle/logo-kraken-neutral.svg"
 ---
@@ -25,6 +26,7 @@ import krakenLogo from "../assets/noodle/logo-kraken-neutral.svg"
       <a href="/compare/">Compare</a>
       <a href="/blog/">Blog</a>
       <a href="/releases/">Releases</a>
+      <ThemeSelect />
       <a class="install-link" href="/docs/getting-started/installation/">Install Noodle</a>
       <a class="github-link" href="https://github.com/wilfredinni/noodle" target="_blank" rel="noopener noreferrer" aria-label="Noodle on GitHub">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -129,7 +131,7 @@ import krakenLogo from "../assets/noodle/logo-kraken-neutral.svg"
     align-items: center;
     min-height: 44px;
     padding-inline: 1rem;
-    color: var(--ivory-ink);
+    color: var(--accent-text);
     background: var(--accent);
     border: 1px solid var(--accent);
     border-radius: 8px;
@@ -137,7 +139,7 @@ import krakenLogo from "../assets/noodle/logo-kraken-neutral.svg"
   }
 
   .nav-links .install-link:hover {
-    color: var(--ivory-ink);
+    color: var(--accent-text);
     background: var(--accent-dim);
     border-color: var(--accent-dim);
   }
@@ -161,7 +163,7 @@ import krakenLogo from "../assets/noodle/logo-kraken-neutral.svg"
     transition: transform 180ms ease;
   }
 
-  @media (max-width: 760px) {
+  @media (max-width: 1100px) {
     .nav-inner {
       min-height: 64px;
       padding-inline: 1rem;
@@ -170,6 +172,8 @@ import krakenLogo from "../assets/noodle/logo-kraken-neutral.svg"
     .nav-links {
       position: absolute;
       inset: 64px 0 auto;
+      max-height: calc(100dvh - 64px);
+      overflow-y: auto;
       display: none;
       align-items: stretch;
       padding: 0.8rem 1rem 1rem;
@@ -191,7 +195,7 @@ import krakenLogo from "../assets/noodle/logo-kraken-neutral.svg"
     .nav-links .install-link {
       justify-content: center;
       margin-top: 0.5rem;
-      color: var(--ivory-ink);
+      color: var(--accent-text);
       border: 1px solid var(--accent);
     }
 
