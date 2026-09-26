@@ -1,0 +1,602 @@
+---
+interface Props {
+  version?: string
+}
+const { version } = Astro.props
+
+// Local snapshots of noodle/collections; demo responses are illustrative.
+type Example = {
+  id: string; folder: string; name: string; method: string; path: string; tab: string;
+  body: string; response: unknown; status: string; duration: number;
+  pathParams?: Record<string, string>;
+  headers?: Record<string, string>;
+  params?: { name: string; value: string; enabled?: boolean }[];
+}
+const user = { id: 1, name: "Ada Lovelace", username: "ada", email: "ada@example.com" }
+const todo = { userId: 1, id: 1, title: "my todo", completed: false }
+const post = { userId: 1, id: 1, title: "My First Blog Post", body: "A sample post from Noodle." }
+const comment = { postId: 1, id: 1, name: "test comment", email: "test@example.com", body: "comment body" }
+const createPostBody = "{\n  \"url\": \"$base_url\",\n  \"title\": \"My First Blog Post\",\n  \"slug\": \"my-first-blog-post\",\n  \"excerpt\": \"This is a brief excerpt of the blog post that gives readers a preview of the content that follows.\",\n  \"body\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\\n\\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\\n\\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.1\",\n  \"userId\": 1,\n  \"status\": \"published\",\n  \"tags\": [\n    \"javascript\",\n    \"tutorial\",\n    \"web-development\"\n  ],\n  \"category\": \"technology\",\n  \"publishedAt\": \"2026-07-08T10:00:00Z\",\n  \"featured\": true,\n  \"views\": 0,\n  \"likes\": 0\n}"
+const examples: Example[] = [
+  {
+    id: "create", folder: "comments", name: "Create Comment", method: "POST", path: "/comments", tab: "Body",
+    body: '{\n  "id": $random.uuid,\n  "timestamp": $time.iso,\n  "name": $random.name,\n  "email": $random.email,\n  "body": $random.loremText\n}',
+    response: { id: 501, timestamp: "2026-09-26T12:00:00.000Z", name: "Ada Lovelace", email: "ada@example.com", body: "A new comment, sent from Noodle." },
+    status: "201 Created", duration: 124,
+  },
+  {
+    id: "get", folder: "comments", name: "Get Comment by ID", method: "GET", path: "/comments/:commentId", pathParams: { commentId: "1" }, tab: "Path",
+    body: "", response: comment, status: "200 OK", duration: 86,
+  },
+  {
+    id: "update", folder: "comments", name: "Update Comment", method: "PATCH", path: "/comments/:commentId", pathParams: { commentId: "1" }, tab: "Body",
+    body: JSON.stringify({ postId: 1, name: "test comment", email: "test@example.com", body: "comment body" }, null, 2),
+    response: comment, status: "200 OK", duration: 112,
+  },
+  {
+    id: "get-user", folder: "users", name: "Get User by ID", method: "GET",
+    path: "/users/:userId", tab: "Path", body: "",
+    pathParams: {"userId": "1"},
+    response: user, status: "200 OK", duration: 108,
+  },
+  {
+    id: "get-users", folder: "users", name: "Get Users", method: "GET",
+    path: "/users", tab: "Headers", body: "",
+    response: [user], status: "200 OK", duration: 108,
+  },
+  {
+    id: "create-todo", folder: "todos", name: "Create Todo", method: "POST",
+    path: "/todos", tab: "Body", body: "{\n  \"title\": \"my todo\",\n  \"completed\": false,\n  \"userId\": 1\n}",
+    headers: {"Content-Type": "application/json"},
+    response: { ...todo, id: 201 }, status: "201 Created", duration: 108,
+  },
+  {
+    id: "delete-todo", folder: "todos", name: "Delete Todo", method: "DELETE",
+    path: "/todos/:todoId", tab: "Path", body: "",
+    pathParams: {"todoId": "1"},
+    response: {}, status: "200 OK", duration: 108,
+  },
+  {
+    id: "get-todo", folder: "todos", name: "Get Todo by ID", method: "GET",
+    path: "/todos/:todoId", tab: "Path", body: "",
+    pathParams: {"todoId": "1"},
+    response: todo, status: "200 OK", duration: 108,
+  },
+  {
+    id: "get-todos-by-user", folder: "todos", name: "Get Todos by User", method: "GET",
+    path: "/users/:userId/todos", tab: "Path", body: "",
+    pathParams: {"userId": "1"},
+    response: [todo], status: "200 OK", duration: 108,
+  },
+  {
+    id: "get-todos", folder: "todos", name: "Get Todos", method: "GET",
+    path: "/todos", tab: "Headers", body: "",
+    response: [todo], status: "200 OK", duration: 108,
+  },
+  {
+    id: "update-todo", folder: "todos", name: "Update Todo", method: "PATCH",
+    path: "/todos/:todoId", tab: "Body", body: "{\n  \"completed\": true\n}",
+    pathParams: {"todoId": "1"},
+    headers: {"Content-Type": "application/json"},
+    response: { ...todo, completed: true }, status: "200 OK", duration: 108,
+  },
+  {
+    id: "create-post", folder: "posts", name: "Create Post", method: "POST",
+    path: "/posts/", tab: "Body", body: createPostBody,
+    headers: {"Content-Type": "application/json", "x-api-key": "$x_api_key"},
+    response: { id: 101, ...JSON.parse(createPostBody), url: "https://jsonplaceholder.typicode.com" }, status: "201 Created", duration: 108,
+  },
+  {
+    id: "delete-post", folder: "posts", name: "Delete Post", method: "DELETE",
+    path: "/posts/:post_id", tab: "Path", body: "",
+    pathParams: {"post_id": "1"},
+    params: [{"name": "key", "value": "val2", "enabled": false}],
+    response: {}, status: "200 OK", duration: 108,
+  },
+  {
+    id: "get-post", folder: "posts", name: "Get Post by ID", method: "GET",
+    path: "/posts/:postId", tab: "Path", body: "",
+    pathParams: {"postId": "1"},
+    response: post, status: "200 OK", duration: 108,
+  },
+  {
+    id: "get-posts-by-user", folder: "posts", name: "Get Posts by User", method: "GET",
+    path: "/users/:userId/posts", tab: "Path", body: "",
+    pathParams: {"userId": "1"},
+    response: [post], status: "200 OK", duration: 108,
+  },
+  {
+    id: "get-posts", folder: "posts", name: "Get Posts", method: "GET",
+    path: "/posts", tab: "Headers", body: "",
+    response: [post], status: "200 OK", duration: 108,
+  },
+  {
+    id: "put-post", folder: "posts", name: "Replace Post", method: "PUT",
+    path: "/posts/:post_id", tab: "Body", body: "{\n  \"id\": 1,\n  \"title\": \"replaced title\",\n  \"body\": \"replaced body\",\n  \"userId\": 1\n}",
+    pathParams: {"post_id": "1"},
+    headers: {"Content-Type": "application/json"},
+    response: { id: 1, title: "replaced title", body: "replaced body", userId: 1 }, status: "200 OK", duration: 108,
+  },
+  {
+    id: "update-post", folder: "posts", name: "Update Post", method: "PATCH",
+    path: "/posts/:post_id", tab: "Body", body: "{\"title\":\"updated title\"}",
+    pathParams: {"post_id": "1"},
+    headers: {"Content-Type": "application/json"},
+    response: { ...post, title: "updated title" }, status: "200 OK", duration: 108,
+  },
+]
+const folders = ["comments", "posts", "todos", "users"]
+const requestTabs = ["Headers", "Params", "Path", "Body", "Auth", "Settings"]
+const responseTabs = ["Body", "Headers", "Network", "Timeline", "Cookies", "Results"]
+// These read-only values are shared by the copied collection requests.
+const requestSettings = [
+  { label: "Timeout (ms)", value: "0ms", kind: "text", description: "Set maximum time to wait before aborting the request" },
+  { label: "Follow Redirects", value: "true", kind: "check", description: "Automatically follow HTTP redirects" },
+  { label: "Max Redirects", value: "5", kind: "text", description: "Maximum number of redirects to follow" },
+  { label: "TLS Verification", value: "Inherit (verify)", kind: "select", description: "Verify the server certificate, or inherit the collection setting" },
+  { label: "Send Cookies", value: "true", kind: "check", description: "Send cookies from the collection cookie jar" },
+]
+// Default shortcuts from Noodle's keybindingHints and StatusBar. Only local demo actions are enabled.
+const expand = ["f2", "expand", "expand"]
+const commands = ["^p", "commands"]
+const footerHints: Record<string, string[][]> = {
+  sidebar: [["^n", "new"], ["^alt+n", "new folder"], ["^k", "clone"], ["^w", "delete"], ["^s", "save"]],
+  urlbar: [["^s", "save"]],
+  "request-base": [expand, ["^s", "save"], commands],
+  "request-fields": [expand, ["Space", "toggle"], ["^d", "revert"], ["^s", "save"], ["^r", "revert all"], commands],
+  "request-path": [expand, ["^d", "revert"], ["^r", "revert all"], ["^s", "save"], commands],
+  "request-body": [expand, ["^g", "fold"], commands],
+  "response-body": [expand, ["m", "visual"], ["^g", "fold"], ["/", "filter"], ["^alt+b", "copy", "copy"], commands],
+  "response-cookies": [expand, ["↑/↓", "select"], ["Enter", "details"], commands],
+  "response-base": [expand, commands],
+}
+// Split only the small, fixed examples; Astro escapes each token as text.
+const codeLines = (code: string) => code.split("\n").map((line) => {
+  const parts = `${line}\n`.split(/("(?:\\.|[^"\\])*"|\$(?:random|time)\.\w+|\b(?:\d+|true|false|null)\b)/g)
+  return parts.map((text, i) => ({ text, kind: text.startsWith("$") ? "variable" : text.startsWith('"') ? parts[i + 1]?.trimStart().startsWith(":") ? "key" : "string" : /^(?:\d+|true|false|null)$/.test(text) ? "number" : "plain" }))
+})
+---
+
+<figure class="noodle-demo" data-noodle-demo aria-labelledby="noodle-demo-caption">
+  <div class="terminal">
+    <div class="terminal-title">
+      <div>
+        <span class="terminal-brand"><strong>Noodle</strong>{version && <span class="terminal-version"> {version}</span>}</span>
+        <span class="collection-label"><span class="title-divider">/</span><span>Noodle Collection <svg class="chevron collection-chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></span></span>
+      </div>
+      <span class="environment"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="4" rx="5" ry="2" /><path d="M3 4v7c0 2.7 10 2.7 10 0V4M3 7.5c0 2.7 10 2.7 10 0" /></svg>development</span>
+    </div>
+
+    <div class="terminal-layout">
+      <section class="collection pane" aria-label="Example requests">
+        <h2 class="pane-title">Requests</h2>
+        <div class="request-tree">
+          {folders.map((folder) => (
+            <details class="request-folder" open={folder === "posts" || folder === "todos"}>
+              <summary class="folder-name"><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg>{folder}</summary>
+              {examples.filter((example) => example.folder === folder).map((example) => (
+                <button type="button" class="request-choice" data-request={example.id} aria-pressed={example.id === "create" ? "true" : "false"} aria-controls={`demo-${example.id}`} disabled>
+                  <span class:list={["method", example.method.toLowerCase()]}>{example.method === "DELETE" ? "DEL" : example.method}</span><span>{example.name}</span>
+                </button>
+              ))}
+            </details>
+          ))}
+        </div>
+      </section>
+
+      {examples.map((example, index) => {
+        const response = JSON.stringify(example.response, null, 2)
+        const bytes = new TextEncoder().encode(response).length
+        const url = `https://jsonplaceholder.typicode.com${example.path.replace(/:(\w+)/g, (match, key) => example.pathParams?.[key] ?? match)}`
+        const groups = [
+          { name: "Request", tabs: requestTabs, initial: example.tab },
+          { name: "Response", tabs: responseTabs, initial: "Body" },
+        ]
+        return (
+          <div class="workspace" id={`demo-${example.id}`} data-example={example.id} data-name={example.name} data-status={example.status} hidden={index !== 0}>
+            <div class="url-bar">
+              <span class:list={["method", "method-badge", example.method.toLowerCase()]}>{example.method}<svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></span>
+              <code tabindex="0" aria-label="Request URL"><span class="variable">$base_url</span>{example.path}</code>
+              <button class="send" type="button" data-send disabled>Send</button>
+            </div>
+            {groups.map((group) => (
+              <section class:list={["pane", "detail-pane", group.name.toLowerCase()]} data-group={group.name} data-default-tab={group.initial} aria-label={group.name}>
+                <div class="pane-heading">
+                  <h2 class="pane-title">{group.name}</h2>
+                  {group.name === "Response" && (
+                    <div class="response-summary"><span>{bytes} B <span class="sample-timing">· {example.duration} ms sample</span></span><strong>{example.status}</strong></div>
+                  )}
+                </div>
+                <div class="tabs" role="tablist" aria-label={`${group.name} views`}>
+                  {group.tabs.map((tab) => (
+                    <button type="button" role="tab" id={`demo-${example.id}-${group.name}-${tab}-tab`} aria-controls={`demo-${example.id}-${group.name}-${tab}`} aria-selected={tab === group.initial ? "true" : "false"} tabindex={tab === group.initial ? 0 : -1} data-tab={tab} disabled>{tab}</button>
+                  ))}
+                </div>
+                <div class="panels">
+                  <p class="sending-message" hidden>Sending sample request…</p>
+                  {group.tabs.map((tab) => {
+                    const panelCode = tab === "Body" ? group.name === "Request" ? example.body : response : ""
+                    const rows = tab === "Headers" ? group.name === "Response" ? [["content-type", "application/json; charset=utf-8"], ["cache-control", "no-cache"]] : Object.entries(example.headers ?? (example.body ? { "Content-Type": "application/json" } : {})) : tab === "Path" ? Object.entries(example.pathParams ?? {}) : tab === "Params" ? (example.params ?? []).map((param) => [param.name, param.value, param.enabled === false ? "disabled" : ""]) : []
+                    return (
+                      <div class="tab-panel" role="tabpanel" id={`demo-${example.id}-${group.name}-${tab}`} aria-labelledby={`demo-${example.id}-${group.name}-${tab}-tab`} tabindex="0" hidden={tab !== group.initial}>
+                        {tab === "Body" && (panelCode ? (
+                          <>
+                            {group.name === "Request" && <div class="body-format">JSON<svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></div>}
+                            <pre aria-label={`${group.name} body`}><code>{codeLines(panelCode).map((line) => (
+                              <span class="code-line">{line.map((token) => <span class={token.kind}>{token.text}</span>)}</span>
+                            ))}</code></pre>
+                          </>
+                        ) : <p class="empty-state">This {example.method} request has no body.</p>)}
+                        {["Headers", "Params", "Path"].includes(tab) && (rows.length ? (
+                          <table aria-label={`${group.name} ${tab.toLowerCase()}`}><thead class="sr-only"><tr><th>Key</th><th>Value</th></tr></thead><tbody>{rows.map(([key, value, disabled]) => <tr class:list={{ "disabled-param": disabled }}><th scope="row">{key}{disabled && <span> (disabled)</span>}</th><td>{value}</td></tr>)}</tbody></table>
+                        ) : <p class="empty-state">{tab === "Headers" ? "No request headers." : tab === "Params" ? "No query parameters." : "No path parameters."}</p>)}
+                        {tab === "Auth" && (
+                          <div class="native-panel">
+                            <select class="demo-select" aria-label="Authentication type" disabled><option>None</option></select>
+                          </div>
+                        )}
+                        {tab === "Settings" && (
+                          <div class="native-panel">
+                            <div class="setting-value"><span>Tags:</span><button class="tag-placeholder" type="button" disabled>+ Add tag</button></div>
+                            {requestSettings.map((setting) => (
+                              <div class="setting-row">
+                                <div class="setting-value">
+                                  <span>{setting.label}:</span>
+                                  {setting.kind === "select" ? (
+                                    <select class="demo-select fit-content" aria-label={setting.label} disabled><option>{setting.value}</option></select>
+                                  ) : setting.kind === "check" ? (
+                                    <span><span class="checked-value" aria-hidden="true">[x]</span><span class="sr-only">Enabled</span></span>
+                                  ) : <span>{setting.value}</span>}
+                                </div>
+                                <p class="setting-description">{setting.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {tab === "Network" && (
+                          <>
+                            <p class="network-note">Illustrative network timings</p>
+                            <ol class="network-log">
+                              <li><span>0 ms</span><code>{example.method} {url}</code></li>
+                              <li><span>{example.duration} ms</span><code>{example.status}</code></li>
+                              <li><span>{example.duration} ms</span><code>Body received · {bytes} bytes</code></li>
+                              <li><span>{example.duration} ms</span><code>Completed in {example.duration} ms</code></li>
+                            </ol>
+                          </>
+                        )}
+                        {tab === "Timeline" && (
+                          <div class="native-panel">
+                            <details class="timeline-entry">
+                              <summary class="timeline-row" aria-label={`${example.name} sample timeline details`}>
+                                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M12 3v7H3m3-3-3 3 3 3" /></svg>
+                                <span class:list={["method", example.method.toLowerCase()]}>{example.method === "DELETE" ? "DEL" : example.method}</span>
+                                <span class="timeline-status">{example.status.slice(0, 3)}</span>
+                                <span class="timeline-url">{url}</span>
+                                <span class="timeline-timing">{example.duration}ms <span>sample</span></span>
+                              </summary>
+                              <dl class="timeline-details">
+                                <dt>Request</dt><dd>{example.method} {url}</dd>
+                                <dt>Status</dt><dd>{example.status}</dd>
+                                <dt>Duration</dt><dd>{example.duration}ms (sample)</dd>
+                                <dt>Size</dt><dd>{bytes} B</dd>
+                                <dt>Recorded</dt><dd><time datetime="2026-09-26T12:00:00Z">2026-09-26 12:00:00 UTC</time> (sample)</dd>
+                              </dl>
+                            </details>
+                          </div>
+                        )}
+                        {tab === "Cookies" && <p class="native-empty">No cookies captured.</p>}
+                        {tab === "Results" && <p class="native-empty">No execution results.</p>}
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        )
+      })}
+    </div>
+    <div class="terminal-foot" aria-label="Noodle keyboard shortcuts" aria-describedby="noodle-demo-shortcuts">
+      {Object.entries(footerHints).map(([context, hints]) => (
+        <div class="footer-context" data-footer-context={context} tabindex="0" aria-label="Contextual app shortcuts" hidden={context !== "sidebar"}>
+          {hints.map(([key, label, action]) => (
+            <button type="button" data-footer-action={action} disabled title={action ? undefined : "Available in Noodle; not simulated in this read-only demo"}>
+              <kbd>{key}</kbd><span>{label}</span>
+            </button>
+          ))}
+        </div>
+      ))}
+      <button type="button" class="footer-send" data-footer-send disabled><kbd>^return</kbd><span>send</span></button>
+    </div>
+  </div>
+  <p class="sr-only" id="noodle-demo-shortcuts">Shortcuts from the Noodle app. Expand, copy, and send work in this demo. Other commands are shown for reference and disabled.</p>
+  <p class="sr-only" role="status" data-demo-status></p>
+  <figcaption id="noodle-demo-caption">Interactive demo · Sample responses</figcaption>
+</figure>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-noodle-demo]").forEach((demo) => {
+    const choices = [...demo.querySelectorAll<HTMLButtonElement>("[data-request]")]
+    const examples = [...demo.querySelectorAll<HTMLElement>("[data-example]")]
+    const status = demo.querySelector<HTMLElement>("[data-demo-status]")!
+    const footerSend = demo.querySelector<HTMLButtonElement>("[data-footer-send]")!
+    let active = examples[0]!
+    let pending: ReturnType<typeof setTimeout> | undefined
+    let focusedGroup: HTMLElement | null = null
+
+    const showFooter = (target: HTMLElement) => {
+      if (target.closest(".terminal-foot")) return
+      const group = target.closest<HTMLElement>("[data-group]")
+      const tab = group?.querySelector<HTMLElement>('[aria-selected="true"]')?.dataset.tab
+      const inPanel = !!target.closest("[role=tabpanel]")
+      let context: string
+      if (target.closest(".collection")) context = "sidebar"
+      else if (target.closest(".url-bar")) context = "urlbar"
+      else if (group?.dataset.group === "Request") {
+        context = inPanel && ["Headers", "Params"].includes(tab!) ? "request-fields"
+          : inPanel && tab === "Path" ? "request-path"
+          : inPanel && tab === "Body" && group.querySelector("pre") ? "request-body" : "request-base"
+      } else if (group?.dataset.group === "Response") {
+        context = tab === "Body" ? "response-body" : tab === "Cookies" ? "response-cookies" : "response-base"
+      } else return
+      focusedGroup = group
+      demo.querySelectorAll<HTMLElement>("[data-footer-context]").forEach((hints) => {
+        hints.hidden = hints.dataset.footerContext !== context
+      })
+    }
+    demo.addEventListener("focusin", (event) => showFooter(event.target as HTMLElement))
+    demo.addEventListener("click", (event) => showFooter(event.target as HTMLElement))
+
+    const toggleExpanded = () => {
+      if (!focusedGroup) return
+      const expanded = focusedGroup.classList.toggle("is-expanded")
+      active.classList.toggle("is-expanded", expanded)
+      demo.querySelectorAll<HTMLElement>('[data-footer-action="expand"] span').forEach((label) => {
+        label.textContent = expanded ? "collapse" : "expand"
+      })
+    }
+    const copyBody = async () => {
+      if (pending !== undefined) return
+      const name = active.dataset.name
+      try {
+        await navigator.clipboard.writeText(active.querySelector('[aria-label="Response body"] code')!.textContent!)
+        status.textContent = `${name} sample response copied.`
+      } catch {
+        status.textContent = "Copy unavailable. Select and copy the response text."
+      }
+    }
+    demo.querySelectorAll<HTMLButtonElement>("[data-footer-action]").forEach((button) => {
+      button.addEventListener("click", () => button.dataset.footerAction === "expand" ? toggleExpanded() : void copyBody())
+    })
+    demo.addEventListener("keydown", (event) => {
+      if (event.ctrlKey && event.key === "Enter") {
+        event.preventDefault()
+        footerSend.click()
+      } else if (event.key === "F2" && focusedGroup) {
+        event.preventDefault()
+        toggleExpanded()
+      } else if (event.ctrlKey && event.altKey && event.code === "KeyB" && focusedGroup?.dataset.group === "Response" && focusedGroup.querySelector('[data-tab="Body"]')?.getAttribute("aria-selected") === "true" && pending === undefined) {
+        event.preventDefault()
+        void copyBody()
+      }
+    })
+
+    const selectTab = (group: HTMLElement, selected: HTMLButtonElement) => {
+      group.querySelectorAll<HTMLButtonElement>("[role=tab]").forEach((tab) => {
+        tab.setAttribute("aria-selected", String(tab === selected))
+        tab.tabIndex = tab === selected ? 0 : -1
+      })
+      group.querySelectorAll<HTMLElement>("[role=tabpanel]").forEach((panel) => {
+        panel.hidden = panel.id !== selected.getAttribute("aria-controls")
+      })
+      const list = selected.parentElement!
+      if (selected.offsetLeft < list.scrollLeft) list.scrollLeft = selected.offsetLeft
+      else if (selected.offsetLeft + selected.offsetWidth > list.scrollLeft + list.clientWidth) {
+        list.scrollLeft = selected.offsetLeft + selected.offsetWidth - list.clientWidth
+      }
+      showFooter(selected)
+    }
+
+    const setSending = (sending: boolean) => {
+      const button = active.querySelector<HTMLButtonElement>("[data-send]")!
+      button.setAttribute("aria-disabled", String(sending))
+      button.textContent = sending ? "Sending…" : "Send"
+      footerSend.setAttribute("aria-disabled", String(sending))
+      footerSend.querySelector("span")!.textContent = sending ? "sending…" : "send"
+      const response = active.querySelector<HTMLElement>(".response")!
+      response.setAttribute("aria-busy", String(sending))
+      response.querySelector<HTMLElement>(".sending-message")!.hidden = !sending
+      demo.querySelector('[data-footer-action="copy"]')!.setAttribute("aria-disabled", String(sending))
+    }
+
+    choices.forEach((choice) => choice.addEventListener("click", () => {
+      clearTimeout(pending)
+      pending = undefined
+      setSending(false)
+      if (active.classList.contains("is-expanded")) {
+        active.classList.remove("is-expanded")
+        active.querySelector(".detail-pane.is-expanded")?.classList.remove("is-expanded")
+        demo.querySelectorAll<HTMLElement>('[data-footer-action="expand"] span').forEach((label) => { label.textContent = "expand" })
+      }
+      active = examples.find((example) => example.dataset.example === choice.dataset.request)!
+      examples.forEach((example) => { example.hidden = example !== active })
+      choices.forEach((button) => button.setAttribute("aria-pressed", String(button === choice)))
+      active.querySelectorAll<HTMLElement>("[data-group]").forEach((group) => {
+        selectTab(group, group.querySelector<HTMLButtonElement>(`[data-tab="${group.dataset.defaultTab}"]`)!)
+      })
+      status.textContent = `${active.dataset.name}. Sample response: ${active.dataset.status}.`
+      showFooter(choice)
+    }))
+
+    demo.querySelectorAll<HTMLElement>("[data-group]").forEach((group) => {
+      const tabs = [...group.querySelectorAll<HTMLButtonElement>("[role=tab]")]
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => selectTab(group, tab))
+        tab.addEventListener("keydown", (event) => {
+          let next: number
+          if (event.key === "ArrowRight") next = (index + 1) % tabs.length
+          else if (event.key === "ArrowLeft") next = (index - 1 + tabs.length) % tabs.length
+          else if (event.key === "Home") next = 0
+          else if (event.key === "End") next = tabs.length - 1
+          else return
+          event.preventDefault()
+          selectTab(group, tabs[next]!)
+          tabs[next]!.focus()
+        })
+      })
+    })
+
+    const sendSample = () => {
+      if (pending !== undefined) return
+      pending = setTimeout(() => {
+        pending = undefined
+        setSending(false)
+        status.textContent = `${active.dataset.name} complete. Sample response: ${active.dataset.status}.`
+      }, 450)
+      setSending(true)
+      status.textContent = "Sending sample request."
+    }
+    examples.forEach((example) => example.querySelector<HTMLButtonElement>("[data-send]")!.addEventListener("click", sendSample))
+    footerSend.addEventListener("click", sendSample)
+    demo.querySelectorAll<HTMLButtonElement>("[data-request], [data-send], [role=tab], [data-footer-action], [data-footer-send]").forEach((button) => { button.disabled = false })
+  })
+</script>
+
+<style>
+  .noodle-demo {
+    --demo-bg: #181714;
+    --demo-panel: #24211d;
+    --demo-ink: #f3efe7;
+    --demo-muted: #aaa39a;
+    --demo-border: #514a42;
+    --demo-accent: #59c9be;
+    margin-top: clamp(3rem, 9vw, 8rem);
+    --demo-line: 22px;
+    font: 400 0.8125rem/var(--demo-line) var(--font-mono);
+    color: var(--demo-ink);
+    color-scheme: dark;
+  }
+  .noodle-demo [hidden] { display: none !important; }
+  .terminal {
+    padding: 0 2ch;
+    background: var(--demo-bg);
+    border: 1px solid var(--demo-border);
+    border-radius: 16px;
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.28);
+  }
+  .noodle-demo ::selection { color: var(--demo-bg); background: var(--demo-accent); }
+  .noodle-demo :is(pre, .tab-panel, .url-bar code, .request-tree, .tabs, .footer-context) { scrollbar-width: thin; scrollbar-color: var(--demo-border) var(--demo-bg); }
+  .noodle-demo :is(button, summary, [tabindex]):focus-visible { outline: 2px solid #8adbd4; outline-offset: -2px; }
+  .terminal-title, .terminal-title > div, .environment, .terminal-foot { display: flex; align-items: center; }
+  .terminal-title { justify-content: space-between; gap: 2ch; min-height: 36px; padding: 0 1ch; }
+  .terminal-title > div { flex-wrap: wrap; gap: 0 2ch; min-width: 0; }
+  .terminal-brand, .collection-label { white-space: nowrap; }
+  .collection-label { display: inline-flex; align-items: center; gap: 2ch; }
+  .terminal-version { color: var(--demo-muted); }
+  .chevron { flex: none; display: inline-block; width: 1ch; height: 0.6em; fill: currentColor; }
+  .collection-chevron { width: 0.65ch; }
+  .terminal-title strong, .variable { color: var(--demo-accent); }
+  .title-divider, .terminal-foot, .folder-name { color: var(--demo-muted); }
+  .environment { gap: 1ch; }
+  .environment svg { width: 14px; height: 14px; fill: none; stroke: #9dcb82; stroke-width: 1; }
+  .terminal-layout { display: grid; grid-template-columns: minmax(190px, 25%) minmax(0, 1fr); align-items: stretch; gap: 2ch; }
+  .pane { position: relative; min-width: 0; border: 1px solid var(--demo-border); }
+  .pane-heading, .collection > .pane-title { position: absolute; top: calc(var(--demo-line) / -2); right: 1ch; padding: 0 1ch; background: var(--demo-bg); }
+  .pane-heading { display: flex; align-items: center; gap: 2ch; }
+  .pane-title { color: var(--demo-muted); font: inherit; }
+  .pane:focus-within { border-color: var(--demo-accent); }
+  .pane:focus-within .pane-title { color: var(--demo-accent); }
+  .collection { padding: calc(var(--demo-line) / 2) 1ch; }
+  .request-tree { max-height: 528px; overflow: auto; }
+  .folder-name { display: flex; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; cursor: pointer; list-style: none; }
+  .folder-name::-webkit-details-marker { display: none; }
+  .folder-name:hover { background: var(--demo-panel); }
+  .folder-name svg { width: 0.65ch; margin-inline: 0.175ch; }
+  .request-folder:not([open]) .folder-name svg { transform: rotate(-90deg); }
+  button { color: inherit; font: inherit; border: 0; background: transparent; cursor: pointer; }
+  button:disabled { cursor: default; }
+  button:not(:disabled):hover { background: var(--demo-panel); }
+  .request-choice { display: flex; align-items: center; gap: 2ch; width: 100%; min-height: 44px; padding: 0 1ch 0 3ch; text-align: left; border-left: 1px solid transparent; }
+  .request-choice > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .request-choice[aria-pressed="true"] { background: var(--demo-panel); border-left-color: var(--demo-accent); }
+  .method { flex: none; width: 5ch; }
+  .post { color: #f0a96b; }
+  .get { color: #9dcb82; }
+  .patch, .put { color: #89b4fa; }
+  .delete { color: #ef7b63; }
+  .workspace { display: grid; gap: var(--demo-line); min-width: 0; }
+  .workspace.is-expanded .detail-pane:not(.is-expanded) { display: none; }
+  .detail-pane.is-expanded .tab-panel, .detail-pane.is-expanded .sending-message { height: calc(var(--demo-line) * 20); }
+  .url-bar { display: flex; gap: 2ch; align-items: center; min-width: 0; min-height: 46px; padding: 0 1ch; border: 1px solid var(--demo-border); }
+  .method-badge { display: inline-flex; align-items: center; gap: 1ch; width: auto; padding: 0 1ch; background: #f0a96b; color: var(--demo-bg); }
+  .method-badge.get { background: #9dcb82; }
+  .method-badge.patch, .method-badge.put { background: #89b4fa; }
+  .method-badge.delete { background: #ef7b63; }
+  .url-bar code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font: inherit; }
+  .send { flex: none; min-width: 11ch; min-height: 44px; padding: 0 1ch; color: var(--demo-accent); }
+  .send[aria-disabled="true"] { color: var(--demo-muted); cursor: wait; }
+  .detail-pane { padding: 0 1ch calc(var(--demo-line) / 2); }
+  .tabs { position: relative; display: flex; overflow-x: auto; border-bottom: 1px solid var(--demo-border); }
+  .tabs button { flex: 0 0 auto; min-width: 44px; min-height: 44px; padding: 0 2ch 0 1ch; color: var(--demo-muted); border-bottom: 1px solid transparent; white-space: nowrap; }
+  .tabs button[aria-selected="true"] { color: var(--demo-accent); border-bottom-color: var(--demo-accent); }
+  .tab-panel { height: calc(var(--demo-line) * 9); overflow: auto; }
+  .panels { position: relative; }
+  .body-format { display: flex; align-items: center; justify-content: space-between; margin: calc(var(--demo-line) / 2) 0; padding: 0 1ch; background: var(--demo-panel); color: var(--demo-muted); }
+  pre { margin: 0; padding: 0; background: transparent; color: var(--demo-ink); font: inherit; counter-reset: code-line; tab-size: 2; }
+  pre code { font: inherit; }
+  .response pre { padding-top: calc(var(--demo-line) / 2); }
+  .code-line { counter-increment: code-line; }
+  .code-line::before { display: inline-block; width: 3ch; margin-right: 1ch; color: var(--demo-muted); text-align: right; content: counter(code-line); user-select: none; }
+  .key, .number { color: #f2c65a; }
+  .string { color: #9dcb82; }
+  .response-summary { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1ch; color: var(--demo-muted); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+  .response-summary strong { background: #9dcb82; padding: 0 1ch; color: var(--demo-bg); font-weight: 400; white-space: nowrap; }
+  .empty-state, .sending-message { padding: var(--demo-line) 1ch; color: var(--demo-muted); }
+  .sending-message { position: absolute; inset: 0; z-index: 1; background: var(--demo-bg); }
+  .response[aria-busy="true"] .response-summary { visibility: hidden; }
+  table { width: 100%; border-collapse: collapse; font: inherit; margin-top: calc(var(--demo-line) / 2); }
+  th, td { padding: 0 1ch; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+  th { width: 38%; color: var(--demo-accent); font-weight: 400; }
+  tbody tr:nth-child(odd) { background: var(--demo-panel); }
+  .disabled-param :is(th, td) { color: var(--demo-muted); }
+  .native-panel, .native-empty { padding-top: calc(var(--demo-line) / 2); }
+  .native-empty, .setting-description { color: var(--demo-muted); }
+  .demo-select { width: 100%; max-width: 100%; height: var(--demo-line); padding: 0 3ch 0 1ch; border: 0; border-radius: 0; appearance: none; font: inherit; color: var(--demo-ink); opacity: 1; -webkit-text-fill-color: var(--demo-ink); background: var(--demo-panel) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%23aaa39a' d='M0 0h10L5 6z'/%3E%3C/svg%3E") no-repeat right 1ch center / 1ch auto; }
+  .demo-select.fit-content { width: auto; }
+  .setting-row { margin-top: var(--demo-line); }
+  .setting-value { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1ch; border-left: 1px solid var(--demo-border); padding-left: 1ch; }
+  .checked-value { color: var(--demo-accent); }
+  .tag-placeholder { padding: 0 1ch; color: var(--demo-muted); background: var(--demo-panel); }
+  .timeline-row { display: grid; grid-template-columns: 1ch 5ch 3ch minmax(0, 1fr) max-content; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; background: var(--demo-panel); cursor: pointer; list-style: none; }
+  .timeline-row::-webkit-details-marker { display: none; }
+  .timeline-row svg { width: 1ch; height: 1em; fill: none; stroke: var(--demo-muted); stroke-width: 1.4; }
+  .timeline-status { color: #9dcb82; }
+  .timeline-url { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .timeline-timing { color: var(--demo-muted); white-space: nowrap; }
+  .timeline-details { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0 2ch; padding: calc(var(--demo-line) / 2) 1ch; }
+  .timeline-details dt { color: var(--demo-muted); }
+  .timeline-details dd { margin: 0; overflow-wrap: anywhere; }
+  .network-note { padding: calc(var(--demo-line) / 2) 1ch; color: var(--demo-muted); }
+  .network-log { list-style: none; padding: 0 1ch; }
+  .network-log li { display: grid; grid-template-columns: 7ch minmax(0, 1fr); gap: 1ch; }
+  .network-log li > span { color: var(--demo-muted); font-variant-numeric: tabular-nums; }
+  .network-log code { font: inherit; overflow-wrap: anywhere; }
+  .network-log li:nth-child(2), .network-log li:last-child { color: #9dcb82; }
+  .terminal-foot { justify-content: space-between; gap: 2ch; min-height: 44px; }
+  .footer-context { display: flex; flex: 1; min-width: 0; gap: 1ch; overflow-x: auto; }
+  .terminal-foot button { display: inline-flex; flex: none; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; white-space: nowrap; }
+  .terminal-foot kbd { color: var(--demo-ink); font: inherit; }
+  .footer-send[aria-disabled="true"] { cursor: wait; }
+  figcaption { margin-top: 0.75rem; color: var(--muted); text-align: right; font-size: 0.6875rem; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+  @media (min-width: 680px) and (pointer: fine) {
+    .request-choice, .folder-name { min-height: 24px; }
+  }
+  @media (max-width: 900px) {
+    .terminal-layout { grid-template-columns: 190px minmax(0, 1fr); }
+    .request-choice { font-size: 0.75rem; }
+  }
+  @media (max-width: 679px) {
+    .noodle-demo { display: none; }
+  }
+</style>

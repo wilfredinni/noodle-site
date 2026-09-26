@@ -1,8 +1,7 @@
 ---
-import { Image } from "astro:assets"
 import type { CollectionEntry } from "astro:content"
-import productImage from "../../assets/landing.png"
 import InstallPill from "../InstallPill.astro"
+import NoodleDemo from "./NoodleDemo.astro"
 
 interface Props {
   latestRelease?: CollectionEntry<"blog">
@@ -42,16 +41,7 @@ const [latestVersion, latestTitle] = (latestReleaseLabel ?? "").split(" · ")
     </div>
   </div>
 
-  <figure class="product-stage">
-    <Image
-      src={productImage}
-      class="product-image"
-      alt="Noodle terminal interface showing a request collection, request editor, and response inspector"
-      format="png"
-      loading="eager"
-      fetchpriority="high"
-    />
-  </figure>
+  <NoodleDemo version={latestVersion} />
 
   <div class="value-strip" aria-label="Noodle product benefits">
     <article><h2>Fast by default</h2><p>Stay in the terminal and keep your hands on the keyboard.</p></article>
@@ -185,21 +175,6 @@ const [latestVersion, latestTitle] = (latestReleaseLabel ?? "").split(" · ")
     font-size: 0.7rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-  }
-
-  .product-stage {
-    width: 100%;
-    margin-top: clamp(3rem, 9vw, 8rem);
-    overflow: hidden;
-    background: var(--panel);
-    border-radius: 16px;
-    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.28);
-  }
-
-  .product-image {
-    display: block;
-    width: 100%;
-    height: auto;
   }
 
   .value-strip {
