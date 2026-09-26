@@ -1,146 +1,12 @@
 ---
 import { formatSize, formatStatus, statusColorToken } from "./noodle-demo"
+import { examples, folders, type Example } from "./noodle-demo-examples"
 
 interface Props {
   version?: string
 }
 const { version } = Astro.props
 
-// Local snapshots of noodle/collections; demo responses are illustrative.
-type Example = {
-  id: string; folder: string; name: string; method: string; path: string; tab: string;
-  body: string; response: unknown; status: string; duration: number;
-  pathParams?: Record<string, string>;
-  headers?: Record<string, string>;
-  params?: { name: string; value: string; enabled?: boolean }[];
-  assertions?: { expression: string; operator: string; value?: string | number; actual: string | number }[];
-  scripts?: { pre?: string; post?: string };
-  tests?: string;
-  testNames?: string[];
-}
-const user = { id: 1, name: "Ada Lovelace", username: "ada", email: "ada@example.com" }
-const todo = { userId: 1, id: 1, title: "my todo", completed: false }
-const post = { userId: 1, id: 1, title: "My First Blog Post", body: "A sample post from Noodle." }
-const comment = { postId: 1, id: 1, name: "test comment", email: "test@example.com", body: "comment body" }
-const createPostBody = "{\n  \"url\": \"$base_url\",\n  \"title\": \"My First Blog Post\",\n  \"slug\": \"my-first-blog-post\",\n  \"excerpt\": \"This is a brief excerpt of the blog post that gives readers a preview of the content that follows.\",\n  \"body\": \"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\\n\\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\\n\\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.1\",\n  \"userId\": 1,\n  \"status\": \"published\",\n  \"tags\": [\n    \"javascript\",\n    \"tutorial\",\n    \"web-development\"\n  ],\n  \"category\": \"technology\",\n  \"publishedAt\": \"2026-07-08T10:00:00Z\",\n  \"featured\": true,\n  \"views\": 0,\n  \"likes\": 0\n}"
-const examples: Example[] = [
-  {
-    id: "create", folder: "comments", name: "Create Comment", method: "POST", path: "/comments", tab: "Body",
-    body: '{\n  "id": $random.uuid,\n  "timestamp": $time.iso,\n  "name": $random.name,\n  "email": $random.email,\n  "body": $random.loremText\n}',
-    response: { id: 501, timestamp: "2026-09-26T12:00:00.000Z", name: "Ada Lovelace", email: "ada@example.com", body: "A new comment, sent from Noodle." },
-    status: "201 Created", duration: 124,
-    assertions: [
-      { expression: "status", operator: "equals", value: 201, actual: 201 },
-      { expression: "headers.Content-Type", operator: "contains", value: "application/json", actual: "application/json; charset=utf-8" },
-      { expression: "body.id", operator: "isNumber", actual: 501 },
-    ],
-  },
-  {
-    id: "get", folder: "comments", name: "Get Comment by ID", method: "GET", path: "/comments/:commentId", pathParams: { commentId: "1" }, tab: "Path",
-    body: "", response: comment, status: "200 OK", duration: 86,
-  },
-  {
-    id: "update", folder: "comments", name: "Update Comment", method: "PATCH", path: "/comments/:commentId", pathParams: { commentId: "1" }, tab: "Body",
-    body: JSON.stringify({ postId: 1, name: "test comment", email: "test@example.com", body: "comment body" }, null, 2),
-    response: comment, status: "200 OK", duration: 112,
-  },
-  {
-    id: "get-user", folder: "users", name: "Get User by ID", method: "GET",
-    path: "/users/:userId", tab: "Path", body: "",
-    pathParams: {"userId": "1"},
-    response: user, status: "200 OK", duration: 108,
-    scripts: { post: 'const user = noodle.response.json();\nif (noodle.response.status === 200) {\n  noodle.run.set("USER_EMAIL", user.email);\n}' },
-  },
-  {
-    id: "get-users", folder: "users", name: "Get Users", method: "GET",
-    path: "/users", tab: "Headers", body: "",
-    response: [user], status: "200 OK", duration: 108,
-  },
-  {
-    id: "create-todo", folder: "todos", name: "Create Todo", method: "POST",
-    path: "/todos", tab: "Body", body: "{\n  \"title\": \"my todo\",\n  \"completed\": false,\n  \"userId\": 1\n}",
-    headers: {"Content-Type": "application/json"},
-    response: { ...todo, id: 201 }, status: "201 Created", duration: 108,
-  },
-  {
-    id: "delete-todo", folder: "todos", name: "Delete Todo", method: "DELETE",
-    path: "/todos/:todoId", tab: "Path", body: "",
-    pathParams: {"todoId": "1"},
-    response: {}, status: "200 OK", duration: 108,
-  },
-  {
-    id: "get-todo", folder: "todos", name: "Get Todo by ID", method: "GET",
-    path: "/todos/:todoId", tab: "Path", body: "",
-    pathParams: {"todoId": "1"},
-    response: todo, status: "200 OK", duration: 108,
-  },
-  {
-    id: "get-todos-by-user", folder: "todos", name: "Get Todos by User", method: "GET",
-    path: "/users/:userId/todos", tab: "Path", body: "",
-    pathParams: {"userId": "1"},
-    response: [todo], status: "200 OK", duration: 108,
-  },
-  {
-    id: "get-todos", folder: "todos", name: "Get Todos", method: "GET",
-    path: "/todos", tab: "Headers", body: "",
-    response: [todo], status: "200 OK", duration: 108,
-  },
-  {
-    id: "update-todo", folder: "todos", name: "Update Todo", method: "PATCH",
-    path: "/todos/:todoId", tab: "Body", body: "{\n  \"completed\": true\n}",
-    pathParams: {"todoId": "1"},
-    headers: {"Content-Type": "application/json"},
-    response: { ...todo, completed: true }, status: "200 OK", duration: 108,
-    tests: 'test("todo is complete", () => {\n  expect(noodle.response.json().completed).toBe(true);\n});\ntest("todo belongs to user 1", () => {\n  expect(noodle.response.json().userId).toBe(1);\n});',
-    testNames: ["todo is complete", "todo belongs to user 1"],
-  },
-  {
-    id: "create-post", folder: "posts", name: "Create Post", method: "POST",
-    path: "/posts/", tab: "Body", body: createPostBody,
-    headers: {"Content-Type": "application/json", "x-api-key": "$x_api_key"},
-    response: { id: 101, ...JSON.parse(createPostBody), url: "https://jsonplaceholder.typicode.com" }, status: "201 Created", duration: 108,
-    scripts: { pre: 'const requestId = noodle.random.uuid();\nnoodle.request.headers.set("X-Request-ID", requestId);' },
-  },
-  {
-    id: "delete-post", folder: "posts", name: "Delete Post", method: "DELETE",
-    path: "/posts/:post_id", tab: "Path", body: "",
-    pathParams: {"post_id": "1"},
-    params: [{"name": "key", "value": "val2", "enabled": false}],
-    response: {}, status: "200 OK", duration: 108,
-  },
-  {
-    id: "get-post", folder: "posts", name: "Get Post by ID", method: "GET",
-    path: "/posts/:postId", tab: "Path", body: "",
-    pathParams: {"postId": "1"},
-    response: post, status: "200 OK", duration: 108,
-  },
-  {
-    id: "get-posts-by-user", folder: "posts", name: "Get Posts by User", method: "GET",
-    path: "/users/:userId/posts", tab: "Path", body: "",
-    pathParams: {"userId": "1"},
-    response: [post], status: "200 OK", duration: 108,
-  },
-  {
-    id: "get-posts", folder: "posts", name: "Get Posts", method: "GET",
-    path: "/posts", tab: "Headers", body: "",
-    response: [post], status: "200 OK", duration: 108,
-  },
-  {
-    id: "put-post", folder: "posts", name: "Replace Post", method: "PUT",
-    path: "/posts/:post_id", tab: "Body", body: "{\n  \"id\": 1,\n  \"title\": \"replaced title\",\n  \"body\": \"replaced body\",\n  \"userId\": 1\n}",
-    pathParams: {"post_id": "1"},
-    headers: {"Content-Type": "application/json"},
-    response: { id: 1, title: "replaced title", body: "replaced body", userId: 1 }, status: "200 OK", duration: 108,
-  },
-  {
-    id: "update-post", folder: "posts", name: "Update Post", method: "PATCH",
-    path: "/posts/:post_id", tab: "Body", body: "{\"title\":\"updated title\"}",
-    pathParams: {"post_id": "1"},
-    headers: {"Content-Type": "application/json"},
-    response: { ...post, title: "updated title" }, status: "200 OK", duration: 108,
-  },
-]
-const folders = ["comments", "posts", "todos", "users"]
 const optionalTabs = ["Assert", "Capture", "Pre Script", "Post Script", "Tests"]
 const requestTabs = ["Headers", "Params", "Path", "Body", "Auth", ...optionalTabs, "Settings"]
 const responseTabs = ["Body", "Headers", "Network", "Timeline", "Cookies", "Results"]
@@ -149,11 +15,14 @@ const hasContent = (example: Example, tab: string) => {
   if (tab === "Headers") return Object.keys(example.headers ?? {}).length > 0 || !!example.body
   if (tab === "Params") return !!example.params?.some((param) => param.enabled !== false)
   if (tab === "Path") return Object.keys(example.pathParams ?? {}).length > 0
-  if (tab === "Body") return !!example.body
+  if (tab === "Body") return !!example.body || !!example.formData?.length
+  if (tab === "Auth") return !!example.auth
+  if (tab === "Capture") return !!example.captures?.length
+  if (tab === "Settings") return !!example.tags?.length
   return tab === "Assert" ? !!example.assertions?.length : !!scriptSource(example, tab)
 }
 const tabSlug = (tab: string) => tab.replaceAll(" ", "-")
-// These read-only values are shared by the copied collection requests.
+// Default settings shared by these read-only examples.
 const requestSettings = [
   { label: "Timeout (ms)", value: "0ms", kind: "text", description: "Set maximum time to wait before aborting the request" },
   { label: "Follow Redirects", value: "true", kind: "check", description: "Automatically follow HTTP redirects" },
@@ -189,7 +58,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       : text.startsWith('"') ? after.startsWith(":") ? "key" : "string"
       : /^\d/.test(text) ? "number"
       : /^(true|false|null)$/.test(text) ? "constant"
-      : /^(const|if)$/.test(text) ? "keyword"
+      : /^(const|if|for|of|await)$/.test(text) ? "keyword"
       : /^[a-zA-Z_]/.test(text) ? after.startsWith("(") ? "function" : before.endsWith(".") ? "property" : "plain"
       : /^[{}\[\](),.:;=<>]$/.test(text) ? "punctuation" : "plain"
     return { text, kind }
@@ -197,12 +66,12 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
 })
 ---
 
-<figure class="noodle-demo" data-noodle-demo aria-labelledby="noodle-demo-caption">
+<figure class="noodle-demo" data-noodle-demo aria-label="Interactive Noodle demo with sample responses">
   <div class="terminal">
     <div class="terminal-title">
       <div>
         <span class="terminal-brand"><strong>Noodle</strong>{version && <span class="terminal-version"> {version}</span>}</span>
-        <span class="collection-label"><span class="title-divider">/</span><span>Noodle Collection <svg class="chevron collection-chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></span></span>
+        <span class="collection-label"><span class="title-divider">/</span><span>Feature Tour <svg class="chevron collection-chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></span></span>
       </div>
       <span class="environment"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="4" rx="5" ry="2" /><path d="M3 4v7c0 2.7 10 2.7 10 0V4M3 7.5c0 2.7 10 2.7 10 0" /></svg>development</span>
     </div>
@@ -212,10 +81,10 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
         <h2 class="pane-title">Requests</h2>
         <div class="request-tree">
           {folders.map((folder) => (
-            <details class="request-folder" open={folder === "posts" || folder === "todos"}>
+            <details class="request-folder" open={!["authentication", "requests"].includes(folder)}>
               <summary class="folder-name"><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg>{folder}</summary>
               {examples.filter((example) => example.folder === folder).map((example) => (
-                <button type="button" class="request-choice" data-request={example.id} aria-pressed={example.id === "create" ? "true" : "false"} aria-controls={`demo-${example.id}`} disabled>
+                <button type="button" class="request-choice" title={example.name} data-request={example.id} aria-pressed={example.id === "create" ? "true" : "false"} aria-controls={`demo-${example.id}`} disabled>
                   <span class:list={["method", example.method.toLowerCase()]}>{example.method === "DELETE" ? "DEL" : example.method}</span><span>{example.name}</span>
                 </button>
               ))}
@@ -227,7 +96,8 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       {examples.map((example, index) => {
         const response = JSON.stringify(example.response, null, 2)
         const bytes = new TextEncoder().encode(response).length
-        const url = `https://jsonplaceholder.typicode.com${example.path.replace(/:(\w+)/g, (match, key) => example.pathParams?.[key] ?? match)}`
+        const query = new URLSearchParams((example.params ?? []).filter((param) => param.enabled !== false).map(({ name, value }) => [name, value])).toString()
+        const url = `${example.baseUrl ?? "https://jsonplaceholder.typicode.com"}${example.path.replace(/:(\w+)/g, (match, key) => example.pathParams?.[key] ?? match)}${query ? `?${query}` : ""}`
         const groups = [
           { name: "Request", tabs: requestTabs, initial: example.tab },
           { name: "Response", tabs: responseTabs, initial: "Body" },
@@ -236,7 +106,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
           <div class="workspace" id={`demo-${example.id}`} data-example={example.id} data-name={example.name} data-status={example.status} style={`--demo-status: var(--demo-${statusColorToken(Number.parseInt(example.status, 10))})`} hidden={index !== 0}>
             <div class="url-bar">
               <span class:list={["method", "method-badge", example.method.toLowerCase()]}>{example.method}<svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></span>
-              <code tabindex="0" aria-label="Request URL"><span class="variable">$base_url</span>{example.path.split(/(:\w+)/).map((part) => part.startsWith(":") ? <span class="variable">{part}</span> : part)}</code>
+              <code tabindex="0" aria-label="Request URL"><span class:list={{ variable: !example.baseUrl }}>{example.baseUrl ?? "$base_url"}</span>{example.path.split(/(:\w+|\$\w+)/).map((part) => /^[\$:]/.test(part) ? <span class="variable">{part}</span> : part)}</code>
               <button class="send" type="button" data-send disabled><span>Send</span></button>
             </div>
             {groups.map((group) => (
@@ -250,7 +120,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                 <div class="tab-bar">
                   <div class="tabs" role="tablist" aria-label={`${group.name} views`}>
                     {group.tabs.map((tab) => (
-                      <button type="button" role="tab" id={`demo-${example.id}-${group.name}-${tabSlug(tab)}-tab`} aria-controls={`demo-${example.id}-${group.name}-${tabSlug(tab)}`} aria-selected={tab === group.initial ? "true" : "false"} tabindex={tab === group.initial ? 0 : -1} data-tab={tab} class:list={{ "has-content": group.name === "Request" && hasContent(example, tab), "has-results": tab === "Results" && !!(example.assertions || example.scripts || example.tests) }} hidden={group.name === "Request" && optionalTabs.includes(tab) && !hasContent(example, tab)} disabled>{tab}</button>
+                      <button type="button" role="tab" id={`demo-${example.id}-${group.name}-${tabSlug(tab)}-tab`} aria-controls={`demo-${example.id}-${group.name}-${tabSlug(tab)}`} aria-selected={tab === group.initial ? "true" : "false"} tabindex={tab === group.initial ? 0 : -1} data-tab={tab} class:list={{ "has-content": group.name === "Request" && hasContent(example, tab), "has-results": tab === "Results" && !!(example.assertions || example.captures || example.scripts || example.tests) }} hidden={group.name === "Request" && optionalTabs.includes(tab) && !hasContent(example, tab)} disabled>{tab}</button>
                     ))}
                   </div>
                   {group.name === "Request" && (
@@ -269,12 +139,12 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                     const rows = tab === "Headers" ? group.name === "Response" ? [["content-type", "application/json; charset=utf-8"], ["cache-control", "no-cache"]] : Object.entries(example.headers ?? (example.body ? { "Content-Type": "application/json" } : {})) : tab === "Path" ? Object.entries(example.pathParams ?? {}) : tab === "Params" ? (example.params ?? []).map((param) => [param.name, param.value, param.enabled === false ? "disabled" : ""]) : []
                     return (
                       <div class="tab-panel" role="tabpanel" id={`demo-${example.id}-${group.name}-${tabSlug(tab)}`} aria-labelledby={`demo-${example.id}-${group.name}-${tabSlug(tab)}-tab`} tabindex="0" hidden={tab !== group.initial}>
-                        {tab === "Body" && (panelCode ? (
+                        {tab === "Body" && (panelCode || (group.name === "Request" && example.formData?.length) ? (
                           <>
-                            {group.name === "Request" && <div class="body-format">JSON<svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></div>}
-                            <pre aria-label={`${group.name} body`}><code>{codeLines(panelCode).map((line) => (
+                            {group.name === "Request" && <div class="body-format">{example.bodyFormat ?? "JSON"}<svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></div>}
+                            {group.name === "Request" && example.formData ? <table aria-label="Request form data"><thead><tr><th>Name</th><th>Value</th>{example.bodyFormat === "Multipart Form" && <th>Type</th>}</tr></thead><tbody>{example.formData.map((field) => <tr><th scope="row">{field.name}</th><td>{field.value}</td>{field.type && <td>{field.type}</td>}</tr>)}</tbody></table> : group.name === "Request" && example.bodyFormat === "Binary" ? <p class="network-note">File: {example.body}</p> : <pre aria-label={`${group.name} body`}><code>{codeLines(panelCode).map((line) => (
                               <span class="code-line">{line.map((token) => <span class={token.kind}>{token.text}</span>)}</span>
-                            ))}</code></pre>
+                            ))}</code></pre>}
                           </>
                         ) : <p class="empty-state">This {example.method} request has no body.</p>)}
                         {["Headers", "Params", "Path"].includes(tab) && (rows.length ? (
@@ -283,21 +153,28 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                         {tab === "Assert" && (example.assertions?.length ? (
                           <table class="assertions" aria-label="Response assertions"><colgroup><col class="assert-enabled" /><col /><col class="assert-operator" /><col /></colgroup><thead class="sr-only"><tr><th>Enabled</th><th>Expression</th><th>Operator</th><th>Expected</th></tr></thead><tbody>{example.assertions.map((assertion) => <tr><td><span class="checked-value" aria-hidden="true">[x]</span><span class="sr-only">Enabled</span></td><th scope="row">{assertion.expression}</th><td><select class="demo-select" aria-label={`${assertion.expression} operator`} disabled><option>{assertion.operator}</option></select></td><td>{assertion.value ?? ""}</td></tr>)}</tbody></table>
                         ) : <p class="native-empty">No response assertions.</p>)}
-                        {tab === "Capture" && <p class="native-empty">No response captures.</p>}
+                        {tab === "Capture" && (example.captures?.length ? (
+                          <>
+                            <table aria-label="Response captures"><thead><tr><th>Variable</th><th>Expression</th></tr></thead><tbody>{example.captures.map((capture) => <tr><th scope="row">{capture.variable}</th><td>{capture.expression}</td></tr>)}</tbody></table>
+                            <p class="network-note">Run this before “Reuse captures” in the collection Runner to share variables. Sample values appear in Results.</p>
+                          </>
+                        ) : <p class="native-empty">No response captures.</p>)}
                         {["Pre Script", "Post Script", "Tests"].includes(tab) && (
                           <>
-                            <div class="script-format"><select class="demo-select" aria-label={`${tab} source`} disabled><option>Inline</option></select><p class="setting-description">Write inline or use a .js file.</p></div>
+                            <div class="script-format"><select class="demo-select" aria-label={`${tab} source`} disabled><option>{example.scriptFiles?.[tab === "Pre Script" ? "pre" : "post"] && tab !== "Tests" ? "External file" : "Inline"}</option></select><p class="setting-description">Write inline or use a .js file.</p></div>
+                            {tab !== "Tests" && example.scriptFiles?.[tab === "Pre Script" ? "pre" : "post"] && <p class="network-note">{example.scriptFiles[tab === "Pre Script" ? "pre" : "post"]}</p>}
                             {scriptSource(example, tab) ? <pre class="script-code" aria-label={tab}><code>{codeLines(scriptSource(example, tab)!).map((line) => <span class="code-line">{line.map((token) => <span class={token.kind}>{token.text}</span>)}</span>)}</code></pre> : <p class="native-empty">{tab === "Tests" ? "No scripted tests." : `No ${tab === "Pre Script" ? "pre-request" : "post-response"} script.`}</p>}
                           </>
                         )}
                         {tab === "Auth" && (
                           <div class="native-panel">
-                            <select class="demo-select" aria-label="Authentication type" disabled><option>None</option></select>
+                            <select class="demo-select" aria-label="Authentication type" disabled><option>{example.auth?.type ?? "None"}</option></select>
+                            {Object.entries(example.auth?.fields ?? {}).map(([label, value]) => <div class="setting-row"><div class="setting-value"><span>{label}:</span><span class:list={{ variable: value.startsWith("$") }}>{value}</span></div></div>)}
                           </div>
                         )}
                         {tab === "Settings" && (
                           <div class="native-panel">
-                            <div class="setting-value"><span>Tags:</span><button class="tag-placeholder" type="button" disabled>+ Add tag</button></div>
+                            <div class="setting-value"><span>Tags:</span>{example.tags?.map((tag) => <span class="tag-placeholder">{tag}</span>)}<button class="tag-placeholder" type="button" disabled>+ Add tag</button></div>
                             {requestSettings.map((setting) => (
                               <div class="setting-row">
                                 <div class="setting-value">
@@ -335,13 +212,17 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                             </div>
                           </div>
                         )}
-                        {tab === "Cookies" && <p class="native-empty">No cookies captured.</p>}
-                        {tab === "Results" && (example.assertions || example.scripts || example.tests ? (
-                          <div class="sample-results" style={`--result-name-width: ${example.assertions ? Math.max(...example.assertions.map((item) => item.expression.length + 1)) : example.testNames ? Math.max(...example.testNames.map((name) => name.length + 1)) : example.scripts?.post ? 14 : 12}ch; --result-value-width: ${example.assertions ? 9 : example.tests ? 4 : 0}ch`}>
+                        {tab === "Cookies" && (example.cookies?.length ? <table aria-label="Response cookies"><thead><tr><th>Name</th><th>Value</th><th>Domain / Path</th></tr></thead><tbody>{example.cookies.map((cookie) => <tr><th scope="row">{cookie.name}</th><td>{cookie.value}</td><td>{cookie.domain}{cookie.path}</td></tr>)}</tbody></table> : <p class="native-empty">No cookies captured.</p>)}
+                        {tab === "Results" && (example.assertions || example.captures || example.scripts || example.tests ? (
+                          <div class="sample-results" style={`--result-name-width: ${example.assertions ? Math.max(...example.assertions.map((item) => item.expression.length + 1)) : example.captures ? Math.max(...example.captures.map((item) => item.variable.length + 1)) : example.testNames ? Math.max(...example.testNames.map((name) => name.length + 1)) : example.scripts?.post ? 14 : 12}ch; --result-value-width: ${example.assertions ? 9 : example.tests ? 4 : 0}ch`}>
                             <p class="sr-only">Sample results</p>
                             {example.scripts && <>
                               <h3><strong>Scripts</strong> <span>Passed</span></h3>
-                              {Object.keys(example.scripts).map((phase) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{phase === "pre" ? "Pre-request" : "Post-response"}</span><span class="result-meta">2ms, 0 logs</span></summary><dl><dt>Phase</dt><dd>{phase}</dd><dt>Scope</dt><dd>request</dd><dt>Kind</dt><dd>inline</dd><dt>Source</dt><dd>inline</dd><dt>Duration</dt><dd>2ms (sample)</dd></dl></details>)}
+                              {Object.keys(example.scripts).map((phase) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{phase === "pre" ? "Pre-request" : "Post-response"}</span><span class="result-meta">2ms, 0 logs</span></summary><dl><dt>Phase</dt><dd>{phase}</dd><dt>Scope</dt><dd>request</dd><dt>Kind</dt><dd>{example.scriptFiles?.[phase as "pre" | "post"] ? "external" : "inline"}</dd><dt>Source</dt><dd>{example.scriptFiles?.[phase as "pre" | "post"] ?? "inline"}</dd><dt>Duration</dt><dd>2ms (sample)</dd></dl></details>)}
+                            </>}
+                            {example.captures && <>
+                              <h3><strong>Captures</strong> <span>{example.captures.length} captured · 0 failed</span></h3>
+                              {example.captures.map((capture) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">CAPTURED</span><span class="result-name">{capture.variable}</span><span class="result-meta">{capture.expression}</span></summary><dl><dt>Expression</dt><dd>{capture.expression}</dd><dt>Value</dt><dd>{capture.value}</dd><dt>Scope</dt><dd>Current run</dd></dl></details>)}
                             </>}
                             {example.assertions && <>
                               <h3><strong>Assertions</strong> <span>{example.assertions.length} passed · 0 failed</span></h3>
@@ -378,7 +259,6 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   </div>
   <p class="sr-only" id="noodle-demo-shortcuts">Shortcuts from the Noodle app. Expand, copy, and send work in this demo. Other commands are shown for reference and disabled.</p>
   <p class="sr-only" role="status" data-demo-status></p>
-  <figcaption id="noodle-demo-caption">Interactive demo · Sample responses</figcaption>
 </figure>
 
 <script>
@@ -630,8 +510,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .pane-title { color: var(--demo-text-muted); font: inherit; }
   .pane:focus-within { border-color: var(--demo-primary); }
   .pane:focus-within .pane-title { color: var(--demo-primary); }
-  .collection { padding: calc(var(--demo-line) / 2) 1ch; }
-  .request-tree { max-height: 528px; overflow: auto; }
+  .request-tree { position: absolute; inset: calc(var(--demo-line) / 2) 1ch; overflow: auto; }
   .folder-name { display: flex; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; cursor: pointer; list-style: none; }
   .folder-name::-webkit-details-marker { display: none; }
   .folder-name:hover { background: var(--demo-background-element); }
@@ -759,7 +638,6 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .terminal-foot button { display: inline-flex; flex: none; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; white-space: nowrap; }
   .terminal-foot kbd { color: var(--demo-text); font: inherit; }
   .footer-send[aria-disabled="true"] { cursor: wait; }
-  figcaption { margin-top: 0.75rem; color: var(--muted); text-align: right; font-size: 0.6875rem; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
   @media (min-width: 680px) and (pointer: fine) {
     .request-choice, .folder-name, .tab-menu button, .result-entry summary, .timeline-row { min-height: 24px; }

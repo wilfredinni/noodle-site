@@ -14,7 +14,11 @@ async function checkNoodleDemo(doc = document) {
   const active = () => demo.querySelector("[data-example]:not([hidden])")
   const live = demo.querySelector("[data-demo-status]")
   const footer = () => demo.querySelector("[data-footer-context]:not([hidden])")
-  const configuredTabs = { create: "Assert", "create-post": "Pre Script", "get-user": "Post Script", "update-todo": "Tests" }
+  const configuredTabs = {
+    "assert-post": "Assert", "capture-post": "Capture",
+    "create-post": "Pre Script", "get-user": "Post Script", "signed-request": "Pre Script", "chain-request": "Pre Script", "external-script": "Pre Script",
+    "update-todo": "Tests", "schema-test": "Tests", "list-test": "Tests", "data-test": "Tests",
+  }
   const fetches = () => view.performance.getEntriesByType("resource").filter((entry) => ["fetch", "xmlhttprequest"].includes(entry.initiatorType)).length
   const before = fetches()
   const theme = view.getComputedStyle(demo)
@@ -28,10 +32,22 @@ async function checkNoodleDemo(doc = document) {
   assert(new Set(ids).size === ids.length, "All demo IDs are unique")
   assert([...demo.querySelectorAll("[data-request], [data-send], [role=tab], [data-footer-action], [data-footer-send], [data-add-tab]")].every((button) => !button.disabled), "Controls initialized")
   assert([...demo.querySelectorAll(".footer-context button:not([data-footer-action])")].every((button) => button.disabled), "App-only footer commands stay disabled")
-  assert([...demo.querySelectorAll(".terminal select, .tag-placeholder")].every((control) => control.disabled), "Read-only auth and settings controls stay disabled")
+  assert([...demo.querySelectorAll(".terminal select, button.tag-placeholder")].every((control) => control.disabled), "Read-only auth and settings controls stay disabled")
   const folders = [...demo.querySelectorAll(".request-folder")]
-  assert(folders.map((folder) => folder.querySelector("summary").textContent.trim()).join(",") === "comments,posts,todos,users", "All four collection folders are present")
-  assert(demo.querySelectorAll("[data-request]").length === 18, "All 18 request examples are present")
+  assert(folders.map((folder) => folder.querySelector("summary").textContent.trim()).join(",") === "body templates,assertions & captures,authentication,scripts,tests,requests", "All six feature folders are present")
+  assert(demo.querySelectorAll("[data-request]").length === 32, "All 32 focused request examples are present")
+  for (const workspace of demo.querySelectorAll("[data-example]")) {
+    assert(workspace.querySelectorAll('.request [role=tab].has-content:not([hidden])').length > 0, `${workspace.dataset.example}: demonstrates configured content`)
+    assert([...workspace.querySelectorAll('.request [data-reveal-tab]')].filter((item) => item.disabled).length <= 1, `${workspace.dataset.example}: at most one optional tab is configured`)
+  }
+  const panelText = (id, tab) => demo.querySelector(`#demo-${id}-Request-${tab}`).textContent
+  assert(panelText("capture-post", "Capture").includes("created_user_id") && panelText("use-captures", "Headers").includes("$response_content_type"), "Capture producer and consumer show shared variables")
+  assert(panelText("time-post", "Body").includes("$time.unix") && panelText("random-post", "Body").includes('$random.number({"min":1,"max":10})'), "Time and typed random templates remain literal")
+  assert(panelText("external-script", "Pre-Script").includes("External file") && panelText("external-script", "Pre-Script").includes("./scripts/prepare-request.js"), "External source has its mode, path, and preview")
+  assert(panelText("schema-test", "Tests").includes("toMatchSchema") && panelText("data-test", "Tests").includes("noodle.iteration?.data"), "Schema and data-driven tests are discoverable")
+  assert(panelText("chain-request", "Pre-Script").includes("await noodle.runRequest") && panelText("signed-request", "Pre-Script").includes("noodle.crypto.hmacSha256"), "Async chaining and signing use supported APIs")
+  assert(panelText("multipart-post", "Body").includes("./README.md") && panelText("binary-post", "Body").includes("File:"), "Multipart and binary examples expose file inputs")
+  assert(![...demo.querySelectorAll(".sample-results dd")].some((item) => ["collection", "folder"].includes(item.textContent)), "Scripts have no inherited execution scopes")
   for (const folder of folders) {
     const wasOpen = folder.open
     folder.querySelector("summary").click()
@@ -40,33 +56,16 @@ async function checkNoodleDemo(doc = document) {
     assert(folder.open === wasOpen, "Folder can be toggled back")
   }
 
-  for (const [id, method, initialTab, status, responseId] of [
-    ["create", "POST", "Body", "201 Created", 501],
-    ["get", "GET", "Path", "200 OK", 1],
-    ["update", "PATCH", "Body", "200 OK", 1],
-    ["get-user", "GET", "Path", "200 OK", 1],
-    ["get-users", "GET", "Headers", "200 OK", 1],
-    ["create-todo", "POST", "Body", "201 Created", 201],
-    ["delete-todo", "DELETE", "Path", "200 OK", undefined],
-    ["get-todo", "GET", "Path", "200 OK", 1],
-    ["get-todos-by-user", "GET", "Path", "200 OK", 1],
-    ["get-todos", "GET", "Headers", "200 OK", 1],
-    ["update-todo", "PATCH", "Body", "200 OK", 1],
-    ["create-post", "POST", "Body", "201 Created", 101],
-    ["delete-post", "DELETE", "Path", "200 OK", undefined],
-    ["get-post", "GET", "Path", "200 OK", 1],
-    ["get-posts-by-user", "GET", "Path", "200 OK", 1],
-    ["get-posts", "GET", "Headers", "200 OK", 1],
-    ["put-post", "PUT", "Body", "200 OK", 1],
-    ["update-post", "PATCH", "Body", "200 OK", 1],
-  ]) {
+  for (const example of demo.querySelectorAll("[data-example]")) {
+    const id = example.dataset.example
+    const initialTab = example.querySelector(".request").dataset.defaultTab
+    const status = example.dataset.status
     choice(id).closest("details").open = true
     choice(id).click()
     const workspace = active()
     assert(workspace.dataset.example === id, `${id}: request selection`)
     assert(footer().dataset.footerContext === "sidebar", `${id}: selecting a request shows sidebar shortcuts`)
     assert(demo.querySelectorAll('[data-request][aria-pressed="true"]').length === 1, `${id}: one selected request`)
-    assert(workspace.querySelector(".method-badge").textContent === method, `${id}: method`)
     assert(workspace.querySelector('.request [aria-selected="true"]').textContent === initialTab, `${id}: default request tab`)
     assert(workspace.querySelector('.response [aria-selected="true"]').textContent === "Body", `${id}: response resets to Body`)
     assert(workspace.querySelector(".response-summary").textContent.includes(status), `${id}: completed response`)
@@ -79,7 +78,6 @@ async function checkNoodleDemo(doc = document) {
     assert(view.getComputedStyle(badge).backgroundColor === color("success") && view.getComputedStyle(badge).color === color("background-panel"), `${id}: status badge uses semantic theme colors`)
     assert(Math.abs(metrics.getBoundingClientRect().right - badge.getBoundingClientRect().left) < 1, `${id}: response badges adjoin without a gap`)
     assert(view.getComputedStyle(metrics).fontSize === view.getComputedStyle(workspace.querySelector('.response .pane-title')).fontSize, `${id}: response metadata matches the title size`)
-    assert((Array.isArray(response) ? response[0] : response).id === responseId, `${id}: valid JSON fixture`)
     if (initialTab === "Path") assert(workspace.querySelector('.request [role=tabpanel]:not([hidden]) td').textContent === "1", `${id}: path parameter value preserved`)
 
     for (const group of workspace.querySelectorAll("[data-group]")) {
@@ -112,7 +110,7 @@ async function checkNoodleDemo(doc = document) {
         }
         if (tab.textContent === "Results" && configuredTabs[id]) {
           const rows = [...panel.querySelectorAll(".result-entry")]
-          assert(rows.length === (id === "create" ? 3 : id === "update-todo" ? 2 : 1), `${id}: sample result count matches the configured checks`)
+          assert(rows.length === ({ "assert-post": 4, "capture-post": 3, "update-todo": 2, "list-test": 2 }[id] ?? 1), `${id}: sample result count matches the configured checks`)
           rows[0].querySelector("summary").click()
           assert(rows[0].open && rows[0].querySelector("dl").textContent.trim(), `${id}: sample result details expand`)
           rows[0].querySelector("summary").click()
@@ -130,9 +128,10 @@ async function checkNoodleDemo(doc = document) {
       tabs.at(-1).dispatchEvent(new view.KeyboardEvent("keydown", { key: "Home", bubbles: true }))
       assert(doc.activeElement === tabs[0], `${id}: Home selects first tab`)
     }
-    assert(workspace.querySelector('[aria-label="Authentication type"]').value === "None", `${id}: collection auth default is None`)
+    const authType = workspace.querySelector('[aria-label="Authentication type"]').value
+    assert(id.endsWith("-auth") ? authType !== "None" && workspace.querySelector('[id$="-Request-Auth"]').textContent.includes("$") : authType === "None", `${id}: configured auth or empty default`)
     assert(workspace.querySelector('[aria-label="TLS Verification"]').value === "Inherit (verify)", `${id}: collection TLS setting is inherited`)
-    assert(workspace.querySelector('[data-tab="Cookies"]') && workspace.querySelector('[id$="-Response-Cookies"]').textContent.trim() === "No cookies captured.", `${id}: native empty cookie state`)
+    assert(workspace.querySelector('[data-tab="Cookies"]') && (id === "cookie-request" ? workspace.querySelector('[aria-label="Response cookies"]').textContent.includes("httpbin.org/") : workspace.querySelector('[id$="-Response-Cookies"]').textContent.trim() === "No cookies captured."), `${id}: native empty cookie state`)
     assert(configuredTabs[id] ? workspace.querySelector('[id$="-Response-Results"]').textContent.includes("Sample results") : workspace.querySelector('[id$="-Response-Results"]').textContent.trim() === "No execution results.", `${id}: matching sample results or native empty state`)
     const menuItems = [...workspace.querySelectorAll('[data-reveal-tab]')]
     assert(menuItems.map((item) => item.textContent).join(",") === "Assert,Capture,Pre Script,Post Script,Tests", `${id}: native optional-tab menu entries`)
@@ -183,13 +182,14 @@ async function checkNoodleDemo(doc = document) {
 
   choice("create").click()
   const body = active().querySelector('[aria-label="Request body"] code').textContent
-  assert(body.includes('"id": $random.uuid') && body.includes('"timestamp": $time.iso'), "Template placeholders preserved as text")
+  assert(body.includes('"name": $random.name') && body.includes('"email": $random.email'), "Template placeholders preserved as text")
   assert(active().querySelector('[data-tab="Body"]').classList.contains("has-content"), "Populated base tabs show Noodle's content indicator")
+  choice("assert-post").click()
   assert(active().querySelector('[data-tab="Results"]').classList.contains("has-results"), "Completed checks show the Results indicator")
   active().querySelector('[data-tab="Assert"]').click()
-  assert(active().querySelectorAll('.assertions select:disabled').length === 3, "Assertion operators use read-only dropdowns")
+  assert(active().querySelectorAll('.assertions select:disabled').length === 4, "Assertion operators use read-only dropdowns")
   active().querySelector('.response [data-tab="Results"]').click()
-  assert(active().querySelector('.sample-results h3').textContent.includes("3 passed · 0 failed"), "Results use the app's pass/fail summary")
+  assert(active().querySelector('.sample-results h3').textContent.includes("4 passed · 0 failed"), "Results use the app's pass/fail summary")
   const summaries = [...active().querySelectorAll('.result-entry summary')]
   assert(summaries.every((summary) => Math.abs(summary.querySelector('.result-meta').getBoundingClientRect().left - summaries[0].querySelector('.result-meta').getBoundingClientRect().left) < 1), "Result metadata aligns across rows")
   choice("update-todo").click()
@@ -205,9 +205,9 @@ async function checkNoodleDemo(doc = document) {
   choice("get-user").click()
   await wait()
   assert(active().dataset.example === "get-user" && !live.textContent.includes("complete."), "Switching folders cancels a pending send")
-  assert(demo.querySelector('#demo-create-post-Request-Headers').textContent.includes("$x_api_key"), "Post API-key placeholder remains literal")
-  assert(demo.querySelector('#demo-delete-post-Request-Params').textContent.includes("disabled"), "Disabled post query parameter is labeled")
-  assert(!demo.querySelector('#demo-delete-post-Response-Network').textContent.includes("val2"), "Disabled query parameter is absent from the sample URL")
+  assert(demo.querySelector('#demo-api-key-auth-Request-Auth').textContent.includes("$api_key"), "API-key placeholder remains literal")
+  assert(demo.querySelector('#demo-get-posts-Request-Params').textContent.includes("disabled"), "Disabled post query parameter is labeled")
+  assert(!demo.querySelector('#demo-get-posts-Response-Network').textContent.includes("_sort"), "Disabled query parameter is absent from the sample URL")
   choice("create").click()
   assert(active().querySelector("[data-send]").textContent === "Send" && !active().querySelector(".response .panels").hidden, "Canceled request can be selected again")
   active().querySelector('.response [data-tab="Body"]').click()
@@ -228,13 +228,14 @@ async function checkNoodleDemo(doc = document) {
   choice("get-user").click()
   assert(!demo.querySelector('.workspace.is-expanded'), "Changing requests restores the normal pane layout")
   choice("create").click()
-  folders.forEach((folder) => { folder.open = ["posts", "todos"].includes(folder.querySelector("summary").textContent.trim()) })
+  folders.forEach((folder) => { folder.open = !["authentication", "requests"].includes(folder.querySelector("summary").textContent.trim()) })
   const picker = doc.querySelector("[data-theme-picker]")
   const themeOptions = [...doc.querySelectorAll("[data-theme-option]")]
   const originalTheme = doc.documentElement.dataset.siteTheme
   assert(!picker.disabled && themeOptions.length === 8, "All eight themes are available in the palette menu")
   assert(themeOptions.map((option) => option.dataset.themeOption).join(",") === "noodle,aura,carbonfox,catppuccin,claude-code,cobalt2,dracula,synthwave84", "Theme names and order match Noodle")
   choice("create-post").click()
+  active().querySelector('.request [data-tab="Body"]').click()
   active().querySelector('.response [data-tab="Headers"]').click()
   const requestPanel = active().querySelector('.request [role=tabpanel]:not([hidden])')
   const tree = demo.querySelector(".request-tree")

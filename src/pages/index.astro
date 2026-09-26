@@ -15,6 +15,11 @@ const capabilities = [
   ["Scripting", "Inline pre/post processing, seeded test data, and explicit persistence"],
   ["Transport", "Proxy, TLS, mTLS, and authentication"],
   ["Portability", "Import OpenAPI, Swagger, Postman, and Insomnia. Export OpenAPI and Postman."],
+  ["Testing", "Response assertions, scripted tests, and JSON Schema validation"],
+  ["Collection Runner", "Ordered runs, tag filters, and CSV or JSON iteration data"],
+  ["Chaining", "Capture response values and reuse them in later requests"],
+  ["Automation", "Headless CLI runs, CI exit codes, and structured JSON results"],
+  ["Visualization", "Search and explore JSON or XML responses as trees and tables"],
 ]
 
 const nextItems = [
@@ -576,7 +581,7 @@ const homeStructuredData = {
 
   .next-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     border: 1px solid color-mix(in srgb, var(--ivory-ink) 24%, transparent);
     border-radius: 16px;
     overflow: hidden;
