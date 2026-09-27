@@ -560,6 +560,21 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       progressAnimation?.pause()
       updatePlayback()
     }
+    const fitTourFolders = () => {
+      const folders = [...tree.querySelectorAll<HTMLDetailsElement>(".request-folder")]
+      const activeFolder = folders.findIndex((folder) => folder.querySelector('[aria-pressed="true"]'))
+      folders.forEach((folder, index) => { folder.open = index === activeFolder })
+      if (!playing || !tree.clientHeight) return
+      let openCount = 1
+      const nearest = [...folders.keys()].sort((a, b) => Math.abs(a - activeFolder) - Math.abs(b - activeFolder))
+      for (const index of nearest) {
+        const folder = folders[index]!
+        if (folder.open) continue
+        folder.open = true
+        if (tree.scrollHeight > tree.clientHeight) folder.open = false
+        else if (++openCount === 4) break
+      }
+    }
     const showChapterCopy = (index: number) => {
       progressAnimation?.cancel()
       progressAnimation = undefined
@@ -574,8 +589,8 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     const showChapter = (index: number) => {
       const chapter = chapters[index]!
       const choice = choices.find((button) => button.dataset.request === chapter.dataset.tourChapter)!
-      demo.querySelectorAll<HTMLDetailsElement>(".request-folder").forEach((folder) => { folder.open = folder.contains(choice) })
       selectRequest(choice)
+      fitTourFolders()
       const response = active.querySelector<HTMLElement>('.response')!
       selectTab(response, response.querySelector<HTMLButtonElement>(`[data-tab="${chapter.dataset.responseTab}"]`)!)
       activatePane(active.querySelector<HTMLElement>(`${chapter.dataset.responseTab === "Body" ? ".request" : ".response"} [role=tabpanel]:not([hidden])`)!)
@@ -628,12 +643,14 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     })
     demo.querySelectorAll("summary").forEach((summary) => summary.addEventListener("click", pauseTour))
     reducedMotion.addEventListener("change", () => { if (reducedMotion.matches) pauseTour() })
+    new ResizeObserver(() => { if (playing) fitTourFolders() }).observe(tree)
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry?.isIntersecting || entry.intersectionRatio < 0.5) return
       observer.disconnect()
       if (!autostart) return
       autostart = false
       playing = true
+      fitTourFolders()
       updatePlayback()
       scheduleChapter()
     }, { threshold: [0, 0.5] })

@@ -54,6 +54,11 @@ function checkTourPlayback(playing, minTime = 0, maxTime = Infinity) {
   const animation = demo.querySelector('[data-tour-progress]').getAnimations()[0]
   const elapsed = Number(animation?.currentTime ?? 0)
   if ((demo.querySelector('[data-tour-play]').textContent === 'Pause') !== playing) throw new Error('Playback intent changed')
+  const tree = demo.querySelector('.request-tree')
+  const openFolders = tree.querySelectorAll('.request-folder[open]').length
+  if (playing && (openFolders < 3 || openFolders > 4)) throw new Error('Playback should show three or four folders')
+  if (playing && tree.scrollHeight > tree.clientHeight) throw new Error('Playing folders must fit without a scrollbar')
+  if (playing && !demo.querySelector('[data-request][aria-pressed="true"]').closest('.request-folder').open) throw new Error('The active request folder must stay open')
   if (playing && !open && animation?.playState !== 'running') throw new Error('Tour did not resume')
   if ((!playing || open) && animation && animation.playState !== 'paused') throw new Error('Timer did not pause')
   if (elapsed < minTime || elapsed > maxTime) throw new Error(`Unexpected timer position: ${elapsed}`)
