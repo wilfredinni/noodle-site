@@ -298,8 +298,18 @@ const comparisonStructuredData = {
   }
 
   .comparison-hero h1 em {
+    display: inline-block;
     color: var(--accent);
     font-weight: 400;
+  }
+
+  .comparison-hero h1 em::after {
+    display: block;
+    margin-top: 0.25em;
+    height: 0.08em;
+    background: var(--noodle);
+    content: "";
+    transform: rotate(-1.5deg);
   }
 
   .hero-summary {

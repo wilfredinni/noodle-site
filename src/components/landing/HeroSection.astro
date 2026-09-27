@@ -85,8 +85,20 @@ const [latestVersion, latestTitle] = (latestReleaseLabel ?? "").split(" · ")
     font-weight: 400;
   }
 
+  .latest-release > span:last-child,
+  .quick-start-link span {
+    transition: transform 0.2s;
+  }
+
   .latest-release > span:last-child {
     color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .latest-release:is(:hover, :focus-visible) > span:last-child,
+    .quick-start-link:is(:hover, :focus-visible) span {
+      transform: translateX(4px);
+    }
   }
 
   .eyebrow {

@@ -16,9 +16,11 @@ const { page } = Astro.props as { page: Page<CollectionEntry<"blog">> }
 <BaseLayout title={`Releases · Page ${page.currentPage} · Noodle`} description="Noodle release notes, updates, and the thinking behind what shipped." image="/social/release.png">
   <ArticleIndex
     kicker="Noodle releases"
-    title="Release notes"
+    title="Release Notes"
     description="What changed in each Noodle release, why it matters, and how it fits into the terminal workflow."
     posts={page.data}
     pagination={{ currentPage: page.currentPage, lastPage: page.lastPage, basePath: "/releases" }}
-  />
+  >
+    <Fragment slot="title">Release <span style="color: var(--accent)">Notes</span></Fragment>
+  </ArticleIndex>
 </BaseLayout>

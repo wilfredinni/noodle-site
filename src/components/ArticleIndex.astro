@@ -38,7 +38,7 @@ const formatDate = (date: Date) => date.toLocaleDateString("en-US", {
 <main class="article-index">
   <header class="index-header">
     <span class="index-kicker">{kicker}</span>
-    <h1>{title}</h1>
+    <h1><slot name="title">{title}</slot></h1>
     <p>{description}</p>
   </header>
 

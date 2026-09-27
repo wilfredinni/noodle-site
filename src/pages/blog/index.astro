@@ -14,5 +14,7 @@ const lastPage = Math.ceil(posts.length / ARTICLES_PER_PAGE)
     description="Updates, architecture, and feature deep-dives from the creators of the terminal REST client."
     posts={posts.slice(0, ARTICLES_PER_PAGE)}
     pagination={{ currentPage: 1, lastPage, basePath: "/blog" }}
-  />
+  >
+    <Fragment slot="title">Inside <span style="color: var(--accent)">Noodle</span></Fragment>
+  </ArticleIndex>
 </BaseLayout>
