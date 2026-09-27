@@ -35,6 +35,9 @@ for the same selection rules in scripts.
 
 The Runner shows progress and a result for each executed request. Expand a
 request to inspect its response and script, capture, assertion, and test outcomes.
+Details include **Console** when logs are available. Before HTTP, the TUI Runner
+checks the syntax of applicable scripts and tests for all selected requests
+without executing them during validation.
 With fail-fast enabled, later selected requests are recorded as skipped after
 all available diagnostics for the failed request finish.
 

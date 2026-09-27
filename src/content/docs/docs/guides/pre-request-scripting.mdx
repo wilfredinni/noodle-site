@@ -11,6 +11,33 @@ a completed response after captures and before assertions.
 For copyable examples of timestamps, identifiers, test data, validation, signing,
 and shared collection-run values, see the [Script Cookbook](/docs/guides/script-cookbook/).
 
+## Author scripts in the TUI
+
+Open the request or folder **+** menu and reveal **Pre Script**, **Post Script**,
+or **Tests**. Tabs with saved source are already visible. Press **Return** to
+edit inline JavaScript and **Ctrl+S** to save request or folder changes. For
+shared collection code, open **F4 → Collection → Scripts**; its drafts save when
+you leave the editor or change phases.
+
+The [code editor](/docs/guides/code-editor/#javascript-script-and-test-editors)
+provides highlighting, folding, completion, parameter help, and diagnostics.
+**Ctrl+Space** requests assistance; **Ctrl+Alt+F** formats inline code.
+Semantic diagnostics are advisory. TUI Send and Runner check the syntax of
+applicable scripts and tests before HTTP without executing them during the
+check. CLI runs keep their existing runtime validation and execution behavior.
+
+Choose **External file** to enter a collection-relative `./path/to/file.js`.
+The path field completes directories and `.js` files. **Ctrl+Alt+X**, or
+**Open Script in External Editor** in the command palette, validates and opens
+that file using the editor selected in global Behavior settings. Noodle does
+not create or rewrite external script files. Switching a non-empty source
+between inline and external modes asks before discarding it.
+
+On a request script tab, use **Ctrl+Alt+R** or **Show Script Execution Order**
+to inspect the active phase's collection, folder, and request sources in execution
+order. **g** then **d**, **f**, or **j** jumps to the corresponding script or test
+tab when visible.
+
 ## Migrate existing scripts
 
 Noodle 0.9.1 moves every Noodle API under the frozen `noodle` namespace. Change
@@ -64,9 +91,11 @@ scripts:
     console.info("prepared", timestamp);
 ```
 
-Author scripts directly in request YAML or open the YAML editor with
-**Ctrl+Alt+E**. Noodle does not provide a dedicated script editor. Script source
-is literal and does not receive `$VARNAME` substitution.
+![Noodle Pre Script editor adding a request ID and timestamp, with passing script and assertion results](../../../../assets/pre-script.png)
+
+Use the **Pre Script** tab, edit request YAML directly, or open the YAML editor
+with **Ctrl+Alt+E**. Script source is literal and does not receive `$VARNAME`
+substitution.
 
 An optional `post` string can accompany `pre` or stand alone. Empty strings are
 valid no-ops and are omitted when serializing YAML. Empty mappings, unknown keys,
@@ -165,6 +194,8 @@ scripts:
       console.info("created event");
     }
 ```
+
+![Noodle Post Script editor preparing data for the next request, with expanded post-response diagnostics](../../../../assets/post-script.png)
 
 Post runs once per completed HTTP response, including HTTP/capture failures,
 but not transport failures or intermediate redirects/authentication challenges.

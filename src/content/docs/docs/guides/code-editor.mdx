@@ -1,10 +1,10 @@
 ---
 title: Code editor
-description: Edit JSON, XML, and YAML with syntax highlighting, validation, folding, and environment-aware completion.
+description: Edit JavaScript, JSON, XML, and YAML with highlighting, diagnostics, folding, completion, and formatting.
 ---
 
 noodle includes a built-in code editor with Tree-sitter syntax highlighting
-and code folding for JSON and XML bodies and YAML request files.
+and code folding for JavaScript scripts and tests, JSON and XML bodies, and YAML request files.
 
 ## JSON Body Editor
 
@@ -17,6 +17,31 @@ color, and missing variables in your theme's error color.
 Invalid JSON shows an inline validation notice with a source line and column.
 When environment variables are substituted, errors still map back to the
 request source and identify an invalid variable value when applicable.
+
+## JavaScript script and test editors
+
+Request and folder **Pre Script**, **Post Script**, and **Tests** tabs, plus
+**Collection Settings → Scripts**, use the same editor with JavaScript syntax
+highlighting, line numbers, scrolling, folding, and undo/redo. Reveal empty
+request or folder tabs from **+**. Use **Return** to edit; **Escape** leaves the
+editor and **Shift+Tab** moves back toward the source selector.
+
+Completion understands the current phase's `noodle.*` APIs, JavaScript built-ins,
+local symbols, active environment keys, and saved request IDs. Suggestions show
+method descriptions and signatures; parameter help follows the current argument.
+Press **Ctrl+Space** to request assistance explicitly. In external-file mode,
+the path field completes collection-relative directories and `.js` files.
+
+Syntax errors and advisory semantic diagnostics report source positions without
+running the code. Semantic checks can identify unknown APIs, unavailable host
+globals, invalid argument types, and mutations forbidden in the current phase.
+They do not replace runtime validation. TUI sends and the Runner block on syntax
+errors in applicable sources before HTTP; CLI execution remains unchanged.
+
+![Noodle Post Script editor showing noodle API suggestions, a selected method description, and an inline syntax diagnostic](../../../../assets/script-autocomplete.png)
+
+See [Scripting](/docs/guides/pre-request-scripting/#author-scripts-in-the-tui)
+for save behavior, external-editor access, and inherited execution order.
 
 ## XML Body Editor
 
@@ -50,6 +75,20 @@ keeps the cursor between them. With a selection, the editor wraps the selected
 text. Typing a closing character over an existing one moves past it instead of
 inserting another.
 
+## Formatting
+
+With an inline JavaScript editor or JSON request body active, press
+**Ctrl+Alt+F** or choose **Format Code** from the command palette. Formatting
+preserves source values, including JSON number tokens, duplicate keys, and
+unevaluated `$random` and `$time` placeholders.
+
+Enable **F4 → Global → Behavior → Format on save** to format inline scripts,
+tests, and JSON bodies through normal request, folder, and collection saves.
+It is off by default. External files, XML, and invalid source remain unchanged.
+Collection scripts save when you leave their editor. Visible formatting is
+applied after a successful save; failed saves retain the draft, and a formatting
+service failure warns while allowing unformatted source to save.
+
 ## Code Folding
 
 Fold and unfold blocks of code to focus on what matters:
@@ -76,7 +115,7 @@ when you need multi-line input.
 
 ## Autocompletion
 
-Type `$` in the code editor to trigger the variable autocompletion popup.
+Type `$` in a request body or YAML editor to trigger the variable autocompletion popup.
 Navigate suggestions with **up/down**, accept with **Tab** or **Return**,
 dismiss with **Escape**, or click a suggestion. The scrollable menu matches
 text within variable names and highlights matches. Exact completed tokens stay
@@ -93,7 +132,7 @@ data; JSON validation uses safe placeholders to check the prepared structure.
 
 ## Technical Details
 
-The editor registers Tree-sitter parsers for JSON, YAML, and XML. It uses
+The editor registers Tree-sitter parsers for JavaScript, JSON, YAML, and XML. It uses
 Tree-sitter highlights when available, then falls back to local JSON or YAML
 tokenizers when parsing fails or yields no highlights. This fallback keeps
 `$variable` references usable in JSON bodies before send-time substitution.

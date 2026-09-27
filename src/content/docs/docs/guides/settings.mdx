@@ -41,8 +41,14 @@ Choose a theme and the default stacked or side-by-side layout. See
 
 Choose whether undo-all asks for confirmation and select a detected external
 editor. The command palette uses that editor for **Open Collection in Editor**
-and **Open Settings in Editor**. Noodle detects Zed, Visual Studio Code, Sublime
+and **Open Settings in Editor**, plus **Open Script in External Editor** for
+a validated external JavaScript file. Noodle detects Zed, Visual Studio Code, Sublime
 Text, Cursor, Windsurf, and VSCodium when installed.
+
+Enable **Format on save** to format inline scripts, tests, and JSON bodies
+through their normal saves. It defaults off. Collection script drafts save
+when you leave the editor; external files, XML, and invalid source remain
+unchanged. See [Formatting](/docs/guides/code-editor/#formatting).
 
 ### Collections
 
@@ -77,6 +83,14 @@ The **Cookie jar** toggle is enabled by default. When enabled, Noodle captures
 off prevents both sending and capturing jar cookies for the collection. Use the
 request pane's **Send Cookies** control when only one request should omit
 outgoing jar cookies. See [Cookies](/docs/guides/cookies/) to inspect and manage the jar.
+
+### Scripts
+
+Edit **Collection Pre Script**, **Collection Post Script**, and **Collection Tests**
+as inline JavaScript or external `.js` references. Drafts save when you leave
+the editor or change phases. These blocks run for every applicable request.
+See [Scripting](/docs/guides/pre-request-scripting/#author-scripts-in-the-tui)
+for completion, diagnostics, and execution order.
 
 ### Collection proxy
 

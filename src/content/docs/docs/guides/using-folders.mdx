@@ -35,7 +35,8 @@ for that part of the collection.
 
 ## Folder Pane
 
-When a folder is selected, opens four tabs. Navigate with **←**/**→**:
+Select a folder to see its main tabs. Navigate with **←**/**→**; the **+** menu
+reveals empty script and test tabs, while populated tabs remain visible:
 
 | Tab | Content |
 |-----|---------|
@@ -43,12 +44,15 @@ When a folder is selected, opens four tabs. Navigate with **←**/**→**:
 | **Headers** | Headers inherited by child requests |
 | **Auth** | Auth inherited by child requests |
 | **Activity** | Per-request stats table |
+| **Pre Script** | Inline or external preparation script inherited by child requests |
+| **Post Script** | Inline or external response script inherited by child requests |
+| **Tests** | Inline or external response tests inherited by child requests |
 
 ### Keybindings
 
 | Key | Action |
 |-----|--------|
-| **←**/**→** | Switch tabs (General / Headers / Auth / Activity) |
+| **←**/**→** | Switch visible tabs |
 | **↑**/**↓** | Navigate fields |
 | **Return** | Enter edit mode |
 | **Space** | Toggle checkbox |
@@ -64,6 +68,10 @@ need to repeat config on every request.
 Set `auth: { type: inherit }` on a request to use the nearest parent
 folder's auth. Set `auth: { type: none }` to disable auth for a
 specific request.
+
+Folder scripts and tests run once for each applicable request. Save changes
+with **Ctrl+S**. See [Scripting](/docs/guides/pre-request-scripting/#author-scripts-in-the-tui)
+for the editors and [inherited execution order](/docs/guides/scripted-tests/#inherited-scripts-and-tests).
 
 ## Activity Tab
 

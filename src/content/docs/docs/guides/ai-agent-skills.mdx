@@ -142,6 +142,13 @@ HTTP calls with `noodle.sendRequest`. Agents can add read-only `tests` with
 descendants. See [Scripted Tests](/docs/guides/scripted-tests/) and the
 [Script API](/docs/reference/script-api/) for ordering, limits, and rollback.
 
+The installed skill includes generated `noodle-script.d.ts` declarations for
+external JavaScript editor assistance. A triple-slash `reference path` comment
+can point to that file; phase-specific `NoodleScript.Pre`, `Post`, and `Tests`
+interfaces support tooling while runtime checks remain authoritative. Humans
+can edit the same scripts in [TUI editors](/docs/guides/pre-request-scripting/#author-scripts-in-the-tui).
+Agents should continue using files and the non-interactive CLI.
+
 For generated payloads, use `$random` and `$time` body placeholders with
 JSON-literal arguments. Agents can use typed standalone JSON placeholders or
 escaped quoted text, with one substitution pass before pre scripts. See

@@ -7,9 +7,10 @@ Noodle stores persistent settings in `~/.config/noodle/config.yml`. The
 file is optional: all fields fall back to defaults if missing.
 
 ```yaml
-theme: catppuccin
+theme: noodle
 layout: stacked
 confirm_undo_all: true
+format_on_save: false
 external_editor: vscode
 collections:
   - /home/user/projects/my-api
@@ -25,10 +26,11 @@ proxy:
 
 | Field | Type | Default | Options | Description |
 |-------|------|---------|---------|-------------|
-| `theme` | string | `catppuccin` | Any built-in theme name | UI color theme |
+| `theme` | string | `noodle` | Any built-in theme name | UI color theme |
 | `layout` | string | `stacked` | `stacked`, `side-by-side` | Pane arrangement |
 | `confirm_undo_all` | boolean | `true` | `true`, `false` | Show confirmation before `Ctrl+Z` undo-all |
-| `external_editor` | string | First detected editor | `zed`, `vscode`, `sublime`, `cursor`, `windsurf`, `vscodium` | Editor used to open collection and application settings directories |
+| `format_on_save` | boolean | `false` | `true`, `false` | Format inline scripts/tests and JSON bodies through TUI saves; preserve external files, XML, and invalid source |
+| `external_editor` | string | First detected editor | `zed`, `vscode`, `sublime`, `cursor`, `windsurf`, `vscodium` | Editor used to open collection and application settings directories or validated external scripts |
 | `collections` | string[] | `[]` | List of absolute paths | Previously-used collection directories. Managed by the collection switcher (`Ctrl+O`); listed in most-recently-used order. |
 | `proxy` | object | System proxy | `system`, `off`, `custom` | Global request-routing policy. A custom proxy needs an HTTP or HTTPS `url` and may include a string-array `bypass` list. |
 

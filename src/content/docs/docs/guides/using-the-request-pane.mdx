@@ -8,7 +8,7 @@ import noodleOwl from "../../../../assets/noodle-owl.png";
 
 The request pane sits in the center of the TUI. It shows every detail of the
 selected request: URL, method, headers, query and path params, body, auth,
-assertions, captures, and settings.
+assertions, captures, scripts, tests, and settings.
 
 ## Create, edit, and send
 
@@ -30,14 +30,20 @@ Continue with [Inspect and save responses](/docs/guides/using-the-response-pane/
 
 ## Optional tabs
 
-Empty **Assert** and **Capture** tabs stay behind the **+** menu at the right
+Empty **Assert**, **Capture**, **Pre Script**, **Post Script**, and **Tests**
+tabs stay behind the **+** menu at the right
 of the tab bar. Choose a tab to reveal it; tabs that already contain declarations
 are always visible. Revealed tabs remain available for that request during the
 session, and already visible tabs are disabled in the menu.
 
 Click **+**, or press **g** then **o** to focus it and **Return** to open it.
 The existing **g** then **v** and **g** then **c** shortcuts reveal Assert and
-Capture directly. Arrow navigation skips hidden tabs.
+Capture directly. Use **g** then **d**, **f**, or **j** for visible Pre Script,
+Post Script, or Tests tabs. Arrow navigation skips hidden tabs.
+
+Script tabs support inline code or external `.js` references, completion,
+diagnostics, and execution-order inspection. See
+[Scripting](/docs/guides/pre-request-scripting/#author-scripts-in-the-tui).
 
 ![Request pane with the optional Assert and Capture tab menu open](../../../../assets/request-optional-tabs.png)
 
@@ -100,7 +106,9 @@ shows different fields:
 | **multipart**  | Form entries (text or file) |
 | **binary**     | File path                   |
 
-For multipart entries, **Ctrl+T** toggles between text and file mode.
+Use **Ctrl+Alt+F** to format a JSON body. Optional **Format on save** lives in
+global Behavior settings; XML remains unchanged. For multipart entries,
+**Ctrl+T** toggles between text and file mode.
 
 ## Assert and Capture
 
@@ -174,7 +182,9 @@ and defaults to `Content-Type: application/xml` when no enabled Content-Type
 header exists. Press **Return** on the body field to edit it; **Escape** returns
 to the body-type selector without discarding the draft.
 
-For multipart entries, **Ctrl+T** toggles between text and file mode.
+Use **Ctrl+Alt+F** to format a JSON body. Optional **Format on save** lives in
+global Behavior settings; XML remains unchanged. For multipart entries,
+**Ctrl+T** toggles between text and file mode.
 
 ## Random and time body values
 

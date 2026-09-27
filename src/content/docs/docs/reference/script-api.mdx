@@ -363,8 +363,7 @@ IDs and passwords are seeded alphanumeric test data, without cryptographic
 security or guaranteed uniqueness. Passwords are registered as known secrets
 immediately, even if a later operation fails; ordinary generated data stays
 visible by default. Faker remains on the host; the guest receives only frozen
-methods and bounded JSON results. JSON placeholders, locale selection and image
-category options are deferred.
+methods and bounded JSON results. [Body placeholders](/docs/guides/using-the-request-pane/#random-and-time-body-values) reuse the same methods; locale selection and image category options remain unavailable.
 
 ## Sandbox limits
 
@@ -411,10 +410,13 @@ execution; persistence failures also fail the overall request. Preparation
 failures before script execution use `evaluated: false`; requests without a
 script omit the group. Human run output distinguishes Pre-script/Post-script
 and never prints logs. TUI Results uses Pre-request/Post-response rows with
-expandable logs and phase-specific error locations. Script failures participate
+phase-specific error locations; Console displays redacted messages with phase,
+level, and request-relative timing. Script failures participate
 in the fixed failure-category order and collection continuation/fail-fast only
-after available response diagnostics finish. No Console panel or script editor
-is added. Manual `.timeline` entries retain bounded, redacted pre/post results,
+after available response diagnostics finish.
+[Script and test editors](/docs/guides/code-editor/#javascript-script-and-test-editors)
+provide completion and diagnostics; TUI-only syntax preflight checks applicable
+sources before HTTP. Manual `.timeline` entries retain bounded, redacted pre/post results,
 logs, errors, and persistence outcomes; individual diagnostic text and each
 serialized log array are limited to 10,000 bytes with `[TRUNCATED]` markers. Script source,
 capture results, and RunScope values are excluded. Successful manual request

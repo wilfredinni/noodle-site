@@ -94,6 +94,9 @@ swallowed while jump mode is active.
 | `a` | Request Auth tab |
 | `v` | Request Assert tab |
 | `c` | Request Capture tab |
+| `d` | Request Pre Script tab (when visible) |
+| `f` | Request Post Script tab (when visible) |
+| `j` | Request Tests tab (when visible) |
 | `t` | Request Settings tab |
 | `o` | Request optional-tab menu (`+`) |
 | `r` | Response Body tab |
@@ -102,6 +105,7 @@ swallowed while jump mode is active.
 | `l` | Response Timeline tab |
 | `k` | Response Cookies tab |
 | `i` | Response Results tab |
+| `z` | Response Console tab (when logs make it visible) |
 
 The `v` and `c` targets also reveal an empty Assert or Capture tab. Press
 `Return` after focusing `+` to open its menu.
@@ -116,6 +120,10 @@ When a folder is selected, these replace the request and response targets:
 | `m` | Folder General tab |
 | `h` | Folder Headers tab |
 | `a` | Folder Auth tab |
+| `d` | Folder Pre Script tab (when visible) |
+| `f` | Folder Post Script tab (when visible) |
+| `j` | Folder Tests tab (when visible) |
+| `o` | Folder optional-tab menu (`+`, when visible) |
 | `y` | Folder Activity tab |
 
 ### Environment editor targets
@@ -173,11 +181,13 @@ When editing a field value:
 
 ## Code Editor
 
-When a request or response JSON body or a YAML overlay has focus:
+When a code editor has focus (JSON/XML bodies, YAML, or inline JavaScript):
 
 | Key            | Action                      |
 | -------------- | --------------------------- |
 | `Ctrl+G`       | Toggle fold at current line |
+| `Ctrl+Space`   | Script completion / parameter help |
+| `Ctrl+Alt+F`   | Format inline JavaScript or JSON request body |
 | `Ctrl+Z`       | Undo editable content       |
 | `Ctrl+Shift+Z` | Redo editable content       |
 | `Shift+Return` | Insert newline while editing |
@@ -186,6 +196,19 @@ Response bodies are read-only, but their JSON fold controls remain available.
 Bulk fold and unfold actions are configurable in Settings under **Shortcuts**
 and are unbound by default.
 
+## Script actions
+
+| Key | Action | Binding ID |
+|-----|--------|------------|
+| `Ctrl+Space` | Request script completion or parameter help | `script_complete` |
+| `Ctrl+Alt+F` | Format active inline JavaScript or JSON body | `editor_format` |
+| `Ctrl+Alt+X` | Open the selected external script in the configured editor | `script_open_external` |
+| `Ctrl+Alt+R` | Show execution order for the active request script phase | `script_execution_order` |
+
+These actions are also available in the command palette where applicable,
+except completion, which runs in the focused script editor. Configure shortcuts
+in global Keyboard settings or `keybinds.yml`.
+
 ## Sidebar
 
 When the sidebar is focused:
@@ -193,7 +216,7 @@ When the sidebar is focused:
 | Key       | Action                                                        |
 | --------- | ------------------------------------------------------------- |
 | `Escape`  | Return focus to sidebar from any pane                         |
-| `←` / `→` | Switch folder pane tabs (General / Headers / Auth / Activity) |
+| `←` / `→` | Switch visible folder pane tabs |
 
 ## Response Pane
 
@@ -201,7 +224,7 @@ When the response pane is focused:
 
 | Key             | Action                                  |
 | --------------- | --------------------------------------- |
-| `←` / `→`       | Switch tabs (Body / Headers / Network / Timeline / Cookies / Results) |
+| `←` / `→`       | Switch visible response tabs, including Console when available |
 | `↑` / `↓`       | Scroll active tab                       |
 | `PgUp` / `PgDn` | Page scroll                             |
 | `Return`        | Expand/collapse timeline entry          |

@@ -193,14 +193,25 @@ test does not override an HTTP or other execution failure.
 Collection summaries add `testPasses`, `testFailures`, and `testScriptErrors` when tests are present; fail-fast waits
 for all diagnostics. Requests without tests keep their previous output.
 
+## Author tests in the TUI
+
+Reveal **Tests** from a request or folder **+** menu, or open
+**F4 → Collection → Scripts → Collection Tests**. Choose inline JavaScript or
+a collection-relative `.js` file. The editor completes `test`, `expect`,
+matchers, and read-only phase APIs, with syntax checks and advisory semantic
+diagnostics. See [script authoring](/docs/guides/pre-request-scripting/#author-scripts-in-the-tui)
+for shortcuts and save behavior.
+
+![Noodle Tests editor checking a users response with test and expect assertions](../../../../assets/tests.png)
+
 ## View results
 
 Human output shows counts and concise failures. JSON includes structured results
-and redacted logs. The existing TUI Results view shows expandable scripted tests
-and logs in manual sends, Runner details, and timeline history. Manual history
+and redacted logs. TUI Results shows expandable test outcomes; Console shows
+log messages in manual sends, Runner details, and timeline history. Manual history
 retains bounded, redacted diagnostics, with the existing 10,000-byte diagnostic
-text/log limits; it excludes test source and runtime values. There is no test
-editor, autocomplete, dedicated Console panel, or importer conversion.
+text/log limits; it excludes test source and runtime values. Foreign script
+importer conversion remains unavailable.
 
 See [Automation](/docs/guides/automation/) for running requests and collections,
 and [Scripting](/docs/guides/pre-request-scripting/) for request preparation
