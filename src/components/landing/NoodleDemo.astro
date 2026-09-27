@@ -98,9 +98,15 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     </div>
     <div class="tour-controls" role="group" aria-label="Guided tour controls">
       <div class="tour-buttons">
-        <button type="button" data-tour-previous aria-label="Previous chapter" disabled>Previous</button>
-        <button type="button" data-tour-play aria-label="Play tour" disabled>Play</button>
-        <button type="button" data-tour-next aria-label="Next chapter" disabled>Next</button>
+        <button type="button" data-tour-previous aria-label="Previous chapter" title="Previous chapter" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg>
+        </button>
+        <button type="button" data-tour-play aria-label="Play tour" title="Play tour" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7z" /></svg>
+        </button>
+        <button type="button" data-tour-next aria-label="Next chapter" title="Next chapter" disabled>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg>
+        </button>
       </div>
     </div>
   </div>
@@ -534,6 +540,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     const chapterOptions = [...demo.querySelectorAll<HTMLButtonElement>("[data-tour-option]")]
     const chapterMenu = demo.querySelector<HTMLElement>(".tour-picker [popover]")!
     const play = demo.querySelector<HTMLButtonElement>("[data-tour-play]")!
+    const playbackIcon = play.querySelector("path")!
     const previous = demo.querySelector<HTMLButtonElement>("[data-tour-previous]")!
     const next = demo.querySelector<HTMLButtonElement>("[data-tour-next]")!
     const progress = demo.querySelector<HTMLElement>("[data-tour-progress]")!
@@ -547,8 +554,9 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     let progressAnimation: Animation | undefined
 
     const updatePlayback = () => {
-      play.textContent = playing ? "Pause" : "Play"
-      play.setAttribute("aria-label", `${play.textContent} tour`)
+      playbackIcon.setAttribute("d", playing ? "M8 5v14M16 5v14" : "m9 5 11 7-11 7z")
+      play.title = playing ? "Pause tour" : "Play tour"
+      play.setAttribute("aria-label", play.title)
       status.setAttribute("aria-live", playing ? "off" : "polite")
       previous.disabled = chapterIndex === 0
       next.disabled = chapterIndex === chapters.length - 1
@@ -671,7 +679,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     color-scheme: dark;
   }
   .noodle-demo [hidden] { display: none !important; }
-  .demo-tour { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; align-items: end; gap: 2rem; margin-bottom: 1.5rem; color: var(--fg); font-family: var(--font-sans); }
+  .demo-tour { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 2rem; margin-bottom: 1.5rem; color: var(--fg); font-family: var(--font-sans); }
   .tour-copy { min-width: 0; }
   .tour-descriptions { display: grid; }
   .tour-descriptions > div { grid-area: 1 / 1; }
@@ -680,12 +688,11 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .tour-copy .tour-title-trigger { padding: 0; color: var(--fg); text-align: left; }
   .tour-copy .select-chevron { width: 0.45em; height: 0.45em; margin-left: 0.25em; }
   .tour-copy p { max-width: 68ch; margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.6; }
-  .tour-controls { display: grid; gap: 0.5rem; }
-  .tour-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
-  .tour-buttons button { min-height: 44px; padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.875rem; }
-  .tour-buttons button:disabled { color: var(--muted); border-color: transparent; }
-  .tour-buttons [data-tour-play] { color: var(--accent-text); background: var(--accent); border-color: var(--accent); }
-  .tour-buttons [data-tour-play]:not(:disabled):hover { color: var(--accent-text); background: var(--accent-dim); }
+  .tour-buttons { display: flex; gap: 0.25rem; }
+  .tour-buttons button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 8px; color: var(--muted); }
+  .tour-buttons button:disabled { opacity: 0.35; }
+  .tour-buttons button:not(:disabled):is(:hover, :focus-visible) { color: var(--accent); }
+  .tour-buttons svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
   .tour-progress {
     position: absolute;
     inset: -5px -1px auto;
@@ -737,7 +744,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .request-folder:not([open]) .folder-name svg { transform: rotate(-90deg); }
   button { color: inherit; font: inherit; border: 0; background: transparent; cursor: pointer; }
   button:disabled { cursor: default; }
-  button:not(:disabled):not(.add-tab):not(.send):not([data-tour-play]):not([data-select-trigger]):not([data-tour-option]):hover { background: var(--demo-background-element); }
+  .terminal button:not(:disabled):not(.add-tab):not(.send):hover { background: var(--demo-background-element); }
   .request-choice { display: flex; align-items: center; gap: 2ch; width: 100%; min-height: 44px; padding: 0 1ch 0 3ch; text-align: left; border-left: 1px solid transparent; }
   .request-choice > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .request-choice[aria-pressed="true"] { background: var(--demo-background-element); border-left-color: var(--demo-primary); }
@@ -869,7 +876,6 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   }
   @media (max-width: 900px) {
     .demo-tour { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
-    .tour-controls { width: 20rem; max-width: 100%; }
     .terminal-layout { grid-template-columns: 190px minmax(0, 1fr); }
     .request-choice { font-size: 0.75rem; }
   }
