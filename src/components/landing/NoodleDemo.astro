@@ -91,10 +91,10 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
         <button type="button" data-tour-play aria-label="Play tour" disabled>Play</button>
         <button type="button" data-tour-next aria-label="Next chapter" disabled>Next</button>
       </div>
-      <div class="tour-progress" aria-hidden="true"><span data-tour-progress></span></div>
     </div>
   </div>
   <div class="terminal">
+    <div class="tour-progress" aria-hidden="true"><span data-tour-progress></span></div>
     <div class="terminal-title">
       <div>
         <span class="terminal-brand"><strong>Noodle</strong>{version && <span class="terminal-version"> {version}</span>}</span>
@@ -649,10 +649,21 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .tour-buttons button:disabled { color: var(--muted); border-color: transparent; }
   .tour-buttons [data-tour-play] { color: var(--accent-text); background: var(--accent); border-color: var(--accent); }
   .tour-buttons [data-tour-play]:not(:disabled):hover { color: var(--accent-text); background: var(--accent-dim); }
-  .tour-progress { grid-column: 1 / -1; height: 3px; overflow: hidden; background: var(--border); }
-  .tour-progress span { display: block; height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left; }
+  .tour-progress {
+    position: absolute;
+    inset: -5px -1px auto;
+    height: 20px;
+    padding: 4px 0 0;
+    border-radius: 16px 16px 0 0 / 100% 100% 0 0;
+    background: var(--demo-border-subtle);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+  .tour-progress span { position: absolute; inset: 0; background: var(--accent); transform: scaleX(0); transform-origin: left; }
   .tour-controls :is(button, select):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   .terminal {
+    position: relative;
     padding: 0 2ch;
     background: var(--demo-background-panel);
     border: 1px solid var(--demo-border-subtle);
