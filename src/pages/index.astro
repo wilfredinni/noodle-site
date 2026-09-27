@@ -8,18 +8,18 @@ import update from "../../public/update.json"
 const [latestRelease] = await getArticles("release")
 
 const capabilities = [
-  ["Requests", "URL, params, headers, body, and auth"],
-  ["Responses", "Text, image previews, binary downloads, headers, cookies, and results"],
-  ["Collections", "Folders, inherited context, and Git-friendly files"],
-  ["Environments", "Switchable variables and secure values"],
-  ["Scripting", "Inline pre/post processing, seeded test data, and explicit persistence"],
-  ["Transport", "Proxy, TLS, mTLS, and authentication"],
-  ["Portability", "Import OpenAPI, Swagger, Postman, and Insomnia. Export OpenAPI and Postman."],
-  ["Testing", "Response assertions, scripted tests, and JSON Schema validation"],
-  ["Collection Runner", "Ordered runs, tag filters, and CSV or JSON iteration data"],
-  ["Chaining", "Capture response values and reuse them in later requests"],
-  ["Automation", "Headless CLI runs, CI exit codes, and structured JSON results"],
-  ["Visualization", "Search and explore JSON or XML responses as trees and tables"],
+  ["Requests", "URL, params, headers, body, and auth", "/docs/guides/using-the-request-pane/"],
+  ["Responses", "Text, image previews, binary downloads, headers, cookies, and results", "/docs/guides/using-the-response-pane/"],
+  ["Collections", "Folders, inherited context, and Git-friendly files", "/docs/guides/collections/"],
+  ["Environments", "Switchable variables and secure values", "/docs/guides/using-environments/"],
+  ["Scripting", "Inline pre/post processing, seeded test data, and explicit persistence", "/docs/guides/pre-request-scripting/"],
+  ["Transport", "Proxy, TLS, mTLS, and authentication", "/docs/guides/proxies-and-tls/"],
+  ["Portability", "Import OpenAPI, Swagger, Postman, and Insomnia. Export OpenAPI and Postman.", "/docs/import/import/"],
+  ["Testing", "Response assertions, scripted tests, and JSON Schema validation", "/docs/guides/scripted-tests/"],
+  ["Collection Runner", "Ordered runs, tag filters, and CSV or JSON iteration data", "/docs/guides/collection-runner/"],
+  ["Chaining", "Capture response values and reuse them in later requests", "/docs/guides/captures/"],
+  ["Automation", "Headless CLI runs, CI exit codes, and structured JSON results", "/docs/guides/automation/"],
+  ["Visualization", "Search and explore JSON or XML responses as trees and tables", "/docs/guides/using-the-response-pane/#source-and-visual"],
 ]
 
 const nextItems = [
@@ -73,14 +73,12 @@ const homeStructuredData = {
     <section id="features" class="feature-list" aria-label="Noodle features">
       <article class="feature-row">
         <div class="feature-copy">
-          <span class="section-kicker">01 · Files first</span>
-          <h2>Requests that belong in the repository.</h2>
+          <h2><a href="/docs/reference/collection-format/">Requests that belong in the repository.<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></h2>
           <p>Every request is a readable YAML file. Edit it in Noodle or your editor, review it in Git, and keep it beside the code it exercises.</p>
-          <a href="/docs/reference/collection-format/">Request file reference</a>
         </div>
 
         <div class="code-proof" aria-label="Example request file">
-          <div class="proof-bar"><span>collections/users/get.yml</span><span>tracked</span></div>
+          <div class="proof-bar">collections/users/get.yml</div>
           <pre><code><span class="syntax-violet">name:</span> Get user
 <span class="syntax-violet">method:</span> <span class="syntax-orange">GET</span>
 <span class="syntax-violet">url:</span> <span class="syntax-cyan">"$base_url/users/:id"</span>
@@ -88,11 +86,15 @@ const homeStructuredData = {
   Accept: <span class="syntax-cyan">application/json</span>
 <span class="syntax-violet">params:</span>
   id: <span class="syntax-green">42</span></code></pre>
-          <div class="proof-foot"><span>● valid request</span><span>plain YAML on disk</span></div>
         </div>
       </article>
 
-      <article class="feature-row feature-row--reverse">
+      <article class="feature-row">
+        <div class="feature-copy">
+          <h2><a href="/docs/guides/using-the-response-pane/">The whole exchange, without leaving the terminal.<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></h2>
+          <p>Compose a request, send it, then move through body, headers, cookies, and timing from the same keyboard-first workspace.</p>
+        </div>
+
         <div class="exchange-proof" aria-label="Response inspector showing a successful PUT request">
           <div class="response-toolbar">
             <span class="request-method">PUT</span>
@@ -111,27 +113,16 @@ const homeStructuredData = {
   <span class="syntax-violet">"name"</span>: <span class="syntax-cyan">"Ada Lovelace"</span>,
   <span class="syntax-violet">"role"</span>: <span class="syntax-cyan">"developer"</span>
 &#125;</code></pre>
-          <div class="response-meta"><span>application/json</span><span>2.1 KB</span></div>
-        </div>
-
-        <div class="feature-copy">
-          <span class="section-kicker">02 · Full exchange</span>
-          <h2>The whole exchange, without leaving the terminal.</h2>
-          <p>Compose a request, send it, then move through body, headers, cookies, and timing from the same keyboard-first workspace.</p>
-          <a href="/docs/guides/using-the-response-pane/">Inspecting responses</a>
         </div>
       </article>
 
       <article class="feature-row">
         <div class="feature-copy">
-          <span class="section-kicker">03 · Environments</span>
-          <h2>Environment-aware without leaking secrets.</h2>
+          <h2><a href="/docs/guides/using-environments/">Environment-aware without leaking secrets.<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></h2>
           <p>Switch between development, staging, and production variables. Secret declarations stay in the file while values live in the OS credential vault or process environment.</p>
-          <a href="/docs/guides/using-environments/">Using environments</a>
         </div>
 
         <div class="environment-proof" aria-label="Environment and secret state">
-          <div class="environment-head"><span>Environment</span><span>State</span></div>
           <div><strong><i class="dot dot-green"></i>development</strong><span>active</span></div>
           <div><strong><i class="dot dot-orange"></i>staging</strong><span>ready</span></div>
           <div><strong><i class="dot dot-violet"></i>production</strong><span>ready</span></div>
@@ -139,20 +130,15 @@ const homeStructuredData = {
         </div>
       </article>
 
-      <article class="feature-row feature-row--reverse">
-        <div class="terminal-proof" aria-label="Noodle CLI and agent commands">
-          <div><span>$</span><code>noodle request run users/get --collection ./api</code></div>
-          <div><span>$</span><code>noodle collection audit ./api</code></div>
-          <div><span>$</span><code>noodle collection run ./api smoke/ health --env staging --json</code></div>
-          <div><span>$</span><code>noodle agent install</code></div>
-          <p><span>status</span> success · exit 0 · JSON available</p>
+      <article class="feature-row">
+        <div class="feature-copy">
+          <h2><a href="/docs/guides/automation/">One collection, more than one way to work.<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></h2>
+          <p>Explore interactively in the TUI, chain captured response values across ordered runs, enforce response assertions, or give coding agents the supported Noodle skill.</p>
         </div>
 
-        <div class="feature-copy">
-          <span class="section-kicker">04 · Automation</span>
-          <h2>One collection, more than one way to work.</h2>
-          <p>Explore interactively in the TUI, chain captured response values across ordered runs, enforce response assertions, or give coding agents the supported Noodle skill.</p>
-          <a href="/docs/guides/automation/">Automation guide</a>
+        <div class="terminal-proof" aria-label="Noodle CLI and agent commands">
+          <div><span>$</span><code>noodle collection run ./api --env staging --json</code></div>
+          <div><span>$</span><code>noodle agent install</code></div>
         </div>
       </article>
     </section>
@@ -164,9 +150,9 @@ const homeStructuredData = {
       </header>
 
       <div class="capability-grid">
-        {capabilities.map(([title, body]) => (
+        {capabilities.map(([title, body, href]) => (
           <article>
-            <h3>{title}</h3>
+            <h3><a href={href}>{title}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></a></h3>
             <p>{body}</p>
           </article>
         ))}
@@ -201,7 +187,9 @@ const homeStructuredData = {
 
 <style>
   :global(body) {
-    background: var(--bg) var(--page-pattern) top center / max(100vw, 960px) 1500px repeat-y;
+    background:
+      linear-gradient(color-mix(in srgb, var(--bg) 65%, transparent), color-mix(in srgb, var(--bg) 65%, transparent)),
+      var(--bg) var(--page-pattern) top center / max(100vw, 960px) 1500px repeat-y;
   }
 
   #features {
@@ -216,11 +204,10 @@ const homeStructuredData = {
 
   .feature-row {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: clamp(2.5rem, 4vw, 4rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: clamp(2rem, 5vw, 4rem);
     align-items: center;
-    min-height: 0;
-    padding-block: var(--section-space);
+    padding: 2rem 1.5rem;
     border-top: 1px solid var(--rule);
   }
 
@@ -233,7 +220,8 @@ const homeStructuredData = {
   }
 
   .feature-copy {
-    max-width: 34rem;
+    min-width: 0;
+    max-width: 30rem;
   }
 
   .section-kicker {
@@ -246,7 +234,6 @@ const homeStructuredData = {
     text-transform: uppercase;
   }
 
-  .feature-copy h2,
   .capability-section h2,
   .coming-next h2,
   .closing h2 {
@@ -259,7 +246,47 @@ const homeStructuredData = {
   }
 
   .feature-copy h2 {
-    font-size: clamp(2.75rem, 4vw, 4rem);
+    max-width: 24ch;
+    color: var(--fg);
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 400;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  :is(.feature-copy h2, .capability-grid h3) a {
+    display: block;
+    min-height: 44px;
+    padding-block: 0.5rem;
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  :is(.feature-copy h2, .capability-grid h3) a:is(:hover, :focus-visible) {
+    color: var(--accent);
+  }
+
+  :is(.feature-copy h2, .capability-grid h3) svg {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    margin-left: 0.5rem;
+    color: var(--muted);
+    vertical-align: -0.1em;
+    transition: transform 0.2s, color 0.2s;
+  }
+
+  :is(.feature-copy h2, .capability-grid h3) a:is(:hover, :focus-visible) svg {
+    color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :is(.feature-copy h2, .capability-grid h3) a:is(:hover, :focus-visible) svg {
+      transform: translateX(4px);
+    }
   }
 
   .feature-copy p,
@@ -273,7 +300,6 @@ const homeStructuredData = {
     line-height: 1.65;
   }
 
-  .feature-copy a,
   .closing > a {
     display: inline-block;
     margin-top: 1.25rem;
@@ -283,46 +309,33 @@ const homeStructuredData = {
     text-underline-offset: 0.3em;
   }
 
+  .feature-copy p {
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+  }
+
   .code-proof,
   .exchange-proof,
   .environment-proof,
   .terminal-proof {
     min-width: 0;
     color: var(--muted);
-    background: color-mix(in srgb, var(--panel) 92%, transparent);
-    border: 1px solid var(--border);
+    overflow: hidden;
+    background: color-mix(in srgb, var(--panel) 45%, var(--bg));
+    border: 1px solid var(--rule);
     border-radius: 16px;
     font-family: var(--font-mono);
     font-size: 0.72rem;
   }
 
-  .proof-bar,
-  .proof-foot {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    min-height: 42px;
-    padding: 0.75rem 1rem;
-    background: color-mix(in srgb, var(--bg) 32%, transparent);
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .proof-foot {
-    color: var(--green);
-    border-top: 1px solid var(--rule);
-    background: transparent;
-    border-bottom: 0;
-  }
-
-  .proof-foot span:last-child {
-    color: var(--muted);
+  .proof-bar {
+    padding: 1rem 1.25rem 0.5rem;
   }
 
   .code-proof pre {
-    min-height: 220px;
     margin: 0;
     overflow-x: auto;
-    padding: 1.6rem;
+    padding: 0.5rem 1.25rem 1.25rem;
     background: transparent;
   }
 
@@ -330,7 +343,7 @@ const homeStructuredData = {
     color: var(--fg);
     font-family: var(--font-mono);
     font-size: 0.72rem;
-    line-height: 1.9;
+    line-height: 1.65;
   }
 
   .syntax-violet { color: var(--violet); }
@@ -338,17 +351,13 @@ const homeStructuredData = {
   .syntax-cyan { color: var(--cyan); }
   .syntax-green { color: var(--green); }
 
-  .exchange-proof {
-    overflow: hidden;
-  }
-
   .response-toolbar {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto auto;
     gap: 0.75rem;
     align-items: center;
-    min-height: 52px;
-    padding-inline: 1rem;
+    min-height: 48px;
+    padding-inline: 1.25rem;
     border-bottom: 1px solid var(--rule);
   }
 
@@ -364,7 +373,7 @@ const homeStructuredData = {
     padding: 0.25rem 0.5rem;
     color: var(--ivory-ink);
     background: var(--orange);
-    border-radius: 8px;
+    border-radius: 4px;
   }
 
   .response-status {
@@ -376,21 +385,16 @@ const homeStructuredData = {
   }
 
   .response-tabs {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    background: color-mix(in srgb, var(--bg) 32%, transparent);
-    border-bottom: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    padding: 0.75rem 1.25rem 0;
   }
 
   .response-tabs span {
-    padding: 0.75rem 1rem;
+    padding-bottom: 0.375rem;
     color: var(--muted);
-    border-right: 1px solid var(--rule);
     white-space: nowrap;
-  }
-
-  .response-tabs span:last-child {
-    border-right: 0;
   }
 
   .response-tabs .is-active {
@@ -404,45 +408,29 @@ const homeStructuredData = {
   }
 
   .response-body {
-    min-height: 180px;
     margin: 0;
     overflow-x: auto;
-    padding: 1.25rem;
+    padding: 0.75rem 1.25rem 1.25rem;
   }
 
   .response-body code {
     color: var(--fg);
     font-family: var(--font-mono);
     font-size: 0.75rem;
-    line-height: 1.8;
+    line-height: 1.65;
   }
 
-  .response-meta {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem 1rem;
-    color: var(--muted);
-    border-top: 1px solid var(--rule);
+  .environment-proof {
+    padding: 0.75rem 0;
   }
 
   .environment-proof > div {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    min-height: 54px;
-    padding-inline: 1rem;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .environment-proof > div:last-child {
-    border-bottom: 0;
-  }
-
-  .environment-head {
-    min-height: 38px !important;
-    color: var(--muted);
-    text-transform: uppercase;
+    gap: 1rem;
+    min-height: 32px;
+    padding: 0.375rem 1.25rem;
   }
 
   .environment-proof strong {
@@ -468,7 +456,9 @@ const homeStructuredData = {
   .dot-violet { background: var(--violet); }
 
   .environment-proof .secret-row {
-    min-height: 70px;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
   }
 
   .secret-row code {
@@ -479,13 +469,15 @@ const homeStructuredData = {
     color: var(--fg) !important;
   }
 
+  .terminal-proof {
+    padding: 1.25rem;
+  }
+
   .terminal-proof > div {
     display: grid;
     grid-template-columns: 1.5rem minmax(0, 1fr);
-    align-items: center;
-    min-height: 52px;
-    padding-inline: 1rem;
-    border-bottom: 1px solid var(--rule);
+    align-items: baseline;
+    padding-block: 0.5rem;
   }
 
   .terminal-proof > div > span {
@@ -494,21 +486,11 @@ const homeStructuredData = {
 
   .terminal-proof code {
     min-width: 0;
-    overflow-x: auto;
     color: var(--fg);
     font-size: inherit;
-    white-space: nowrap;
-  }
-
-  .terminal-proof p {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    color: var(--green);
-  }
-
-  .terminal-proof p span {
-    color: var(--violet);
+    line-height: 1.65;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 
   .capability-section {
@@ -539,10 +521,26 @@ const homeStructuredData = {
   }
 
   .capability-grid article {
+    position: relative;
     min-width: 0;
     padding: 1.5rem;
     border-right: 1px solid var(--rule);
     border-bottom: 1px solid var(--rule);
+  }
+
+  .capability-grid h3 a::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+  }
+
+  .capability-grid h3 a:focus-visible {
+    outline: none;
+  }
+
+  .capability-grid h3 a:focus-visible::after {
+    outline: 2px solid var(--color-blue);
+    outline-offset: -3px;
   }
 
   .capability-grid article:nth-child(3n) {
@@ -640,15 +638,9 @@ const homeStructuredData = {
   }
 
   @media (max-width: 900px) {
-    .feature-row,
-    .feature-row--reverse {
+    .feature-row {
       grid-template-columns: minmax(0, 1fr);
-      gap: 2rem;
-    }
-
-    .feature-row--reverse .exchange-proof,
-    .feature-row--reverse .terminal-proof {
-      order: 2;
+      gap: 1.5rem;
     }
 
     .feature-copy {
@@ -668,6 +660,11 @@ const homeStructuredData = {
       padding-inline: 1rem;
     }
 
+    .feature-row {
+      gap: 1rem;
+      padding: 1.5rem 0;
+    }
+
     .capability-grid,
     .next-grid {
       grid-template-columns: minmax(0, 1fr);
@@ -684,18 +681,6 @@ const homeStructuredData = {
     .capability-grid article:last-child,
     .next-grid article:last-child {
       border-bottom: 0;
-    }
-
-    .response-tabs {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .response-tabs span:nth-child(2) {
-      border-right: 0;
-    }
-
-    .response-tabs span:nth-child(-n + 2) {
-      border-bottom: 1px solid var(--rule);
     }
 
   }

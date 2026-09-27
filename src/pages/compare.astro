@@ -12,13 +12,13 @@ const sections = [
     description: "Each tool is strong for a different reason. Noodle's distinction is architectural: the repository is the workspace.",
     rows: [
       ["Best at", "Repo-native terminal API workflow + automation/agents", "Focused interactive terminal HTTP workflow", "Modern local desktop client with broad protocols", "Full API testing and automation platform"],
-      ["Requests are true files", "⭐ Yes, core architecture", "⭐ Yes", "◐ Optional synchronized representation", "⭐ Yes"],
-      ["Terminal-first", "⭐ Yes", "⭐ Yes", "No", "No"],
-      ["Protocol breadth", "HTTP today", "HTTP today", "⭐ Very high", "⭐ Very high"],
-      ["Auth and networking", "⭐ Very high", "Basic", "⭐ Very high", "⭐ Very high"],
-      ["Scripting and testing today", "✅ Async scripts + assertions + scripted tests", "Good scripting, tests planned", "Chaining/templates, no arbitrary scripting", "⭐ Most complete"],
-      ["Headless and CI automation", "⭐ Yes", "Limited", "⭐ Yes", "⭐ Very mature"],
-      ["AI-agent workflow", "⭐ Skill + files + CLI", "Minimal", "⭐ Skill + CLI + MCP", "In-app BYOK AI + CLI"],
+      ["Requests are true files", "✅ Yes, core architecture", "✅ Yes", "◐ Optional synchronized representation", "✅ Yes"],
+      ["Terminal-first", "✅ Yes", "✅ Yes", "❌ No", "❌ No"],
+      ["Protocol breadth", "◐ HTTP today", "◐ HTTP today", "✅ Very high", "✅ Very high"],
+      ["Auth and networking", "✅ Very high", "◐ Basic", "✅ Very high", "✅ Very high"],
+      ["Scripting and testing today", "✅ Async scripts + assertions + scripted tests", "◐ Good scripting, tests planned", "◐ Chaining/templates, no arbitrary scripting", "✅ Most complete"],
+      ["Headless and CI automation", "✅ Yes", "❔ No documented runner", "✅ Yes", "✅ Very mature"],
+      ["AI-agent workflow", "✅ Skill + files + CLI", "◐ Files; no dedicated integration", "✅ Skill + CLI + MCP", "◐ In-app BYOK AI + general CLI"],
       ["Main differentiator", "The repository is the workspace", "HTTP client inside the terminal", "Local-first GUI without Postman weight", "Git-native testing powerhouse"],
     ],
   },
@@ -32,9 +32,9 @@ const sections = [
       ["Core philosophy", "Repository-first; requests live beside code", "Terminal-first HTTP client", "Local-first desktop API client", "Git-friendly offline API development and testing"],
       ["Canonical request storage", "✅ One readable .yml file per request", "✅ .posting.yaml files", "◐ Local app database; optional YAML sync", "✅ File-native .bru or OpenCollection .yml"],
       ["Git-friendly", "✅ Native consequence of file model", "✅ Native consequence of file model", "✅ YAML sync + built-in Git actions", "✅ File-native + built-in Git UI"],
-      ["Built-in Git UI", "❌ Use normal Git tooling", "❌ Use normal Git tooling", "✅ Branch, commit, diff, and more", "✅ Core Git UI; advanced operations may be paid"],
+      ["Git workflow", "Use your existing Git tooling", "Use your existing Git tooling", "Built-in Git UI: branch, commit, diff, and more", "Built-in Git UI; advanced operations may be paid"],
       ["Works offline", "✅", "✅", "✅", "✅ Offline-only"],
-      ["Cloud account required", "❌", "❌", "❌ for normal use", "❌"],
+      ["Usable without a cloud account", "✅", "✅", "✅ For normal use", "✅"],
       ["License and pricing", "Apache-2.0 · free OSS", "Apache-2.0 · free OSS", "MIT source; commercial prebuilt license for work", "MIT core + paid Pro/Ultimate tiers"],
     ],
   },
@@ -48,18 +48,18 @@ const sections = [
       ["GraphQL, first-class", "🧭 Planned", "❌", "✅", "✅"],
       ["gRPC", "🧭 Planned", "❌", "✅ reflection/proto", "✅"],
       ["WebSocket", "🧭 Planned", "🧭 Planned", "✅", "✅"],
-      ["Server-Sent Events", "🧭 Planned", "🧭 Planned", "✅", "◐ Supported, not a separate top-level type"],
-      ["SOAP", "❌", "❌", "❌ dedicated type", "✅"],
+      ["Server-Sent Events", "🧭 Planned", "🧭 Planned", "✅", "✅ Supported, not a separate top-level type"],
       ["Variables and environments", "✅", "✅", "✅", "✅"],
-      ["Folder inheritance", "✅ Headers + auth + scripts + tests", "❌ Limited collection model", "✅ Workspace/folder/request", "✅"],
+      ["Folder inheritance", "✅ Headers + auth + scripts + tests", "❌ No folder inheritance", "✅ Workspace/folder/request", "✅"],
       ["Generated body data and timestamps", "✅ $random / $time templates + completion", "◐ Via Python scripts", "✅ Template functions + Faker", "✅ Dynamic variables"],
       ["JSON body editor", "✅ Tree-sitter, validation, folding, completion", "✅ Syntax highlighting", "✅", "✅"],
       ["Multipart and file upload", "✅", "🧭 Richer uploads planned", "✅", "✅"],
       ["Client code generation", "✅ Multiple languages and libraries", "◐ cURL export", "✅ Code snippets", "✅"],
-      ["Response filtering", "✅ JSONPath", "◐ Normal response inspection", "✅ JSONPath and rich tools", "✅ Query/filtering"],
-      ["Persistent response history", "✅ Per-request timeline", "❌ Not documented", "✅", "✅"],
+      ["Response filtering", "✅ JSONPath", "◐ Via external pager", "✅ JSONPath and rich tools", "✅ Query/filtering"],
+      ["Persistent response history", "✅ Per-request timeline", "❔ Not documented", "✅", "✅"],
       ["Network and redirect debugging", "✅ Detailed trace", "◐ Basic trace/status", "✅ Timeline/debugging", "✅ DevTools network tools"],
-      ["Custom response visualization", "🧭 Planned", "❌", "❌ Generic arbitrary renderer", "✅ bru.visualize() / Handlebars"],
+      ["Response visualization", "✅ Searchable JSON/XML trees and tables", "◐ Via external JSON pagers", "✅ Formatted views + search/filtering", "✅ Editor + Preview views"],
+      ["Custom response renderers", "🧭 Planned", "❌", "❌ No arbitrary renderer", "✅ bru.visualize() / Handlebars"],
     ],
   },
   {
@@ -73,14 +73,14 @@ const sections = [
       ["API key auth", "✅ Header/query", "◐ Manual header or Python", "✅", "✅"],
       ["OAuth 1.0", "✅", "❌", "✅", "✅"],
       ["OAuth 2.0", "✅", "🧭 Planned", "✅", "✅"],
-      ["AWS SigV4", "✅", "❌ Native", "✅", "✅"],
-      ["NTLM", "✅ NTLMv2", "❌ Native", "✅", "✅"],
+      ["AWS SigV4", "✅", "❌ No native support", "✅", "✅"],
+      ["NTLM", "✅ NTLMv2", "❌ No native support", "✅", "✅"],
       ["JWT auth generation", "🧭 Planned", "❌", "✅", "◐ Scripting/auth workflows"],
       ["Persistent cookie jar", "✅ Per collection", "◐ Response cookies; editor planned", "✅ Automatic jar + editor", "✅"],
       ["Custom CA", "✅", "✅", "✅", "✅"],
       ["mTLS and client certificates", "✅", "✅ Cert path", "✅", "✅"],
-      ["Proxy", "✅ System/direct/custom + bypass", "❌ Dedicated configuration not documented", "✅ System/custom/none + SOCKS5", "✅ System/manual/PAC"],
-      ["Secure secret storage", "✅ OS credential vault", "◐ No secure vault documented", "✅ Encrypted secrets + keychain/1Password", "✅ Secret manager + external vaults"],
+      ["Proxy", "✅ System/direct/custom + bypass", "❔ Dedicated configuration not documented", "✅ System/custom/none + SOCKS5", "✅ System/manual/PAC"],
+      ["Secure secret storage", "✅ OS credential vault", "❔ No secure vault documented", "✅ Encrypted secrets + keychain/1Password", "✅ Secret manager + external vaults"],
     ],
   },
   {
@@ -89,19 +89,19 @@ const sections = [
     title: "Testing and automation in the collection.",
     description: "Noodle 0.9.4 supports inline or external JavaScript, inherited scripts and tests, async request chaining, and CSV/JSON runs in the CLI and TUI Runner. Bruno offers a broader testing platform; parallel execution remains on Noodle's roadmap.",
     rows: [
-      ["Pre-request scripts", "✅ Bounded async JS; inline or .js files", "✅ Python", "❌ Arbitrary scripts; under consideration", "✅ JavaScript"],
-      ["Post-response scripts", "✅ Bounded async JS; inline or .js files", "✅ Python", "❌ Arbitrary scripts; under consideration", "✅ JavaScript"],
+      ["Pre-request scripts", "✅ Bounded async JS; inline or .js files", "✅ Python", "🧭 Arbitrary scripts under consideration", "✅ JavaScript"],
+      ["Post-response scripts", "✅ Bounded async JS; inline or .js files", "✅ Python", "🧭 Arbitrary scripts under consideration", "✅ JavaScript"],
       ["Extract response into variables", "✅ Captures + post-script writes", "✅ Via Python", "✅ Request chaining", "✅"],
       ["Request chaining", "✅ Captures + async saved/direct requests", "◐ Python/session variables", "✅ Declarative response()", "✅ Extensive"],
       ["Assertions and tests", "✅ Declarative + async JS + JSON Schema", "🧭 Test framework planned", "❌ No current framework", "✅ Chai/JS assertions"],
-      ["Run one request headlessly", "✅", "❌ Documented runner", "✅", "✅"],
-      ["Run folder/collection headlessly", "✅ Selective folders or full collection", "❌", "✅ Workspace/folder", "✅"],
+      ["Run one request headlessly", "✅", "❔ No documented runner", "✅", "✅"],
+      ["Run folder/collection headlessly", "✅ Selective folders or full collection", "❔ No documented runner", "✅ Workspace/folder", "✅"],
       ["Parallel and batch execution", "◐ Batch + Runner now; parallel v1.5", "❌", "✅ CLI --parallel", "✅ Runner"],
-      ["Dedicated runner/results UI", "✅ Transient collection Runner", "❌", "◐ Bulk CLI; data runner considered", "✅"],
-      ["Data-driven CSV/JSON runs", "✅ CLI + TUI Runner", "❌", "🧭 Under consideration", "✅ CSV/JSON; free CLI, paid desktop"],
-      ["CI-friendly structured output", "✅ JSON", "❌ Dedicated CI runner", "✅ CLI", "✅ CLI + JUnit/reports"],
-      ["Docker runner", "❌ Official image", "❌", "❌ Official image found", "✅ Official CLI images"],
-      ["GitHub Action", "❌ Dedicated action", "❌", "❌ Dedicated action found", "✅ Official action"],
+      ["Dedicated runner/results UI", "✅ Transient collection Runner", "❌", "❌ No runner UI; bulk runs via CLI", "✅"],
+      ["Data-driven CSV/JSON runs", "✅ CLI + TUI Runner", "❌", "🧭 Under consideration", "◐ CSV/JSON; free CLI, paid desktop"],
+      ["CI-friendly structured output", "✅ JSON", "❔ No documented CI runner", "✅ CLI", "✅ CLI + JUnit/reports"],
+      ["Docker runner", "❌ No official image", "❌", "❔ No official image found", "✅ Official CLI images"],
+      ["GitHub Action", "❌ No dedicated action", "❌", "❔ No dedicated action found", "✅ Official action"],
     ],
   },
   {
@@ -110,15 +110,15 @@ const sections = [
     title: "Bring collections in. Keep them portable.",
     description: "Noodle combines broad import support with readable native YAML and useful export paths.",
     rows: [
-      ["cURL import", "✅", "✅ Experimental", "✅", "✅"],
-      ["OpenAPI 3 import", "✅", "✅ Experimental", "✅ 3.0/3.1", "✅"],
-      ["Swagger 2 import", "✅", "❌ Documented", "✅", "✅"],
-      ["Postman import", "✅", "✅ Experimental", "✅", "✅"],
+      ["cURL import", "✅", "◐ Experimental", "✅", "✅"],
+      ["OpenAPI 3 import", "✅", "◐ Experimental", "✅ 3.0/3.1", "✅"],
+      ["Swagger 2 import", "✅", "❔ Not documented", "✅", "✅"],
+      ["Postman import", "✅", "◐ Experimental", "✅", "✅"],
       ["Insomnia import", "✅", "❌", "✅", "✅"],
       ["OpenAPI export", "✅", "❌", "🧭 Backlog", "✅"],
       ["Postman export", "✅", "❌", "❌", "✅"],
       ["Portable native format", "✅ Plain YAML", "✅ Plain YAML", "✅ Yaak JSON; optional sync YAML", "✅ .bru + OpenCollection YAML"],
-      ["Open native specification", "YAML schema and documentation", "Posting YAML format", "Yaak-specific sync format", "✅ OpenCollection specification"],
+      ["Native format definition", "YAML schema and documentation", "Posting YAML format", "Yaak-specific sync format", "OpenCollection specification"],
     ],
   },
   {
@@ -129,27 +129,27 @@ const sections = [
     rows: [
       ["Requests naturally editable by agents", "✅ Plain YAML source of truth", "✅ Plain YAML", "◐ CLI/database or sync YAML", "✅ Files"],
       ["Dedicated agent CLI workflow", "✅", "❌", "✅", "◐ General CLI"],
-      ["Agent Skill", "✅ noodle-use", "❌", "✅ As of 2026.6", "❌ Equivalent found"],
-      ["Claude/Codex/Cursor/OpenCode", "✅", "❌ Dedicated integration", "✅", "◐ General tooling"],
-      ["MCP server", "❌", "❌", "✅ Plugin", "❌ Official equivalent found"],
-      ["Built-in AI assistant", "❌ External-agent workflow by design", "❌", "❌", "✅ BYOK AI in v4"],
+      ["Agent Skill", "✅ noodle-use", "❌", "✅ As of 2026.6", "❔ No equivalent found"],
+      ["Claude/Codex/Cursor/OpenCode", "✅", "❌ No dedicated integration", "✅", "◐ General tooling"],
+      ["MCP server", "❌", "❌", "✅ Plugin", "❔ No official equivalent found"],
+      ["Built-in AI assistant", "External-agent workflow by design", "No built-in assistant", "No built-in assistant", "BYOK AI in v4"],
       ["Plugin system", "❌", "❌ Python scripting instead", "✅ Substantial plugin system", "◐ Apps + scripting"],
     ],
   },
 ]
 
 const bestFits = [
-  ["Noodle", "Repository + terminal", "Choose it when requests should be readable files beside your code, shared by the TUI, CLI, CI, and coding agents."],
-  ["Posting", "Terminal + scripting", "Choose it for a focused interactive HTTP workflow with capable Python scripting inside the terminal."],
-  ["Yaak", "Desktop + protocols", "Choose it for a polished local desktop client with broad protocol support and modern authentication."],
-  ["Bruno", "Testing + automation", "Choose it for mature scripting, assertions, runners, CI, and a broader API-testing platform."],
+  ["Noodle", "Repository + automation", "Choose it when API requests belong beside your code, with readable YAML shared across the terminal UI, CLI, CI, and coding agents."],
+  ["Posting", "Terminal + Python", "Choose it when you want a terminal HTTP client that works with your Python libraries, preferred editor, external pagers, and custom themes."],
+  ["Yaak", "Desktop + protocols", "Choose it when you prefer a local desktop interface, need multiple protocols, and want dynamic requests through template functions and declarative chaining."],
+  ["Bruno", "Testing + CI", "Choose it when your workflow centers on API test suites, JavaScript scripting, assertions, and repeatable collection runs across desktop and CI."],
 ]
 
 const comparisonSources = [
-  ["Noodle", [["Documentation", "/docs/"], ["Scripting", "/docs/guides/pre-request-scripting/"], ["Tests", "/docs/guides/scripted-tests/"], ["Runner", "/docs/guides/collection-runner/"], ["Body templates", "/docs/guides/using-the-request-pane/#random-and-time-body-values"], ["GitHub", "https://github.com/wilfredinni/noodle"]]],
-  ["Posting", [["Website", "https://posting.sh/"], ["Scripting", "https://posting.sh/guide/scripting/"], ["Roadmap", "https://posting.sh/roadmap/"], ["GitHub", "https://github.com/darrenburns/posting"]]],
-  ["Yaak", [["Documentation", "https://yaak.app/docs"], ["Scripting and templates", "https://yaak.app/docs/templating/pre-post-request-scripting"], ["Runner", "https://yaak.app/docs/advanced/running-multiple-requests"], ["GitHub", "https://github.com/mountain-loop/yaak"]]],
-  ["Bruno", [["Documentation", "https://docs.usebruno.com/"], ["CLI data runs", "https://docs.usebruno.com/bru-cli/runCollection"], ["CLI licensing", "https://www.usebruno.com/product/cli"], ["Dynamic variables", "https://docs.usebruno.com/testing/script/dynamic-variables"], ["Pricing", "https://www.usebruno.com/pricing"], ["GitHub", "https://github.com/usebruno/bruno"]]],
+  ["Noodle", [["Documentation", "/docs/"], ["Scripting", "/docs/guides/pre-request-scripting/"], ["Tests", "/docs/guides/scripted-tests/"], ["Runner", "/docs/guides/collection-runner/"], ["Body templates", "/docs/guides/using-the-request-pane/#random-and-time-body-values"], ["Response visualization", "/docs/guides/using-the-response-pane/#source-and-visual"], ["GitHub", "https://github.com/wilfredinni/noodle"]]],
+  ["Posting", [["Website", "https://posting.sh/"], ["Guide", "https://posting.sh/guide/"], ["Importing", "https://posting.sh/guide/importing/"], ["Scripting", "https://posting.sh/guide/scripting/"], ["External pagers", "https://posting.sh/guide/external_tools/"], ["Roadmap", "https://posting.sh/roadmap/"], ["GitHub", "https://github.com/darrenburns/posting"]]],
+  ["Yaak", [["Documentation", "https://yaak.app/docs"], ["Scripting and templates", "https://yaak.app/docs/templating/pre-post-request-scripting"], ["Runner", "https://yaak.app/docs/advanced/running-multiple-requests"], ["Response views", "https://yaak.app/docs/request-types/http-requests"], ["GitHub", "https://github.com/mountain-loop/yaak"]]],
+  ["Bruno", [["Documentation", "https://docs.usebruno.com/"], ["CLI data runs", "https://docs.usebruno.com/bru-cli/runCollection"], ["CLI licensing", "https://www.usebruno.com/product/cli"], ["Dynamic variables", "https://docs.usebruno.com/testing/script/dynamic-variables"], ["Response views", "https://docs.usebruno.com/send-requests/res-data-cookies/res-data"], ["Pricing", "https://www.usebruno.com/pricing"], ["GitHub", "https://github.com/usebruno/bruno"]]],
 ] as const
 
 const comparisonUrl = new URL("/compare/", Astro.site ?? Astro.url)
@@ -159,7 +159,7 @@ const comparisonStructuredData = {
   name: "Compare Noodle, Posting, Yaak, and Bruno",
   description: "A source-backed comparison of repository-native API clients and testing tools.",
   url: comparisonUrl.href,
-  dateModified: "2026-09-24",
+  dateModified: "2026-09-26",
   about: products.map((name) => ({ "@type": "SoftwareApplication", name })),
   citation: comparisonSources.flatMap(([, links]) => links.map(([, href]) => href)),
 }
@@ -182,9 +182,10 @@ const comparisonStructuredData = {
     <aside class="legend" aria-label="Comparison legend">
       <strong>Legend</strong>
       <span>✅ Available now</span>
-      <span>◐ Important limitation</span>
+      <span>◐ Partial or qualified support</span>
       <span>🧭 Planned or considered</span>
-      <span>❌ No native support verified</span>
+      <span>❌ No native support</span>
+      <span>❔ Not verified in the sources</span>
     </aside>
 
     <nav class="section-nav" aria-label="Comparison sections">
@@ -236,7 +237,7 @@ const comparisonStructuredData = {
     <section id="sources" class="comparison-section source-section" aria-labelledby="sources-title">
       <header>
         <div><span class="section-kicker">Verification</span><h2 id="sources-title">Official sources, checked recently.</h2></div>
-        <p>Noodle features reflect v0.9.4. Scripting, runners, generated data, and related pricing were reviewed against the linked documentation on <time datetime="2026-09-24">September 24, 2026</time>. Products change, so use these sources for the latest details.</p>
+        <p>Noodle features reflect v0.9.4. Scripting, runners, generated data, and related pricing were reviewed against the linked documentation on <time datetime="2026-09-24">September 24, 2026</time>. Status icons were reviewed on <time datetime="2026-09-26">September 26, 2026</time>. Products change, so use these sources for the latest details.</p>
       </header>
       <ul class="source-list">
         {comparisonSources.map(([product, links]) => (
