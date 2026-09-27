@@ -1,6 +1,7 @@
 ---
 import { formatSize, formatStatus, statusColorToken } from "./noodle-demo"
 import { examples, folders, tourChapters, type Example } from "./noodle-demo-examples"
+import SelectMenu from "../SelectMenu.astro"
 
 interface Props {
   version?: string
@@ -69,23 +70,33 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
 <figure class="noodle-demo" data-noodle-demo aria-label="Interactive Noodle demo with sample responses">
   <div class="demo-tour">
     <div class="tour-copy">
-      {tourChapters.map((chapter, index) => {
-        const example = examples.find((example) => example.id === chapter.request)!
-        return <div data-tour-chapter={chapter.request} data-response-tab={chapter.responseTab ?? "Body"} data-duration={example.scripts || example.tests ? 16000 : 12000} aria-hidden={index !== 0 ? "true" : "false"}>
-          <h2>{chapter.title}</h2>
-          <p>{chapter.description}</p>
+      <SelectMenu class="tour-picker" label="Tour chapter" fitContent>
+        <h2 slot="trigger">
+          <button type="button" class="select-trigger tour-title-trigger" data-select-trigger data-tour-select aria-label={`Tour chapter, 1 / ${tourChapters.length} · ${tourChapters[0]!.title} selected`} aria-haspopup="menu" aria-expanded="false" disabled>
+            <span class="select-name" data-tour-title>1 / {tourChapters.length} · {tourChapters[0]!.title}</span>
+            <svg class="select-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
+          </button>
+        </h2>
+        {tourChapters.map((chapter, index) => (
+          <button type="button" role="menuitemradio" aria-checked={index === 0 ? "true" : "false"} data-tour-option={chapter.request} data-select-search={chapter.title} tabindex="-1">
+            <svg class="select-check" viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8 3 3 7-7" /></svg>
+            <span>{index + 1} / {tourChapters.length} · {chapter.title}</span>
+          </button>
+        ))}
+      </SelectMenu>
+      <div class="tour-descriptions">
+        {tourChapters.map((chapter, index) => {
+          const example = examples.find((example) => example.id === chapter.request)!
+          return <div data-tour-chapter={chapter.request} data-title={chapter.title} data-response-tab={chapter.responseTab ?? "Body"} data-duration={example.scripts || example.tests ? 16000 : 12000} aria-hidden={index !== 0 ? "true" : "false"}>
+            <p>{chapter.description}</p>
+          </div>
+        })}
+        <div data-tour-explore aria-hidden="true">
+          <p>Explore this request's tabs and sample response. Choose a chapter or play the tour to return to the guided walkthrough.</p>
         </div>
-      })}
-      <div data-tour-explore aria-hidden="true">
-        <h2>Explore Noodle</h2>
-        <p>Explore this request's tabs and sample response. Choose a chapter or play the tour to return to the guided walkthrough.</p>
       </div>
     </div>
     <div class="tour-controls" role="group" aria-label="Guided tour controls">
-      <select data-tour-select aria-label="Tour chapter" disabled>
-        <option value="" disabled>Explore on your own</option>
-        {tourChapters.map((chapter, index) => <option value={chapter.request} selected={index === 0}>{index + 1} / {tourChapters.length} · {chapter.title}</option>)}
-      </select>
       <div class="tour-buttons">
         <button type="button" data-tour-previous aria-label="Previous chapter" disabled>Previous</button>
         <button type="button" data-tour-play aria-label="Play tour" disabled>Play</button>
@@ -518,7 +529,10 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     demo.querySelectorAll<HTMLButtonElement>("[data-request], [data-send], [role=tab], [data-footer-action], [data-footer-send], [data-add-tab]").forEach((button) => { button.disabled = false })
 
     const chapters = [...demo.querySelectorAll<HTMLElement>("[data-tour-chapter]")]
-    const chapterSelect = demo.querySelector<HTMLSelectElement>("[data-tour-select]")!
+    const chapterSelect = demo.querySelector<HTMLButtonElement>("[data-tour-select]")!
+    const chapterTitle = demo.querySelector<HTMLElement>("[data-tour-title]")!
+    const chapterOptions = [...demo.querySelectorAll<HTMLButtonElement>("[data-tour-option]")]
+    const chapterMenu = demo.querySelector<HTMLElement>(".tour-picker [popover]")!
     const play = demo.querySelector<HTMLButtonElement>("[data-tour-play]")!
     const previous = demo.querySelector<HTMLButtonElement>("[data-tour-previous]")!
     const next = demo.querySelector<HTMLButtonElement>("[data-tour-next]")!
@@ -548,11 +562,13 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     }
     const showChapterCopy = (index: number) => {
       progressAnimation?.cancel()
+      progressAnimation = undefined
       if (index >= 0) chapterIndex = index
       chapters.forEach((chapter, i) => chapter.setAttribute("aria-hidden", String(i !== index)))
       explore.setAttribute("aria-hidden", String(index >= 0))
-      explore.querySelector("h2")!.textContent = active.dataset.name!
-      chapterSelect.value = index >= 0 ? chapters[index]!.dataset.tourChapter! : ""
+      chapterTitle.textContent = index >= 0 ? `${index + 1} / ${chapters.length} · ${chapters[index]!.dataset.title}` : active.dataset.name!
+      chapterSelect.setAttribute("aria-label", `Tour chapter, ${chapterTitle.textContent} selected`)
+      chapterOptions.forEach((option, i) => option.setAttribute("aria-checked", String(i === index)))
       updatePlayback()
     }
     const showChapter = (index: number) => {
@@ -569,35 +585,38 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       if (row.top < bounds.top) tree.scrollTop += row.top - bounds.top
       else if (row.bottom > bounds.bottom) tree.scrollTop += row.bottom - bounds.bottom
       showChapterCopy(index)
-      status.textContent = `${chapter.querySelector("h2")!.textContent}. ${chapter.querySelector("p")!.textContent}`
+      status.textContent = `${chapter.dataset.title}. ${chapter.querySelector("p")!.textContent}`
     }
     const scheduleChapter = () => {
       clearTimeout(tourTimer)
-      progressAnimation?.pause()
-      if (!playing) return
+      if (!playing || chapterMenu.matches(":popover-open")) return
       const duration = Number(chapters[chapterIndex]!.dataset.duration)
-      progressAnimation?.cancel()
-      progressAnimation = progress.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], {
+      progressAnimation ??= progress.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], {
         duration, fill: "forwards", easing: reducedMotion.matches ? `steps(${Math.ceil(duration / 1000)})` : "linear",
       })
+      progressAnimation.play()
       tourTimer = setTimeout(() => {
         showChapter((chapterIndex + 1) % chapters.length)
         scheduleChapter()
-      }, duration)
+      }, Math.max(0, duration - Number(progressAnimation.currentTime ?? 0)))
     }
     choices.forEach((choice) => choice.addEventListener("click", () => {
       pauseTour()
       selectRequest(choice)
       showChapterCopy(chapters.findIndex((chapter) => chapter.dataset.tourChapter === choice.dataset.request))
     }))
-    chapterSelect.addEventListener("pointerdown", pauseTour)
-    chapterSelect.addEventListener("keydown", (event) => {
-      if (["ArrowDown", "ArrowUp", "Home", "End", " ", "Enter"].includes(event.key)) pauseTour()
+    chapterMenu.addEventListener("beforetoggle", (event) => {
+      if (event.newState !== "open") return
+      clearTimeout(tourTimer)
+      progressAnimation?.pause()
     })
-    chapterSelect.addEventListener("change", () => {
-      pauseTour()
-      showChapter(chapters.findIndex((chapter) => chapter.dataset.tourChapter === chapterSelect.value))
+    chapterMenu.addEventListener("toggle", () => {
+      if (!chapterMenu.matches(":popover-open")) scheduleChapter()
     })
+    chapterOptions.forEach((option, index) => option.addEventListener("click", () => {
+      showChapter(index)
+      scheduleChapter()
+    }))
     previous.addEventListener("click", () => { showChapter(chapterIndex - 1); scheduleChapter() })
     next.addEventListener("click", () => { showChapter(chapterIndex + 1); scheduleChapter() })
     play.addEventListener("click", () => {
@@ -619,7 +638,6 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       scheduleChapter()
     }, { threshold: [0, 0.5] })
     observer.observe(demo)
-    chapterSelect.disabled = false
     play.disabled = false
     updatePlayback()
     activatePane(active.querySelector<HTMLElement>('.request [role=tabpanel]:not([hidden])')!)
@@ -637,13 +655,15 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   }
   .noodle-demo [hidden] { display: none !important; }
   .demo-tour { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; align-items: end; gap: 2rem; margin-bottom: 1.5rem; color: var(--fg); font-family: var(--font-sans); }
-  .tour-copy { display: grid; }
-  .tour-copy > div { grid-area: 1 / 1; }
-  .tour-copy [aria-hidden="true"] { visibility: hidden; }
-  .tour-copy h2 { margin: 0 0 0.65rem; font: 400 clamp(1.75rem, 3vw, 2.5rem)/1.15 var(--font-display); text-wrap: balance; }
+  .tour-copy { min-width: 0; }
+  .tour-descriptions { display: grid; }
+  .tour-descriptions > div { grid-area: 1 / 1; }
+  .tour-descriptions [aria-hidden="true"] { visibility: hidden; }
+  .tour-copy h2 { min-width: 0; margin: 0 0 0.65rem; font: 400 clamp(1.75rem, 3vw, 2.5rem)/1.15 var(--font-display); text-wrap: balance; }
+  .tour-copy .tour-title-trigger { padding: 0; color: var(--fg); text-align: left; }
+  .tour-copy .select-chevron { width: 0.45em; height: 0.45em; margin-left: 0.25em; }
   .tour-copy p { max-width: 68ch; margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.6; }
   .tour-controls { display: grid; gap: 0.5rem; }
-  .tour-controls select { width: 100%; min-width: 0; min-height: 44px; padding: 0.5rem 2rem 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: 8px; color: var(--fg); background: var(--panel); font: inherit; font-size: 0.875rem; text-overflow: ellipsis; cursor: pointer; }
   .tour-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; }
   .tour-buttons button { min-height: 44px; padding: 0.5rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.875rem; }
   .tour-buttons button:disabled { color: var(--muted); border-color: transparent; }
@@ -661,7 +681,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     pointer-events: none;
   }
   .tour-progress span { position: absolute; inset: 0; background: var(--accent); transform: scaleX(0); transform-origin: left; }
-  .tour-controls :is(button, select):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .tour-controls button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   .terminal {
     position: relative;
     padding: 0 2ch;
@@ -700,7 +720,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .request-folder:not([open]) .folder-name svg { transform: rotate(-90deg); }
   button { color: inherit; font: inherit; border: 0; background: transparent; cursor: pointer; }
   button:disabled { cursor: default; }
-  button:not(:disabled):not(.add-tab):not(.send):not([data-tour-play]):hover { background: var(--demo-background-element); }
+  button:not(:disabled):not(.add-tab):not(.send):not([data-tour-play]):not([data-select-trigger]):not([data-tour-option]):hover { background: var(--demo-background-element); }
   .request-choice { display: flex; align-items: center; gap: 2ch; width: 100%; min-height: 44px; padding: 0 1ch 0 3ch; text-align: left; border-left: 1px solid transparent; }
   .request-choice > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .request-choice[aria-pressed="true"] { background: var(--demo-background-element); border-left-color: var(--demo-primary); }
@@ -832,7 +852,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   }
   @media (max-width: 900px) {
     .demo-tour { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
-    .tour-controls { grid-template-columns: minmax(0, 1fr) 18rem; gap: 1rem; }
+    .tour-controls { width: 20rem; max-width: 100%; }
     .terminal-layout { grid-template-columns: 190px minmax(0, 1fr); }
     .request-choice { font-size: 0.75rem; }
   }
