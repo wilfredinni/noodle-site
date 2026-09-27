@@ -91,6 +91,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
         <button type="button" data-tour-play aria-label="Play tour" disabled>Play</button>
         <button type="button" data-tour-next aria-label="Next chapter" disabled>Next</button>
       </div>
+      <div class="tour-progress" aria-hidden="true"><span data-tour-progress></span></div>
     </div>
   </div>
   <div class="terminal">
@@ -103,7 +104,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     </div>
 
     <div class="terminal-layout">
-      <section class="collection pane" aria-label="Example requests">
+      <section class="collection pane" aria-label="Example requests" tabindex="-1">
         <h2 class="pane-title">Requests</h2>
         <div class="request-tree">
           {folders.map((folder) => (
@@ -162,7 +163,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                   <p class="sending-message" hidden>Sending sample request…</p>
                   {group.tabs.map((tab) => {
                     const panelCode = tab === "Body" ? group.name === "Request" ? example.body : response : ""
-                    const rows = tab === "Headers" ? group.name === "Response" ? [["content-type", "application/json; charset=utf-8"], ["cache-control", "no-cache"]] : Object.entries(example.headers ?? (example.body ? { "Content-Type": "application/json" } : {})) : tab === "Path" ? Object.entries(example.pathParams ?? {}) : tab === "Params" ? (example.params ?? []).map((param) => [param.name, param.value, param.enabled === false ? "disabled" : ""]) : []
+                    const rows = tab === "Headers" ? group.name === "Response" ? [["content-type", "application/json; charset=utf-8"], ["cache-control", "no-cache"]] : Object.entries(example.headers ?? (example.body ? { "Content-Type": "application/json", Accept: "application/json" } : {})) : tab === "Path" ? Object.entries(example.pathParams ?? {}) : tab === "Params" ? (example.params ?? []).map((param) => [param.name, param.value, param.enabled === false ? "disabled" : ""]) : []
                     return (
                       <div class="tab-panel" role="tabpanel" id={`demo-${example.id}-${group.name}-${tabSlug(tab)}`} aria-labelledby={`demo-${example.id}-${group.name}-${tabSlug(tab)}-tab`} tabindex="0" hidden={tab !== group.initial}>
                         {tab === "Body" && (panelCode || (group.name === "Request" && example.formData?.length) ? (
@@ -174,16 +175,24 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                           </>
                         ) : <p class="empty-state">This {example.method} request has no body.</p>)}
                         {["Headers", "Params", "Path"].includes(tab) && (rows.length ? (
-                          <table style={group.name === "Response" ? `--header-width: ${Math.max(...rows.map(([key]) => key.length)) + 2}ch` : undefined} aria-label={`${group.name} ${tab.toLowerCase()}`}><thead class="sr-only"><tr><th>Key</th><th>Value</th></tr></thead><tbody>{rows.map(([key, value, disabled]) => <tr class:list={{ "disabled-param": disabled }}><th scope="row">{key}{disabled && <span> (disabled)</span>}</th><td>{value}</td></tr>)}</tbody></table>
+                          <table class="key-value-table" style={group.name === "Response" ? `--header-width: ${Math.max(...rows.map(([key]) => key.length)) + 2}ch` : undefined} aria-label={`${group.name} ${tab.toLowerCase()}`}><thead class="sr-only"><tr><th>Key</th><th>Value</th></tr></thead><tbody>{rows.map(([key, value, disabled]) => <tr class:list={{ "disabled-param": disabled }}><th scope="row">{key}{disabled && <span> (disabled)</span>}</th><td>{value}</td></tr>)}</tbody></table>
                         ) : <p class="empty-state">{tab === "Headers" ? "No request headers." : tab === "Params" ? "No query parameters." : "No path parameters."}</p>)}
                         {tab === "Assert" && (example.assertions?.length ? (
                           <table class="assertions" aria-label="Response assertions"><colgroup><col class="assert-enabled" /><col /><col class="assert-operator" /><col /></colgroup><thead class="sr-only"><tr><th>Enabled</th><th>Expression</th><th>Operator</th><th>Expected</th></tr></thead><tbody>{example.assertions.map((assertion) => <tr><td><span class="checked-value" aria-hidden="true">[x]</span><span class="sr-only">Enabled</span></td><th scope="row">{assertion.expression}</th><td><select class="demo-select" aria-label={`${assertion.expression} operator`} disabled><option>{assertion.operator}</option></select></td><td>{assertion.value ?? ""}</td></tr>)}</tbody></table>
                         ) : <p class="native-empty">No response assertions.</p>)}
                         {tab === "Capture" && (example.captures?.length ? (
-                          <>
-                            <table aria-label="Response captures"><thead><tr><th>Variable</th><th>Expression</th></tr></thead><tbody>{example.captures.map((capture) => <tr><th scope="row">{capture.variable}</th><td>{capture.expression}</td></tr>)}</tbody></table>
-                            <p class="network-note">Run this before “Reuse captures” in the collection Runner to share variables. Sample values appear in Results.</p>
-                          </>
+                          <table class="captures" aria-label="Response captures">
+                            <colgroup><col class="assert-enabled" /><col class="capture-variable" /><col /><col class="capture-persistence" /></colgroup>
+                            <thead class="sr-only"><tr><th>Enabled</th><th>Variable</th><th>Expression</th><th>Persistence</th></tr></thead>
+                            <tbody>{example.captures.map((capture) => (
+                              <tr>
+                                <td><span class="checked-value" aria-hidden="true">[x]</span><span class="sr-only">Enabled</span></td>
+                                <th scope="row" title={capture.variable}>{capture.variable}</th>
+                                <td title={capture.expression}>{capture.expression}</td>
+                                <td><select class="demo-select" aria-label={`${capture.variable} persistence`} disabled><option value="transient" selected={!capture.persist}>Run only</option><option value="secret" selected={capture.persist === "secret"}>Secret</option><option value="environment" selected={capture.persist === "environment"}>Environment</option></select></td>
+                              </tr>
+                            ))}</tbody>
+                          </table>
                         ) : <p class="native-empty">No response captures.</p>)}
                         {["Pre Script", "Post Script", "Tests"].includes(tab) && (
                           <>
@@ -195,7 +204,12 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                         {tab === "Auth" && (
                           <div class="native-panel">
                             <select class="demo-select" aria-label="Authentication type" disabled><option>{example.auth?.type ?? "None"}</option></select>
-                            {Object.entries(example.auth?.fields ?? {}).map(([label, value]) => <div class="setting-row"><div class="setting-value"><span>{label}:</span><span class:list={{ variable: value.startsWith("$") }}>{value}</span></div></div>)}
+                            {Object.entries(example.auth?.fields ?? {}).map(([label, { value, description }]) => (
+                              <div class="setting-row">
+                                <div class="setting-value"><span>{label}:</span><span class:list={{ variable: value.startsWith("$") }}>{value}</span></div>
+                                {description && <p class="setting-description">{description}</p>}
+                              </div>
+                            ))}
                           </div>
                         )}
                         {tab === "Settings" && (
@@ -248,7 +262,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                             </>}
                             {example.captures && <>
                               <h3><strong>Captures</strong> <span>{example.captures.length} captured · 0 failed</span></h3>
-                              {example.captures.map((capture) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">CAPTURED</span><span class="result-name">{capture.variable}</span><span class="result-meta">{capture.expression}</span></summary><dl><dt>Expression</dt><dd>{capture.expression}</dd><dt>Value</dt><dd>{capture.value}</dd><dt>Scope</dt><dd>Current run</dd></dl></details>)}
+                              {example.captures.map((capture) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">CAPTURED</span><span class="result-name">{capture.variable}</span><span class="result-meta">{capture.expression}</span></summary><dl><dt>Expression</dt><dd>{capture.expression}</dd><dt>Value</dt><dd>{capture.value}</dd><dt>Scope</dt><dd>Current run</dd>{capture.persist && <><dt>Persisted</dt><dd>{capture.persist}</dd></>}</dl></details>)}
                             </>}
                             {example.assertions && <>
                               <h3><strong>Assertions</strong> <span>{example.assertions.length} passed · 0 failed</span></h3>
@@ -283,7 +297,6 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       <button type="button" class="footer-send" data-footer-send disabled><kbd>^return</kbd><span>send</span></button>
     </div>
   </div>
-  <figcaption>Interactive demo · Sample responses <span>Explore any request to pause the tour.</span></figcaption>
   <p class="sr-only" id="noodle-demo-shortcuts">Shortcuts from the Noodle app. Expand, copy, and send work in this demo. Other commands are shown for reference and disabled.</p>
   <p class="sr-only" role="status" data-demo-status></p>
 </figure>
@@ -292,13 +305,14 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   document.querySelectorAll<HTMLElement>("[data-noodle-demo]").forEach((demo) => {
     const choices = [...demo.querySelectorAll<HTMLButtonElement>("[data-request]")]
     const examples = [...demo.querySelectorAll<HTMLElement>("[data-example]")]
+    const panes = [...demo.querySelectorAll<HTMLElement>(".pane")]
     const status = demo.querySelector<HTMLElement>("[data-demo-status]")!
     const footerSend = demo.querySelector<HTMLButtonElement>("[data-footer-send]")!
     let active = examples[0]!
     let pending: ReturnType<typeof setTimeout> | undefined
     let focusedGroup: HTMLElement | null = null
 
-    const showFooter = (target: HTMLElement) => {
+    const activatePane = (target: HTMLElement) => {
       if (target.closest(".terminal-foot")) return
       const group = target.closest<HTMLElement>("[data-group]")
       const tab = group?.querySelector<HTMLElement>('[aria-selected="true"]')?.dataset.tab
@@ -315,16 +329,19 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       } else if (group?.dataset.group === "Response") {
         context = tab === "Body" ? "response-body" : tab === "Cookies" ? "response-cookies" : "response-base"
       } else return
+      const selectedPane = target.closest<HTMLElement>(".pane")
+      if (selectedPane) panes.forEach((pane) => pane.classList.toggle("is-active", pane === selectedPane))
       focusedGroup = group
       demo.querySelectorAll<HTMLElement>("[data-footer-context]").forEach((hints) => {
         hints.hidden = hints.dataset.footerContext !== context
       })
     }
-    demo.addEventListener("focusin", (event) => showFooter(event.target as HTMLElement))
-    demo.addEventListener("click", (event) => showFooter(event.target as HTMLElement))
+    demo.addEventListener("focusin", (event) => activatePane(event.target as HTMLElement))
+    demo.addEventListener("click", (event) => activatePane(event.target as HTMLElement))
 
     const toggleExpanded = () => {
       if (!focusedGroup) return
+      pauseTour()
       const expanded = focusedGroup.classList.toggle("is-expanded")
       active.classList.toggle("is-expanded", expanded)
       demo.querySelectorAll<HTMLElement>('[data-footer-action="expand"] span').forEach((label) => {
@@ -371,7 +388,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       else if (selected.offsetLeft + selected.offsetWidth > list.scrollLeft + list.clientWidth) {
         list.scrollLeft = selected.offsetLeft + selected.offsetWidth - list.clientWidth
       }
-      showFooter(selected)
+      activatePane(selected)
     }
 
     const setSending = (sending: boolean) => {
@@ -402,13 +419,13 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
         selectTab(group, group.querySelector<HTMLButtonElement>(`[data-tab="${group.dataset.defaultTab}"]`)!)
       })
       status.textContent = `${active.dataset.name}. Sample response: ${active.dataset.status}.`
-      showFooter(choice)
+      activatePane(choice)
     }
 
     demo.querySelectorAll<HTMLElement>("[data-group]").forEach((group) => {
       const tabs = [...group.querySelectorAll<HTMLButtonElement>("[role=tab]")]
       tabs.forEach((tab) => {
-        tab.addEventListener("click", () => selectTab(group, tab))
+        tab.addEventListener("click", () => { pauseTour(); selectTab(group, tab) })
         tab.addEventListener("keydown", (event) => {
           const visibleTabs = tabs.filter((tab) => !tab.hidden)
           const index = visibleTabs.indexOf(tab)
@@ -419,6 +436,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
           else if (event.key === "End") next = visibleTabs.length - 1
           else return
           event.preventDefault()
+          pauseTour()
           selectTab(group, visibleTabs[next]!)
           visibleTabs[next]!.focus()
         })
@@ -433,6 +451,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
         if (returnFocus) add.focus()
       }
       const openMenu = (last = false) => {
+        pauseTour()
         menu.hidden = false
         add.setAttribute("aria-expanded", "true")
         const available = items.filter((item) => !item.disabled)
@@ -463,6 +482,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
         available[next]?.focus()
       })
       items.forEach((item) => item.addEventListener("click", () => {
+        pauseTour()
         const tab = tabs.find((tab) => tab.dataset.tab === item.dataset.revealTab)!
         tab.hidden = false
         item.disabled = true
@@ -483,6 +503,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     })
 
     const sendSample = () => {
+      pauseTour()
       if (pending !== undefined) return
       pending = setTimeout(() => {
         pending = undefined
@@ -501,18 +522,18 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     const play = demo.querySelector<HTMLButtonElement>("[data-tour-play]")!
     const previous = demo.querySelector<HTMLButtonElement>("[data-tour-previous]")!
     const next = demo.querySelector<HTMLButtonElement>("[data-tour-next]")!
+    const progress = demo.querySelector<HTMLElement>("[data-tour-progress]")!
     const explore = demo.querySelector<HTMLElement>("[data-tour-explore]")!
     const tree = demo.querySelector<HTMLElement>(".request-tree")!
     const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
     let chapterIndex = 0
     let playing = false
-    let complete = false
-    let inView = false
     let autostart = !reducedMotion.matches
     let tourTimer: ReturnType<typeof setTimeout> | undefined
+    let progressAnimation: Animation | undefined
 
     const updatePlayback = () => {
-      play.textContent = playing ? "Pause" : complete ? "Replay" : "Play"
+      play.textContent = playing ? "Pause" : "Play"
       play.setAttribute("aria-label", `${play.textContent} tour`)
       status.setAttribute("aria-live", playing ? "off" : "polite")
       previous.disabled = chapterIndex === 0
@@ -522,15 +543,16 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       autostart = false
       playing = false
       clearTimeout(tourTimer)
+      progressAnimation?.pause()
       updatePlayback()
     }
     const showChapterCopy = (index: number) => {
+      progressAnimation?.cancel()
       if (index >= 0) chapterIndex = index
       chapters.forEach((chapter, i) => chapter.setAttribute("aria-hidden", String(i !== index)))
       explore.setAttribute("aria-hidden", String(index >= 0))
       explore.querySelector("h2")!.textContent = active.dataset.name!
       chapterSelect.value = index >= 0 ? chapters[index]!.dataset.tourChapter! : ""
-      complete = false
       updatePlayback()
     }
     const showChapter = (index: number) => {
@@ -540,6 +562,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       selectRequest(choice)
       const response = active.querySelector<HTMLElement>('.response')!
       selectTab(response, response.querySelector<HTMLButtonElement>(`[data-tab="${chapter.dataset.responseTab}"]`)!)
+      activatePane(active.querySelector<HTMLElement>(`${chapter.dataset.responseTab === "Body" ? ".request" : ".response"} [role=tabpanel]:not([hidden])`)!)
       active.querySelectorAll<HTMLElement>(".tab-panel").forEach((panel) => { panel.scrollTop = 0; panel.scrollLeft = 0 })
       const row = choice.getBoundingClientRect()
       const bounds = tree.getBoundingClientRect()
@@ -550,59 +573,56 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     }
     const scheduleChapter = () => {
       clearTimeout(tourTimer)
-      if (!playing || !inView || document.hidden) return
+      progressAnimation?.pause()
+      if (!playing) return
+      const duration = Number(chapters[chapterIndex]!.dataset.duration)
+      progressAnimation?.cancel()
+      progressAnimation = progress.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], {
+        duration, fill: "forwards", easing: reducedMotion.matches ? `steps(${Math.ceil(duration / 1000)})` : "linear",
+      })
       tourTimer = setTimeout(() => {
-        if (chapterIndex === chapters.length - 1) {
-          complete = true
-          pauseTour()
-          status.textContent = "Tour complete. Explore the requests or replay the tour."
-          return
-        }
-        showChapter(chapterIndex + 1)
+        showChapter((chapterIndex + 1) % chapters.length)
         scheduleChapter()
-      }, Number(chapters[chapterIndex]!.dataset.duration))
-    }
-    const syncVisibility = () => {
-      if (autostart && inView && !document.hidden) {
-        autostart = false
-        playing = true
-        updatePlayback()
-      }
-      scheduleChapter()
+      }, duration)
     }
     choices.forEach((choice) => choice.addEventListener("click", () => {
       pauseTour()
       selectRequest(choice)
       showChapterCopy(chapters.findIndex((chapter) => chapter.dataset.tourChapter === choice.dataset.request))
     }))
+    chapterSelect.addEventListener("pointerdown", pauseTour)
+    chapterSelect.addEventListener("keydown", (event) => {
+      if (["ArrowDown", "ArrowUp", "Home", "End", " ", "Enter"].includes(event.key)) pauseTour()
+    })
     chapterSelect.addEventListener("change", () => {
       pauseTour()
       showChapter(chapters.findIndex((chapter) => chapter.dataset.tourChapter === chapterSelect.value))
     })
-    previous.addEventListener("click", () => { pauseTour(); showChapter(chapterIndex - 1) })
-    next.addEventListener("click", () => { pauseTour(); showChapter(chapterIndex + 1) })
+    previous.addEventListener("click", () => { showChapter(chapterIndex - 1); scheduleChapter() })
+    next.addEventListener("click", () => { showChapter(chapterIndex + 1); scheduleChapter() })
     play.addEventListener("click", () => {
       if (playing) { pauseTour(); return }
       autostart = false
       playing = true
-      showChapter(complete ? 0 : chapterIndex)
+      showChapter(chapterIndex)
       scheduleChapter()
     })
-    for (const type of ["pointerdown", "keydown", "focusin", "wheel", "click"]) {
-      demo.addEventListener(type, (event) => {
-        if (!(event.target as HTMLElement).closest("[data-tour-play]")) pauseTour()
-      }, { capture: true, passive: true })
-    }
+    demo.querySelectorAll("summary").forEach((summary) => summary.addEventListener("click", pauseTour))
     reducedMotion.addEventListener("change", () => { if (reducedMotion.matches) pauseTour() })
-    document.addEventListener("visibilitychange", syncVisibility)
     const observer = new IntersectionObserver(([entry]) => {
-      inView = !!entry?.isIntersecting && entry.intersectionRatio >= 0.5
-      syncVisibility()
+      if (!entry?.isIntersecting || entry.intersectionRatio < 0.5) return
+      observer.disconnect()
+      if (!autostart) return
+      autostart = false
+      playing = true
+      updatePlayback()
+      scheduleChapter()
     }, { threshold: [0, 0.5] })
     observer.observe(demo)
     chapterSelect.disabled = false
     play.disabled = false
     updatePlayback()
+    activatePane(active.querySelector<HTMLElement>('.request [role=tabpanel]:not([hidden])')!)
   })
 </script>
 
@@ -629,8 +649,9 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .tour-buttons button:disabled { color: var(--muted); border-color: transparent; }
   .tour-buttons [data-tour-play] { color: var(--accent-text); background: var(--accent); border-color: var(--accent); }
   .tour-buttons [data-tour-play]:not(:disabled):hover { color: var(--accent-text); background: var(--accent-dim); }
+  .tour-progress { grid-column: 1 / -1; height: 3px; overflow: hidden; background: var(--border); }
+  .tour-progress span { display: block; height: 100%; background: var(--accent); transform: scaleX(0); transform-origin: left; }
   .tour-controls :is(button, select):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 1rem; margin-top: 0.75rem; color: var(--muted); font: 0.75rem/1.5 var(--font-sans); }
   .terminal {
     padding: 0 2ch;
     background: var(--demo-background-panel);
@@ -658,8 +679,8 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .pane-heading, .collection > .pane-title { position: absolute; top: calc(var(--demo-line) / -2); right: 1ch; padding: 0 1ch; background: var(--demo-background-panel); }
   .pane-heading { display: flex; align-items: center; gap: 2ch; }
   .pane-title { color: var(--demo-text-muted); font: inherit; }
-  .pane:focus-within { border-color: var(--demo-primary); }
-  .pane:focus-within .pane-title { color: var(--demo-primary); }
+  .pane.is-active { border-color: var(--demo-primary); }
+  .pane.is-active .pane-title { color: var(--demo-primary); }
   .request-tree { position: absolute; inset: calc(var(--demo-line) / 2) 1ch; overflow: auto; }
   .folder-name { display: flex; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; cursor: pointer; list-style: none; }
   .folder-name::-webkit-details-marker { display: none; }
@@ -668,7 +689,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .request-folder:not([open]) .folder-name svg { transform: rotate(-90deg); }
   button { color: inherit; font: inherit; border: 0; background: transparent; cursor: pointer; }
   button:disabled { cursor: default; }
-  button:not(:disabled):not(.add-tab):not(.send):hover { background: var(--demo-background-element); }
+  button:not(:disabled):not(.add-tab):not(.send):not([data-tour-play]):hover { background: var(--demo-background-element); }
   .request-choice { display: flex; align-items: center; gap: 2ch; width: 100%; min-height: 44px; padding: 0 1ch 0 3ch; text-align: left; border-left: 1px solid transparent; }
   .request-choice > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .request-choice[aria-pressed="true"] { background: var(--demo-background-element); border-left-color: var(--demo-primary); }
@@ -725,13 +746,18 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .script-format { margin: calc(var(--demo-line) / 2) 0 var(--demo-line); }
   .script-code .code-line::before { width: 4ch; }
   .assertions { min-width: 58ch; table-layout: fixed; }
-  .assertions th { width: auto; }
   .assert-enabled { width: 4ch; }
   .assert-operator { width: 15ch; }
   .assertions th, .assertions td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .assertions td:nth-child(3) { padding: 0; }
   .assertions td:first-child { padding: 0 0 0 1ch; }
   .assertions td:last-child { padding-left: 3ch; }
+  .captures { table-layout: fixed; }
+  .capture-variable { width: calc((100% - 19ch) * 0.4); }
+  .capture-persistence { width: 15ch; }
+  .captures th, .captures td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .captures td:first-child, .captures td:last-child { padding: 0; }
+  .captures tbody tr:hover { background: var(--demo-background-element); }
   .sample-results { padding-top: calc(var(--demo-line) / 2); }
   .result-meta { color: var(--demo-text-muted); }
   .sample-results h3 { display: flex; flex-wrap: wrap; gap: 0 1ch; font: inherit; }
@@ -751,15 +777,15 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .response-summary { display: flex; align-items: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .response-metrics, .response-status { padding: 0 1ch; font-weight: 400; }
   .response-metrics { color: var(--demo-text-muted); background: var(--demo-background-element); }
-  .response:focus-within .response-metrics { color: var(--demo-text); }
+  .response.is-active .response-metrics { color: var(--demo-text); }
   .response-status { color: var(--demo-background-panel); background: var(--demo-status); }
   .empty-state, .sending-message { padding: var(--demo-line) 1ch; color: var(--demo-text-muted); }
   .sending-message { position: absolute; inset: 0; z-index: 1; background: var(--demo-background-panel); }
   .response[aria-busy="true"] .response-summary { visibility: hidden; }
   table { width: 100%; border-collapse: collapse; font: inherit; margin-top: calc(var(--demo-line) / 2); }
   th, td { padding: 0 1ch; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
-  th { width: var(--header-width, 50%); color: var(--demo-primary); font-weight: 400; }
-  table[aria-label="Request form data"] th { width: auto; }
+  th { color: var(--demo-primary); font-weight: 400; }
+  .key-value-table th { width: var(--header-width, 50%); }
   tbody tr:nth-child(even) { background: var(--demo-stripe); }
   .disabled-param :is(th, td) { color: var(--demo-text-muted); }
   .native-panel, .native-empty { padding-top: calc(var(--demo-line) / 2); }

@@ -50,6 +50,18 @@ async function checkNoodleDemo(doc = document) {
   }
   const panelText = (id, tab) => demo.querySelector(`#demo-${id}-Request-${tab}`).textContent
   assert(panelText("capture-post", "Capture").includes("created_user_id") && panelText("use-captures", "Headers").includes("$response_content_type"), "Capture producer and consumer show shared variables")
+  const captureTable = demo.querySelector('table[aria-label="Response captures"]')
+  const captureRows = [...captureTable.querySelectorAll("tbody tr")]
+  assert(captureTable.querySelector("thead").classList.contains("sr-only") && captureRows.every((row) => row.cells.length === 4 && row.querySelector(".checked-value")), "Capture rows match Noodle's checkbox, variable, expression, and persistence layout")
+  assert(captureRows.every((row, index) => {
+    const select = row.querySelector("select")
+    return select.disabled && select.value === ["transient", "environment", "secret"][index] && [...select.options].map((option) => option.textContent).join(",") === "Run only,Secret,Environment"
+  }), "Capture persistence selectors show one each of Run only, Environment, and Secret using Noodle's options")
+  assert([...demo.querySelectorAll('#demo-capture-post-Response-Results .result-entry')].every((row, index) => {
+    const persisted = [...row.querySelectorAll('dt')].find((label) => label.textContent === "Persisted")?.nextElementSibling?.textContent
+    return persisted === [undefined, "environment", "secret"][index]
+  }), "Capture results reflect each persistence destination")
+  assert(!captureTable.closest('[role="tabpanel"]').querySelector(".network-note"), "Capture view omits the demo-only Runner note")
   assert(panelText("time-post", "Body").includes("$time.unix") && panelText("random-post", "Body").includes('$random.number({"min":1,"max":10})'), "Time and typed random templates remain literal")
   assert(panelText("external-script", "Pre-Script").includes("External file") && panelText("external-script", "Pre-Script").includes("./scripts/prepare-request.js"), "External source has its mode, path, and preview")
   assert(panelText("schema-test", "Tests").includes("toMatchSchema") && panelText("data-test", "Tests").includes("noodle.iteration?.data"), "Schema and data-driven tests are discoverable")
@@ -73,6 +85,7 @@ async function checkNoodleDemo(doc = document) {
     const workspace = active()
     assert(workspace.dataset.example === id, `${id}: request selection`)
     assert(footer().dataset.footerContext === "sidebar", `${id}: selecting a request shows sidebar shortcuts`)
+    assert(demo.querySelectorAll('.pane.is-active').length === 1 && demo.querySelector('.collection').classList.contains('is-active'), `${id}: selecting a request highlights only the sidebar pane`)
     assert(demo.querySelectorAll('[data-request][aria-pressed="true"]').length === 1, `${id}: one selected request`)
     assert(workspace.querySelector('.request [aria-selected="true"]').textContent === initialTab, `${id}: default request tab`)
     assert(workspace.querySelector('.response [aria-selected="true"]').textContent === "Body", `${id}: response resets to Body`)
@@ -105,6 +118,7 @@ async function checkNoodleDemo(doc = document) {
           if (group.dataset.group === "Response") assert(view.getComputedStyle(metrics).color === color("text"), `${id}: focused response metrics use theme text`)
           const panelContext = group.dataset.group !== "Request" ? context : ["Headers", "Params"].includes(tab.textContent) ? "request-fields" : tab.textContent === "Path" ? "request-path" : tab.textContent === "Body" ? "request-body" : tab.textContent === "Assert" ? "request-assert" : "request-base"
           assert(footer().dataset.footerContext === panelContext, `${id}: ${tab.textContent} panel focus updates the shortcuts`)
+          assert(group.classList.contains('is-active') && demo.querySelectorAll('.pane.is-active').length === 1, `${id}: ${tab.textContent} panel focus exclusively selects its pane`)
           const expand = footer().querySelector('[data-footer-action="expand"]')
           expand.focus()
           expand.click()
@@ -116,6 +130,12 @@ async function checkNoodleDemo(doc = document) {
           const content = panel.innerHTML
           panel.querySelector(".timeline-row").click()
           assert(panel.innerHTML === content && !panel.querySelector("details, button, [role=button]") && !demo.querySelector("dialog"), `${id}: timeline is a static row with no disclosure or modal`)
+        }
+        if (id === "cookie-request" && tab.textContent === "Cookies") {
+          const table = panel.querySelector('table')
+          const lineHeight = parseFloat(view.getComputedStyle(table).lineHeight)
+          assert([...table.rows].every((row) => row.getBoundingClientRect().height <= lineHeight + 1), "Cookie headings and values fit on one line across all three columns")
+          assert(panel.scrollWidth <= panel.clientWidth && panel.scrollHeight <= panel.clientHeight, "All cookie rows fit in the response pane without scrolling")
         }
         if (tab.textContent === "Results" && configuredTabs[id]) {
           const rows = [...panel.querySelectorAll(".result-entry")]
@@ -258,6 +278,7 @@ async function checkNoodleDemo(doc = document) {
     requestScroll: requestPanel.scrollTop,
     treeScroll: tree.scrollTop,
     pageScroll: view.scrollY,
+    selectedPane: demo.querySelector('.pane.is-active')?.getAttribute('aria-label'),
   })
   const state = preserved()
   for (const option of themeOptions) {
@@ -299,6 +320,7 @@ async function checkNoodleTour(doc = document) {
   const play = demo.querySelector("[data-tour-play]")
   const previous = demo.querySelector("[data-tour-previous]")
   const next = demo.querySelector("[data-tour-next]")
+  const progress = demo.querySelector("[data-tour-progress]")
   const active = () => demo.querySelector("[data-example]:not([hidden])")
   const choose = (id) => { select.value = id; select.dispatchEvent(new view.Event("change", { bubbles: true })) }
   assert(chapters.length === 22 && !select.disabled && !play.disabled, "22 guided chapters initialize")
@@ -316,6 +338,7 @@ async function checkNoodleTour(doc = document) {
     assert(row.top >= tree.top - 1 && row.bottom <= tree.bottom + 1, `${select.value}: selected request is visible in the sidebar`)
     assert(workspace.querySelector('.request [aria-selected="true"]').dataset.tab === workspace.querySelector(".request").dataset.defaultTab, `${select.value}: relevant request tab is selected`)
     assert(workspace.querySelector('.response [aria-selected="true"]').dataset.tab === chapter.dataset.responseTab, `${select.value}: relevant response tab is selected`)
+    assert(demo.querySelectorAll('.pane.is-active').length === 1 && workspace.querySelector(chapter.dataset.responseTab === "Body" ? ".request" : ".response").classList.contains("is-active"), `${select.value}: the demonstrated pane stays selected while the chapter control has keyboard focus`)
     assert(chapter.getAttribute("aria-hidden") === "false" && demo.querySelectorAll('.tour-copy [aria-hidden="false"]').length === 1, `${select.value}: one matching explanation is exposed`)
     assert(Math.abs(demo.getBoundingClientRect().height - height) < 1 && view.scrollY === scroll && doc.activeElement === select, `${select.value}: chapter changes preserve layout, page scroll, and focus`)
     assert(play.textContent === "Play", `${select.value}: chapter selection pauses playback`)
@@ -323,20 +346,52 @@ async function checkNoodleTour(doc = document) {
   assert(next.disabled && !previous.disabled, "Last chapter disables Next")
   previous.click()
   assert(select.value === chapters.at(-2).dataset.tourChapter, "Previous selects the preceding chapter")
+  assert(play.textContent === "Play" && !progress.getAnimations().length, "Previous preserves explicitly paused playback")
   next.click()
   assert(select.value === chapters.at(-1).dataset.tourChapter, "Next selects the following chapter")
+  assert(play.textContent === "Play" && !progress.getAnimations().length, "Next preserves explicitly paused playback")
   choose(chapters[0].dataset.tourChapter)
   assert(previous.disabled && !next.disabled, "First chapter disables Previous")
   play.click()
   assert(play.textContent === "Pause", "Play starts playback")
+  assert(active().querySelector('.request').classList.contains('is-active'), "Play selects the demonstrated pane")
+  for (const button of [next, previous]) {
+    const oldProgress = progress.getAnimations()[0]
+    oldProgress.currentTime = 6000
+    button.click()
+    const restarted = progress.getAnimations()[0]
+    assert(play.textContent === "Pause", `${button.textContent}: chapter navigation keeps playback running`)
+    assert(active().querySelector('.request').classList.contains('is-active') && demo.querySelectorAll('.pane.is-active').length === 1, `${button.textContent}: chapter navigation preserves a single selected pane`)
+    assert(oldProgress.playState === "idle" && restarted?.playState === "running" && restarted.currentTime === 0, `${button.textContent}: chapter navigation restarts progress from zero`)
+    assert(restarted.effect.getTiming().duration === Number(chapters.find((chapter) => chapter.dataset.tourChapter === select.value).dataset.duration), `${button.textContent}: restarted progress uses the selected chapter duration`)
+  }
   play.click()
   assert(play.textContent === "Play", "Pause stops playback")
-  for (const event of ["pointerdown", "keydown", "focusin", "wheel", "click"]) {
-    play.click()
+  play.click()
+  for (const event of ["pointerover", "pointerdown", "keydown", "focusin", "wheel", "click"]) {
     active().querySelector('.request [role=tabpanel]:not([hidden])').dispatchEvent(new view.Event(event, { bubbles: true }))
-    assert(play.textContent === "Play", `${event}: interacting with the demo pauses playback`)
+    assert(play.textContent === "Pause", `${event}: passive interaction keeps playback running`)
   }
+  active().querySelector('.request [data-tab="Headers"]').click()
+  assert(play.textContent === "Play", "Selecting a tab pauses playback")
+  play.click()
+  active().querySelector('.request [aria-selected="true"]').dispatchEvent(new view.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }))
+  assert(play.textContent === "Play", "Keyboard tab navigation pauses playback")
+  play.click()
+  select.dispatchEvent(new view.Event("pointerdown", { bubbles: true }))
+  assert(play.textContent === "Play", "Opening the chapter selector pauses playback")
+  play.click()
+  select.dispatchEvent(new view.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }))
+  assert(play.textContent === "Play", "Keyboard chapter selection pauses playback")
+  for (const selector of ['.request-folder summary', '[data-add-tab]']) {
+    play.click()
+    const control = selector.includes("folder") ? demo.querySelector(selector) : active().querySelector(selector)
+    control.click()
+    assert(play.textContent === "Play", `${selector}: opening navigation pauses playback`)
+  }
+  play.click()
   demo.querySelector('[data-request="basic-auth"]').click()
+  assert(play.textContent === "Play", "Selecting a request pauses playback")
   assert(select.value === "" && demo.querySelector('[data-tour-explore]').getAttribute("aria-hidden") === "false", "Manual exploration outside the tour has its own explanation")
   play.click()
   assert(active().dataset.example === chapters[0].dataset.tourChapter && select.value === chapters[0].dataset.tourChapter, "Play returns from exploration to the current chapter")
@@ -355,18 +410,24 @@ async function checkNoodleTour(doc = document) {
     await new Promise((resolve) => view.requestAnimationFrame(() => view.requestAnimationFrame(resolve)))
     chapters.forEach((chapter) => { chapter.dataset.duration = "100" })
     play.click()
+    await waitFor(() => progress.getAnimations().some((animation) => animation.playState === "running"))
+    assert(progress.getAnimations()[0]?.effect.getTiming().duration === Number(chapters[0].dataset.duration), "Progress uses the same duration as the chapter timer")
     await waitFor(() => select.value === chapters[1].dataset.tourChapter)
+    assert(active().querySelector('.request').classList.contains('is-active') && demo.querySelectorAll('.pane.is-active').length === 1, "Automatic advance selects a pane in the new example")
     play.click()
+    const pausedProgress = progress.getAnimations()[0]
+    await pausedProgress.ready
+    const pausedTime = pausedProgress.currentTime
     const paused = select.value
     await new Promise((resolve) => view.setTimeout(resolve, 250))
     assert(select.value === paused, "Paused playback cancels its pending advance")
+    assert(pausedProgress.playState === "paused" && pausedProgress.currentTime === pausedTime, "Progress freezes with paused playback")
     choose(chapters.at(-1).dataset.tourChapter)
     play.click()
-    await waitFor(() => play.textContent === "Replay")
-    await new Promise((resolve) => view.setTimeout(resolve, 250))
-    assert(select.value === chapters.at(-1).dataset.tourChapter, "Tour stops after its last chapter without looping")
+    await waitFor(() => select.value === chapters[0].dataset.tourChapter)
+    assert(play.textContent === "Pause", "Tour loops from its last chapter to its first without stopping")
     play.click()
-    assert(select.value === chapters[0].dataset.tourChapter && play.textContent === "Pause", "Replay restarts at the first chapter")
+    assert(play.textContent === "Play", "Pause still stops a looping tour")
   } finally {
     if (play.textContent === "Pause") play.click()
     chapters.forEach((chapter, index) => { chapter.dataset.duration = durations[index] })

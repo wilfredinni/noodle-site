@@ -8,10 +8,10 @@ export type Example = {
   pathParams?: Record<string, string>;
   headers?: Record<string, string>;
   params?: { name: string; value: string; enabled?: boolean }[];
-  auth?: { type: string; fields: Record<string, string> };
+  auth?: { type: string; fields: Record<string, { value: string; description?: string }> };
   tags?: string[];
   assertions?: { expression: string; operator: string; value?: string | number; actual: string | number }[];
-  captures?: { variable: string; expression: string; value: string | number }[];
+  captures?: { variable: string; expression: string; value: string | number; persist?: "secret" | "environment" }[];
   scripts?: { pre?: string; post?: string };
   scriptFiles?: { pre?: string; post?: string };
   tests?: string;
@@ -25,13 +25,46 @@ const comment = { postId: 1, id: 1, name: "A useful example", email: "ada@exampl
 const json = (value: unknown) => JSON.stringify(value, null, 2)
 export const folders = ["body templates", "assertions & captures", "authentication", "scripts", "tests", "requests"]
 const authExamples: (Pick<Example, "id" | "name" | "path" | "baseUrl" | "response"> & NonNullable<Example["auth"]>)[] = [
-  { id: "bearer-auth", name: "Bearer token", path: "/bearer", type: "Bearer Token", fields: { Token: "$api_token" }, response: { authenticated: true, token: "[REDACTED]" } },
-  { id: "basic-auth", name: "Basic auth", path: "/basic-auth/$username/$password", type: "Basic Auth", fields: { Username: "$username", Password: "$password" }, response: { authenticated: true, user: "demo" } },
-  { id: "api-key-auth", name: "API key", path: "/headers", type: "API Key", fields: { Key: "X-API-Key", Value: "$api_key", "Add To": "Header" }, response: { headers: { "X-Api-Key": "[REDACTED]" } } },
-  { id: "oauth2-auth", name: "OAuth 2.0 + PKCE", baseUrl: "https://api.example.com", path: "/v1/profile", type: "OAuth 2.0", fields: { "Grant Type": "Authorization Code", "Discovery URL": "https://identity.example.com", "Client ID": "$oauth2_client_id", "Client Secret": "$oauth2_client_secret", Scope: "openid profile", "Redirect URI": "http://127.0.0.1:8765/oauth/callback", PKCE: "S256" }, response: user },
-  { id: "oauth1-auth", name: "OAuth 1.0a", baseUrl: "https://api.example.com", path: "/v1/profile", type: "OAuth 1.0a", fields: { "Consumer Key": "$consumer_key", "Consumer Secret": "$consumer_secret", "Access Token": "$access_token", "Access Token Secret": "$token_secret", "Signature Method": "HMAC-SHA256", "Add To": "Header" }, response: user },
-  { id: "aws-auth", name: "AWS SigV4", baseUrl: "https://api.example.com", path: "/items", type: "AWS Signature v4", fields: { "Access Key": "$aws_access_key", "Secret Key": "$aws_secret_key", Region: "us-east-1", Service: "execute-api", "Session Token": "$aws_session_token" }, response: { items: [{ id: 1, name: "Sample item" }] } },
-  { id: "ntlm-auth", name: "NTLM", baseUrl: "https://intranet.example.com", path: "/api/profile", type: "NTLM", fields: { Username: "$ntlm_username", Password: "$ntlm_password", Domain: "$ntlm_domain", Workstation: "$ntlm_workstation" }, response: user },
+  // Field descriptions mirror noodle/src/ui/authRows.ts.
+  { id: "bearer-auth", name: "Bearer token", path: "/bearer", type: "Bearer Token", fields: {
+    Token: { value: "$api_token", description: "Bearer token sent in the Authorization header." },
+  }, response: { authenticated: true, token: "[REDACTED]" } },
+  { id: "basic-auth", name: "Basic auth", path: "/basic-auth/$username/$password", type: "Basic Auth", fields: {
+    Username: { value: "$username", description: "Username used for HTTP Basic authentication." },
+    Password: { value: "$password", description: "Password used for HTTP Basic authentication." },
+  }, response: { authenticated: true, user: "demo" } },
+  { id: "api-key-auth", name: "API key", path: "/headers", type: "API Key", fields: {
+    Key: { value: "X-API-Key", description: "Header or query parameter name for the API key." },
+    Value: { value: "$api_key", description: "API key value sent with the request." },
+    "Add To": { value: "Header", description: "Where to send the API key." },
+  }, response: { headers: { "X-Api-Key": "[REDACTED]" } } },
+  { id: "oauth2-auth", name: "OAuth 2.0 + PKCE", baseUrl: "https://api.example.com", path: "/v1/profile", type: "OAuth 2.0", fields: {
+    "Grant Type": { value: "Authorization Code", description: "OAuth flow used to obtain the access token." },
+    "Discovery URL": { value: "https://identity.example.com", description: "OIDC issuer or discovery document URL used to fill missing OAuth endpoints." },
+    "Client ID": { value: "$oauth2_client_id", description: "Public identifier for the OAuth client." },
+    "Client Secret": { value: "$oauth2_client_secret", description: "Secret used to authenticate the OAuth client." },
+    Scope: { value: "openid profile", description: "Space-separated permissions requested from the provider." },
+    "Redirect URI": { value: "http://127.0.0.1:8765/oauth/callback", description: "Callback URI registered with the provider." },
+    PKCE: { value: "S256", description: "Protect authorization-code exchanges with a code verifier." },
+  }, response: user },
+  { id: "oauth1-auth", name: "OAuth 1.0a", baseUrl: "https://api.example.com", path: "/v1/profile", type: "OAuth 1.0a", fields: {
+    "Consumer Key": { value: "$consumer_key", description: "Public identifier for the OAuth client." },
+    "Consumer Secret": { value: "$consumer_secret", description: "Shared secret used to sign OAuth requests." },
+    "Access Token": { value: "$access_token", description: "Token identifying the authorized user or resource." },
+    "Access Token Secret": { value: "$token_secret", description: "Secret paired with the access token for signing." },
+    "Signature Method": { value: "HMAC-SHA256", description: "Algorithm used to sign the request." },
+    "Add To": { value: "Header", description: "Where to place OAuth parameters in the request." },
+  }, response: user },
+  { id: "aws-auth", name: "AWS SigV4", baseUrl: "https://api.example.com", path: "/items", type: "AWS Signature v4", fields: {
+    "Access Key": { value: "$aws_access_key", description: "AWS access key ID used to identify the signer." },
+    "Secret Key": { value: "$aws_secret_key", description: "AWS secret access key used to sign the request." },
+    Region: { value: "us-east-1", description: "AWS region for the target service." },
+    Service: { value: "execute-api", description: "AWS service name included in the signing scope." },
+    "Session Token": { value: "$aws_session_token", description: "Optional token for temporary AWS credentials." },
+  }, response: { items: [{ id: 1, name: "Sample item" }] } },
+  { id: "ntlm-auth", name: "NTLM", baseUrl: "https://intranet.example.com", path: "/api/profile", type: "NTLM", fields: {
+    Username: { value: "$ntlm_username" }, Password: { value: "$ntlm_password" }, Domain: { value: "$ntlm_domain" }, Workstation: { value: "$ntlm_workstation" },
+  }, response: user },
 ]
 export const examples: Example[] = [
   {
@@ -50,7 +83,7 @@ export const examples: Example[] = [
     response: { id: 101, title: "Timestamped post", body: "Created at 2026-09-26T12:00:00.000Z", createdAt: "2026-09-26T12:00:00.000Z", timestampMs: 1790424000000, timestampSeconds: 1790424000 }, status: "201 Created", duration: 102,
   },
   {
-    id: "assert-post", folder: "assertions & captures", name: "Check a response", method: "GET", path: "/posts/:postId", pathParams: { postId: "1" }, tab: "Assert",
+    id: "assert-post", folder: "assertions & captures", name: "Check a response", method: "GET", baseUrl: "https://api.example.com", path: "/users/:userId/posts/:postId", pathParams: { userId: "1", postId: "1" }, tab: "Assert",
     body: "", response: post, status: "200 OK", duration: 86, tags: ["smoke", "posts"],
     assertions: [
       { expression: "status", operator: "equals", value: 200, actual: 200 },
@@ -65,14 +98,14 @@ export const examples: Example[] = [
     tags: ["capture-chain"],
     captures: [
       { variable: "created_post_id", expression: "body.id", value: 101 },
-      { variable: "created_user_id", expression: "body.userId", value: 1 },
-      { variable: "response_content_type", expression: "headers.content-type", value: "application/json; charset=utf-8" },
+      { variable: "created_user_id", expression: "body.userId", value: 1, persist: "environment" },
+      { variable: "response_content_type", expression: "headers.content-type", value: "application/json; charset=utf-8", persist: "secret" },
     ],
   },
   {
-    id: "use-captures", folder: "assertions & captures", name: "Reuse captures", method: "GET", path: "/users/$created_user_id", tab: "Params",
-    headers: { Accept: "$response_content_type" }, params: [{ name: "created_post_id", value: "$created_post_id" }], tags: ["capture-chain"],
-    body: "", response: user, status: "200 OK", duration: 93,
+    id: "use-captures", folder: "assertions & captures", name: "Reuse captures", method: "GET", baseUrl: "https://api.example.com", path: "/users/$created_user_id", tab: "Params",
+    headers: { Accept: "$response_content_type", "X-Source-Post": "$created_post_id" }, params: [{ name: "created_post_id", value: "$created_post_id" }, { name: "include", value: "posts" }], tags: ["capture-chain"],
+    body: "", response: { ...user, posts: [{ id: 101, title: "Capture example", userId: 1 }] }, status: "200 OK", duration: 93,
   },
   ...authExamples.map((auth): Example => ({
     id: auth.id, folder: "authentication", name: auth.name, method: "GET", baseUrl: auth.baseUrl ?? "https://httpbin.org", path: auth.path, tab: "Auth", body: "",
@@ -84,8 +117,8 @@ export const examples: Example[] = [
     scripts: { pre: 'const requestId = noodle.random.uuid();\nconst now = noodle.time.now();\nnoodle.request.headers.set("X-Request-ID", requestId);\nnoodle.request.headers.set("X-Sent-At", noodle.time.iso(now));' },
   },
   {
-    id: "get-user", folder: "scripts", name: "Save values", method: "GET", path: "/users/:userId", pathParams: { userId: "1" }, tab: "Post Script",
-    body: "", response: user, status: "200 OK", duration: 108,
+    id: "get-user", folder: "scripts", name: "Save values", method: "GET", baseUrl: "https://api.example.com", path: "/teams/:teamId/users/:userId", pathParams: { teamId: "engineering", userId: "1" }, tab: "Post Script",
+    body: "", response: { ...user, teamId: "engineering" }, status: "200 OK", duration: 108,
     scripts: { post: 'const user = noodle.response.json();\nif (noodle.response.status === 200) {\n  noodle.run.set("USER_EMAIL", user.email);\n  noodle.run.set("USER_NAME", user.name);\n}' },
   },
   {
@@ -105,7 +138,7 @@ export const examples: Example[] = [
     scripts: { pre: 'noodle.request.headers.set("X-Request-ID", noodle.random.uuid());\nnoodle.request.headers.set("Accept", "application/json");' },
   },
   {
-    id: "update-todo", folder: "tests", name: "Named tests", method: "PATCH", path: "/todos/:todoId", pathParams: { todoId: "1" }, tab: "Tests",
+    id: "update-todo", folder: "tests", name: "Named tests", method: "PATCH", baseUrl: "https://api.example.com", path: "/users/:userId/todos/:todoId", pathParams: { userId: "1", todoId: "1" }, tab: "Tests",
     body: json({ completed: true }), response: { userId: 1, id: 1, title: "Try Noodle", completed: true }, status: "200 OK", duration: 109,
     tests: 'test("todo is complete", () => {\n  expect(noodle.response.json().completed).toBe(true);\n});\ntest("todo belongs to user 1", () => {\n  expect(noodle.response.json().userId).toBe(1);\n});',
     testNames: ["todo is complete", "todo belongs to user 1"],
@@ -129,7 +162,7 @@ export const examples: Example[] = [
     testNames: ["user matches the current data row"],
   },
   {
-    id: "get", folder: "requests", name: "Path parameters", method: "GET", path: "/comments/:commentId", pathParams: { commentId: "1" }, tab: "Path",
+    id: "get", folder: "requests", name: "Path parameters", method: "GET", baseUrl: "https://api.example.com", path: "/posts/:postId/comments/:commentId", pathParams: { postId: "1", commentId: "1" }, tab: "Path",
     body: "", response: comment, status: "200 OK", duration: 86,
   },
   {
@@ -138,21 +171,21 @@ export const examples: Example[] = [
     body: "", response: [post, { ...post, id: 2, title: "Another post" }], status: "200 OK", duration: 91,
   },
   {
-    id: "update", folder: "requests", name: "Update a comment", method: "PATCH", path: "/comments/:commentId", pathParams: { commentId: "1" }, tab: "Body",
+    id: "update", folder: "requests", name: "Update a comment", method: "PATCH", baseUrl: "https://api.example.com", path: "/posts/:postId/comments/:commentId", pathParams: { postId: "1", commentId: "1" }, tab: "Body",
     body: json({ body: "Updated with Noodle." }), response: { ...comment, body: "Updated with Noodle." }, status: "200 OK", duration: 112,
   },
   {
-    id: "put-post", folder: "requests", name: "Replace a post", method: "PUT", path: "/posts/:postId", pathParams: { postId: "1" }, tab: "Body",
+    id: "put-post", folder: "requests", name: "Replace a post", method: "PUT", baseUrl: "https://api.example.com", path: "/users/:userId/posts/:postId", pathParams: { userId: "1", postId: "1" }, tab: "Body",
     body: json({ title: "Replaced title", body: "Replaced body", userId: 1 }), response: { id: 1, title: "Replaced title", body: "Replaced body", userId: 1 }, status: "200 OK", duration: 103,
   },
   {
-    id: "delete-post", folder: "requests", name: "Delete a post", method: "DELETE", path: "/posts/:postId", pathParams: { postId: "1" }, tab: "Path",
+    id: "delete-post", folder: "requests", name: "Delete a post", method: "DELETE", baseUrl: "https://api.example.com", path: "/users/:userId/posts/:postId", pathParams: { userId: "1", postId: "1" }, tab: "Path",
     body: "", response: {}, status: "200 OK", duration: 78,
   },
   {
     id: "form-post", folder: "requests", name: "URL-encoded form", method: "POST", baseUrl: "https://httpbin.org", path: "/post", tab: "Body", bodyFormat: "Form URL Encoded",
     formData: [{ name: "name", value: "Ada Lovelace" }, { name: "email", value: "ada@example.com" }],
-    headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "name=Ada+Lovelace&email=ada%40example.com", response: { form: { name: "Ada Lovelace", email: "ada@example.com" } }, status: "200 OK", duration: 121,
+    headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" }, body: "name=Ada+Lovelace&email=ada%40example.com", response: { form: { name: "Ada Lovelace", email: "ada@example.com" } }, status: "200 OK", duration: 121,
   },
   {
     id: "multipart-post", folder: "requests", name: "Multipart upload", method: "POST", baseUrl: "https://httpbin.org", path: "/post", tab: "Body", bodyFormat: "Multipart Form",
@@ -161,16 +194,16 @@ export const examples: Example[] = [
   },
   {
     id: "binary-post", folder: "requests", name: "Binary upload", method: "POST", baseUrl: "https://httpbin.org", path: "/post", tab: "Body", bodyFormat: "Binary",
-    headers: { "Content-Type": "application/octet-stream" }, body: "./README.md", response: { data: "# Example collection" }, status: "200 OK", duration: 131,
+    headers: { "Content-Type": "application/octet-stream", Accept: "application/json" }, body: "./README.md", response: { data: "# Example collection" }, status: "200 OK", duration: 131,
   },
   {
     id: "xml-post", folder: "requests", name: "XML body", method: "POST", baseUrl: "https://httpbin.org", path: "/post", tab: "Body", bodyFormat: "XML",
-    headers: { "Content-Type": "application/xml" }, body: '<message>\n  <to>Ada</to>\n  <text>Hello from Noodle</text>\n</message>', response: { data: '<message>\n  <to>Ada</to>\n  <text>Hello from Noodle</text>\n</message>' }, status: "200 OK", duration: 114,
+    headers: { "Content-Type": "application/xml", Accept: "application/json" }, body: '<message>\n  <to>Ada</to>\n  <text>Hello from Noodle</text>\n</message>', response: { data: '<message>\n  <to>Ada</to>\n  <text>Hello from Noodle</text>\n</message>' }, status: "200 OK", duration: 114,
   },
   {
-    id: "cookie-request", folder: "requests", name: "Capture a cookie", method: "GET", baseUrl: "https://httpbin.org", path: "/cookies/set", tab: "Params",
-    params: [{ name: "theme", value: "noodle" }], body: "", response: { cookies: { theme: "noodle" } }, status: "200 OK", duration: 143,
-    cookies: [{ name: "theme", value: "noodle", domain: "httpbin.org", path: "/" }],
+    id: "cookie-request", folder: "requests", name: "Capture cookies", method: "GET", baseUrl: "https://httpbin.org", path: "/cookies/set", tab: "Params",
+    params: [{ name: "theme", value: "noodle" }, { name: "locale", value: "en-US" }, { name: "timezone", value: "UTC" }], body: "", response: { cookies: { theme: "noodle", locale: "en-US", timezone: "UTC" } }, status: "200 OK", duration: 143,
+    cookies: [{ name: "theme", value: "noodle", domain: "httpbin.org", path: "/" }, { name: "locale", value: "en-US", domain: "httpbin.org", path: "/" }, { name: "timezone", value: "UTC", domain: "httpbin.org", path: "/" }],
   },
 ]
 
@@ -185,16 +218,16 @@ export const tourChapters: { request: string; title: string; description: string
   { request: "external-script", title: "Scripts in their own files", description: "Keep reusable JavaScript in a .js file beside your collection. The source selector shows the file path and a preview of its contents.", responseTab: "Results" },
   { request: "signed-request", title: "Sign a request", description: "Read a secret from the environment, sign the body with HMAC-SHA256, and attach the signature as a header before sending." },
   { request: "chain-request", title: "Chain requests in a script", description: "Await a saved request, use its response in another call, then prepare the current request. Results shows a sample script execution.", responseTab: "Results" },
-  { request: "capture-post", title: "Capture response values", description: "Save response fields and headers as variables for the current run. Open a captured result to inspect its sample value.", responseTab: "Results" },
-  { request: "use-captures", title: "Reuse captured values", description: "Use the previous request's captures in a URL, query parameter, or header. Here, the captured user ID identifies the next request's user." },
+  { request: "capture-post", title: "Capture response values", description: "Keep captured values for the current run, save them to the environment, or store them as secrets. Open a result to inspect its sample value and persistence.", responseTab: "Results" },
+  { request: "use-captures", title: "Reuse captured values", description: "Use the previous request's captures in a URL, query parameter, or header. The captured IDs identify the user and the post included in the response." },
   { request: "assert-post", title: "Check a response", description: "Check status, headers, body values, and response time without writing a script. Results pairs each assertion with its sample outcome.", responseTab: "Results" },
   { request: "update-todo", title: "Write named tests", description: "Describe expected behavior with test() and expect(). Each test appears by name in Results, with details you can expand.", responseTab: "Results" },
   { request: "schema-test", title: "Validate a JSON Schema", description: "Check required fields, value types, and formats together. This test validates a user's ID, name, and email against a schema.", responseTab: "Results" },
   { request: "data-test", title: "Test with CSV or JSON data", description: "In Noodle's runner, choose a data file to repeat requests with different inputs. This sample test compares the response with the current row.", responseTab: "Results" },
-  { request: "get", title: "Readable path parameters", description: "Keep a named parameter in the URL and set its value in the Path tab. This example requests the comment with ID 1." },
+  { request: "get", title: "Readable path parameters", description: "Keep named parameters in the URL and set their values in the Path tab. This example uses a post ID and a comment ID to request a specific comment." },
   { request: "get-posts", title: "Control query parameters", description: "Set query values and keep optional parameters disabled until you need them. This request filters posts by user and limits the results." },
   { request: "form-post", title: "Send form fields", description: "Send URL-encoded fields from a name-and-value table. The sample response shows the form data received by the server." },
   { request: "multipart-post", title: "Upload files with fields", description: "Combine text fields and file paths in a multipart request. This example pairs a username with a README upload." },
   { request: "xml-post", title: "Send an XML body", description: "Choose the body format your API expects. This request sends an XML message with the matching Content-Type header." },
-  { request: "cookie-request", title: "Inspect response cookies", description: "See captured cookies alongside their values, domains, and paths. This sample response sets a theme cookie for httpbin.org.", responseTab: "Cookies" },
+  { request: "cookie-request", title: "Inspect response cookies", description: "See captured cookies alongside their values, domains, and paths. This sample response sets theme, locale, and timezone cookies for httpbin.org.", responseTab: "Cookies" },
 ]
