@@ -172,7 +172,7 @@ the same order after source preflight:
 4. Run pre blocks from collection to request.
 5. Send the prepared request.
 6. Evaluate captures.
-7. Run post blocks from request to collection against the response and committed captures.
+7. Run post blocks from collection to request against the response and committed captures.
 8. Evaluate assertions, including after post failure.
 9. Run inherited and request `tests`, including after HTTP, capture, post, or assertion failure.
 
@@ -363,11 +363,15 @@ Declare `scripts.pre`, `scripts.post`, and `tests` as inline JavaScript or
 in collection `settings.yml`, nested `folder.yml`, or request YAML.
 
 - Pre: collection → outermost folder → nearest folder → request.
-- Post, after captures: request → nearest folder → outermost folder → collection.
+- Post, after captures: collection → outermost folder → nearest folder → request.
 - Tests, after assertions: collection → outermost folder → nearest folder → request.
 
-Post order changed in **0.9.4**. Review blocks that depend on another scope's
-writes when upgrading. Collection and folder blocks run once per request,
+All three phases use the same scope order. The most specific successful post
+write wins, including persisted writes. Versions **0.9.4** and **0.9.5** ran post
+blocks in reverse order; update collection or folder post blocks that depend on
+values produced by request post blocks when upgrading.
+
+Collection and folder blocks run once per request,
 including each dataset row. Root `folder.yml` is ignored. An empty block is a
 no-op and does not disable inherited blocks.
 
