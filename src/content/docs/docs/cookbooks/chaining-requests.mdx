@@ -1,6 +1,6 @@
 ---
 title: Chaining requests
-description: Pass values between requests, reuse login tokens, handle optional lookups, and verify a resource lifecycle with cleanup.
+description: Share values, reuse login tokens, compare endpoints, verify idempotency and caching, and clean up test resources.
 ---
 
 Use these recipes to connect requests in one collection. Replace
@@ -257,6 +257,143 @@ or capture prevents the dependent request from running because of `--fail-fast`.
 On success, the fetched ID matches the captured ID. Separate manual sends do
 not share this transient value; use a saved child call when you need both
 operations within one manual send. Clean up test resources according to your API.
+
+## Compare list and detail responses
+
+Use this when a list and a detail endpoint must agree on the same record.
+The list should return an array containing exactly one user with ID `7`; both
+endpoints should expose the same `name` and `active` values. This example uses
+public endpoints and a stable test user that will not change between calls:
+
+```yaml
+name: Compare a user with the list representation
+method: GET
+url: https://api.example.com/users/7
+scripts:
+  pre: |-
+    const list = await noodle.sendRequest({
+      url: "https://api.example.com/users", timeout: 5000,
+    });
+    if (list.status !== 200) throw new Error("User list must return HTTP 200");
+    const users = list.json();
+    if (!Array.isArray(users)) throw new Error("Expected a user array");
+    const matches = users.filter(user => user && user.id === 7);
+    if (matches.length !== 1) throw new Error("Expected exactly one user with ID 7");
+    noodle.run.set("listed_user", matches[0]);
+tests: |-
+  test("detail matches the listed user", () => {
+    expect(noodle.response.status).toBe(200);
+    const listed = noodle.run.get("listed_user");
+    expect(listed.name).toBeTypeOf("string");
+    expect(listed.active).toBeTypeOf("boolean");
+    expect(noodle.response.json()).toMatchObject({
+      id: listed.id,
+      name: listed.name,
+      active: listed.active,
+    });
+  });
+```
+
+The pre script fetches the list and retains the matching user for the test.
+A missing or duplicate match stops the detail request. The test allows extra
+detail fields while failing differences in the three compared fields. It
+searches only the returned list page, so select a page or filter that includes
+the test user. For protected endpoints, configure authentication on the saved
+request and supply the appropriate headers in the direct call too.
+
+## Verify idempotency with a repeated request
+
+Use a test API that supports `Idempotency-Key` for order creation. It must return
+HTTP 201 with a positive integer `id` on creation, then HTTP 200 or 201 with the
+same ID when the exact request is repeated with the same key. Configure
+`API_TOKEN` as a secret in the selected environment:
+
+```yaml
+name: Verify an order is created only once
+method: POST
+url: https://api.example.com/orders
+auth:
+  type: bearer
+  token: $API_TOKEN
+body_type: json
+body: '{"product_id":"demo-product","quantity":1}'
+scripts:
+  pre: |-
+    noodle.request.headers.set("Idempotency-Key", noodle.crypto.randomBytes(16, "hex"));
+  post: |-
+    if (noodle.response.status !== 201) throw new Error("Creation must return HTTP 201");
+    const id = noodle.response.json().id;
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      throw new Error("Creation must return a positive integer order ID");
+    }
+    const repeated = await noodle.sendRequest({
+      url: noodle.request.url,
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + noodle.env.get("API_TOKEN"),
+        "Content-Type": "application/json",
+        "Idempotency-Key": noodle.request.headers.get("Idempotency-Key"),
+      },
+      body: noodle.request.body.text(),
+      timeout: 5000,
+    });
+    noodle.run.set("repeated_order", { status: repeated.status, id: repeated.json().id });
+tests: |-
+  test("repeating the same key returns the same order", () => {
+    const repeated = noodle.run.get("repeated_order");
+    expect([200, 201]).toContain(repeated.status);
+    expect(repeated.id).toBe(noodle.response.json().id);
+  });
+```
+
+Each manual send starts a new experiment with a fresh key. Only the child call
+reuses that key and the exact prepared body; generating a new key for the child
+would test a different operation. Use an endpoint that accepts the POST directly
+without redirects, and preserve any other headers your API uses to define the
+operation's identity.
+
+A different returned ID or an unacceptable status fails. Matching IDs confirm
+the response contract for this repeat; they do not prove the absence of every
+server-side side effect. This creates a real test order, or more than one if
+the API ignores idempotency. Clean up the created resources according to your
+API. See [idempotency keys](/docs/cookbooks/preparing-requests/#idempotency-keys)
+for configuring retries of an existing operation.
+
+## Test conditional GET with an ETag
+
+Use a public endpoint that returns an `ETag` on HTTP 200 and supports
+`If-None-Match`. Choose a stable fixture: a resource changed between these two
+calls can legitimately return HTTP 200 instead of 304.
+
+```yaml
+name: Revalidate an unchanged catalog
+method: GET
+url: https://api.example.com/catalog
+scripts:
+  pre: |-
+    const initial = await noodle.sendRequest({ url: noodle.request.url, timeout: 5000 });
+    if (initial.status !== 200) throw new Error("Initial catalog must return HTTP 200");
+    const etag = initial.headers.get("ETag");
+    if (typeof etag !== "string" || !etag.trim()) {
+      throw new Error("Initial catalog must include an ETag");
+    }
+    noodle.request.headers.set("If-None-Match", etag);
+tests: |-
+  test("unchanged catalog returns 304 without a body", () => {
+    expect(noodle.response.status).toBe(304);
+    expect(noodle.response.text()).toBe("");
+  });
+```
+
+The pre script first fetches the resource without a conditional header, then
+sets `If-None-Match` on the outgoing saved request. Keep the returned ETag
+unchanged, including quotes and any `W/` prefix. Both calls must select the same
+representation; if your API uses authorization or `Accept` headers, supply the
+same values on both requests.
+
+Missing ETags stop the saved request. A 200 response fails the test because
+this fixture is expected to remain unchanged. Use `text()` for the empty 304
+body and avoid inherited checks that require JSON from every response.
 
 ## Create and clean up a test resource
 

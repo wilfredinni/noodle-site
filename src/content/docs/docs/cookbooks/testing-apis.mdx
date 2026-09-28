@@ -1,6 +1,6 @@
 ---
 title: Testing APIs
-description: Test response contracts, submitted values, unique IDs, dataset expectations, and shared collection rules.
+description: Test response contracts, sensitive fields, timestamps, individual records, dataset expectations, and shared rules.
 ---
 
 Start with declarative assertions for simple checks. Use `tests` when the check
@@ -68,6 +68,51 @@ tests: |-
 The test fails for missing required fields, invalid email formats, and incorrect
 types. Additional fields are allowed. Schema validation does not coerce `"7"`
 into the integer `7`; see [JSON Schema support](/docs/guides/scripted-tests/#json-schema-validation).
+
+## Keep sensitive fields out of responses
+
+Use this for a public user endpoint whose JSON body is an object. The response
+may contain fields such as `id` and `name`, but must omit credential fields:
+
+```yaml
+name: Check the public user representation
+method: GET
+url: https://api.example.com/users/7
+tests: |-
+  test("public user omits credential fields", () => {
+    expect(noodle.response.status).toBe(200);
+    const user = noodle.response.json();
+    expect(user).toMatchSchema({ type: "object" });
+    for (const field of ["password", "password_hash", "access_token", "refresh_token"]) {
+      expect(user).not.toHaveProperty(field);
+    }
+  });
+```
+
+An omitted field passes; a field present with `null` or an empty string fails.
+This checks only the named top-level fields. Apply the same checks to nested
+objects if your response contains them, and adapt the names to your contract.
+This recipe does not inspect every possible location or spelling of a secret.
+
+## Check an empty 204 response
+
+Use this for an endpoint whose successful response is HTTP 204 with no body.
+This example assumes a readiness endpoint with that contract:
+
+```yaml
+name: Check readiness without a response body
+method: GET
+url: https://api.example.com/health/ready
+tests: |-
+  test("readiness returns 204 and an empty body", () => {
+    expect(noodle.response.status).toBe(204);
+    expect(noodle.response.text()).toBe("");
+  });
+```
+
+Read the body as text. Calling `json()` on an empty body would fail. A 200
+response fails this contract even if its body is empty. Avoid inheriting a
+shared test that requires JSON from this endpoint.
 
 ## Check every item in an array
 
@@ -217,6 +262,72 @@ tests: |-
 Duplicate IDs, missing IDs, and string IDs fail. An empty array passes because
 it contains no duplicates; add a length check if this endpoint must return
 records. This checks one response, not uniqueness across other pages.
+
+## Report one test per record
+
+Use separate named tests when one invalid item should not hide failures in
+later items. This endpoint should return a non-empty array of active users
+with positive integer IDs, such as `[{"id":7,"active":true},{"id":8,"active":true}]`:
+
+```yaml
+name: Report each active user separately
+method: GET
+url: https://api.example.com/users?active=true
+tests: |-
+  const users = noodle.response.json();
+  test("response is a non-empty user list", () => {
+    expect(noodle.response.status).toBe(200);
+    expect(Array.isArray(users)).toBe(true);
+    expect(users.length).toBeGreaterThan(0);
+  });
+  if (Array.isArray(users)) {
+    for (const [index, user] of users.entries()) {
+      test(`user ${user?.id ?? "missing ID"} at row ${index + 1} is active`, () => {
+        expect(user).toMatchObject({ active: true });
+        expect(Number.isSafeInteger(user.id)).toBe(true);
+        expect(user.id).toBeGreaterThan(0);
+      });
+    }
+  }
+```
+
+Results shows one list check plus a row for every user. An inactive user fails
+its own test while later users are still checked. Row numbers distinguish
+duplicate or missing IDs. Empty arrays fail the list check instead of passing
+with zero item tests. For large lists, use a small page to keep Results readable
+and stay within [script result limits](/docs/reference/script-api/#sandbox-limits).
+
+## Validate timestamp order and freshness
+
+Use this for a record that should have been updated recently, such as the
+latest heartbeat. The response must contain `created_at` and `updated_at` as
+ISO timestamps with `Z` or an explicit timezone offset:
+
+```yaml
+name: Check the latest heartbeat timestamps
+method: GET
+url: https://api.example.com/heartbeats/latest
+tests: |-
+  test("timestamps are valid, ordered, and recent", () => {
+    expect(noodle.response.status).toBe(200);
+    const heartbeat = noodle.response.json();
+    expect(heartbeat.created_at).toMatch(/T/);
+    expect(heartbeat.updated_at).toMatch(/T/);
+    const created = noodle.time.parse(heartbeat.created_at);
+    const updated = noodle.time.parse(heartbeat.updated_at);
+    const now = noodle.time.now();
+    expect(created).toBeLessThanOrEqual(updated);
+    expect(updated).toBeGreaterThanOrEqual(now - 15 * 60 * 1000);
+    expect(updated).toBeLessThanOrEqual(now + 30 * 1000);
+  });
+```
+
+Invalid calendar dates and timestamps without a timezone fail parsing. The
+`T` checks also reject date-only strings. Creation must precede or equal the
+update; the update must be within the last 15 minutes, with up to 30 seconds of
+future clock skew. Adjust both windows to your API's contract and keep the
+client clock synchronized. This freshness rule is unsuitable for intentionally
+old records. See the [time API](/docs/reference/script-api/#script-time-api).
 
 ## Use expected values from a dataset
 

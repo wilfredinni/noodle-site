@@ -10,8 +10,8 @@ copyable examples, the inputs they need, and the result to expect.
 | --- | --- |
 | [Preparing requests](/docs/cookbooks/preparing-requests/) | Generate test data, validate inputs, and sign requests with pre scripts |
 | [Processing responses](/docs/cookbooks/processing-responses/) | Transform values, find records, save tokens, and compose post scripts |
-| [Testing APIs](/docs/cookbooks/testing-apis/) | Check contracts, submitted values, unique IDs, and dataset expectations |
-| [Chaining requests](/docs/cookbooks/chaining-requests/) | Pass values forward, reuse login tokens, and clean up test resources |
+| [Testing APIs](/docs/cookbooks/testing-apis/) | Check contracts, sensitive fields, timestamps, individual records, and datasets |
+| [Chaining requests](/docs/cookbooks/chaining-requests/) | Reuse tokens, compare endpoints, verify idempotency and caching, and clean up resources |
 
 ## Before you start
 
@@ -58,11 +58,15 @@ blocks. See [inheritance and upgrade notes](/docs/guides/pre-request-scripting/#
 
 - <a id="check-a-basic-response-contract" href="/docs/cookbooks/testing-apis/#check-a-basic-response-contract">Check a basic response contract</a>
 - <a id="validate-a-json-schema" href="/docs/cookbooks/testing-apis/#validate-a-json-schema">Validate a JSON schema</a>
+- <a id="keep-sensitive-fields-out-of-responses" href="/docs/cookbooks/testing-apis/#keep-sensitive-fields-out-of-responses">Keep sensitive fields out of responses</a>
+- <a id="check-an-empty-204-response" href="/docs/cookbooks/testing-apis/#check-an-empty-204-response">Check an empty 204 response</a>
 - <a id="check-every-item-in-an-array" href="/docs/cookbooks/testing-apis/#check-every-item-in-an-array">Check every item in an array</a>
 - <a id="compare-related-fields" href="/docs/cookbooks/testing-apis/#compare-related-fields">Compare related fields</a>
 - <a id="verify-sorting-and-pagination" href="/docs/cookbooks/testing-apis/#verify-sorting-and-pagination">Verify sorting and pagination</a>
 - <a id="check-that-the-response-reflects-the-request" href="/docs/cookbooks/testing-apis/#check-that-the-response-reflects-the-request">Check that the response reflects the request</a>
 - <a id="detect-duplicate-ids" href="/docs/cookbooks/testing-apis/#detect-duplicate-ids">Detect duplicate IDs</a>
+- <a id="report-one-test-per-record" href="/docs/cookbooks/testing-apis/#report-one-test-per-record">Report one test per record</a>
+- <a id="validate-timestamp-order-and-freshness" href="/docs/cookbooks/testing-apis/#validate-timestamp-order-and-freshness">Validate timestamp order and freshness</a>
 - <a id="use-expected-values-from-a-dataset" href="/docs/cookbooks/testing-apis/#use-expected-values-from-a-dataset">Use expected values from a dataset</a>
 - <a id="share-checks-across-a-folder" href="/docs/cookbooks/testing-apis/#share-checks-across-a-folder">Share checks across a folder</a>
 
@@ -73,6 +77,9 @@ blocks. See [inheritance and upgrade notes](/docs/guides/pre-request-scripting/#
 - <a id="log-in-once-and-reuse-the-token" href="/docs/cookbooks/chaining-requests/#log-in-once-and-reuse-the-token">Log in once and reuse the token</a>
 - <a id="direct-http-with-fallback" href="/docs/cookbooks/chaining-requests/#direct-http-with-fallback">Direct HTTP with fallback</a>
 - <a id="create-a-resource-and-fetch-it" href="/docs/cookbooks/chaining-requests/#create-a-resource-and-fetch-it">Create a resource and fetch it</a>
+- <a id="compare-list-and-detail-responses" href="/docs/cookbooks/chaining-requests/#compare-list-and-detail-responses">Compare list and detail responses</a>
+- <a id="verify-idempotency-with-a-repeated-request" href="/docs/cookbooks/chaining-requests/#verify-idempotency-with-a-repeated-request">Verify idempotency with a repeated request</a>
+- <a id="test-conditional-get-with-an-etag" href="/docs/cookbooks/chaining-requests/#test-conditional-get-with-an-etag">Test conditional GET with an ETag</a>
 - <a id="create-and-clean-up-a-test-resource" href="/docs/cookbooks/chaining-requests/#create-and-clean-up-a-test-resource">Create and clean up a test resource</a>
 
 ## Inspect results

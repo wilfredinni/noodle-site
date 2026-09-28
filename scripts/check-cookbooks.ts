@@ -56,6 +56,10 @@ function block(heading: string, index = 0) {
   return value;
 }
 
+const recentHeartbeat = {
+  created_at: new Date(Date.now() - 120000).toISOString(),
+  updated_at: new Date(Date.now() - 60000).toISOString(),
+};
 const cases: [string, unknown, unknown[]][] = [
   ["Validate a JSON schema", { id: 7, email: "reader@example.com", active: true }, [
     { id: "7", email: "reader@example.com", active: true },
@@ -64,6 +68,18 @@ const cases: [string, unknown, unknown[]][] = [
   ["Check every item in an array", [{ id: 1, active: true }], [[], [{ id: 1, active: false }]]],
   ["Detect duplicate IDs", [{ id: 7 }, { id: 8 }], [
     [{ id: 7 }, { id: 7 }], [{ id: "7" }], [{}], [{ id: 0 }],
+  ]],
+  ["Keep sensitive fields out of responses", { id: 7, name: "Cookbook User" }, [
+    { id: 7, password: null }, { id: 7, password_hash: "" },
+    { id: 7, access_token: "unexpected-token" }, { id: 7, refresh_token: "unexpected-token" }, [], null,
+  ]],
+  ["Validate timestamp order and freshness", recentHeartbeat, [
+    { ...recentHeartbeat, created_at: "2026-02-30T12:00:00Z" },
+    { ...recentHeartbeat, created_at: "2026-01-01T12:00:00" },
+    { ...recentHeartbeat, created_at: "2026-01-01" },
+    { ...recentHeartbeat, created_at: new Date(Date.now() + 120000).toISOString() },
+    { created_at: "2020-01-01T00:00:00Z", updated_at: "2020-01-02T00:00:00Z" },
+    { ...recentHeartbeat, updated_at: new Date(Date.now() + 120000).toISOString() },
   ]],
   ["Compare related fields", { subtotal: 1000, tax: 200, total: 1200 }, [
     { subtotal: 1000, tax: 200, total: 1199 },
@@ -82,6 +98,90 @@ for (const [heading, valid, invalid] of cases) {
     const passed = result.result.success && result.tests.every((test: { passed: boolean }) => test.passed);
     assert.equal(passed, expected, `${heading}: ${JSON.stringify(body)}`);
   }
+}
+
+const perRecord = await run("tests", block("Report one test per record").tests, [
+  { id: 7, active: true }, { id: 8, active: false }, { id: 9, active: true },
+]);
+assert.deepEqual(perRecord.tests.map((test: { passed: boolean }) => test.passed), [true, true, false, true]);
+assert.match(perRecord.tests[2].name, /user 8 at row 2/, "Failure names identify the record");
+for (const body of [[], {}, [null, { id: 9, active: true }]]) {
+  const result = await run("tests", block("Report one test per record").tests, body);
+  assert(result.tests.some((test: { passed: boolean }) => !test.passed));
+  if (Array.isArray(body) && body.length) assert.equal(result.tests.at(-1).passed, true, "Malformed rows do not hide later results");
+}
+
+for (const [heading, successStatus] of [["Check an empty 204 response", 204], ["Test conditional GET with an ETag", 304]] as const) {
+  for (const [status, body, passed] of [[successStatus, "", true], [200, "", false], [successStatus, " ", false]] as const) {
+    executions++;
+    const result = await runRequestScript("tests", block(heading).tests, request, undefined, new RunScope(), {
+      response: { ...response(null, status), body },
+    });
+    assert.equal(result.tests[0].passed, passed, `${heading}: status ${status}, body ${JSON.stringify(body)}`);
+  }
+}
+
+const compare = block("Compare list and detail responses");
+const comparisonScope = new RunScope();
+const listed = { id: 7, name: "Cookbook User", active: true };
+for (const [list, passed] of [[[listed], true], [[], false], [[listed, listed], false]] as const) {
+  const result = await run("pre", compare.scripts.pre, {}, comparisonScope, 200, request, undefined, {
+    execute: async (kind: string, input: any) => {
+      assert.equal(kind, "http");
+      assert.equal(input.url, "https://api.example.com/users");
+      return { response: response(list), failureCategories: [] };
+    },
+  });
+  assert.equal(result.result.success, passed, "List lookup requires exactly one matching user");
+}
+for (const [detail, passed] of [[{ ...listed, role: "member" }, true], [{ ...listed, name: "Other User" }, false]] as const) {
+  const result = await run("tests", compare.tests, detail, comparisonScope);
+  assert.equal(result.tests[0].passed, passed, "Compare selected fields while allowing extras");
+}
+
+const idempotency = block("Verify idempotency with a repeated request");
+const orderEnvironment = { name: "development", vars: { API_TOKEN: "order-test-token" } };
+for (const [id, status, passed] of [[7, 200, true], [7, 201, true], [8, 201, false]] as const) {
+  const orderScope = new RunScope();
+  const orderRequest = {
+    ...request, method: idempotency.method, url: idempotency.url,
+    body: idempotency.body, bodyType: idempotency.body_type,
+  };
+  const pre = await run("pre", idempotency.scripts.pre, {}, orderScope, 200, orderRequest);
+  assert(pre.result.success);
+  const key = pre.request.headers["Idempotency-Key"];
+  assert.match(key, /^[0-9a-f]{32}$/);
+  let calls = 0;
+  const post = await run("post", idempotency.scripts.post, { id: 7 }, orderScope, 201, pre.request, orderEnvironment, {
+    execute: async (kind: string, input: any) => {
+      calls++;
+      assert.equal(kind, "http");
+      assert.equal(input.method, "POST");
+      assert.equal(input.url, orderRequest.url);
+      assert.equal(input.headers["Idempotency-Key"], key, "Repeat the exact original key");
+      assert.equal(input.headers.Authorization, "Bearer order-test-token");
+      assert.equal(input.body, orderRequest.body, "Repeat the exact prepared body");
+      return { response: response({ id }, status), failureCategories: [] };
+    },
+  });
+  assert(post.result.success, JSON.stringify(post.result.error));
+  assert.equal(calls, 1);
+  const tests = await run("tests", idempotency.tests, { id: 7 }, orderScope, 201, pre.request);
+  assert.equal(tests.tests[0].passed, passed, "Idempotency checks the returned resource ID");
+}
+
+const conditional = block("Test conditional GET with an ETag");
+for (const etag of ['"catalog-v1"', 'W/"catalog-v1"', undefined]) {
+  const result = await run("pre", conditional.scripts.pre, {}, new RunScope(), 200, { ...request, url: conditional.url }, undefined, {
+    execute: async (kind: string, input: any) => {
+      assert.equal(kind, "http");
+      assert.equal(input.url, conditional.url);
+      assert.equal(input.headers?.["If-None-Match"], undefined, "Initial request is unconditional");
+      return { response: { ...response({ version: 1 }), headers: etag ? { ETag: etag } : {} }, failureCategories: [] };
+    },
+  });
+  assert.equal(result.result.success, etag !== undefined);
+  if (etag) assert.equal(result.request.headers["If-None-Match"], etag, "Preserve quotes and weak validators");
 }
 
 const consistency = block("Check that the response reflects the request");
