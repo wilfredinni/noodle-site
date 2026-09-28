@@ -1,6 +1,6 @@
 ---
 title: Testing APIs
-description: Test response contracts, JSON schemas, arrays, related fields, pagination, and shared collection rules.
+description: Test response contracts, submitted values, unique IDs, dataset expectations, and shared collection rules.
 ---
 
 Start with declarative assertions for simple checks. Use `tests` when the check
@@ -162,6 +162,111 @@ An empty page is allowed here. Equal prices pass. These checks validate the
 returned page; they do not fetch other pages or prove that the full dataset is
 complete. Use [request chaining](/docs/cookbooks/chaining-requests/) to fetch
 related resources before checking them.
+
+## Check that the response reflects the request
+
+Use this when an update should retain the fields you sent. The endpoint should
+return HTTP 200 and a user object containing `name` and `active`; additional
+fields such as `id` are allowed:
+
+```yaml
+name: Verify an updated user
+method: PATCH
+url: https://api.example.com/users/7
+body_type: json
+body: '{"name":"Updated Cookbook User","active":false}'
+tests: |-
+  test("saved fields match the submitted values", () => {
+    expect(noodle.response.status).toBe(200);
+    const sent = noodle.request.body.json();
+    expect(noodle.response.json()).toMatchObject({
+      name: sent.name,
+      active: sent.active,
+    });
+  });
+```
+
+This reads the final prepared body, including substitution and pre-script
+changes. A different name, a missing field, or `active: true` fails. Compare
+only fields your API promises to preserve; adapt the expectation for fields
+the server intentionally normalizes.
+
+## Detect duplicate IDs
+
+Use this to catch repeated records in a list response. This example expects
+an array of objects with positive integer IDs, such as `[{"id":7},{"id":8}]`:
+
+```yaml
+name: Check user IDs are unique
+method: GET
+url: https://api.example.com/users
+tests: |-
+  test("user IDs are valid and unique", () => {
+    expect(noodle.response.status).toBe(200);
+    const users = noodle.response.json();
+    expect(Array.isArray(users)).toBe(true);
+    const ids = users.map(user => user.id);
+    for (const id of ids) {
+      expect(Number.isSafeInteger(id)).toBe(true);
+      expect(id).toBeGreaterThan(0);
+    }
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+```
+
+Duplicate IDs, missing IDs, and string IDs fail. An empty array passes because
+it contains no duplicates; add a length check if this endpoint must return
+records. This checks one response, not uniqueness across other pages.
+
+## Use expected values from a dataset
+
+Use one request to check several known records against different expectations.
+Save this JSON as `data/users.json`, relative to the directory where you will
+run the CLI:
+
+```json
+[
+  { "user_id": 7, "expected_active": true, "expected_role": "member" },
+  { "user_id": 8, "expected_active": false, "expected_role": "admin" }
+]
+```
+
+Save the request as `users/check.yml` inside your `api` collection. The endpoint
+should return `id`, `active`, and `role` for the requested user:
+
+```yaml
+name: Check a user against dataset expectations
+method: GET
+url: https://api.example.com/users/$user_id
+tests: |-
+  test("user matches the dataset row", () => {
+    expect(noodle.iteration).not.toBeNull();
+    expect(noodle.response.status).toBe(200);
+    const expected = noodle.iteration.data;
+    expect(noodle.response.json()).toMatchObject({
+      id: expected.user_id,
+      active: expected.expected_active,
+      role: expected.expected_role,
+    });
+  });
+```
+
+Run from the directory containing `api/` and `data/`:
+
+```bash
+noodle collection run ./api users/check --data ./data/users.json
+```
+
+The request runs twice, with a separate result for each row. Both pass only if
+the API matches the respective expectations. `noodle.iteration.data` keeps the
+original row even if a capture or script overwrites a RunScope value with the
+same name. Each row starts with a fresh scope.
+
+JSON preserves numbers and booleans. CSV cells are strings, so a CSV version
+needs explicit conversions before typed comparisons. Running without a dataset
+leaves `noodle.iteration` null; ordinary substitution also needs a value for
+`user_id`. See [iteration data](/docs/guides/collection-runner/#csv-and-json-iteration-data)
+for the F5 Runner and path rules.
 
 ## Share checks across a folder
 

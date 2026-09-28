@@ -1,5 +1,5 @@
 // Run from the site root: bun scripts/check-cookbooks.ts ../noodle
-// Execute the published examples in Noodle's real sandbox without network calls.
+// Execute the published examples in Noodle's real sandbox with stubbed HTTP results.
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
@@ -12,6 +12,7 @@ const { RunScope } = await import(pathToFileURL(`${noodle}/src/runScope.ts`).hre
 const { lang } = await import(pathToFileURL(`${noodle}/src/lang/index.ts`).href);
 const directory = "src/content/docs/docs/cookbooks";
 const recipes = new Map<string, Record<string, any>[]>();
+const sections = new Map<string, string>();
 let yamlBlocks = 0;
 let executions = 0;
 
@@ -28,6 +29,7 @@ for (const file of await readdir(directory)) {
     });
     assert(!recipes.has(heading), `Duplicate recipe: ${heading}`);
     recipes.set(heading, blocks);
+    sections.set(heading, section);
   }
 }
 
@@ -39,10 +41,14 @@ const response = (body: unknown, status = 200, headers = { "Content-Type": "appl
   status, statusText: status === 201 ? "Created" : "OK", timeMs: 12,
   headers, body: JSON.stringify(body),
 });
-async function run(phase: string, source: string, body: unknown, scope = new RunScope(), status = 200) {
+async function run(
+  phase: string, source: string, body: unknown, scope = new RunScope(), status = 200,
+  prepared = request, environment?: { name: string; vars: Record<string, string> },
+  options = {},
+) {
   assert.equal(typeof source, "string", "Published example has script source");
   executions++;
-  return runRequestScript(phase, source, request, undefined, scope, { response: response(body, status) });
+  return runRequestScript(phase, source, prepared, environment, scope, { response: response(body, status) }, options);
 }
 function block(heading: string, index = 0) {
   const value = recipes.get(heading)?.[index];
@@ -56,6 +62,9 @@ const cases: [string, unknown, unknown[]][] = [
     { id: 7, email: "invalid", active: true },
   ]],
   ["Check every item in an array", [{ id: 1, active: true }], [[], [{ id: 1, active: false }]]],
+  ["Detect duplicate IDs", [{ id: 7 }, { id: 8 }], [
+    [{ id: 7 }, { id: 7 }], [{ id: "7" }], [{}], [{ id: 0 }],
+  ]],
   ["Compare related fields", { subtotal: 1000, tax: 200, total: 1200 }, [
     { subtotal: 1000, tax: 200, total: 1199 },
     { subtotal: "1000", tax: 200, total: 1200 },
@@ -72,6 +81,99 @@ for (const [heading, valid, invalid] of cases) {
     assert(result.tests?.length, `${heading}: declares tests`);
     const passed = result.result.success && result.tests.every((test: { passed: boolean }) => test.passed);
     assert.equal(passed, expected, `${heading}: ${JSON.stringify(body)}`);
+  }
+}
+
+const consistency = block("Check that the response reflects the request");
+const sent = { ...JSON.parse(consistency.body), name: "Changed by a pre script" };
+const prepared = { ...request, method: consistency.method, bodyType: consistency.body_type, body: JSON.stringify(sent) };
+for (const [body, expected] of [[{ ...sent, id: 7 }, true], [{ ...sent, active: true }, false], [{ name: sent.name }, false]] as const) {
+  const result = await run("tests", consistency.tests, body, new RunScope(), 200, prepared);
+  assert.equal(result.tests[0].passed, expected, "Response must match the prepared request");
+}
+
+const datasetHeading = "Use expected values from a dataset";
+const rows = JSON.parse(sections.get(datasetHeading)!.match(/```json\n([\s\S]*?)```/)![1]!);
+for (const [index, row] of rows.entries()) {
+  const rowScope = new RunScope({ index, count: rows.length, data: row });
+  rowScope.set("expected_active", !row.expected_active);
+  for (const matches of [true, false]) {
+    const result = await run("tests", block(datasetHeading).tests, {
+      id: row.user_id, active: matches ? row.expected_active : !row.expected_active, role: row.expected_role,
+    }, rowScope);
+    assert.equal(result.tests[0].passed, matches, "Dataset checks use the original typed row");
+  }
+}
+assert.equal((await run("tests", block(datasetHeading).tests, {})).tests[0].passed, false, "Missing dataset fails");
+
+const productScope = new RunScope();
+const productEnvironment = { name: "development", vars: { TARGET_SKU: "NOODLE-MUG" } };
+for (const [body, expected] of [
+  [[{ id: 8, sku: "NOODLE-SHIRT" }, { id: 7, sku: "NOODLE-MUG" }], true],
+  [[{ id: 8, sku: "NOODLE-SHIRT" }], false],
+  [[{ id: 7, sku: "NOODLE-MUG" }, { id: 8, sku: "NOODLE-MUG" }], false],
+  [[{ id: "7", sku: "NOODLE-MUG" }], false],
+] as const) {
+  const result = await run("post", block("Find a record by a field").scripts.post, body, productScope, 200, request, productEnvironment);
+  assert.equal(result.result.success, expected, "Product lookup requires exactly one valid match");
+  assert.equal(productScope.get("product_id"), 7, "A failed lookup preserves the previous value");
+}
+
+const loginHeading = "Log in once and reuse the token";
+const loginSource = block(loginHeading, 1).scripts.pre;
+const loginScope = new RunScope();
+let logins = 0;
+let session: Record<string, unknown> = { token: "cookbook-token", expires_in: 3600 };
+const loginOptions = {
+  execute: async (kind: string, input: unknown) => {
+    assert.equal(kind, "saved");
+    assert.equal(input, "auth/login");
+    logins++;
+    return { response: response(session), failureCategories: [] };
+  },
+};
+for (const expectedLogins of [1, 1]) {
+  const result = await run("pre", loginSource, {}, loginScope, 200, request, undefined, loginOptions);
+  assert(result.result.success, JSON.stringify(result.result.error));
+  assert.equal(result.request.auth.token, "cookbook-token");
+  assert.equal(logins, expectedLogins, "Valid cached tokens avoid another login");
+}
+loginScope.set("SESSION_EXPIRES_AT", Date.now() + 10000);
+assert((await run("pre", loginSource, {}, loginScope, 200, request, undefined, loginOptions)).result.success);
+assert.equal(logins, 2, "Tokens within the expiry margin refresh");
+loginScope.set("SESSION_EXPIRES_AT", 0);
+for (const invalid of [{ token: "", expires_in: 3600 }, { token: "new-token", expires_in: "3600" }, { token: "new-token", expires_in: 1 }]) {
+  session = invalid;
+  assert(!(await run("pre", loginSource, {}, loginScope, 200, request, undefined, loginOptions)).result.success);
+  assert.equal(loginScope.get("SESSION_TOKEN"), "cookbook-token", "Invalid refresh cannot replace the cached token");
+}
+
+const lifecycleSource = block("Create and clean up a test resource").scripts.post;
+const lifecycleEnvironment = { name: "development", vars: { API_TOKEN: "cookbook-secret" } };
+for (const scenario of ["success", "update fails", "verification fails", "cleanup fails", "both fail", "invalid ID"]) {
+  const methods: string[] = [];
+  const result = await run("post", lifecycleSource, { id: scenario === "invalid ID" ? "../other" : 7 }, new RunScope(), 201, request, lifecycleEnvironment, {
+    execute: async (kind: string, input: any) => {
+      assert.equal(kind, "http");
+      assert.equal(input.url, "https://api.example.com/users/7");
+      assert.equal(input.headers.Authorization, "Bearer cookbook-secret");
+      const method = input.method ?? "GET";
+      methods.push(method);
+      if (method === "PATCH") assert.deepEqual(JSON.parse(input.body), { name: "Updated Cookbook User" });
+      const fails = (method === "PATCH" && ["update fails", "both fail"].includes(scenario)) ||
+        (method === "DELETE" && ["cleanup fails", "both fail"].includes(scenario));
+      return {
+        response: response({ id: 7, name: scenario === "verification fails" ? "Cookbook User" : "Updated Cookbook User" }, fails ? 500 : method === "DELETE" ? 204 : 200),
+        failureCategories: fails ? ["http"] : [],
+        ...(fails ? { error: { name: "Error", message: `${method} failed` } } : {}),
+      };
+    },
+  });
+  assert.equal(result.result.success, scenario === "success", scenario);
+  assert.deepEqual(methods, scenario === "invalid ID" ? [] : ["update fails", "both fail"].includes(scenario) ? ["PATCH", "DELETE"] : ["PATCH", "GET", "DELETE"], scenario);
+  if (scenario === "both fail") assert.match(result.result.error.message, /PATCH failed/, "Preserve the original failure");
+  if (["cleanup fails", "both fail"].includes(scenario)) {
+    assert.match(JSON.stringify(result.result.logs), /Cleanup failed for user.*7/, "Log the ID for manual cleanup");
   }
 }
 

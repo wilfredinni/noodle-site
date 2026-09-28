@@ -9,9 +9,9 @@ copyable examples, the inputs they need, and the result to expect.
 | Cookbook | What you can do |
 | --- | --- |
 | [Preparing requests](/docs/cookbooks/preparing-requests/) | Generate test data, validate inputs, and sign requests with pre scripts |
-| [Processing responses](/docs/cookbooks/processing-responses/) | Transform values, save tokens, and compose post scripts |
-| [Testing APIs](/docs/cookbooks/testing-apis/) | Check response contracts, arrays, related fields, and shared rules |
-| [Chaining requests](/docs/cookbooks/chaining-requests/) | Pass values forward, call saved requests, and handle optional lookups |
+| [Processing responses](/docs/cookbooks/processing-responses/) | Transform values, find records, save tokens, and compose post scripts |
+| [Testing APIs](/docs/cookbooks/testing-apis/) | Check contracts, submitted values, unique IDs, and dataset expectations |
+| [Chaining requests](/docs/cookbooks/chaining-requests/) | Pass values forward, reuse login tokens, and clean up test resources |
 
 ## Before you start
 
@@ -50,6 +50,7 @@ blocks. See [inheritance and upgrade notes](/docs/guides/pre-request-scripting/#
 - <a id="process-a-response-conditionally" href="/docs/cookbooks/processing-responses/#process-a-response-conditionally">Process a response conditionally</a>
 - <a id="save-a-token-for-later-manual-sends" href="/docs/cookbooks/processing-responses/#save-a-token-for-later-manual-sends">Save a token for later manual sends</a>
 - <a id="transform-a-captured-value" href="/docs/cookbooks/processing-responses/#transform-a-captured-value">Transform a captured value</a>
+- <a id="find-a-record-by-a-field" href="/docs/cookbooks/processing-responses/#find-a-record-by-a-field">Find a record by a field</a>
 - <a id="clear-an-expired-session-cookie" href="/docs/cookbooks/processing-responses/#clear-an-expired-session-cookie">Clear an expired session cookie</a>
 - <a id="apply-a-shared-default-before-request-processing" href="/docs/cookbooks/processing-responses/#apply-a-shared-default-before-request-processing">Apply a shared default before request processing</a>
 
@@ -60,14 +61,19 @@ blocks. See [inheritance and upgrade notes](/docs/guides/pre-request-scripting/#
 - <a id="check-every-item-in-an-array" href="/docs/cookbooks/testing-apis/#check-every-item-in-an-array">Check every item in an array</a>
 - <a id="compare-related-fields" href="/docs/cookbooks/testing-apis/#compare-related-fields">Compare related fields</a>
 - <a id="verify-sorting-and-pagination" href="/docs/cookbooks/testing-apis/#verify-sorting-and-pagination">Verify sorting and pagination</a>
+- <a id="check-that-the-response-reflects-the-request" href="/docs/cookbooks/testing-apis/#check-that-the-response-reflects-the-request">Check that the response reflects the request</a>
+- <a id="detect-duplicate-ids" href="/docs/cookbooks/testing-apis/#detect-duplicate-ids">Detect duplicate IDs</a>
+- <a id="use-expected-values-from-a-dataset" href="/docs/cookbooks/testing-apis/#use-expected-values-from-a-dataset">Use expected values from a dataset</a>
 - <a id="share-checks-across-a-folder" href="/docs/cookbooks/testing-apis/#share-checks-across-a-folder">Share checks across a folder</a>
 
 ## Chaining requests
 
 - <a id="share-data-across-requests" href="/docs/cookbooks/chaining-requests/#share-data-across-requests">Share data across requests</a>
 - <a id="saved-requests-and-captured-values" href="/docs/cookbooks/chaining-requests/#saved-requests-and-captured-values">Saved requests and captured values</a>
+- <a id="log-in-once-and-reuse-the-token" href="/docs/cookbooks/chaining-requests/#log-in-once-and-reuse-the-token">Log in once and reuse the token</a>
 - <a id="direct-http-with-fallback" href="/docs/cookbooks/chaining-requests/#direct-http-with-fallback">Direct HTTP with fallback</a>
 - <a id="create-a-resource-and-fetch-it" href="/docs/cookbooks/chaining-requests/#create-a-resource-and-fetch-it">Create a resource and fetch it</a>
+- <a id="create-and-clean-up-a-test-resource" href="/docs/cookbooks/chaining-requests/#create-and-clean-up-a-test-resource">Create and clean up a test resource</a>
 
 ## Inspect results
 

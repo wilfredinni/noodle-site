@@ -1,6 +1,6 @@
 ---
 title: Processing responses
-description: Conditionally retain response values, save tokens, manage sessions, and share post-response processing.
+description: Conditionally retain response values, find matching records, save tokens, and share post-response processing.
 ---
 
 Use `scripts.post` when response handling needs a condition or transformation.
@@ -102,6 +102,54 @@ for this response. `$raw_region` retains the original value. The response body
 is unchanged. Use a scripted test with `noodle.run.get("region")` to check the
 new value in this request: declarative assertion expectations were substituted
 before post ran.
+
+## Find a record by a field
+
+Use post when the response is a list and the next request needs one matching
+record. A direct capture is enough when the record already has a fixed path.
+Set `TARGET_SKU` to `NOODLE-MUG` in your selected environment:
+
+```bash
+noodle environment set TARGET_SKU NOODLE-MUG --collection ./api --env development
+```
+
+This endpoint should return an array such as
+`[{"id":7,"sku":"NOODLE-MUG"},{"id":8,"sku":"NOODLE-SHIRT"}]`:
+
+```yaml
+name: Find a product by SKU
+method: GET
+url: https://api.example.com/products
+scripts:
+  post: |-
+    if (noodle.response.status !== 200) {
+      throw new Error("Product lookup must return HTTP 200");
+    }
+    const sku = noodle.env.get("TARGET_SKU");
+    if (typeof sku !== "string" || !sku.trim()) {
+      throw new Error("TARGET_SKU is required");
+    }
+    const products = noodle.response.json();
+    if (!Array.isArray(products)) throw new Error("Expected a product array");
+    const matches = products.filter(product => product && product.sku === sku);
+    if (matches.length !== 1) {
+      throw new Error("Expected exactly one product matching TARGET_SKU");
+    }
+    const id = matches[0].id;
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      throw new Error("Product ID must be a positive integer");
+    }
+    noodle.run.set("product_id", id);
+```
+
+For the example response, later requests in the same run can use `$product_id`
+with value `7`. Matching is exact and case-sensitive. No match, multiple
+matches, or an invalid ID fails the post block instead of choosing an arbitrary
+record. Only the returned page is searched.
+
+Run dependent requests with `--fail-fast`: a failed post leaves earlier
+RunScope values intact, so continuing could reuse a product ID from an earlier
+successful lookup.
 
 ## Clear an expired session cookie
 

@@ -1,6 +1,6 @@
 ---
 title: Chaining requests
-description: Pass values between requests, log in before a request, and handle optional HTTP lookups.
+description: Pass values between requests, reuse login tokens, handle optional lookups, and verify a resource lifecycle with cleanup.
 ---
 
 Use these recipes to connect requests in one collection. Replace
@@ -101,6 +101,75 @@ is transient. On a manual send, the parent may explicitly persist with
 `noodle.run.set("TOKEN", token, { persist: "secret" })`. Collection runs suppress
 persistence. HTTP and cookie effects cannot be rolled back.
 
+## Log in once and reuse the token
+
+Use a folder pre script for APIs with a custom login endpoint. Configure
+`LOGIN_USER` in the selected environment and store `LOGIN_PASSWORD` as a
+[secret](/docs/guides/using-environments/#store-a-secret). Save this as
+`auth/login.yml`, outside the folder that will use the shared login hook:
+
+```yaml
+name: Get a session token
+method: POST
+url: https://api.example.com/session
+scripts:
+  pre: |-
+    noodle.request.body.setJson({
+      username: noodle.env.get("LOGIN_USER"),
+      password: noodle.env.get("LOGIN_PASSWORD"),
+    });
+```
+
+The login must return JSON with a non-empty `token` and a numeric `expires_in`
+in seconds, such as `{"token":"example-token","expires_in":3600}`. Merge this
+into `users/folder.yml`:
+
+```yaml
+scripts:
+  pre: |-
+    let token = noodle.run.get("SESSION_TOKEN");
+    let expiresAt = noodle.run.get("SESSION_EXPIRES_AT");
+    if (typeof token !== "string" || !token.trim() ||
+        !Number.isSafeInteger(expiresAt) || expiresAt <= noodle.time.now() + 30000) {
+      const requestedAt = noodle.time.now();
+      const session = (await noodle.runRequest("auth/login")).json();
+      token = session.token;
+      expiresAt = requestedAt + session.expires_in * 1000;
+      if (typeof token !== "string" || !token.trim() ||
+          typeof session.expires_in !== "number" ||
+          !Number.isSafeInteger(expiresAt) || expiresAt <= noodle.time.now() + 30000) {
+        throw new Error("Login must return a token with more than 30 seconds remaining");
+      }
+      noodle.run.set("SESSION_TOKEN", token);
+      noodle.run.set("SESSION_EXPIRES_AT", expiresAt);
+    }
+    noodle.request.auth.setBearer(token);
+```
+
+Requests under `users/` inherit this hook. For example, save this as
+`users/profile.yml`:
+
+```yaml
+name: Fetch my profile
+method: GET
+url: https://api.example.com/me
+```
+
+The first request logs in; later requests in the same collection run reuse the
+token while it has more than 30 seconds left. The margin allows time to send the
+next request. An expired or nearly expired token triggers another login. A
+failed login stops that request before HTTP. This does not automatically retry
+401 responses from a revoked token.
+
+Keep `auth/login` outside `users/` so it does not inherit its own login hook.
+The folder pre runs before the request pre, following the usual inherited
+order. Set bearer auth directly here: `$SESSION_TOKEN` in the same request's
+saved auth would be substituted before this hook can create it.
+
+Both cached values disappear at the end of the run. Separate manual sends and
+dataset rows have fresh scopes, so each logs in independently. For OAuth2,
+prefer the built-in [authentication](/docs/guides/authentication/) configuration.
+
 ## Direct HTTP with fallback
 
 Use this when a lookup can legitimately return 404. Configure `API_TOKEN` as a
@@ -188,3 +257,67 @@ or capture prevents the dependent request from running because of `--fail-fast`.
 On success, the fetched ID matches the captured ID. Separate manual sends do
 not share this transient value; use a saved child call when you need both
 operations within one manual send. Clean up test resources according to your API.
+
+## Create and clean up a test resource
+
+Use this against a test API to create a resource, update it, verify the saved
+fields, and delete it. Configure `API_TOKEN` as a secret in the selected
+environment. The create endpoint must return HTTP 201 with a positive integer
+`id`; update accepts PATCH, fetch returns HTTP 200, and delete returns HTTP 204.
+
+```yaml
+name: Verify the user lifecycle
+method: POST
+url: https://api.example.com/users
+auth:
+  type: bearer
+  token: $API_TOKEN
+body_type: json
+body: '{"name":"Cookbook User"}'
+scripts:
+  post: |-
+    if (noodle.response.status !== 201) throw new Error("Creation must return HTTP 201");
+    const id = noodle.response.json().id;
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      throw new Error("Creation must return a positive integer ID");
+    }
+    const url = "https://api.example.com/users/" + id;
+    const headers = {
+      Authorization: "Bearer " + noodle.env.get("API_TOKEN"),
+      "Content-Type": "application/json",
+    };
+    let failure;
+    try {
+      await noodle.sendRequest({
+        url, method: "PATCH", headers,
+        body: JSON.stringify({ name: "Updated Cookbook User" }), timeout: 5000,
+      });
+      const saved = await noodle.sendRequest({ url, headers, timeout: 5000 });
+      const user = saved.json();
+      if (saved.status !== 200 || user.id !== id || user.name !== "Updated Cookbook User") {
+        throw new Error("Fetched user must contain the updated fields");
+      }
+    } catch (error) {
+      failure = error;
+    } finally {
+      try {
+        const deleted = await noodle.sendRequest({ url, method: "DELETE", headers, timeout: 5000 });
+        if (deleted.status !== 204) throw new Error("Deletion must return HTTP 204");
+      } catch (error) {
+        console.error("Cleanup failed for user", id);
+        failure ??= error;
+      }
+    }
+    if (failure) throw failure;
+```
+
+The post block succeeds only after verifying the update and deleting the new
+user. Direct calls need their own authorization header. These calls belong in
+post because scripted tests cannot send requests.
+
+`finally` attempts deletion even when update or verification fails. A cleanup
+failure logs the resource ID and fails the block; if an earlier step also
+failed, its error is preserved. Inspect Results for the failed child call.
+HTTP changes cannot be rolled back, and cleanup cannot be guaranteed after
+cancellation, the script deadline, or a creation response without a usable ID.
+Use the logged ID for manual cleanup when available.
