@@ -8,8 +8,8 @@ processing that saved fields, variables, and captures cannot express. Use pre
 for signatures, timestamps, test data, and request mutations; use post to process
 a completed response after captures and before assertions.
 
-For copyable examples of timestamps, identifiers, test data, validation, signing,
-and shared collection-run values, see the [Script Cookbook](/docs/guides/script-cookbook/).
+For copyable examples, browse the [Cookbooks](/docs/guides/script-cookbook/)
+for request preparation, response processing, testing, and request chaining.
 
 ## Author scripts in the TUI
 
@@ -297,7 +297,7 @@ Read `expiresAt` with `noodle.run.get` in post or substitute it in a later
 collection request. JavaScript `Date` and random timestamp generators remain
 available. See the [time API reference](/docs/reference/script-api/#script-time-api)
 for methods, tokens, and limits, or the
-[expiration recipe](/docs/guides/script-cookbook/#expiration-windows-and-timezones).
+[expiration recipe](/docs/cookbooks/preparing-requests/#expiration-windows-and-timezones).
 
 ## Inspect script results
 
@@ -351,7 +351,7 @@ the parent can explicitly persist selected values. Received cookies and HTTP
 effects survive variable rollback.
 
 For direct HTTP and caught failures, see the
-[chaining recipes](/docs/guides/script-cookbook/#saved-requests-and-captured-values).
+[chaining recipes](/docs/cookbooks/chaining-requests/#saved-requests-and-captured-values).
 Child summaries appear in expandable Results rows, Runner details, CLI output,
 and bounded manual history, including failures handled by `try/catch`.
 
@@ -370,6 +370,8 @@ All three phases use the same scope order. The most specific successful post
 write wins, including persisted writes. Versions **0.9.4** and **0.9.5** ran post
 blocks in reverse order; update collection or folder post blocks that depend on
 values produced by request post blocks when upgrading.
+
+For a concrete example, see [shared defaults and request post writes](/docs/cookbooks/processing-responses/#apply-a-shared-default-before-request-processing).
 
 Collection and folder blocks run once per request,
 including each dataset row. Root `folder.yml` is ignored. An empty block is a

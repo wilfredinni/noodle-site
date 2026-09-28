@@ -1,0 +1,190 @@
+---
+title: Chaining requests
+description: Pass values between requests, log in before a request, and handle optional HTTP lookups.
+---
+
+Use these recipes to connect requests in one collection. Replace
+`api.example.com` and the example fields with your API. For an ordered workflow,
+start with [captures](/docs/guides/captures/) and the
+[Collection Runner](/docs/guides/collection-runner/). Use an awaited saved or
+direct request call when a pre/post script needs the result immediately.
+
+Saved child requests run their complete lifecycle, including inherited blocks.
+Each phase uses **collection → outermost folder → nearest folder → request**.
+Put a login call on the dependent request: a collection-wide login hook also
+runs on the login request itself and can trigger cycle protection.
+
+## Share data across requests
+
+Use this when several requests in one collection run need the same generated
+test data. This two-request workflow creates a customer, then looks it up by
+email. It needs no environment inputs. Put both files in your collection and
+ensure **Create customer** precedes **Find customer** in collection order.
+
+Save the first request as `customers/create.yml`:
+
+```yaml
+name: Create customer
+method: POST
+url: https://api.example.com/customers
+body_type: json
+body: '{"name":"Cookbook Customer"}'
+scripts:
+  pre: |-
+    const email = "cookbook+" + noodle.crypto.randomBytes(8, "hex") + "@example.com";
+    noodle.run.set("customer_email", email);
+    noodle.request.body.setJson({ ...noodle.request.body.json(), email });
+```
+
+The first request sets the shared value and writes it directly into its body.
+Save the later request as `customers/find.yml`. It can use ordinary substitution:
+
+```yaml
+name: Find customer
+method: GET
+url: https://api.example.com/customers
+params:
+  - name: email
+    value: $customer_email
+```
+
+Run them together with the CLI or the TUI Runner:
+
+```bash
+noodle collection run ./api customers/create customers/find
+```
+
+Selected requests execute in collection order. The second request sends the same
+email as the first. `noodle.run.get("customer_email")` reads it from a later script;
+`noodle.run.unset("customer_email")` removes it from the transient scope.
+
+`noodle.run.set()` commits when the script succeeds, before HTTP. The email remains
+available even if customer creation later fails, so add suitable assertions and
+use `--fail-fast` if later requests depend on a successful creation.
+
+The value disappears when the collection run ends. Separate manual sends and
+`request run` calls have isolated scopes, so they cannot share this value. Do
+not put `$customer_email` in the first request: its substitution would run before
+the script creates the variable. Use a [capture](/docs/guides/captures/)
+when you need a server-generated customer ID instead.
+
+## Saved requests and captured values
+
+Create `auth/login.yml` for your API's login endpoint, with its required
+credentials configured through [authentication](/docs/guides/authentication/)
+and [secrets](/docs/guides/using-environments/#store-a-secret). It should return
+JSON containing a non-empty string `token`. Save this dependent request as
+`users/profile.yml`. The child runs its scripts, captures, assertions, and tests:
+
+```yaml
+name: Log in and fetch a profile
+method: GET
+url: https://api.example.com/me
+scripts:
+  pre: |-
+    const login = await noodle.runRequest("auth/login");
+    const token = login.json().token;
+    if (typeof token !== "string" || !token.trim()) {
+      throw new Error("Login must return a non-empty token");
+    }
+    noodle.run.set("TOKEN", token);
+    noodle.request.auth.setBearer(token);
+```
+
+The outgoing profile request uses the returned bearer token. A failed child
+or missing token stops the pre script and skips the profile request.
+
+Saved child captures and writes are readable with `noodle.run.get`. Later child
+calls see these and the parent's staged values. Failed children roll back their
+variables; a failed parent rolls back the combined variables. Nested persistence
+is transient. On a manual send, the parent may explicitly persist with
+`noodle.run.set("TOKEN", token, { persist: "secret" })`. Collection runs suppress
+persistence. HTTP and cookie effects cannot be rolled back.
+
+## Direct HTTP with fallback
+
+Use this when a lookup can legitimately return 404. Configure `API_TOKEN` as a
+secret in the selected environment. This example fetches a profile before
+sending a health request with its ID, or `guest` when the profile is absent:
+
+```yaml
+name: Check health with an optional profile
+method: GET
+url: https://api.example.com/health
+scripts:
+  pre: |-
+    const token = noodle.env.get("API_TOKEN");
+    if (!token || !token.trim()) throw new Error("API_TOKEN is required");
+    try {
+      const profile = await noodle.sendRequest({
+        url: "https://api.example.com/me",
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 5000,
+      });
+      noodle.run.set("USER_ID", profile.json().id);
+    } catch (error) {
+      if (!error.response || error.response.status !== 404) throw error;
+      noodle.run.set("USER_ID", "guest");
+    }
+    noodle.request.headers.set("X-User-ID", String(noodle.run.get("USER_ID")));
+```
+
+Direct values are literal, with no substitution or inherited parent credentials.
+For JSON uploads, set `method: "POST"`, `body: JSON.stringify(value)`, and
+`headers: { "Content-Type": "application/json" }`. Both call APIs throw on HTTP
+status 400 or higher, validation, or transport failures; saved calls also throw
+on failed execution diagnostics. Errors expose response and diagnostics when
+available. Caught failures remain visible in Results without failing the parent.
+
+Await calls sequentially: one outstanding call per script, ten calls per
+top-level request, four nested levels, and a 30-second ancestor-bounded wall
+deadline. See [the full contract](/docs/reference/script-api/#async-scripts-and-request-chaining).
+
+## Create a resource and fetch it
+
+Use captures for a straightforward ordered workflow. The create endpoint must
+return HTTP 201 and a JSON `id`. Save this as `users/create.yml`:
+
+```yaml
+name: Create a cookbook user
+method: POST
+url: https://api.example.com/users
+body_type: json
+body: '{"name":"Cookbook User"}'
+capture:
+  created_user_id:
+    value: body.id
+assert:
+  - expression: status
+    operator: equals
+    value: 201
+```
+
+Save the second request as `users/get.yml`:
+
+```yaml
+name: Fetch the created user
+method: GET
+url: https://api.example.com/users/$created_user_id
+assert:
+  - expression: status
+    operator: equals
+    value: 200
+tests: |-
+  test("fetched the created user", () => {
+    expect(noodle.response.json().id).toEqual(noodle.run.get("created_user_id"));
+  });
+```
+
+Place **Create a cookbook user** before **Fetch the created user** in collection
+order, then run both with the shared scope:
+
+```bash
+noodle collection run ./api users/create users/get --fail-fast
+```
+
+Selected requests run in collection order, not argument order. A failed creation
+or capture prevents the dependent request from running because of `--fail-fast`.
+On success, the fetched ID matches the captured ID. Separate manual sends do
+not share this transient value; use a saved child call when you need both
+operations within one manual send. Clean up test resources according to your API.

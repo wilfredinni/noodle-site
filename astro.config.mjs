@@ -208,8 +208,17 @@ export default defineConfig({
           items: [
             { label: "Scripting", slug: "docs/guides/pre-request-scripting" },
             { label: "Scripted tests", slug: "docs/guides/scripted-tests" },
-            { label: "Script cookbook", slug: "docs/guides/script-cookbook" },
             { label: "Script API", slug: "docs/reference/script-api" },
+          ],
+        },
+        {
+          label: "Cookbooks",
+          items: [
+            { label: "Recipe index", slug: "docs/guides/script-cookbook" },
+            { label: "Preparing requests", slug: "docs/cookbooks/preparing-requests" },
+            { label: "Processing responses", slug: "docs/cookbooks/processing-responses" },
+            { label: "Testing APIs", slug: "docs/cookbooks/testing-apis" },
+            { label: "Chaining requests", slug: "docs/cookbooks/chaining-requests" },
           ],
         },
         {

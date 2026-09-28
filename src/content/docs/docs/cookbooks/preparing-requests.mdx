@@ -1,0 +1,311 @@
+---
+title: Preparing requests
+description: Prepare API requests with timestamps, test data, validation, idempotency keys, and signatures.
+---
+
+Use these recipes when a request needs computed values before it is sent.
+Copy a complete request into your collection and replace `api.example.com`
+and its fields with your API. Prefer saved fields, variables, and
+[body templates](/docs/guides/using-the-request-pane/#random-and-time-body-values)
+when they already express the value you need.
+
+These recipes use `scripts.pre`. Substitution happens first, so apply newly
+generated values directly to the prepared request. `noodle.run.set()` makes a
+value available to later blocks and requests in the same run. Saved YAML stays
+unchanged. Inherited pre blocks run **collection → outermost folder → nearest
+folder → request**; a failure stops later pre blocks and HTTP.
+
+See [Scripting](/docs/guides/pre-request-scripting/) for authoring and
+[Cookbooks](/docs/guides/script-cookbook/) for the shared execution rules.
+
+## Timestamps
+
+Use this when an API expects the current time in a header or event payload.
+This request needs no environment values and starts with a JSON object body.
+
+```yaml
+name: Create timestamped event
+method: POST
+url: https://api.example.com/events
+body_type: json
+body: '{"event":"deployment"}'
+scripts:
+  pre: |-
+    const now = noodle.time.now();
+    const timestamp = noodle.time.iso(now);
+    const unixSeconds = noodle.time.unix(now);
+    noodle.request.headers.set("X-Timestamp", timestamp);
+    noodle.request.body.setJson({
+      ...noodle.request.body.json(),
+      created_at: timestamp,
+      timestamp: unixSeconds,
+    });
+```
+
+The outgoing header and `created_at` field contain the same UTC ISO timestamp.
+The numeric `timestamp` field uses Unix **seconds**. The captured `now` value
+is already in milliseconds. These values use your machine's clock, so keep
+it synchronized if the server checks timestamp freshness.
+
+## Expiration windows and timezones
+
+Use a shared instant to send an expiration window and inspect it in post.
+This recipe needs no environment values:
+
+```yaml
+name: Check timestamp window
+method: GET
+url: https://api.example.com/health
+scripts:
+  pre: |-
+    const now = noodle.time.now();
+    const expiresAt = noodle.time.add(now, 15, "minutes");
+    noodle.request.headers.set("X-Timestamp", noodle.time.iso(now));
+    noodle.request.headers.set("X-Expires-At", noodle.time.iso(expiresAt));
+    noodle.request.headers.set("X-Local-Time", noodle.time.format(now, "YYYY-MM-DD HH:mm:ss Z", {
+      timeZone: "America/Santiago",
+    }));
+    noodle.run.set("expiresAt", expiresAt);
+  post: |-
+    const remaining = noodle.time.diff(noodle.run.get("expiresAt"), noodle.time.now(), "seconds");
+    console.info("Expiration window remaining (seconds):", remaining);
+```
+
+The window is 15 elapsed minutes. `diff(a, b, unit)` returns signed `a - b`,
+so the log can be negative if the response arrives after expiration. Formatting
+defaults to UTC; the explicit timezone changes only `X-Local-Time`. A `days`
+duration is always 24 hours, even across daylight-saving changes. See the
+[time API](/docs/reference/script-api/#script-time-api) for ISO parsing,
+format tokens, and supported units.
+
+## Identifiers and nonces
+
+Use a request ID for correlation and a random nonce when your API requires one.
+This example generates a test UUID v4 and a separate 16-byte nonce without any
+environment inputs.
+
+```yaml
+name: Check health with a request ID
+method: GET
+url: https://api.example.com/health
+scripts:
+  pre: |-
+    const requestId = noodle.random.uuid();
+    noodle.request.headers.set("X-Request-ID", requestId);
+    noodle.request.headers.set("X-Nonce", noodle.crypto.randomBytes(16, "hex"));
+```
+
+`X-Request-ID` has the standard UUID v4 format and `X-Nonce` has 32 hexadecimal
+characters. Both are generated again on each send. The UUID is test data without a security
+or uniqueness guarantee. If your API accepts any
+opaque request ID, `noodle.crypto.randomBytes(16, "hex")` is enough by itself.
+`noodle.crypto.randomUUID()` is not part of Noodle's sandbox API.
+
+## Idempotency keys
+
+Use this for a **new operation** when the server supports an `Idempotency-Key`
+header. The script generates a random key only when the prepared request does
+not already contain one.
+
+```yaml
+name: Create order with an idempotency key
+method: POST
+url: https://api.example.com/orders
+body_type: json
+body: '{"product_id":"demo-product","quantity":1}'
+scripts:
+  pre: |-
+    if (!noodle.request.headers.has("Idempotency-Key")) {
+      noodle.request.headers.set("Idempotency-Key", noodle.crypto.randomBytes(16, "hex"));
+    }
+```
+
+Without a saved key, every send gets a new 32-character hexadecimal key and
+represents a new operation. This script does not make repeated manual sends
+safe retries automatically. For retries of the **same** operation, configure
+the same non-empty header value in your saved request or folder headers; the
+script preserves it. Use a different key for a different operation and follow
+your server's rules for expiration and payload matching.
+
+## Dynamic JSON bodies
+
+Use this to create fresh test data and remove a local fixture field before
+sending. The saved body must be a JSON object; no environment inputs are needed.
+
+```yaml
+name: Create customer with fresh test data
+method: POST
+url: https://api.example.com/customers
+body_type: json
+body: '{"name":"Cookbook Customer","_fixture":"customer-smoke"}'
+scripts:
+  pre: |-
+    const body = noodle.request.body.json();
+    delete body._fixture;
+    body.email = "cookbook+" + noodle.crypto.randomBytes(8, "hex") + "@example.com";
+    body.created_at = new Date().toISOString();
+    noodle.request.body.setJson(body);
+```
+
+The outgoing body retains `name`, adds a generated email and timestamp, and
+omits `_fixture`. The saved YAML remains unchanged. Use synthetic data like this
+against your test API, and clean up created resources as your workflow requires.
+
+## Dynamic query parameters
+
+Use this to fetch events from a rolling time window instead of updating saved
+dates by hand. The optional environment value `LOOKBACK_HOURS` defaults to `24`.
+If supplied, it must be a positive number that produces a valid start date.
+
+```yaml
+name: List recent events
+method: GET
+url: https://api.example.com/events
+scripts:
+  pre: |-
+    const hours = Number(noodle.env.get("LOOKBACK_HOURS") ?? "24");
+    if (!Number.isFinite(hours) || hours <= 0) {
+      throw new Error("LOOKBACK_HOURS must be a positive number");
+    }
+    const to = noodle.time.now();
+    const from = noodle.time.subtract(to, hours, "hours");
+    noodle.request.params.set("from", noodle.time.iso(from));
+    noodle.request.params.set("to", noodle.time.iso(to));
+    noodle.request.params.append("tag", "deployment");
+    noodle.request.params.append("tag", "release");
+```
+
+The request sends `from` and `to` in UTC, plus two `tag` query values. Noodle
+handles query encoding. `set()` replaces enabled parameters with the same
+case-sensitive name; `append()` adds another enabled value. Disabled entries
+are preserved. Remove the tag lines if your API does not accept repeated tags.
+
+## Validate before sending
+
+Use this when missing credentials or invalid input should stop a request
+locally. This example requires environment values `ACCOUNT_ID` and `API_TOKEN`,
+and a JSON object body with a positive integer `amount` in minor currency units.
+
+Set up the inputs in an existing `development` environment of your collection:
+
+```bash
+noodle environment set ACCOUNT_ID demo-account --collection ./api --env development
+noodle secret set API_TOKEN --collection ./api --env development
+```
+
+The secret command prompts for the token without echoing it. Keep real tokens
+in secret storage, and select `development` when running the example.
+
+```yaml
+name: Create validated payment
+method: POST
+url: https://api.example.com/payments
+body_type: json
+body: '{"amount":1250,"currency":"USD"}'
+scripts:
+  pre: |-
+    const accountId = noodle.env.get("ACCOUNT_ID");
+    const token = noodle.env.get("API_TOKEN");
+    if (!accountId || !accountId.trim()) {
+      throw new Error("ACCOUNT_ID is required");
+    }
+    if (!token || !token.trim()) {
+      throw new Error("API_TOKEN is required");
+    }
+    const body = noodle.request.body.json();
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      throw new Error("Payment body must be a JSON object");
+    }
+    if (!Number.isSafeInteger(body.amount) || body.amount <= 0) {
+      throw new Error("amount must be a positive safe integer in minor units");
+    }
+    noodle.request.body.setJson({ ...body, account_id: accountId });
+    noodle.request.auth.setBearer(token);
+```
+
+Valid inputs add `account_id` to the outgoing body and set bearer authentication.
+The auth helper replaces the complete prepared auth configuration. Missing
+inputs or an invalid amount fail the script and skip HTTP. Error messages name
+the invalid field without including its value.
+
+This is a preparation check, not a substitute for server-side validation.
+If your saved request references a missing `$VARNAME`, substitution fails before
+the script runs; read a value with `noodle.env.get()` when you need a custom script error.
+
+## Hashing and signing
+
+Use this when the API expects a digest or HMAC signature. Configure
+`SIGNING_SECRET` in the selected environment through secret storage:
+
+```bash
+noodle secret set SIGNING_SECRET --collection ./api --env development
+```
+
+This example illustrates a **generic** protocol: hash the final UTF-8 body with
+SHA-256, and sign the string `timestamp + "." + body` with HMAC-SHA256. Both
+outputs are hexadecimal. Adapt the header names, encoding, and signed message
+to your server's specification.
+
+```yaml
+name: Create signed event
+method: POST
+url: https://api.example.com/events
+body_type: json
+body: '{"event":"deployment","service":"api"}'
+scripts:
+  pre: |-
+    const secret = noodle.env.get("SIGNING_SECRET");
+    if (!secret || !secret.trim()) {
+      throw new Error("SIGNING_SECRET is required");
+    }
+    const timestamp = new Date().toISOString();
+    noodle.request.body.setJson({ ...noodle.request.body.json(), created_at: timestamp });
+    const body = noodle.request.body.text();
+    noodle.request.headers.set("X-Timestamp", timestamp);
+    noodle.request.headers.set("X-Content-SHA256", noodle.crypto.sha256(body, "hex"));
+    noodle.request.headers.set(
+      "X-Signature",
+      noodle.crypto.hmacSha256(secret, timestamp + "." + body, "hex"),
+    );
+```
+
+The digest and signature each have 64 hexadecimal characters. The signature
+covers the timestamp and the final body, including `created_at`. Do all body
+mutations **before** computing either value, and do not reformat the body
+afterward. The server must verify the same bytes and implement its own timestamp
+freshness and replay rules. An unkeyed SHA-256 digest alone does not authenticate
+the request.
+
+These helpers hash UTF-8 strings. `noodle.request.body.text()` cannot read multipart,
+URL-encoded, or binary bodies, so this recipe uses a textual JSON body. This recipe reads the signing key from the selected environment; the sandbox
+has no filesystem access.
+
+## Repeatable test users
+
+Use a seed when a test API needs repeatable synthetic data. Apply the generated
+value directly because substitution has already happened:
+
+```yaml
+name: Create seeded test user
+method: POST
+url: https://api.example.com/users
+body_type: json
+body: '{}'
+scripts:
+  pre: |-
+    noodle.random.seed(42);
+    const user = {
+      id: noodle.random.uuid(),
+      name: noodle.random.name(),
+      email: noodle.random.exampleEmail(),
+      age: noodle.random.number({ min: 18, max: 80 }),
+    };
+    noodle.request.body.setJson(user);
+    noodle.run.set("test_user", user);
+```
+
+Sequences are isolated per invocation and reproducible within Faker 10.6.0.
+Relative dates also need an explicit ISO `refDate` with a timezone. Passwords
+are registered for redaction; other generated data remains visible. IDs and
+passwords have no security or uniqueness guarantee. See the
+[catalog and options](/docs/reference/script-api/#script-random-api).

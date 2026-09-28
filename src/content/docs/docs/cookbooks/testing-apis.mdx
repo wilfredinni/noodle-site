@@ -1,0 +1,201 @@
+---
+title: Testing APIs
+description: Test response contracts, JSON schemas, arrays, related fields, pagination, and shared collection rules.
+---
+
+Start with declarative assertions for simple checks. Use `tests` when the check
+needs conditions, loops, or comparisons between values. Copy a request into your
+collection and adapt `api.example.com` and the response fields to your API.
+Each recipe states the response shape it expects.
+
+Tests run after captures, post scripts, and assertions whenever a response
+exists. Inherited tests run **collection → outermost folder → nearest folder →
+request**. They can read the final prepared request, response, and RunScope,
+but cannot mutate state or make HTTP calls. See the
+[matcher reference](/docs/guides/scripted-tests/#matcher-reference) for supported checks.
+
+## Check a basic response contract
+
+Use assertions when an endpoint must return HTTP 200, JSON, and a response in
+under one second. This example expects a JSON body with `status: "ok"`:
+
+```yaml
+name: Check service health
+method: GET
+url: https://api.example.com/health
+assert:
+  - expression: status
+    operator: equals
+    value: 200
+  - expression: headers.Content-Type
+    operator: contains
+    value: application/json
+  - expression: body.status
+    operator: equals
+    value: ok
+  - expression: response.time
+    operator: lt
+    value: 1000
+```
+
+All four assertions must pass. Choose the timing budget for your environment;
+network latency contributes to response time. No script is needed for these checks.
+
+## Validate a JSON schema
+
+Use a schema when several fields must keep their types. This endpoint should
+return an object such as `{"id":7,"email":"reader@example.com","active":true}`:
+
+```yaml
+name: Validate a user response
+method: GET
+url: https://api.example.com/users/7
+tests: |-
+  test("user matches the response contract", () => {
+    expect(noodle.response.status).toBe(200);
+    expect(noodle.response.json()).toMatchSchema({
+      type: "object",
+      required: ["id", "email", "active"],
+      properties: {
+        id: { type: "integer", minimum: 1 },
+        email: { type: "string", format: "email" },
+        active: { type: "boolean" },
+      },
+    });
+  });
+```
+
+The test fails for missing required fields, invalid email formats, and incorrect
+types. Additional fields are allowed. Schema validation does not coerce `"7"`
+into the integer `7`; see [JSON Schema support](/docs/guides/scripted-tests/#json-schema-validation).
+
+## Check every item in an array
+
+Use a loop when all returned items must satisfy a condition. This endpoint
+should return a non-empty array of active users, each with a positive numeric ID:
+
+```yaml
+name: Check active users
+method: GET
+url: https://api.example.com/users?active=true
+tests: |-
+  test("every returned user is active", () => {
+    expect(noodle.response.status).toBe(200);
+    const users = noodle.response.json();
+    expect(Array.isArray(users)).toBe(true);
+    expect(users.length).toBeGreaterThan(0);
+    for (const user of users) {
+      expect(user.id).toBeGreaterThan(0);
+      expect(user.active).toBe(true);
+    }
+  });
+```
+
+The non-empty check prevents an empty response from passing without checking
+any users. Remove that check only if an empty result is valid for this endpoint.
+A failed matcher ends this test; other declared tests still run.
+
+## Compare related fields
+
+Use JavaScript when a response contains values that must agree. This example
+expects integer minor-unit amounts, such as
+`{"subtotal":1000,"tax":200,"total":1200}`:
+
+```yaml
+name: Check order totals
+method: GET
+url: https://api.example.com/orders/demo-order
+tests: |-
+  test("total equals subtotal plus tax", () => {
+    expect(noodle.response.status).toBe(200);
+    const order = noodle.response.json();
+    for (const amount of [order.subtotal, order.tax, order.total]) {
+      expect(Number.isSafeInteger(amount)).toBe(true);
+      expect(amount).toBeGreaterThanOrEqual(0);
+    }
+    expect(Number.isSafeInteger(order.subtotal + order.tax)).toBe(true);
+    expect(order.total).toBe(order.subtotal + order.tax);
+  });
+```
+
+Matching totals pass; a mismatch or non-integer amount fails. Adapt the formula
+if your API includes shipping, discounts, or other components.
+
+## Verify sorting and pagination
+
+Use related checks for a paginated list. This endpoint should return
+`{"page":2,"items":[{"price":10},{"price":20}]}`, with at most two items in
+ascending price order:
+
+```yaml
+name: Check a sorted product page
+method: GET
+url: https://api.example.com/products
+params:
+  - name: page
+    value: "2"
+  - name: limit
+    value: "2"
+  - name: sort
+    value: price
+tests: |-
+  test("response matches the requested page", () => {
+    expect(noodle.response.status).toBe(200);
+    const page = noodle.response.json();
+    expect(page.page).toBe(2);
+    expect(Array.isArray(page.items)).toBe(true);
+    expect(page.items.length).toBeLessThanOrEqual(2);
+  });
+  test("prices are in ascending order", () => {
+    const items = noodle.response.json().items;
+    expect(Array.isArray(items)).toBe(true);
+    for (let index = 0; index < items.length; index++) {
+      expect(Number.isFinite(items[index].price)).toBe(true);
+      if (index > 0) {
+        expect(items[index].price).toBeGreaterThanOrEqual(items[index - 1].price);
+      }
+    }
+  });
+```
+
+An empty page is allowed here. Equal prices pass. These checks validate the
+returned page; they do not fetch other pages or prove that the full dataset is
+complete. Use [request chaining](/docs/cookbooks/chaining-requests/) to fetch
+related resources before checking them.
+
+## Share checks across a folder
+
+Use inherited tests when every request in a folder shares a contract. Merge
+this block into `users/folder.yml` if all its endpoints return JSON on success:
+
+```yaml
+tests: |-
+  test("successful users responses contain JSON", () => {
+    if (noodle.response.status < 400) {
+      expect(noodle.response.headers.get("Content-Type")).toContain("application/json");
+      expect(noodle.response.json()).toBeDefined();
+    }
+  });
+```
+
+Collection tests run first, then ancestor folder tests, then request tests.
+Every block gets a fresh sandbox and runs once per request, including each
+dataset row. Add this only to folders with the stated contract; an empty 204
+response would fail its JSON check. Use collection `settings.yml` instead
+when the rule applies to the entire collection. For reuse across selected
+scopes, put the source in an [external JavaScript file](/docs/guides/pre-request-scripting/#external-javascript-files).
+
+## Read failures and run the checks
+
+Save the first recipe as `health.yml` and run it manually, in the F5 Runner, or
+from the CLI:
+
+```bash
+noodle request run health --collection ./api
+```
+
+Inspect **Response → Results** for assertion and test outcomes. Failed assertions,
+failed tests, or a top-level test error make automation fail. HTTP 400 or higher
+also fails the request, even if a conditional test returns early or a test
+expecting that status passes. Pre and transport failures leave tests unevaluated.
+See [CLI automation and CI](/docs/guides/automation/) for collection runs and JSON results.

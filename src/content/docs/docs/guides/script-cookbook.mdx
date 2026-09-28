@@ -1,358 +1,73 @@
 ---
-title: Script cookbook
-description: Copy practical inline pre/post scripts for test data, signing, conditional response handling, and persistence.
+title: Cookbooks
+description: Copy practical recipes for preparing requests, processing responses, testing APIs, and chaining requests.
 ---
 
-These recipes prepare requests and process completed responses. Start with
-[Scripting](/docs/guides/pre-request-scripting/) for the shared lifecycle.
-All Noodle APIs use the `noodle.` prefix; `console` and JavaScript built-ins
-remain global.
+Choose a cookbook for the task you want to complete. Each page contains
+copyable examples, the inputs they need, and the result to expect.
+
+| Cookbook | What you can do |
+| --- | --- |
+| [Preparing requests](/docs/cookbooks/preparing-requests/) | Generate test data, validate inputs, and sign requests with pre scripts |
+| [Processing responses](/docs/cookbooks/processing-responses/) | Transform values, save tokens, and compose post scripts |
+| [Testing APIs](/docs/cookbooks/testing-apis/) | Check response contracts, arrays, related fields, and shared rules |
+| [Chaining requests](/docs/cookbooks/chaining-requests/) | Pass values forward, call saved requests, and handle optional lookups |
 
 ## Before you start
 
-Copy a request into a `.yml` file in your collection, then adapt the example
-endpoint and fields to your API. All endpoints below use `api.example.com` as a
-placeholder. Scripts belong to individual requests; there is no collection-wide
-script or shared JavaScript context.
+Copy request examples into `.yml` files in an initialized collection. Replace
+`api.example.com` and its fields with your API, and configure any named
+environment values. Examples that belong in `settings.yml` or `folder.yml`
+identify the file explicitly. Review scripts before running them: they can read
+selected-environment secrets and send HTTP requests. Keep secrets out of logs.
 
-Prefer saved request fields and `$VARNAME` substitution for static values. Use
-[captures](/docs/guides/captures/) to save response
-values and [assertions](/docs/guides/assertions/)
-to check responses. You do not need a script for those jobs.
+Use saved request fields and variables for static values,
+[captures](/docs/guides/captures/) for direct extraction, and
+[assertions](/docs/guides/assertions/) for simple response checks.
+[Scripting](/docs/guides/pre-request-scripting/) explains authoring and lifecycle;
+the [Script API](/docs/reference/script-api/) documents methods and limits.
 
-Keep these execution rules in mind:
+The request lifecycle is **substitution → pre → HTTP → captures → post →
+assertions → tests**. All three script phases use the same inherited order:
+**collection → outermost folder → nearest folder → request**. Each block has
+isolated JavaScript locals; successful RunScope writes are visible to later
+blocks. See [inheritance and upgrade notes](/docs/guides/pre-request-scripting/#inherited-scripts-and-tests).
 
-- Environment and RunScope substitution happens **before** the script. Script
-  source itself is literal: read inputs with `noodle.env.get()` or `noodle.run.get()`.
-- Apply a newly generated value directly to the current request. `noodle.run.set()`
-  makes it available for substitution in later requests in the same run.
-- Each script runs in a fresh sandbox. Await saved or direct HTTP calls through
-  `noodle.runRequest` and `noodle.sendRequest` in pre/post. Raw fetch, imports,
-  filesystem access, timers, and background tasks are unavailable.
-- Pre failure discards its staged changes and skips HTTP. Post failure discards
-  only its staged RunScope/cookie changes; the response and captures survive,
-  and assertions still run. Request mutations never change saved YAML.
+## Preparing requests
 
-See the [API reference](/docs/reference/collection-format/#sandboxed-pre-request-script)
-for every supported method and resource limit. Review scripts before running
-them: `noodle.env.get()` can read secrets from the selected environment. Keep secret
-values out of log messages.
+- <a id="timestamps" href="/docs/cookbooks/preparing-requests/#timestamps">Timestamps</a>
+- <a id="expiration-windows-and-timezones" href="/docs/cookbooks/preparing-requests/#expiration-windows-and-timezones">Expiration windows and timezones</a>
+- <a id="identifiers-and-nonces" href="/docs/cookbooks/preparing-requests/#identifiers-and-nonces">Identifiers and nonces</a>
+- <a id="idempotency-keys" href="/docs/cookbooks/preparing-requests/#idempotency-keys">Idempotency keys</a>
+- <a id="dynamic-json-bodies" href="/docs/cookbooks/preparing-requests/#dynamic-json-bodies">Dynamic JSON bodies</a>
+- <a id="dynamic-query-parameters" href="/docs/cookbooks/preparing-requests/#dynamic-query-parameters">Dynamic query parameters</a>
+- <a id="validate-before-sending" href="/docs/cookbooks/preparing-requests/#validate-before-sending">Validate before sending</a>
+- <a id="hashing-and-signing" href="/docs/cookbooks/preparing-requests/#hashing-and-signing">Hashing and signing</a>
+- <a id="repeatable-test-users" href="/docs/cookbooks/preparing-requests/#repeatable-test-users">Repeatable test users</a>
 
-## Timestamps
+## Processing responses
 
-Use this when an API expects the current time in a header or event payload.
-This request needs no environment values and starts with a JSON object body.
+- <a id="process-a-response-conditionally" href="/docs/cookbooks/processing-responses/#process-a-response-conditionally">Process a response conditionally</a>
+- <a id="save-a-token-for-later-manual-sends" href="/docs/cookbooks/processing-responses/#save-a-token-for-later-manual-sends">Save a token for later manual sends</a>
+- <a id="transform-a-captured-value" href="/docs/cookbooks/processing-responses/#transform-a-captured-value">Transform a captured value</a>
+- <a id="clear-an-expired-session-cookie" href="/docs/cookbooks/processing-responses/#clear-an-expired-session-cookie">Clear an expired session cookie</a>
+- <a id="apply-a-shared-default-before-request-processing" href="/docs/cookbooks/processing-responses/#apply-a-shared-default-before-request-processing">Apply a shared default before request processing</a>
 
-```yaml
-name: Create timestamped event
-method: POST
-url: https://api.example.com/events
-body_type: json
-body: '{"event":"deployment"}'
-scripts:
-  pre: |-
-    const now = noodle.time.now();
-    const timestamp = noodle.time.iso(now);
-    const unixSeconds = noodle.time.unix(now);
-    noodle.request.headers.set("X-Timestamp", timestamp);
-    noodle.request.body.setJson({
-      ...noodle.request.body.json(),
-      created_at: timestamp,
-      timestamp: unixSeconds,
-    });
-```
+## Testing APIs
 
-The outgoing header and `created_at` field contain the same UTC ISO timestamp.
-The numeric `timestamp` field uses Unix **seconds**. The captured `now` value
-is already in milliseconds. These values use your machine's clock, so keep
-it synchronized if the server checks timestamp freshness.
+- <a id="check-a-basic-response-contract" href="/docs/cookbooks/testing-apis/#check-a-basic-response-contract">Check a basic response contract</a>
+- <a id="validate-a-json-schema" href="/docs/cookbooks/testing-apis/#validate-a-json-schema">Validate a JSON schema</a>
+- <a id="check-every-item-in-an-array" href="/docs/cookbooks/testing-apis/#check-every-item-in-an-array">Check every item in an array</a>
+- <a id="compare-related-fields" href="/docs/cookbooks/testing-apis/#compare-related-fields">Compare related fields</a>
+- <a id="verify-sorting-and-pagination" href="/docs/cookbooks/testing-apis/#verify-sorting-and-pagination">Verify sorting and pagination</a>
+- <a id="share-checks-across-a-folder" href="/docs/cookbooks/testing-apis/#share-checks-across-a-folder">Share checks across a folder</a>
 
-## Expiration windows and timezones
+## Chaining requests
 
-Use a shared instant to send an expiration window and inspect it in post.
-This recipe needs no environment values:
-
-```yaml
-name: Check timestamp window
-method: GET
-url: https://api.example.com/health
-scripts:
-  pre: |-
-    const now = noodle.time.now();
-    const expiresAt = noodle.time.add(now, 15, "minutes");
-    noodle.request.headers.set("X-Timestamp", noodle.time.iso(now));
-    noodle.request.headers.set("X-Expires-At", noodle.time.iso(expiresAt));
-    noodle.request.headers.set("X-Local-Time", noodle.time.format(now, "YYYY-MM-DD HH:mm:ss Z", {
-      timeZone: "America/Santiago",
-    }));
-    noodle.run.set("expiresAt", expiresAt);
-  post: |-
-    const remaining = noodle.time.diff(noodle.run.get("expiresAt"), noodle.time.now(), "seconds");
-    console.info("Expiration window remaining (seconds):", remaining);
-```
-
-The window is 15 elapsed minutes. `diff(a, b, unit)` returns signed `a - b`,
-so the log can be negative if the response arrives after expiration. Formatting
-defaults to UTC; the explicit timezone changes only `X-Local-Time`. A `days`
-duration is always 24 hours, even across daylight-saving changes. See the
-[time API](/docs/reference/script-api/#script-time-api) for ISO parsing,
-format tokens, and supported units.
-
-## Identifiers and nonces
-
-Use a request ID for correlation and a random nonce when your API requires one.
-This example generates a test UUID v4 and a separate 16-byte nonce without any
-environment inputs.
-
-```yaml
-name: Check health with a request ID
-method: GET
-url: https://api.example.com/health
-scripts:
-  pre: |-
-    const requestId = noodle.random.uuid();
-    noodle.request.headers.set("X-Request-ID", requestId);
-    noodle.request.headers.set("X-Nonce", noodle.crypto.randomBytes(16, "hex"));
-```
-
-`X-Request-ID` has the standard UUID v4 format and `X-Nonce` has 32 hexadecimal
-characters. Both are generated again on each send. The UUID is test data without a security
-or uniqueness guarantee. If your API accepts any
-opaque request ID, `noodle.crypto.randomBytes(16, "hex")` is enough by itself.
-`noodle.crypto.randomUUID()` is not part of Noodle's sandbox API.
-
-## Idempotency keys
-
-Use this for a **new operation** when the server supports an `Idempotency-Key`
-header. The script generates a random key only when the prepared request does
-not already contain one.
-
-```yaml
-name: Create order with an idempotency key
-method: POST
-url: https://api.example.com/orders
-body_type: json
-body: '{"product_id":"demo-product","quantity":1}'
-scripts:
-  pre: |-
-    if (!noodle.request.headers.has("Idempotency-Key")) {
-      noodle.request.headers.set("Idempotency-Key", noodle.crypto.randomBytes(16, "hex"));
-    }
-```
-
-Without a saved key, every send gets a new 32-character hexadecimal key and
-represents a new operation. This script does not make repeated manual sends
-safe retries automatically. For retries of the **same** operation, configure
-the same non-empty header value in your saved request or folder headers; the
-script preserves it. Use a different key for a different operation and follow
-your server's rules for expiration and payload matching.
-
-## Dynamic JSON bodies
-
-Use this to create fresh test data and remove a local fixture field before
-sending. The saved body must be a JSON object; no environment inputs are needed.
-
-```yaml
-name: Create customer with fresh test data
-method: POST
-url: https://api.example.com/customers
-body_type: json
-body: '{"name":"Cookbook Customer","_fixture":"customer-smoke"}'
-scripts:
-  pre: |-
-    const body = noodle.request.body.json();
-    delete body._fixture;
-    body.email = "cookbook+" + noodle.crypto.randomBytes(8, "hex") + "@example.com";
-    body.created_at = new Date().toISOString();
-    noodle.request.body.setJson(body);
-```
-
-The outgoing body retains `name`, adds a generated email and timestamp, and
-omits `_fixture`. The saved YAML remains unchanged. Use synthetic data like this
-against your test API, and clean up created resources as your workflow requires.
-
-## Dynamic query parameters
-
-Use this to fetch events from a rolling time window instead of updating saved
-dates by hand. The optional environment value `LOOKBACK_HOURS` defaults to `24`.
-If supplied, it must be a positive number that produces a valid start date.
-
-```yaml
-name: List recent events
-method: GET
-url: https://api.example.com/events
-scripts:
-  pre: |-
-    const hours = Number(noodle.env.get("LOOKBACK_HOURS") ?? "24");
-    if (!Number.isFinite(hours) || hours <= 0) {
-      throw new Error("LOOKBACK_HOURS must be a positive number");
-    }
-    const to = noodle.time.now();
-    const from = noodle.time.subtract(to, hours, "hours");
-    noodle.request.params.set("from", noodle.time.iso(from));
-    noodle.request.params.set("to", noodle.time.iso(to));
-    noodle.request.params.append("tag", "deployment");
-    noodle.request.params.append("tag", "release");
-```
-
-The request sends `from` and `to` in UTC, plus two `tag` query values. Noodle
-handles query encoding. `set()` replaces enabled parameters with the same
-case-sensitive name; `append()` adds another enabled value. Disabled entries
-are preserved. Remove the tag lines if your API does not accept repeated tags.
-
-## Validate before sending
-
-Use this when missing credentials or invalid input should stop a request
-locally. This example requires environment values `ACCOUNT_ID` and `API_TOKEN`,
-and a JSON object body with a positive integer `amount` in minor currency units.
-
-Set up the inputs in an existing `development` environment of your collection:
-
-```bash
-noodle environment set ACCOUNT_ID demo-account --collection ./api --env development
-noodle secret set API_TOKEN --collection ./api --env development
-```
-
-The secret command prompts for the token without echoing it. Keep real tokens
-in secret storage, and select `development` when running the example.
-
-```yaml
-name: Create validated payment
-method: POST
-url: https://api.example.com/payments
-body_type: json
-body: '{"amount":1250,"currency":"USD"}'
-scripts:
-  pre: |-
-    const accountId = noodle.env.get("ACCOUNT_ID");
-    const token = noodle.env.get("API_TOKEN");
-    if (!accountId || !accountId.trim()) {
-      throw new Error("ACCOUNT_ID is required");
-    }
-    if (!token || !token.trim()) {
-      throw new Error("API_TOKEN is required");
-    }
-    const body = noodle.request.body.json();
-    if (!body || typeof body !== "object" || Array.isArray(body)) {
-      throw new Error("Payment body must be a JSON object");
-    }
-    if (!Number.isSafeInteger(body.amount) || body.amount <= 0) {
-      throw new Error("amount must be a positive safe integer in minor units");
-    }
-    noodle.request.body.setJson({ ...body, account_id: accountId });
-    noodle.request.auth.setBearer(token);
-```
-
-Valid inputs add `account_id` to the outgoing body and set bearer authentication.
-The auth helper replaces the complete prepared auth configuration. Missing
-inputs or an invalid amount fail the script and skip HTTP. Error messages name
-the invalid field without including its value.
-
-This is a preparation check, not a substitute for server-side validation.
-If your saved request references a missing `$VARNAME`, substitution fails before
-the script runs; read a value with `noodle.env.get()` when you need a custom script error.
-
-## Hashing and signing
-
-Use this when the API expects a digest or HMAC signature. Configure
-`SIGNING_SECRET` in the selected environment through secret storage:
-
-```bash
-noodle secret set SIGNING_SECRET --collection ./api --env development
-```
-
-This example illustrates a **generic** protocol: hash the final UTF-8 body with
-SHA-256, and sign the string `timestamp + "." + body` with HMAC-SHA256. Both
-outputs are hexadecimal. Adapt the header names, encoding, and signed message
-to your server's specification.
-
-```yaml
-name: Create signed event
-method: POST
-url: https://api.example.com/events
-body_type: json
-body: '{"event":"deployment","service":"api"}'
-scripts:
-  pre: |-
-    const secret = noodle.env.get("SIGNING_SECRET");
-    if (!secret || !secret.trim()) {
-      throw new Error("SIGNING_SECRET is required");
-    }
-    const timestamp = new Date().toISOString();
-    noodle.request.body.setJson({ ...noodle.request.body.json(), created_at: timestamp });
-    const body = noodle.request.body.text();
-    noodle.request.headers.set("X-Timestamp", timestamp);
-    noodle.request.headers.set("X-Content-SHA256", noodle.crypto.sha256(body, "hex"));
-    noodle.request.headers.set(
-      "X-Signature",
-      noodle.crypto.hmacSha256(secret, timestamp + "." + body, "hex"),
-    );
-```
-
-The digest and signature each have 64 hexadecimal characters. The signature
-covers the timestamp and the final body, including `created_at`. Do all body
-mutations **before** computing either value, and do not reformat the body
-afterward. The server must verify the same bytes and implement its own timestamp
-freshness and replay rules. An unkeyed SHA-256 digest alone does not authenticate
-the request.
-
-These helpers hash UTF-8 strings. `noodle.request.body.text()` cannot read multipart,
-URL-encoded, or binary bodies, so this recipe uses a textual JSON body. Scripts
-cannot fetch signing keys or access files.
-
-## Share data across requests
-
-Use this when several requests in one collection run need the same generated
-test data. This two-request workflow creates a customer, then looks it up by
-email. It needs no environment inputs. Put both files in your collection and
-ensure **Create customer** precedes **Find customer** in collection order.
-
-Save the first request as `customers/create.yml`:
-
-```yaml
-name: Create customer
-method: POST
-url: https://api.example.com/customers
-body_type: json
-body: '{"name":"Cookbook Customer"}'
-scripts:
-  pre: |-
-    const email = "cookbook+" + noodle.crypto.randomBytes(8, "hex") + "@example.com";
-    noodle.run.set("customer_email", email);
-    noodle.request.body.setJson({ ...noodle.request.body.json(), email });
-```
-
-The first request sets the shared value and writes it directly into its body.
-Save the later request as `customers/find.yml`. It can use ordinary substitution:
-
-```yaml
-name: Find customer
-method: GET
-url: https://api.example.com/customers
-params:
-  - name: email
-    value: $customer_email
-```
-
-Run them together with the CLI or the TUI Runner:
-
-```bash
-noodle collection run ./api customers/create customers/find
-```
-
-Selected requests execute in collection order. The second request sends the same
-email as the first. `noodle.run.get("customer_email")` reads it from a later script;
-`noodle.run.unset("customer_email")` removes it from the transient scope.
-
-`noodle.run.set()` commits when the script succeeds, before HTTP. The email remains
-available even if customer creation later fails, so add suitable assertions and
-use `--fail-fast` if later requests depend on a successful creation.
-
-The value disappears when the collection run ends. Separate manual sends and
-`request run` calls have isolated scopes, so they cannot share this value. Do
-not put `$customer_email` in the first request: its substitution would run before
-the script creates the variable. Use a [capture](/docs/guides/captures/)
-when you need a server-generated customer ID instead.
+- <a id="share-data-across-requests" href="/docs/cookbooks/chaining-requests/#share-data-across-requests">Share data across requests</a>
+- <a id="saved-requests-and-captured-values" href="/docs/cookbooks/chaining-requests/#saved-requests-and-captured-values">Saved requests and captured values</a>
+- <a id="direct-http-with-fallback" href="/docs/cookbooks/chaining-requests/#direct-http-with-fallback">Direct HTTP with fallback</a>
+- <a id="create-a-resource-and-fetch-it" href="/docs/cookbooks/chaining-requests/#create-a-resource-and-fetch-it">Create a resource and fetch it</a>
 
 ## Inspect results
 
@@ -364,141 +79,3 @@ diagnostics and logs.
 Script source, capture results, and RunScope values stay excluded, while
 successful request snapshots reflect prepared mutations. Automation does not
 create history.
-
-## Repeatable test users
-
-Use a seed when a test API needs repeatable synthetic data. Apply the generated
-value directly because substitution has already happened:
-
-```yaml
-name: Create seeded test user
-method: POST
-url: https://api.example.com/users
-body_type: json
-body: '{}'
-scripts:
-  pre: |-
-    noodle.random.seed(42);
-    const user = {
-      id: noodle.random.uuid(),
-      name: noodle.random.name(),
-      email: noodle.random.exampleEmail(),
-      age: noodle.random.number({ min: 18, max: 80 }),
-    };
-    noodle.request.body.setJson(user);
-    noodle.run.set("test_user", user);
-```
-
-Sequences are isolated per invocation and reproducible within Faker 10.6.0.
-Relative dates also need an explicit ISO `refDate` with a timezone. Passwords
-are registered for redaction; other generated data remains visible. IDs and
-passwords have no security or uniqueness guarantee. See the
-[catalog and options](/docs/reference/script-api/#script-random-api).
-
-## Process a response conditionally
-
-Prefer a capture for unconditional extraction. Use post when extraction depends
-on the completed response:
-
-```yaml
-name: Create customer and retain its ID
-method: POST
-url: https://api.example.com/customers
-body_type: json
-body: '{"name":"Cookbook Customer"}'
-scripts:
-  post: |-
-    if (noodle.response.status === 201) {
-      noodle.run.set("customer_id", noodle.response.json().id);
-      console.info("created customer");
-    }
-```
-
-Later requests in the same collection run can use `$customer_id`. Post runs
-after captures and before assertions, including HTTP/capture failures, and
-cannot mutate the request. Text and JSON readers have a 5 MiB UTF-8 cap;
-extracted RunScope values retain the ordinary bridge limits.
-
-When enabled and available, post can also use `noodle.cookies.get(name)`,
-`set({ name, value })`, and `delete(name)`. These operations are scoped to the
-final URL; cookies are host-only and `domain` is rejected. Cookie and RunScope
-changes commit together only after success. `sendCookies: false` removes the
-capability but still processes response Set-Cookie.
-
-## Save a token for later manual sends
-
-Use explicit secret persistence with an existing selected environment:
-
-```yaml
-name: Save returned access token
-method: POST
-url: https://api.example.com/session
-body_type: json
-body: '{"account":"demo"}'
-scripts:
-  post: |-
-    if (noodle.response.status === 200) {
-      noodle.run.set("ACCESS_TOKEN", noodle.response.json().access_token, {
-        persist: "secret",
-      });
-    }
-```
-
-Manual sends and `request run --env development` save to the OS vault and keep
-only a blank secret declaration in the environment file. Collection runs and
-the Runner keep it transient and report suppression. There is no plaintext
-fallback. Use `persist: "environment"` only for intentionally public values.
-Both phases support persistent unset; secret unset removes the vault value and
-declaration. Durable ordering is pre, capture, post; storage failures appear in
-script diagnostics.
-
-## Saved requests and captured values
-
-Create `auth/login.yml` for your API's login endpoint, then use this pre script
-on a profile request. The child runs its scripts, captures, assertions, and tests.
-
-```yaml
-scripts:
-  pre: |-
-    const login = await noodle.runRequest("auth/login");
-    const token = login.json().token;
-    noodle.run.set("TOKEN", token);
-    noodle.request.headers.set("Authorization", `Bearer ${token}`);
-```
-
-Saved child captures and writes are readable with `noodle.run.get`. Later child
-calls see these and the parent's staged values. Failed children roll back their
-variables; a failed parent rolls back the combined variables. Nested persistence
-is transient. On a manual send, the parent may explicitly persist with
-`noodle.run.set("TOKEN", token, { persist: "secret" })`. Collection runs suppress
-persistence. HTTP and cookie effects cannot be rolled back.
-
-## Direct HTTP with fallback
-
-```yaml
-scripts:
-  pre: |-
-    try {
-      const profile = await noodle.sendRequest({
-        url: "https://api.example.com/me",
-        headers: { Authorization: `Bearer ${noodle.run.get("TOKEN")}` },
-        timeout: 5000,
-      });
-      noodle.run.set("USER_ID", profile.json().id);
-    } catch (error) {
-      if (!error.response || error.response.status !== 404) throw error;
-      noodle.run.set("USER_ID", "guest");
-    }
-    noodle.request.headers.set("X-User-ID", String(noodle.run.get("USER_ID")));
-```
-
-Direct values are literal, with no substitution or inherited parent credentials.
-For JSON uploads, set `method: "POST"`, `body: JSON.stringify(value)`, and
-`headers: { "Content-Type": "application/json" }`. Both call APIs throw on HTTP
-status 400 or higher, validation, or transport failures; saved calls also throw
-on failed execution diagnostics. Errors expose response and diagnostics when
-available. Caught failures remain visible in Results without failing the parent.
-
-Await calls sequentially: one outstanding call per script, ten calls per
-top-level request, four nested levels, and a 30-second ancestor-bounded wall
-deadline. See [the full contract](/docs/reference/script-api/#async-scripts-and-request-chaining).

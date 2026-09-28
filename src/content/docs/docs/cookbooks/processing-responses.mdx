@@ -1,0 +1,175 @@
+---
+title: Processing responses
+description: Conditionally retain response values, save tokens, manage sessions, and share post-response processing.
+---
+
+Use `scripts.post` when response handling needs a condition or transformation.
+For direct extraction, start with [captures](/docs/guides/captures/). Copy each
+request into your collection and adapt the `api.example.com` endpoint and fields.
+
+Captures commit before post. Inherited post blocks run **collection → outermost
+folder → nearest folder → request**, then assertions and tests run. Each block
+has its own sandbox, and successful RunScope writes reach later blocks. A failed
+post block rolls back only its staged changes; later post blocks, assertions,
+and tests still run. Post cannot change the prepared request or response body.
+
+See [inherited execution order](/docs/guides/pre-request-scripting/#inherited-scripts-and-tests)
+for the migration from the reversed post order in 0.9.4 and 0.9.5.
+
+## Process a response conditionally
+
+Prefer a capture for unconditional extraction. Use post when extraction depends
+on the completed response:
+
+```yaml
+name: Create customer and retain its ID
+method: POST
+url: https://api.example.com/customers
+body_type: json
+body: '{"name":"Cookbook Customer"}'
+scripts:
+  post: |-
+    if (noodle.response.status === 201) {
+      noodle.run.set("customer_id", noodle.response.json().id);
+      console.info("created customer");
+    }
+```
+
+Later requests in the same collection run can use `$customer_id`. Post runs
+after captures and before assertions, including HTTP/capture failures, and
+cannot mutate the request. Text and JSON readers have a 5 MiB UTF-8 cap;
+extracted RunScope values retain the ordinary bridge limits.
+
+When enabled and available, post can also use `noodle.cookies.get(name)`,
+`set({ name, value })`, and `delete(name)`. These operations are scoped to the
+final URL; cookies are host-only and `domain` is rejected. Cookie and RunScope
+changes commit together only after success. `sendCookies: false` removes the
+capability but still processes response Set-Cookie.
+
+## Save a token for later manual sends
+
+Use explicit secret persistence when saving depends on the response status.
+Select an existing environment, and adapt the login payload to your API.
+If extraction is unconditional, a [secret capture](/docs/guides/captures/#choose-how-long-to-keep-a-value)
+already handles persistence without a script:
+
+```yaml
+name: Save returned access token
+method: POST
+url: https://api.example.com/session
+body_type: json
+body: '{"account":"demo"}'
+scripts:
+  post: |-
+    if (noodle.response.status === 200) {
+      noodle.run.set("ACCESS_TOKEN", noodle.response.json().access_token, {
+        persist: "secret",
+      });
+    }
+```
+
+Manual sends and `request run --env development` save to the OS vault and keep
+only a blank secret declaration in the environment file. Collection runs and
+the Runner keep it transient and report suppression. There is no plaintext
+fallback. Use `persist: "environment"` only for intentionally public values.
+Both phases support persistent unset; secret unset removes the vault value and
+declaration. Durable ordering is pre, capture, post; storage failures appear in
+script diagnostics.
+
+## Transform a captured value
+
+Use post to normalize a value that later requests need. This endpoint should
+return a string such as `{"region":"  EU-WEST  "}`. Capture the raw value first:
+
+```yaml
+name: Normalize an account region
+method: GET
+url: https://api.example.com/account
+capture:
+  raw_region:
+    value: body.region
+scripts:
+  post: |-
+    const region = noodle.run.get("raw_region");
+    if (typeof region !== "string" || !region.trim()) {
+      throw new Error("region must be a non-empty string");
+    }
+    noodle.run.set("region", region.trim().toLowerCase());
+```
+
+Later requests in the same collection run can use `$region`, which is `eu-west`
+for this response. `$raw_region` retains the original value. The response body
+is unchanged. Use a scripted test with `noodle.run.get("region")` to check the
+new value in this request: declarative assertion expectations were substituted
+before post ran.
+
+## Clear an expired session cookie
+
+Use this only when your API treats HTTP 401 as an expired session and the cookie
+jar is enabled and available. Replace `session` with the cookie name your API uses:
+
+```yaml
+name: Check a session
+method: GET
+url: https://api.example.com/me
+scripts:
+  post: |-
+    if (noodle.response.status === 401) {
+      noodle.cookies.delete("session");
+    }
+```
+
+On 401, the successful post block removes the named cookie for the final URL.
+Other statuses leave it untouched. The 401 still fails the request; deleting a
+cookie does not turn an HTTP failure into success. `sendCookies: false` removes
+the script cookie capability. See [cookie API constraints](/docs/reference/script-api/#cookies).
+
+## Apply a shared default before request processing
+
+Use a collection post block to reset a value, then let a request replace it
+after a successful creation. Merge this into collection `settings.yml`:
+
+```yaml
+scripts:
+  post: |-
+    noodle.run.set("created_resource_id", null);
+```
+
+Save this request as `customers/create.yml`. The API should return HTTP 201
+with a JSON `id`:
+
+```yaml
+name: Create a customer with a shared default
+method: POST
+url: https://api.example.com/customers
+body_type: json
+body: '{"name":"Cookbook Customer"}'
+scripts:
+  post: |-
+    if (noodle.response.status === 201) {
+      noodle.run.set("created_resource_id", noodle.response.json().id);
+    }
+tests: |-
+  test("request post replaces the collection default", () => {
+    expect(noodle.response.status).toBe(201);
+    expect(noodle.run.get("created_resource_id")).toBeDefined();
+    expect(noodle.run.get("created_resource_id")).not.toBeNull();
+    expect(noodle.run.get("created_resource_id")).toEqual(noodle.response.json().id);
+  });
+```
+
+The collection post sets `null` first. Ancestor folder posts, if present, run
+next from outermost to nearest; the request post runs last. For `{"id":7}`,
+the final RunScope value is `7`, and the test passes. The most specific
+successful write wins for the same key. A failed block discards only its own
+writes and leaves earlier successful values intact.
+
+The default runs after every completed response, not just this request, so use
+it only when that reset is intended across the collection. A folder post can
+limit the behavior to one workflow. Later pre scripts can still read the
+previous response's ID before their own HTTP/post phase resets it.
+
+In **0.9.4 and 0.9.5**, inherited post blocks ran in reverse order, so the
+collection default would overwrite the request's value. Current pre, post, and
+test phases all use collection-to-request order. The TUI's **Ctrl+Alt+R** on a
+script tab shows the active phase's execution order.
