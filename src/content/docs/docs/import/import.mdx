@@ -19,7 +19,10 @@ collection; the CLI can create the imported collection directly.
 The current collection reloads after a successful import. A new collection is
 saved in a folder named from the source collection and added to **Ctrl+O**.
 Existing destination files are protected: resolve any reported path conflicts
-before trying again.
+before trying again. Imports that retain scripts or tests require a new
+collection, even when the scripts belong only to a folder or request. Current
+collection destinations and existing CLI target directories are rejected before
+any writes in that case.
 
 ![Choosing a collection source in the import overlay](../../../../assets/import-overlay.png)
 
@@ -69,8 +72,9 @@ noodle import ./postman_collection.json --format postman
 ```
 
 Noodle preserves supported requests, folders, auth, headers, query parameters,
-body types, and collection variables. Pre-request scripts, post-response
-scripts, and tests are not converted; warnings identify the item and phase.
+body types, and collection variables. Compatible pre-request events become
+collection, folder, or request pre scripts. Compatible request test events become
+Noodle tests; collection and folder test events remain unconverted with warnings.
 OAuth 1.0a and OAuth 2.0 configuration map to Noodle's matching auth types;
 review imported signing methods, grant types, endpoints, and token placement.
 
@@ -83,19 +87,50 @@ noodle import ./insomnia-export.json --format insomnia
 Insomnia v4 and v5 JSON exports preserve supported workspaces, request groups,
 requests, environments, headers, parameters, body types, and auth. Cyclic
 request groups are skipped. Script warnings identify unconverted workspace,
-folder, and request hooks without exposing script source.
+folder, and request hooks without exposing script source. Compatible request
+`preRequestScript` and `afterResponseScript` become pre and post scripts; workspace
+or group hooks and standalone test resources remain unconverted.
 Supported OAuth 1.0a and OAuth 2.0 fields map to Noodle's matching auth types.
+
+## Script compatibility
+
+Source must already use supported Noodle APIs or a conservative subset of
+JavaScript built-ins. Import parses the source, resolves local identifiers,
+checks phase-appropriate API members, and compiles accepted source in the same
+QuickJS wrapper used for execution. It copies compatible source literally;
+import never executes scripts or loads referenced files or packages.
+
+For example, this pre-request source can be preserved:
+
+```javascript
+const stamp = String(Date.now());
+noodle.request.headers.set("X-Time", stamp);
+```
+
+Noodle does not translate `pm.*`, `postman.*`, `insomnia.*`, plugin `context`,
+`require()`, or module imports. Syntax errors, unsupported globals, indirect or
+dynamic access, API aliases, reflection, and async source remain unconverted.
+Duplicate Postman phases, disabled events, non-JavaScript event types, and
+external/package sources also produce warnings. Some valid Noodle scripts need
+manual review because import checks are deliberately narrower than runtime
+capabilities.
 
 ## Script warnings
 
-Postman and Insomnia scripts use foreign APIs and are not converted into Noodle
-scripts or tests. CLI output reports each warning; `noodle import ... --json`
-includes `data.warnings` with the source format, item path, phase, code, and
-message. The TUI summarizes affected items after import. Use **Ctrl+P → Show
-Last Notification** to read and scroll the message after it disappears.
-Warnings do not prevent supported requests from importing. Review and recreate
-required behavior with Noodle's [scripting APIs](/docs/guides/pre-request-scripting/)
-before running the imported collection.
+CLI output reports omitted scripts; `noodle import ... --json` includes ordered
+`data.warnings` with the source format, item path, original phase, code, message,
+`unsupportedGlobals`, and `reason`. Reasons are `syntax`, `unsupported-globals`,
+`unverifiable`, or `unsupported-placement`. Warnings exclude script source and
+literal argument values.
+
+The TUI opens a scrollable notification with a bounded preview of affected items,
+unsupported names or reasons, and an omitted count before asking to open the new
+collection. Use **Ctrl+P → Show Last Notification** to revisit the message.
+
+Warnings do not prevent supported requests and compatible hooks from importing.
+Review and recreate required omitted behavior with Noodle's
+[scripting APIs](/docs/guides/pre-request-scripting/) before running the imported
+collection. Imports that retain scripts or tests require a new collection.
 
 ## After import
 

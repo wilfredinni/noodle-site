@@ -208,8 +208,18 @@ tests, and auth flows. Supported imports preserve XML bodies from OpenAPI,
 Swagger, Postman, and Insomnia sources. Postman dynamic, dotted, and hyphenated
 placeholders are rejected before Noodle writes an import. Noodle supports
 inline and external scripts and tests at request, folder, and collection level.
-Postman and Insomnia imports report unconverted script warnings with item and
-phase details, without copying foreign source or translating provider APIs.
+Postman and Insomnia imports preserve compatible source already using supported
+Noodle APIs or conservative JavaScript built-ins, without translating provider
+APIs. Imports retaining scripts or tests require a new collection. Ordered
+warnings identify omitted hooks with item and phase details, unsupported global
+names, and compatibility or placement reasons, without exposing omitted source
+or literal values. Review those warnings before running the collection.
+
+The bundled skill includes a generated scripting API reference with every member,
+phase capability, and fixed runtime limit, alongside `noodle-script.d.ts` for
+external editors. When bundled references do not resolve a troubleshooting
+question, agents can consult the [online documentation index](/llms.txt) and
+check `noodle --version` before applying guidance for a newer release.
 
 ### Export
 
