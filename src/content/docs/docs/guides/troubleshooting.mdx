@@ -91,8 +91,13 @@ so review its reported changes before committing.
 
 ## Cookie storage is unavailable or plaintext
 
-`cookies plaintext` means the vault was unavailable and the jar uses a protected
-plaintext file. Fix the keyring access, restart Noodle, and check the warning.
+`cookies plaintext` on macOS/Linux means the vault was unavailable and the jar
+uses a protected plaintext file. Fix keyring access, restart Noodle, and check the
+warning. Windows requires vault-backed encryption and never uses plaintext
+fallback. Fix Credential Manager access before retrying. An existing plaintext
+jar on Windows requires an explicit reset, which backs up the original file.
+Malformed stored encryption keys are preserved rather than replaced; investigate
+the vault before resetting storage.
 For other storage errors, open **Cookies** and retry with **r** after fixing the
 reported cause. Resetting unavailable storage from the jar view creates a backup;
 use it only if you intend to discard the current jar's usable session state.

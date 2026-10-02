@@ -1,0 +1,110 @@
+---
+title: "Noodle 0.9.7: Windows Beta and CLI Response Details"
+description: Install Windows x64 beta binaries, inspect redacted CLI response details, and send requests directly from script editors.
+date: 2026-10-02
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+Noodle 0.9.7 brings Windows x64 beta binaries into the release alongside macOS
+and Linux. Single-request CLI runs can show the response details you choose,
+and the Send button works while a request script or test editor has focus.
+
+## Windows x64 joins the release
+
+Install from PowerShell 5.1 or later:
+
+```powershell
+irm https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.ps1 | iex
+```
+
+The installer verifies the release checksum, installs to
+`%LOCALAPPDATA%\Programs\Noodle\noodle.exe`, and adds that directory to your
+user PATH. Open a new terminal after installation. Environment overrides let you
+pin a version, choose another destination, or skip the PATH change.
+
+Windows support handles native paths and filename rules, Unicode clipboard
+copying, batch editor launchers, and directory junctions for installed agent
+skills. Logical request IDs still use forward slashes.
+
+This is a beta: Windows ARM64 is unsupported, executables are unsigned, and
+browser downloads may trigger Windows trust prompts. Ordinary-account
+interactive terminal testing remains pending. Manually dispatched CI runs also
+provide a beta ZIP with checksums and build information for prerelease testing.
+
+See [Installation](/docs/getting-started/installation/#windows-x64-beta) for
+commands, overrides, and platform details.
+
+## Apply Windows updates after closing Noodle
+
+Run `noodle update` as usual. On Windows, Noodle stages the verified executable
+and asks you to restart. A helper applies the replacement after Noodle exits,
+verifies the installed version, and refreshes an existing managed agent skill.
+
+JSON output reports `restart_required` and a diagnostic `log_path`. If replacement
+fails, inspect that log, close Noodle, and retry the update or rerun the PowerShell
+installer. The updater retains rollback handling for failed replacements.
+
+Release checksums and the update manifest include the Windows executable. The
+manifest is generated after release publication, once the binaries are available.
+
+## Choose the CLI response details you need
+
+`noodle request run` keeps its summary by default. Add any combination of these
+flags for a closer look:
+
+```bash
+noodle request run users/list --collection ./api --body --headers --cookies
+```
+
+`--body` prints the redacted text body, `--headers` adds redacted response headers,
+and `--cookies` shows received-cookie metadata with masked values. Known secrets
+and sensitive headers are redacted, and terminal control characters are escaped.
+Unknown server payload data remains visible.
+
+Binary bodies stay metadata-only; use `--output` to save the original bytes.
+The flags do not change request success criteria or the single `--json` envelope.
+JSON response results now include received-cookie metadata with masked values
+when cookies are present.
+
+See [CLI response inspection](/docs/guides/automation/#inspect-a-response-in-the-terminal)
+for the workflow and [request run](/docs/getting-started/cli/#request-run) for
+all options.
+
+## Keep the request editor open while sending
+
+Click **Send** while editing a request's **Pre Script**, **Post Script**, or
+**Tests**. Noodle commits the current draft and sends, preserving the active
+tab and request focus. **Ctrl+Return** remains available from those editors.
+This keeps the edit, send, and inspect loop in the same place.
+
+## Preserve shared storage and validate destinations
+
+Concurrent first-time requests now coordinate collection ID initialization so
+they share one stored identity without overwriting collection settings. Cookie
+jars also coordinate encryption-key initialization across processes and preserve
+malformed stored keys instead of replacing them.
+
+Windows cookie storage requires vault-backed encryption. Plaintext jars are
+unavailable until an explicit reset that backs up the original; failed storage
+replacement preserves the original file. See [Cookies](/docs/guides/cookies/)
+and [storage troubleshooting](/docs/guides/troubleshooting/#cookie-storage-is-unavailable-or-plaintext)
+before resetting a jar.
+
+Imports reject paths escaping through symlinks or Windows junctions before
+writing files. Exports reject destinations whose parent path contains a file.
+
+Windows CI now includes the applicable suite, native Credential Manager tests,
+standalone scripting and download checks, and independent native-addon rebuilds.
+Release validation checks downloaded Windows artifacts before publication.
+The maintained `noodle-use` and `noodle-dev` skills, installation and CLI guides,
+and in-app tips have been synchronized with these changes.
+
+Read the [full changelog](https://github.com/wilfredinni/noodle/blob/main/CHANGELOG.md)
+for the release details.

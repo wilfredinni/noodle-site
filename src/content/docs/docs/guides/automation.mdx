@@ -115,6 +115,22 @@ Press **F5** to select requests, configure a run, and inspect results in the [Co
 
 Use [Scripting](/docs/guides/pre-request-scripting/) for pre-request preparation and post-response processing. Inline scripts and collection-relative JavaScript files run in the TUI and CLI. Sources for every selected request are checked before HTTP; invalid or missing sources are configuration failures (exit 2). Collection runs keep script writes transient.
 
+## Inspect a response in the terminal
+
+Single-request runs show a summary by default. Add only the response details you
+need:
+
+```bash
+noodle request run users/get --collection ./api --body --headers --cookies
+```
+
+The sections use the existing redacted response result: known secrets and
+sensitive headers are masked, received-cookie values are always hidden, and
+terminal control characters are escaped. Unknown server payload fields remain
+visible. Binary bodies show a reminder to use `--output`. These flags do not
+change success criteria or the single `--json` envelope; JSON response results
+also include received-cookie metadata with masked values when present.
+
 ## Download a response
 
 ```bash
@@ -289,7 +305,7 @@ jobs:
 
       - name: Install Noodle
         env:
-          NOODLE_VERSION: v0.9.6
+          NOODLE_VERSION: v0.9.7
         run: |
           curl -fsSL "https://raw.githubusercontent.com/wilfredinni/noodle/$NOODLE_VERSION/scripts/install.sh" -o "$RUNNER_TEMP/noodle-install.sh"
           bash "$RUNNER_TEMP/noodle-install.sh"
@@ -306,7 +322,7 @@ jobs:
           noodle collection run ./my-api --env ci --fail-fast
 ```
 
-The installer pins Noodle to `v0.9.6` and verifies its binary checksum. Change
+The installer pins Noodle to `v0.9.7` and verifies its binary checksum. Change
 that version deliberately when upgrading the workflow. The Actions secret
 supplies the declared `API_TOKEN` through the process environment, so this
 example needs no interactive keyring. Cookies are disabled because this bearer

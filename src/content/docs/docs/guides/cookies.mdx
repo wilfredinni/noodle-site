@@ -55,10 +55,12 @@ to shared logs. Clearing removes every cookie from this collection's jar.
 
 ## Storage and unavailable jars
 
-Jars use OS-vault-backed encryption under `~/.config/noodle/cookies/`. If the
-vault is unavailable, Noodle can use a mode-`0600` plaintext fallback and displays
-a persistent warning. Other storage failures can make the jar unavailable;
-request runs can continue without jar cookies and report the warning.
+Jars use OS-vault-backed encryption under `~/.config/noodle/cookies/`. On
+macOS/Linux, an unavailable vault can trigger a mode-`0600` plaintext fallback
+with a persistent warning. Windows requires vault-backed encryption and rejects
+plaintext jars. If the key cannot be loaded or stored, the jar is unavailable;
+requests can continue without jar cookies and report the warning. Noodle preserves
+malformed stored keys instead of replacing them.
 
 After fixing storage, open the jar and press **r** to retry. Use
 [Troubleshooting](/docs/guides/troubleshooting/#cookie-storage-is-unavailable-or-plaintext)

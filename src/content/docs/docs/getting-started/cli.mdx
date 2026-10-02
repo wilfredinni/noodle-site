@@ -134,6 +134,11 @@ successful standalone, Homebrew, or TUI update refreshes it with the new
 Noodle version. Skill refresh failure does not roll back the Noodle update and
 reports `noodle agent install` as the retry.
 
+On Windows x64 beta, updates stage the verified executable and apply it after
+Noodle exits. Close and reopen Noodle when prompted. JSON output reports
+`restart_required`, `version`, and `log_path`; an installed skill refresh remains
+`pending` until replacement succeeds. See [Windows installation and updates](/docs/getting-started/installation/#windows-x64-beta).
+
 ## Agent skill
 
 Installs or updates Noodle's embedded `noodle-use` skill without a network
@@ -229,7 +234,10 @@ noodle request create <id> --url <url> [options]
 
 The required ID is a collection-relative path without `.yml`, for example
 `users/list`. IDs reject absolute paths, traversal, backslashes, hidden segments,
-and empty segments. The target collection must exist and be initialized.
+and empty segments. On Windows, names also reject forbidden filename characters,
+trailing dots/spaces, and reserved device names such as `CON` or `NUL`, including
+with extensions. Keep forward slashes in request IDs. The target collection must
+exist and be initialized.
 
 | Option | Default | Behavior |
 | --- | --- | --- |
@@ -252,6 +260,9 @@ the `.yml` extension.
 | `--collection <dir>` | `./collections` | Collection containing the request |
 | `--env/-e <name>` | Collection `settings.yml` environment | Select the environment |
 | `--output/-o <file>` | No file | Save original received bytes to a new destination |
+| `--body` | `false` | Include the redacted response body in human output |
+| `--headers` | `false` | Include redacted response headers in human output |
+| `--cookies` | `false` | Include received-cookie metadata with masked values in human output |
 | `--noproxy` | `false` | Force direct connections for this invocation |
 | `--insecure` | `false` | Disable TLS certificate verification for this invocation |
 | `--json` | `false` | Write a JSON result envelope |
@@ -260,6 +271,18 @@ Each invocation has an isolated run scope and honors explicit capture/script
 persistence. Existing or invalid output destinations fail before HTTP. See
 [download behavior](/docs/guides/automation/#download-a-response) for completed-response
 failures and output metadata.
+
+Opt into response details without changing the run's success criteria:
+
+```bash
+noodle request run users/list --collection ./api --body --headers --cookies
+```
+
+These flags only add human-readable sections. Known secrets and sensitive headers
+are redacted, received-cookie values are masked, and terminal controls are escaped.
+Unknown server payload data remains visible. Binary bodies show a reminder to use
+`--output` instead. `--json` still writes one envelope, including received-cookie
+metadata with masked values when present, regardless of these flags.
 
 ## Environment set
 

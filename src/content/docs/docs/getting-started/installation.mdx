@@ -1,6 +1,6 @@
 ---
 title: Installation
-description: Install Noodle on macOS or Linux, confirm the binary works, and keep it current.
+description: Install Noodle on macOS, Linux, or Windows x64 beta, confirm the binary works, and keep it current.
 ---
 
 Install Noodle with the script for the shortest path, Homebrew when you prefer
@@ -34,6 +34,32 @@ NOODLE_INSTALL_DIR=/usr/local/bin curl -LsSf ... | sh
 ```bash
 NOODLE_VERSION=v0.6.0 curl -LsSf https://noodlerest.dev/install.sh | sh
 ```
+
+## Windows x64 (beta)
+
+Windows x64 binaries are included from v0.9.7. Run this in PowerShell 5.1 or later:
+
+```powershell
+irm https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.ps1 | iex
+```
+
+The installer downloads `noodle-windows-x86_64.exe`, verifies its SHA-256 checksum,
+and installs it to `%LOCALAPPDATA%\Programs\Noodle\noodle.exe`. It adds that
+directory to your user PATH. Open a new terminal after installation.
+
+Set `$env:NOODLE_VERSION` to pin a release, `$env:NOODLE_INSTALL_DIR` to choose
+another directory, or `$env:NOODLE_SKIP_PATH_UPDATE = "1"` to leave PATH alone.
+For example:
+
+```powershell
+$env:NOODLE_VERSION = "v0.9.7"
+irm https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.ps1 | iex
+```
+
+Windows ARM64 is unsupported. The executable is unsigned, so browser downloads
+may trigger Windows trust prompts. Ordinary-account interactive terminal testing
+remains pending. Manually dispatched CI runs provide a Windows beta ZIP with the
+executable, checksums, and build information for prerelease testing.
 
 ## Homebrew
 
@@ -80,6 +106,7 @@ Prebuilt binaries for these combos: others need to build from source.
 | macOS    | x86_64       | ✅     |
 | Linux    | x86_64       | ✅     |
 | Linux    | arm64        | ✅     |
+| Windows  | x86_64       | Beta, unsigned `.exe` |
 
 Both Apple Silicon and Intel Macs have prebuilt binaries. macOS release
 artifacts are ad-hoc signed and verified before publication, including checks
@@ -97,7 +124,11 @@ before replacement. Update checks cache release metadata for one hour; pass
 `--force` to bypass that cache, or `--json` for scripted use.
 
 The TUI performs the same check when it starts and installs an available update
-automatically. Progress appears in the header and beside the current version in
+automatically. On Windows, the verified update is staged until Noodle exits;
+close and reopen it to apply the update. `noodle update --json` reports
+`restart_required` with `log_path`. If replacement fails, inspect that log, close
+all Noodle processes, and retry `noodle update` or rerun the PowerShell installer.
+Progress appears in the header and beside the current version in
 **About and Updates**, which is available from the command palette.
 
 ## AI Agent Skills
