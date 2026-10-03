@@ -40,7 +40,7 @@ NOODLE_VERSION=v0.6.0 curl -LsSf https://noodlerest.dev/install.sh | sh
 Windows x64 binaries are included from v0.9.7. Run this in PowerShell 5.1 or later:
 
 ```powershell
-irm https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.ps1 | iex
+irm https://noodlerest.dev/install.ps1 | iex
 ```
 
 The installer downloads `noodle-windows-x86_64.exe`, verifies its SHA-256 checksum,
@@ -53,7 +53,7 @@ For example:
 
 ```powershell
 $env:NOODLE_VERSION = "v0.9.7"
-irm https://raw.githubusercontent.com/wilfredinni/noodle/main/scripts/install.ps1 | iex
+irm https://noodlerest.dev/install.ps1 | iex
 ```
 
 Windows ARM64 is unsupported. The executable is unsigned, so browser downloads
