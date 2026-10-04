@@ -1,5 +1,5 @@
 ---
-import { formatSize, formatStatus, statusColorToken } from "./noodle-demo"
+import { codeLines, formatSize, formatStatus, statusColorToken } from "./noodle-demo"
 import { examples, folders, tourChapters, type Example } from "./noodle-demo-examples"
 import SelectMenu from "../SelectMenu.astro"
 
@@ -47,24 +47,6 @@ const footerHints: Record<string, string[][]> = {
   "response-cookies": [expand, ["↑/↓", "select"], ["Enter", "details"], commands],
   "response-base": [expand, commands],
 }
-// ponytail: tokenize fixed examples only; use a parser if editable code is added. Astro escapes each token.
-const codeLines = (code: string) => code.split("\n").map((line) => {
-  const parts = `${line}\n`.split(/("(?:\\.|[^"\\])*"|\$(?:random|time)\.\w+|\b[a-zA-Z_]\w*\b|\b\d+(?:\.\d+)?\b|[{}\[\](),.:;=<>])/g)
-  let offset = 0
-  return parts.map((text) => {
-    const before = line.slice(0, offset)
-    offset += text.length
-    const after = line.slice(offset).trimStart()
-    const kind = text.startsWith("$") ? "variable"
-      : text.startsWith('"') ? after.startsWith(":") ? "key" : "string"
-      : /^\d/.test(text) ? "number"
-      : /^(true|false|null)$/.test(text) ? "constant"
-      : /^(const|if|for|of|await)$/.test(text) ? "keyword"
-      : /^[a-zA-Z_]/.test(text) ? after.startsWith("(") ? "function" : before.endsWith(".") ? "property" : "plain"
-      : /^[{}\[\](),.:;=<>]$/.test(text) ? "punctuation" : "plain"
-    return { text, kind }
-  })
-})
 ---
 
 <figure class="noodle-demo" data-noodle-demo aria-label="Interactive Noodle demo with sample responses">
@@ -166,22 +148,35 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                   <p class="sending-message" hidden>Sending sample request…</p>
                   {group.tabs.map((tab) => {
                     const panelCode = tab === "Body" ? group.name === "Request" ? example.body : response : ""
+                    const externalScript = tab === "Tests" ? undefined : example.scriptFiles?.[tab === "Pre Script" ? "pre" : "post"]
+                    const requestFields = group.name === "Request" && ["Headers", "Params", "Path"].includes(tab)
+                    const showToggle = requestFields && tab !== "Path"
                     const rows = tab === "Headers" ? group.name === "Response" ? [["content-type", "application/json; charset=utf-8"], ["cache-control", "no-cache"]] : Object.entries(example.headers ?? (example.body ? { "Content-Type": "application/json", Accept: "application/json" } : {})) : tab === "Path" ? Object.entries(example.pathParams ?? {}) : tab === "Params" ? (example.params ?? []).map((param) => [param.name, param.value, param.enabled === false ? "disabled" : ""]) : []
                     return (
                       <div class="tab-panel" role="tabpanel" id={`demo-${example.id}-${group.name}-${tabSlug(tab)}`} aria-labelledby={`demo-${example.id}-${group.name}-${tabSlug(tab)}-tab`} tabindex="0" hidden={tab !== group.initial}>
-                        {tab === "Body" && (panelCode || (group.name === "Request" && example.formData?.length) ? (
+                        {tab === "Body" && (
                           <>
-                            {group.name === "Request" && <div class="body-format">{example.bodyFormat ?? "JSON"}<svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></div>}
-                            {group.name === "Request" && example.formData ? <table aria-label="Request form data"><thead><tr><th>Name</th><th>Value</th>{example.bodyFormat === "Multipart Form" && <th>Type</th>}</tr></thead><tbody>{example.formData.map((field) => <tr><th scope="row">{field.name}</th><td>{field.value}</td>{field.type && <td>{field.type}</td>}</tr>)}</tbody></table> : group.name === "Request" && example.bodyFormat === "Binary" ? <p class="network-note">File: {example.body}</p> : <pre aria-label={`${group.name} body`}><code>{codeLines(panelCode).map((line) => (
+                            {group.name === "Request" && <div class="body-format"><select class="demo-select" aria-label="Request body format" disabled><option>{example.bodyFormat ?? (example.body ? "JSON" : "None")}</option></select></div>}
+                            {group.name === "Request" && example.formData ? (
+                              <table class="field-table" style="--field-toggle: 4ch" aria-label="Request form data">
+                                <colgroup><col class="field-enabled" /><col class="field-key" /><col /></colgroup>
+                                <thead class="sr-only"><tr><th>Enabled</th><th>Name</th><th>Value</th></tr></thead>
+                                <tbody>{example.formData.map((field) => <tr><td class="field-enabled"><span class="checked-value" aria-hidden="true">[x]</span><span class="sr-only">Enabled</span></td><th scope="row">{field.type === "file" ? "[F] " : ""}{field.name}</th><td title={field.value}>{field.value}</td></tr>)}</tbody>
+                              </table>
+                            ) : group.name === "Request" && example.bodyFormat === "Binary" ? <p class="binary-path" aria-label="Binary file path">{example.body}</p> : panelCode ? <pre aria-label={`${group.name} body`}><code>{codeLines(panelCode, example.bodyFormat === "XML" && group.name === "Request" ? "xml" : "json").map((line) => (
                               <span class="code-line">{line.map((token) => <span class={token.kind}>{token.text}</span>)}</span>
-                            ))}</code></pre>}
+                            ))}</code></pre> : <p class="native-empty">This {example.method} request has no body.</p>}
                           </>
-                        ) : <p class="empty-state">This {example.method} request has no body.</p>)}
+                        )}
                         {["Headers", "Params", "Path"].includes(tab) && (rows.length ? (
-                          <table class="key-value-table" style={group.name === "Response" ? `--header-width: ${Math.max(...rows.map(([key]) => key.length)) + 2}ch` : undefined} aria-label={`${group.name} ${tab.toLowerCase()}`}><thead class="sr-only"><tr><th>Key</th><th>Value</th></tr></thead><tbody>{rows.map(([key, value, disabled]) => <tr class:list={{ "disabled-param": disabled }}><th scope="row">{key}{disabled && <span> (disabled)</span>}</th><td>{value}</td></tr>)}</tbody></table>
+                          <table class={requestFields ? "field-table" : "key-value-table"} style={requestFields ? `--field-toggle: ${showToggle ? 4 : 0}ch` : `--header-width: ${Math.max(...rows.map(([key]) => key.length)) + 2}ch`} aria-label={`${group.name} ${tab.toLowerCase()}`}>
+                            {requestFields && <colgroup>{showToggle && <col class="field-enabled" />}<col class="field-key" /><col /></colgroup>}
+                            <thead class="sr-only"><tr>{showToggle && <th>Enabled</th>}<th>Key</th><th>Value</th></tr></thead>
+                            <tbody>{rows.map(([key, value, disabled]) => <tr class:list={{ "disabled-param": disabled }}>{showToggle && <td class="field-enabled"><span class="checked-value" aria-hidden="true">{disabled ? "[ ]" : "[x]"}</span><span class="sr-only">{disabled ? "Disabled" : "Enabled"}</span></td>}<th scope="row" title={key}>{key}</th><td title={value}><span class:list={{ variable: requestFields && value.startsWith("$") }}>{value}</span></td></tr>)}</tbody>
+                          </table>
                         ) : <p class="empty-state">{tab === "Headers" ? "No request headers." : tab === "Params" ? "No query parameters." : "No path parameters."}</p>)}
                         {tab === "Assert" && (example.assertions?.length ? (
-                          <table class="assertions" aria-label="Response assertions"><colgroup><col class="assert-enabled" /><col /><col class="assert-operator" /><col /></colgroup><thead class="sr-only"><tr><th>Enabled</th><th>Expression</th><th>Operator</th><th>Expected</th></tr></thead><tbody>{example.assertions.map((assertion) => <tr><td><span class="checked-value" aria-hidden="true">[x]</span><span class="sr-only">Enabled</span></td><th scope="row">{assertion.expression}</th><td><select class="demo-select" aria-label={`${assertion.expression} operator`} disabled><option>{assertion.operator}</option></select></td><td>{assertion.value ?? ""}</td></tr>)}</tbody></table>
+                          <table class="assertions" aria-label="Response assertions"><colgroup><col class="assert-enabled" /><col class="assert-expression" /><col class="assert-operator" /><col /></colgroup><thead class="sr-only"><tr><th>Enabled</th><th>Expression</th><th>Operator</th><th>Expected</th></tr></thead><tbody>{example.assertions.map((assertion) => <tr><td><span class="checked-value" aria-hidden="true">[x]</span><span class="sr-only">Enabled</span></td><th scope="row" title={assertion.expression}>{assertion.expression}</th><td><select class="demo-select" aria-label={`${assertion.expression} operator`} disabled><option>{assertion.operator}</option></select></td><td title={String(assertion.value ?? "")}>{assertion.value ?? ""}</td></tr>)}</tbody></table>
                         ) : <p class="native-empty">No response assertions.</p>)}
                         {tab === "Capture" && (example.captures?.length ? (
                           <table class="captures" aria-label="Response captures">
@@ -199,17 +194,18 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                         ) : <p class="native-empty">No response captures.</p>)}
                         {["Pre Script", "Post Script", "Tests"].includes(tab) && (
                           <>
-                            <div class="script-format"><select class="demo-select" aria-label={`${tab} source`} disabled><option>{example.scriptFiles?.[tab === "Pre Script" ? "pre" : "post"] && tab !== "Tests" ? "External file" : "Inline"}</option></select><p class="setting-description">Write inline or use a .js file.</p></div>
-                            {tab !== "Tests" && example.scriptFiles?.[tab === "Pre Script" ? "pre" : "post"] && <p class="network-note">{example.scriptFiles[tab === "Pre Script" ? "pre" : "post"]}</p>}
-                            {scriptSource(example, tab) ? <pre class="script-code" aria-label={tab}><code>{codeLines(scriptSource(example, tab)!).map((line) => <span class="code-line">{line.map((token) => <span class={token.kind}>{token.text}</span>)}</span>)}</code></pre> : <p class="native-empty">{tab === "Tests" ? "No scripted tests." : `No ${tab === "Pre Script" ? "pre-request" : "post-response"} script.`}</p>}
+                            <div class="script-format"><select class="demo-select" aria-label={`${tab} source`} disabled><option>{externalScript ? "External file" : "Inline"}</option></select><p class="setting-description">Write inline or use a .js file.</p></div>
+                            {externalScript ? <div class="external-script"><div class="setting-value"><span>File:</span><span>{externalScript}</span></div><p class="setting-description">Relative to the collection root.</p></div> : scriptSource(example, tab) ? <pre class="script-code" aria-label={tab}><code>{codeLines(scriptSource(example, tab)!, "javascript").map((line) => <span class="code-line">{line.map((token) => <span class={token.kind}>{token.text}</span>)}</span>)}</code></pre> : <p class="native-empty">{tab === "Tests" ? "No scripted tests." : `No ${tab === "Pre Script" ? "pre-request" : "post-response"} script.`}</p>}
                           </>
                         )}
                         {tab === "Auth" && (
-                          <div class="native-panel">
+                          <div class="native-panel auth-panel">
                             <select class="demo-select" aria-label="Authentication type" disabled><option>{example.auth?.type ?? "None"}</option></select>
-                            {Object.entries(example.auth?.fields ?? {}).map(([label, { value, description }]) => (
+                            {Object.entries(example.auth?.fields ?? {}).map(([label, { value, description, kind, required }]) => (
                               <div class="setting-row">
-                                <div class="setting-value"><span>{label}:</span><span class:list={{ variable: value.startsWith("$") }}>{value}</span></div>
+                                <div class="setting-value">
+                                  {kind === "check" ? <><span class="checked-value" aria-hidden="true">{value === "true" ? "[x]" : "[ ]"}</span><span class="sr-only">{value === "true" ? "Enabled" : "Disabled"}</span><span>{label}</span></> : <><span>{label}{required && "*"}:</span>{kind === "select" ? <select class="demo-select auth-field-select" aria-label={label} disabled><option>{value}</option></select> : <span class:list={{ variable: value.startsWith("$") }}>{value}</span>}</>}
+                                </div>
                                 {description && <p class="setting-description">{description}</p>}
                               </div>
                             ))}
@@ -217,7 +213,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                         )}
                         {tab === "Settings" && (
                           <div class="native-panel">
-                            <div class="setting-value"><span>Tags:</span>{example.tags?.map((tag) => <span class="tag-placeholder">{tag}</span>)}<button class="tag-placeholder" type="button" disabled>+ Add tag</button></div>
+                            <div class="setting-value"><span>Tags:</span>{example.tags?.map((tag) => <span class="tag-placeholder tag-value">#{tag}</span>)}<button class="tag-placeholder" type="button" disabled>+ Add tag</button></div>
                             {requestSettings.map((setting) => (
                               <div class="setting-row">
                                 <div class="setting-value">
@@ -255,25 +251,29 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
                             </div>
                           </div>
                         )}
-                        {tab === "Cookies" && (example.cookies?.length ? <table aria-label="Response cookies"><thead><tr><th>Name</th><th>Value</th><th>Domain / Path</th></tr></thead><tbody>{example.cookies.map((cookie) => <tr><th scope="row">{cookie.name}</th><td>{cookie.value}</td><td>{cookie.domain}{cookie.path}</td></tr>)}</tbody></table> : <p class="native-empty">No cookies captured.</p>)}
+                        {tab === "Cookies" && (example.cookies?.length ? (
+                          <div class="cookie-rows disclosure-rows" aria-label="Response cookies" style={`--result-name-width: ${Math.min(24, Math.max(...example.cookies.map((cookie) => cookie.name.length)) + 2)}ch; --result-value-width: 0ch`}>
+                            {example.cookies.map((cookie) => <details class="result-entry" name={`demo-${example.id}-cookies`}><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="cookie-received">RECEIVED</span><span class="result-name">{cookie.name}</span><span class="result-meta">{cookie.value}</span></summary><dl><dt>Value</dt><dd>{cookie.value}</dd><dt>Domain</dt><dd>{cookie.domain}</dd><dt>Path</dt><dd>{cookie.path}</dd><dt>Expires</dt><dd>session</dd></dl></details>)}
+                          </div>
+                        ) : <p class="native-empty">No cookies captured.</p>)}
                         {tab === "Results" && (example.assertions || example.captures || example.scripts || example.tests ? (
-                          <div class="sample-results" style={`--result-name-width: ${example.assertions ? Math.max(...example.assertions.map((item) => item.expression.length + 1)) : example.captures ? Math.max(...example.captures.map((item) => item.variable.length + 1)) : example.testNames ? Math.max(...example.testNames.map((name) => name.length + 1)) : example.scripts?.post ? 14 : 12}ch; --result-value-width: ${example.assertions ? 9 : example.tests ? 4 : 0}ch`}>
+                          <div class="sample-results disclosure-rows" style={`--result-name-width: ${example.assertions ? Math.max(...example.assertions.map((item) => item.expression.length + 1)) : example.captures ? Math.min(24, Math.max(...example.captures.map((item) => item.variable.length + 2))) : example.testNames ? Math.max(...example.testNames.map((name) => name.length + 1)) : example.scripts?.post ? 14 : 12}ch; --result-value-width: ${example.assertions ? Math.max(...example.assertions.map((item) => item.operator.length)) + 1 : example.tests ? 4 : 0}ch`}>
                             <p class="sr-only">Sample results</p>
                             {example.scripts && <>
                               <h3><strong>Scripts</strong> <span>Passed</span></h3>
-                              {Object.keys(example.scripts).map((phase) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{phase === "pre" ? "Pre-request" : "Post-response"}</span><span class="result-meta">2ms, 0 logs</span></summary><dl><dt>Phase</dt><dd>{phase}</dd><dt>Scope</dt><dd>request</dd><dt>Kind</dt><dd>{example.scriptFiles?.[phase as "pre" | "post"] ? "external" : "inline"}</dd><dt>Source</dt><dd>{example.scriptFiles?.[phase as "pre" | "post"] ?? "inline"}</dd><dt>Duration</dt><dd>2ms (sample)</dd></dl></details>)}
+                              {Object.keys(example.scripts).map((phase) => <details class="result-entry" name={`demo-${example.id}-results`}><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{phase === "pre" ? "Pre-request" : "Post-response"}</span><span class="result-meta">2ms, 0 logs</span></summary><dl><dt>Phase</dt><dd>{phase}</dd><dt>Scope</dt><dd>request</dd><dt>Kind</dt><dd>{example.scriptFiles?.[phase as "pre" | "post"] ? "external" : "inline"}</dd><dt>Source</dt><dd>{example.scriptFiles?.[phase as "pre" | "post"] ?? "inline"}</dd><dt>Duration</dt><dd>2ms (sample)</dd></dl></details>)}
                             </>}
                             {example.captures && <>
                               <h3><strong>Captures</strong> <span>{example.captures.length} captured · 0 failed</span></h3>
-                              {example.captures.map((capture) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">CAPTURED</span><span class="result-name">{capture.variable}</span><span class="result-meta">{capture.expression}</span></summary><dl><dt>Expression</dt><dd>{capture.expression}</dd><dt>Value</dt><dd>{capture.value}</dd><dt>Scope</dt><dd>Current run</dd>{capture.persist && <><dt>Persisted</dt><dd>{capture.persist}</dd></>}</dl></details>)}
+                              {example.captures.map((capture) => <details class="result-entry" name={`demo-${example.id}-results`}><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">CAPTURED</span><span class="result-name">{capture.variable}</span><span class="result-meta">{capture.expression}</span></summary><dl><dt>Expression</dt><dd>{capture.expression}</dd><dt>Value</dt><dd>{capture.value}</dd><dt>Scope</dt><dd>Current run</dd>{capture.persist && <><dt>Persisted</dt><dd>{capture.persist}</dd></>}</dl></details>)}
                             </>}
                             {example.assertions && <>
                               <h3><strong>Assertions</strong> <span>{example.assertions.length} passed · 0 failed</span></h3>
-                              {example.assertions.map((assertion) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{assertion.expression}</span><span class="result-meta"> {assertion.operator}</span></summary><dl>{assertion.value !== undefined && <><dt>Expected</dt><dd>{assertion.value}</dd></>}<dt>Actual</dt><dd>{assertion.actual}</dd></dl></details>)}
+                              {example.assertions.map((assertion) => <details class="result-entry" name={`demo-${example.id}-results`}><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{assertion.expression}</span><span class="result-meta"> {assertion.operator}</span></summary><dl>{assertion.value !== undefined && <><dt>Expected</dt><dd>{assertion.value}</dd></>}<dt>Actual</dt><dd>{assertion.actual}</dd></dl></details>)}
                             </>}
                             {example.tests && <>
                               <h3><strong>Scripted tests</strong> <span>{example.testNames!.length} passed · 0 failed</span></h3>
-                              {example.testNames!.map((name) => <details class="result-entry"><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{name}</span><span class="result-meta"> 1ms</span></summary><dl><dt>Name</dt><dd>{name}</dd><dt>Message</dt><dd>Passed (sample)</dd><dt>Duration</dt><dd>1ms (sample)</dd></dl></details>)}
+                              {example.testNames!.map((name) => <details class="result-entry" name={`demo-${example.id}-results`}><summary><svg class="chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg><span class="result-pass">PASS</span><span class="result-name">{name}</span><span class="result-meta"> 1ms</span></summary><dl><dt>Name</dt><dd>{name}</dd><dt>Message</dt><dd>Passed (sample)</dd><dt>Duration</dt><dd>1ms (sample)</dd></dl></details>)}
                             </>}
                           </div>
                         ) : <p class="native-empty">No execution results.</p>)}
@@ -366,7 +366,14 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     })
     demo.addEventListener("keydown", (event) => {
       if (!(event.target as HTMLElement).closest(".terminal")) return
-      if (event.ctrlKey && event.key === "Enter") {
+      const summary = (event.target as HTMLElement).closest(".disclosure-rows summary")
+      if (summary && !event.ctrlKey && !event.altKey && !event.metaKey && ["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+        const rows = [...summary.closest(".disclosure-rows")!.querySelectorAll<HTMLElement>("summary")]
+        const index = rows.indexOf(summary as HTMLElement)
+        const next = event.key === "Home" ? 0 : event.key === "End" ? rows.length - 1 : Math.max(0, Math.min(rows.length - 1, index + (event.key === "ArrowDown" ? 1 : -1)))
+        event.preventDefault()
+        rows[next]!.focus()
+      } else if (event.ctrlKey && event.key === "Enter") {
         event.preventDefault()
         footerSend.click()
       } else if (event.key === "F2" && focusedGroup) {
@@ -679,7 +686,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     padding: 4px 0 0;
     border-radius: 16px 16px 0 0 / 100% 100% 0 0;
     background: var(--demo-border-subtle);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(var(--demo-text) 0 0) content-box, linear-gradient(var(--demo-text) 0 0);
     mask-composite: exclude;
     pointer-events: none;
   }
@@ -756,7 +763,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .tabs .has-content::after { content: " •"; }
   .tabs .has-results::after { content: " ✓"; }
   .optional-tabs { position: relative; flex: none; }
-  .add-tab { display: grid; place-items: center; width: 44px; min-height: 44px; color: var(--demo-text-muted); }
+  .add-tab { display: grid; place-items: center; width: 44px; min-height: 44px; color: var(--demo-primary); }
   .add-tab svg { box-sizing: content-box; width: 12px; height: 12px; padding: 5px 1ch; background: var(--demo-background-element); fill: none; stroke: currentColor; stroke-width: 1.5; }
   .add-tab:hover svg, .add-tab:focus-visible svg { background: var(--demo-border-subtle); color: var(--demo-primary); }
   .add-tab[aria-expanded="true"] svg { background: var(--demo-primary); color: var(--demo-background-panel); }
@@ -766,22 +773,22 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .tab-menu button:focus { color: var(--demo-text); background: var(--demo-background-element); font-weight: 700; }
   .tab-panel { height: calc(var(--demo-line) * 9); overflow: auto; }
   .panels { position: relative; }
-  .body-format { display: flex; align-items: center; justify-content: space-between; margin: calc(var(--demo-line) / 2) 0 var(--demo-line); padding: 0 1ch; background: var(--demo-background-element); color: var(--demo-text); }
+  .body-format { margin: calc(var(--demo-line) / 2) 0 var(--demo-line); }
   pre { margin: 0; padding: 0; background: transparent; color: var(--demo-text); font: inherit; counter-reset: code-line; tab-size: 2; }
   pre code { font: inherit; }
   .response pre { padding-top: calc(var(--demo-line) / 2); }
   .code-line { counter-increment: code-line; }
-  .code-line::before { display: inline-block; width: 3ch; margin-right: 1ch; color: var(--demo-text-muted); text-align: right; content: counter(code-line); user-select: none; }
-  .key, .property { color: var(--demo-secondary); }
+  .code-line::before { display: inline-block; width: 4ch; margin-right: 1ch; color: var(--demo-text-muted); text-align: right; content: counter(code-line); user-select: none; }
+  .key, .property, .tag, .constructor, .cookie-received { color: var(--demo-secondary); }
   .number { color: var(--demo-warning); }
   .string { color: var(--demo-success); }
   .keyword, .constant { color: var(--demo-info); }
   .function { color: var(--demo-primary); }
-  .punctuation { color: var(--demo-text-muted); }
+  .punctuation, .comment { color: var(--demo-text-muted); }
   .script-format { margin: calc(var(--demo-line) / 2) 0 var(--demo-line); }
-  .script-code .code-line::before { width: 4ch; }
-  .assertions { min-width: 58ch; table-layout: fixed; }
+  .assertions { table-layout: fixed; }
   .assert-enabled { width: 4ch; }
+  .assert-expression { width: calc((100% - 19ch) * 0.4); }
   .assert-operator { width: 15ch; }
   .assertions th, .assertions td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .assertions td:nth-child(3) { padding: 0; }
@@ -793,7 +800,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .captures th, .captures td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .captures td:first-child, .captures td:last-child { padding: 0; }
   .captures tbody tr:hover { background: var(--demo-background-element); }
-  .sample-results { padding-top: calc(var(--demo-line) / 2); }
+  .disclosure-rows { padding-top: calc(var(--demo-line) / 2); }
   .result-meta { color: var(--demo-text-muted); }
   .sample-results h3 { display: flex; flex-wrap: wrap; gap: 0 1ch; font: inherit; }
   .sample-results h3:not(:first-of-type) { margin-top: var(--demo-line); }
@@ -802,7 +809,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .result-entry summary::-webkit-details-marker { display: none; }
   .result-entry summary > span { white-space: pre; overflow: hidden; text-overflow: ellipsis; }
   .result-entry:has(summary:hover), .result-entry:has(summary:focus), .result-entry[open] { background: var(--demo-background-element); }
-  .sample-results:not(:has(.result-entry[open], summary:focus)) .result-entry:first-of-type { background: var(--demo-background-element); }
+  .disclosure-rows:not(:has(.result-entry[open], summary:focus)) .result-entry:first-of-type { background: var(--demo-background-element); }
   .result-entry .chevron { color: var(--demo-text-muted); width: 0.65ch; }
   .result-entry:not([open]) .chevron { transform: rotate(-90deg); }
   .result-entry dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0 2ch; padding: 0 1ch 0 3ch; color: var(--demo-text-muted); }
@@ -814,23 +821,35 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .response-metrics { color: var(--demo-text-muted); background: var(--demo-background-element); }
   .response.is-active .response-metrics { color: var(--demo-text); }
   .response-status { color: var(--demo-background-panel); background: var(--demo-status); }
-  .empty-state, .sending-message { padding: var(--demo-line) 1ch; color: var(--demo-text-muted); }
+  .empty-state, .sending-message { padding: calc(var(--demo-line) / 2) 1ch; color: var(--demo-text-muted); }
   .sending-message { position: absolute; inset: 0; z-index: 1; background: var(--demo-background-panel); }
   .response[aria-busy="true"] .response-summary { visibility: hidden; }
   table { width: 100%; border-collapse: collapse; font: inherit; margin-top: calc(var(--demo-line) / 2); }
   th, td { padding: 0 1ch; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
   th { color: var(--demo-primary); font-weight: 400; }
   .key-value-table th { width: var(--header-width, 50%); }
+  .field-table { table-layout: fixed; }
+  .field-enabled { width: 4ch; }
+  .field-key { width: calc((100% - var(--field-toggle)) * 0.4); }
+  .field-table :is(th, td) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .field-table .field-enabled { padding: 0 0 0 1ch; }
+  .body-format + .field-table { margin-top: 0; }
   tbody tr:nth-child(even) { background: var(--demo-stripe); }
-  .disabled-param :is(th, td) { color: var(--demo-text-muted); }
+  .disabled-param :is(th, td, .checked-value, .variable) { color: var(--demo-text-muted); }
   .native-panel, .native-empty { padding-top: calc(var(--demo-line) / 2); }
   .native-empty, .setting-description { color: var(--demo-text-muted); }
   .demo-select { width: 100%; max-width: 100%; height: var(--demo-line); padding: 0 3ch 0 1ch; border: 0; border-radius: 0; appearance: none; font: inherit; color: var(--demo-text); opacity: 1; -webkit-text-fill-color: var(--demo-text); background: var(--demo-background-element) var(--demo-select-chevron) no-repeat right 1ch center / 1ch auto; }
   .demo-select.fit-content { width: auto; }
+  .demo-select.auth-field-select { width: 22ch; }
+  .auth-panel .setting-description { padding-left: 1ch; }
+  .auth-panel .setting-value { overflow-wrap: anywhere; }
+  .external-script .setting-value { padding-left: 0; overflow-wrap: anywhere; }
+  .binary-path { padding-inline: 1ch; overflow-wrap: anywhere; }
   .setting-row { margin-top: var(--demo-line); }
   .setting-value { display: flex; flex-wrap: wrap; align-items: center; gap: 0 1ch; border-left: 1px solid var(--demo-border-subtle); padding-left: 1ch; }
   .checked-value { color: var(--demo-primary); }
   .tag-placeholder { padding: 0 1ch; color: var(--demo-text-muted); background: var(--demo-background-element); }
+  .tag-value { color: var(--demo-accent); }
   .timeline-row { display: grid; grid-template-columns: 1ch 5ch 3ch minmax(0, 1fr) max-content; align-items: center; gap: 1ch; min-height: 44px; padding: 0 1ch; background: var(--demo-background-element); }
   .timeline-row svg { width: 1ch; height: 1em; fill: none; stroke: var(--demo-text-muted); stroke-width: 1.4; }
   .timeline-status { color: var(--demo-status); }

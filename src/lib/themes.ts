@@ -164,7 +164,7 @@ export function themeVariables(theme: ThemePalette) {
   const variables = Object.entries(theme)
     .filter(([key]) => key !== "name")
     .map(([key, value]) => [`--demo-${key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`, value])
-  const chevron = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6"><path fill="${theme.textMuted}" d="M0 0h10L5 6z"/></svg>`
+  const chevron = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 6"><path fill="${theme.text}" d="M0 0h10L5 6z"/></svg>`
   return { ...Object.fromEntries(variables), "--demo-select-chevron": `url("data:image/svg+xml,${encodeURIComponent(chevron)}")` }
 }
 

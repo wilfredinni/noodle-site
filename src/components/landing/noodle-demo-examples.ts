@@ -8,7 +8,7 @@ export type Example = {
   pathParams?: Record<string, string>;
   headers?: Record<string, string>;
   params?: { name: string; value: string; enabled?: boolean }[];
-  auth?: { type: string; fields: Record<string, { value: string; description?: string }> };
+  auth?: { type: string; fields: Record<string, { value: string; description?: string; kind?: "select" | "check"; required?: boolean }> };
   tags?: string[];
   assertions?: { expression: string; operator: string; value?: string | number; actual: string | number }[];
   captures?: { variable: string; expression: string; value: string | number; persist?: "secret" | "environment" }[];
@@ -27,43 +27,44 @@ export const folders = ["body templates", "assertions & captures", "authenticati
 const authExamples: (Pick<Example, "id" | "name" | "path" | "baseUrl" | "response"> & NonNullable<Example["auth"]>)[] = [
   // Field descriptions mirror noodle/src/ui/authRows.ts.
   { id: "bearer-auth", name: "Bearer token", path: "/bearer", type: "Bearer Token", fields: {
-    Token: { value: "$api_token", description: "Bearer token sent in the Authorization header." },
+    Token: { value: "$api_token", required: true, description: "Bearer token sent in the Authorization header." },
   }, response: { authenticated: true, token: "[REDACTED]" } },
   { id: "basic-auth", name: "Basic auth", path: "/basic-auth/$username/$password", type: "Basic Auth", fields: {
-    Username: { value: "$username", description: "Username used for HTTP Basic authentication." },
-    Password: { value: "$password", description: "Password used for HTTP Basic authentication." },
+    Username: { value: "$username", required: true, description: "Username used for HTTP Basic authentication." },
+    Password: { value: "$password", required: true, description: "Password used for HTTP Basic authentication." },
   }, response: { authenticated: true, user: "demo" } },
   { id: "api-key-auth", name: "API key", path: "/headers", type: "API Key", fields: {
-    Key: { value: "X-API-Key", description: "Header or query parameter name for the API key." },
-    Value: { value: "$api_key", description: "API key value sent with the request." },
-    "Add To": { value: "Header", description: "Where to send the API key." },
+    Key: { value: "X-API-Key", required: true, description: "Header or query parameter name for the API key." },
+    Value: { value: "$api_key", required: true, description: "API key value sent with the request." },
+    "Add To": { value: "Header", kind: "select", description: "Where to send the API key." },
   }, response: { headers: { "X-Api-Key": "[REDACTED]" } } },
   { id: "oauth2-auth", name: "OAuth 2.0 + PKCE", baseUrl: "https://api.example.com", path: "/v1/profile", type: "OAuth 2.0", fields: {
-    "Grant Type": { value: "Authorization Code", description: "OAuth flow used to obtain the access token." },
+    "Grant Type": { value: "Authorization Code", kind: "select", description: "OAuth flow used to obtain the access token." },
     "Discovery URL": { value: "https://identity.example.com", description: "OIDC issuer or discovery document URL used to fill missing OAuth endpoints." },
-    "Client ID": { value: "$oauth2_client_id", description: "Public identifier for the OAuth client." },
+    "Client ID": { value: "$oauth2_client_id", required: true, description: "Public identifier for the OAuth client." },
     "Client Secret": { value: "$oauth2_client_secret", description: "Secret used to authenticate the OAuth client." },
     Scope: { value: "openid profile", description: "Space-separated permissions requested from the provider." },
-    "Redirect URI": { value: "http://127.0.0.1:8765/oauth/callback", description: "Callback URI registered with the provider." },
-    PKCE: { value: "S256", description: "Protect authorization-code exchanges with a code verifier." },
+    "Redirect URI": { value: "http://127.0.0.1:8765/oauth/callback", required: true, description: "Callback URI registered with the provider." },
+    PKCE: { value: "true", kind: "check", description: "Protect authorization-code exchanges with a code verifier." },
+    "PKCE Method": { value: "S256", kind: "select", description: "How the PKCE challenge is derived from the verifier." },
   }, response: user },
   { id: "oauth1-auth", name: "OAuth 1.0a", baseUrl: "https://api.example.com", path: "/v1/profile", type: "OAuth 1.0a", fields: {
-    "Consumer Key": { value: "$consumer_key", description: "Public identifier for the OAuth client." },
+    "Consumer Key": { value: "$consumer_key", required: true, description: "Public identifier for the OAuth client." },
     "Consumer Secret": { value: "$consumer_secret", description: "Shared secret used to sign OAuth requests." },
     "Access Token": { value: "$access_token", description: "Token identifying the authorized user or resource." },
     "Access Token Secret": { value: "$token_secret", description: "Secret paired with the access token for signing." },
-    "Signature Method": { value: "HMAC-SHA256", description: "Algorithm used to sign the request." },
-    "Add To": { value: "Header", description: "Where to place OAuth parameters in the request." },
+    "Signature Method": { value: "HMAC-SHA256", kind: "select", description: "Algorithm used to sign the request." },
+    "Add To": { value: "Header", kind: "select", description: "Where to place OAuth parameters in the request." },
   }, response: user },
   { id: "aws-auth", name: "AWS SigV4", baseUrl: "https://api.example.com", path: "/items", type: "AWS Signature v4", fields: {
-    "Access Key": { value: "$aws_access_key", description: "AWS access key ID used to identify the signer." },
-    "Secret Key": { value: "$aws_secret_key", description: "AWS secret access key used to sign the request." },
-    Region: { value: "us-east-1", description: "AWS region for the target service." },
-    Service: { value: "execute-api", description: "AWS service name included in the signing scope." },
+    "Access Key": { value: "$aws_access_key", required: true, description: "AWS access key ID used to identify the signer." },
+    "Secret Key": { value: "$aws_secret_key", required: true, description: "AWS secret access key used to sign the request." },
+    Region: { value: "us-east-1", required: true, description: "AWS region for the target service." },
+    Service: { value: "execute-api", required: true, description: "AWS service name included in the signing scope." },
     "Session Token": { value: "$aws_session_token", description: "Optional token for temporary AWS credentials." },
   }, response: { items: [{ id: 1, name: "Sample item" }] } },
-  { id: "ntlm-auth", name: "NTLM", baseUrl: "https://intranet.example.com", path: "/api/profile", type: "NTLM", fields: {
-    Username: { value: "$ntlm_username" }, Password: { value: "$ntlm_password" }, Domain: { value: "$ntlm_domain" }, Workstation: { value: "$ntlm_workstation" },
+  { id: "ntlm-auth", name: "NTLM", baseUrl: "https://intranet.example.com", path: "/api/profile", type: "NTLMv2", fields: {
+    Username: { value: "$ntlm_username", required: true }, Password: { value: "$ntlm_password", required: true }, Domain: { value: "$ntlm_domain" }, Workstation: { value: "$ntlm_workstation" },
   }, response: user },
 ]
 export const examples: Example[] = [
@@ -183,7 +184,7 @@ export const examples: Example[] = [
     body: "", response: {}, status: "200 OK", duration: 78,
   },
   {
-    id: "form-post", folder: "requests", name: "URL-encoded form", method: "POST", baseUrl: "https://httpbin.org", path: "/post", tab: "Body", bodyFormat: "Form URL Encoded",
+    id: "form-post", folder: "requests", name: "URL-encoded form", method: "POST", baseUrl: "https://httpbin.org", path: "/post", tab: "Body", bodyFormat: "Form URL-Encoded",
     formData: [{ name: "name", value: "Ada Lovelace" }, { name: "email", value: "ada@example.com" }],
     headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" }, body: "name=Ada+Lovelace&email=ada%40example.com", response: { form: { name: "Ada Lovelace", email: "ada@example.com" } }, status: "200 OK", duration: 121,
   },
@@ -215,7 +216,7 @@ export const tourChapters: { request: string; title: string; description: string
   { request: "oauth2-auth", title: "OAuth 2.0 with PKCE", description: "Configure discovery, scopes, and PKCE in the Auth tab. This read-only example shows the setup and a sample profile response." },
   { request: "create-post", title: "Pre-request scripts", description: "Prepare a request before it is sent. This script adds a unique request ID and timestamp to the headers; Results shows a sample successful execution.", responseTab: "Results" },
   { request: "get-user", title: "Post-request scripts", description: "Read the response and save values for later requests in the same run. This script saves the user's email and name after a successful response.", responseTab: "Results" },
-  { request: "external-script", title: "Scripts in their own files", description: "Keep reusable JavaScript in a .js file beside your collection. The source selector shows the file path and a preview of its contents.", responseTab: "Results" },
+  { request: "external-script", title: "Scripts in their own files", description: "Keep reusable JavaScript in a .js file beside your collection. The source selector shows the file path relative to the collection root.", responseTab: "Results" },
   { request: "signed-request", title: "Sign a request", description: "Read a secret from the environment, sign the body with HMAC-SHA256, and attach the signature as a header before sending." },
   { request: "chain-request", title: "Chain requests in a script", description: "Await a saved request, use its response in another call, then prepare the current request. Results shows a sample script execution.", responseTab: "Results" },
   { request: "capture-post", title: "Capture response values", description: "Keep captured values for the current run, save them to the environment, or store them as secrets. Open a result to inspect its sample value and persistence.", responseTab: "Results" },
@@ -229,5 +230,5 @@ export const tourChapters: { request: string; title: string; description: string
   { request: "form-post", title: "Send form fields", description: "Send URL-encoded fields from a name-and-value table. The sample response shows the form data received by the server." },
   { request: "multipart-post", title: "Upload files with fields", description: "Combine text fields and file paths in a multipart request. This example pairs a username with a README upload." },
   { request: "xml-post", title: "Send an XML body", description: "Choose the body format your API expects. This request sends an XML message with the matching Content-Type header." },
-  { request: "cookie-request", title: "Inspect response cookies", description: "See captured cookies alongside their values, domains, and paths. This sample response sets theme, locale, and timezone cookies for httpbin.org.", responseTab: "Cookies" },
+  { request: "cookie-request", title: "Inspect response cookies", description: "See captured cookies and their values. Expand a row to inspect its domain and path. This sample response sets theme, locale, and timezone cookies for httpbin.org.", responseTab: "Cookies" },
 ]

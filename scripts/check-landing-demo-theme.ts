@@ -2,7 +2,8 @@
 import assert from "node:assert/strict"
 import { readFileSync } from "node:fs"
 import { noodleTheme, siteThemes, themeVariables, siteVariables, contrast } from "../src/lib/themes"
-import { formatSize, formatStatus, statusColorToken } from "../src/components/landing/noodle-demo"
+import { codeLines, formatSize, formatStatus, statusColorToken } from "../src/components/landing/noodle-demo"
+import { examples } from "../src/components/landing/noodle-demo-examples"
 
 assert.equal(siteThemes.length, 8)
 assert.equal(new Set(siteThemes.map(({ theme }) => theme.name)).size, 8)
@@ -32,6 +33,19 @@ assert.equal(formatStatus("200 OK"), "200 OK")
 assert.equal(formatStatus("204"), "204")
 assert.equal(formatStatus("500 Internal Server Error"), "500 Internal Serv…")
 
+for (const example of examples) {
+  for (const [source, language] of [[example.body, example.bodyFormat === "XML" ? "xml" : "json"], [JSON.stringify(example.response, null, 2), "json"], [example.scripts?.pre, "javascript"], [example.scripts?.post, "javascript"], [example.tests, "javascript"]]) {
+    if (!source) continue
+    assert.equal(codeLines(source, language).flat().map((token) => token.text).join(""), `${source}\n`, `${example.id}: highlighting preserves source`)
+  }
+}
+const tokens = (source: string, language = "json") => codeLines(source, language).flat().filter((token) => token.text.trim())
+assert.equal(tokens('// Example row: { "user_id": 1 }', "javascript")[0]!.kind, "comment")
+assert.equal(tokens('"https://example.com"', "javascript")[0]!.kind, "string")
+assert.ok(tokens('"Created at $time.iso"').some((token) => token.text === "$time.iso" && token.kind === "variable"))
+assert.ok(tokens("<message>Hello</message>", "xml").filter((token) => token.text === "message").every((token) => token.kind === "tag"))
+assert.equal(tokens("Number(row.user_id)", "javascript")[0]!.kind, "constructor")
+
 // Deliberately distinct colors catch roles that accidentally share Noodle's values.
 const palette = { ...noodleTheme, name: "probe", primary: "#010203", accent: "#040506", backgroundPanel: "#070809", textMuted: "#0a0b0c" }
 const variables = themeVariables(palette)
@@ -40,10 +54,10 @@ for (const [role, value] of Object.entries(palette)) {
   const key = `--demo-${role.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`
   assert.equal(variables[key], value)
 }
-assert.ok(decodeURIComponent(variables["--demo-select-chevron"]).includes(`fill="${palette.textMuted}"`))
+assert.ok(decodeURIComponent(variables["--demo-select-chevron"]).includes(`fill="${palette.text}"`))
 const css = readFileSync(new URL("../src/components/landing/NoodleDemo.astro", import.meta.url), "utf8").split("<style>")[1]!
 assert.doesNotMatch(css, /#[\da-f]{3,8}\b|rgba?\(/i, "Demo CSS must consume theme colors")
 for (const [, variable] of css.matchAll(/var\((--demo-[\w-]+)/g)) {
   assert.ok(variable in variables || ["--demo-line", "--demo-stripe", "--demo-status"].includes(variable), `Missing theme role: ${variable}`)
 }
-console.log("Demo theme roles, badge formatting, and status boundaries passed")
+console.log("Demo theme roles, badge formatting, and sample syntax highlighting passed")

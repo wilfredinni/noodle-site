@@ -63,10 +63,18 @@ async function checkNoodleDemo(doc = document) {
   }), "Capture results reflect each persistence destination")
   assert(!captureTable.closest('[role="tabpanel"]').querySelector(".network-note"), "Capture view omits the demo-only Runner note")
   assert(panelText("time-post", "Body").includes("$time.unix") && panelText("random-post", "Body").includes('$random.number({"min":1,"max":10})'), "Time and typed random templates remain literal")
-  assert(panelText("external-script", "Pre-Script").includes("External file") && panelText("external-script", "Pre-Script").includes("./scripts/prepare-request.js"), "External source has its mode, path, and preview")
+  const externalPanel = demo.querySelector('#demo-external-script-Request-Pre-Script')
+  assert(externalPanel.textContent.includes("External file") && externalPanel.textContent.includes("./scripts/prepare-request.js") && !externalPanel.querySelector("pre"), "External source matches Noodle's file field without an inline editor")
   assert(panelText("schema-test", "Tests").includes("toMatchSchema") && panelText("data-test", "Tests").includes("noodle.iteration?.data"), "Schema and data-driven tests are discoverable")
   assert(panelText("chain-request", "Pre-Script").includes("await noodle.runRequest") && panelText("signed-request", "Pre-Script").includes("noodle.crypto.hmacSha256"), "Async chaining and signing use supported APIs")
-  assert(panelText("multipart-post", "Body").includes("./README.md") && panelText("binary-post", "Body").includes("File:"), "Multipart and binary examples expose file inputs")
+  assert(panelText("multipart-post", "Body").includes("[F] readme") && demo.querySelector('#demo-binary-post-Request-Body [aria-label="Binary file path"]').textContent === "./README.md", "Multipart and binary examples match Noodle's file inputs")
+  for (const id of ["form-post", "multipart-post"]) {
+    const table = demo.querySelector(`#demo-${id}-Request-Body table`)
+    assert(table.querySelector("thead").classList.contains("sr-only") && [...table.querySelectorAll("tbody tr")].every((row) => row.cells.length === 3 && row.querySelector(".checked-value")), `${id}: form rows show checkboxes, names, and values without a Type column`)
+  }
+  assert(demo.querySelector('#demo-api-key-auth-Request-Auth [aria-label="Add To"]').value === "Header" && demo.querySelector('#demo-oauth2-auth-Request-Auth [aria-label="Grant Type"]').value === "Authorization Code", "Auth choice fields use the native select treatment")
+  assert(demo.querySelector('#demo-oauth2-auth-Request-Auth [aria-label="PKCE Method"]').value === "S256" && demo.querySelector('#demo-oauth2-auth-Request-Auth .checked-value'), "PKCE is a checkbox with a separate method selector")
+  assert(demo.querySelector('#demo-assert-post-Request-Settings .tag-value').textContent === "#smoke", "Tags use the native hash prefix")
   assert(![...demo.querySelectorAll(".sample-results dd")].some((item) => ["collection", "folder"].includes(item.textContent)), "Scripts have no inherited execution scopes")
   for (const folder of folders) {
     const wasOpen = folder.open
@@ -132,10 +140,17 @@ async function checkNoodleDemo(doc = document) {
           assert(panel.innerHTML === content && !panel.querySelector("details, button, [role=button]") && !demo.querySelector("dialog"), `${id}: timeline is a static row with no disclosure or modal`)
         }
         if (id === "cookie-request" && tab.textContent === "Cookies") {
-          const table = panel.querySelector('table')
-          const lineHeight = parseFloat(view.getComputedStyle(table).lineHeight)
-          assert([...table.rows].every((row) => row.getBoundingClientRect().height <= lineHeight + 1), "Cookie headings and values fit on one line across all three columns")
+          const cookies = [...panel.querySelectorAll('.result-entry')]
+          assert(cookies.length === 3 && cookies.every((cookie) => cookie.querySelector('.cookie-received').textContent === "RECEIVED"), "Cookies use Noodle's received rows")
           assert(panel.scrollWidth <= panel.clientWidth && panel.scrollHeight <= panel.clientHeight, "All cookie rows fit in the response pane without scrolling")
+          cookies[0].querySelector('summary').click()
+          assert(cookies[0].open && cookies[0].querySelector('dl').textContent.includes("httpbin.org") && cookies[0].querySelector('dl').textContent.includes("session"), "Cookie disclosure exposes domain, path, and expiry")
+          cookies[0].querySelector('summary').focus()
+          doc.activeElement.dispatchEvent(new view.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }))
+          assert(doc.activeElement === cookies[1].querySelector('summary'), "Cookie rows support keyboard selection")
+          cookies[1].querySelector('summary').click()
+          assert(cookies[1].open && !cookies[0].open, "Only one cookie detail is expanded")
+          cookies[1].querySelector('summary').click()
         }
         if (tab.textContent === "Results" && configuredTabs[id]) {
           const rows = [...panel.querySelectorAll(".result-entry")]
@@ -160,7 +175,7 @@ async function checkNoodleDemo(doc = document) {
     const authType = workspace.querySelector('[aria-label="Authentication type"]').value
     assert(id.endsWith("-auth") ? authType !== "None" && workspace.querySelector('[id$="-Request-Auth"]').textContent.includes("$") : authType === "None", `${id}: configured auth or empty default`)
     assert(workspace.querySelector('[aria-label="TLS Verification"]').value === "Inherit (verify)", `${id}: collection TLS setting is inherited`)
-    assert(workspace.querySelector('[data-tab="Cookies"]') && (id === "cookie-request" ? workspace.querySelector('[aria-label="Response cookies"]').textContent.includes("httpbin.org/") : workspace.querySelector('[id$="-Response-Cookies"]').textContent.trim() === "No cookies captured."), `${id}: native empty cookie state`)
+    assert(workspace.querySelector('[data-tab="Cookies"]') && (id === "cookie-request" ? workspace.querySelector('[aria-label="Response cookies"]').textContent.includes("httpbin.org") : workspace.querySelector('[id$="-Response-Cookies"]').textContent.trim() === "No cookies captured."), `${id}: native empty cookie state`)
     assert(configuredTabs[id] ? workspace.querySelector('[id$="-Response-Results"]').textContent.includes("Sample results") : workspace.querySelector('[id$="-Response-Results"]').textContent.trim() === "No execution results.", `${id}: matching sample results or native empty state`)
     const menuItems = [...workspace.querySelectorAll('[data-reveal-tab]')]
     assert(menuItems.map((item) => item.textContent).join(",") === "Assert,Capture,Pre Script,Post Script,Tests", `${id}: native optional-tab menu entries`)
@@ -235,7 +250,7 @@ async function checkNoodleDemo(doc = document) {
   await wait()
   assert(active().dataset.example === "get-user" && !live.textContent.includes("complete."), "Switching folders cancels a pending send")
   assert(demo.querySelector('#demo-api-key-auth-Request-Auth').textContent.includes("$api_key"), "API-key placeholder remains literal")
-  assert(demo.querySelector('#demo-get-posts-Request-Params').textContent.includes("disabled"), "Disabled post query parameter is labeled")
+  assert(demo.querySelector('#demo-get-posts-Request-Params .disabled-param .checked-value').textContent === "[ ]", "Disabled post query parameter uses an unchecked checkbox")
   assert(!demo.querySelector('#demo-get-posts-Response-Network').textContent.includes("_sort"), "Disabled query parameter is absent from the sample URL")
   choice("create").click()
   assert(active().querySelector("[data-send]").textContent === "Send" && !active().querySelector(".response .panels").hidden, "Canceled request can be selected again")
@@ -270,6 +285,9 @@ async function checkNoodleDemo(doc = document) {
   const tree = demo.querySelector(".request-tree")
   requestPanel.scrollTop = 60
   tree.scrollTop = 48
+  const navigationToggle = doc.querySelector('#menu-toggle')
+  const revealNavigation = !picker.getClientRects().length && navigationToggle
+  if (revealNavigation) navigationToggle.click()
   picker.focus()
   const preserved = () => JSON.stringify({
     example: active().dataset.example,
@@ -291,7 +309,7 @@ async function checkNoodleDemo(doc = document) {
     assert(view.getComputedStyle(active().querySelector(".variable")).color === color("primary"), `${option.dataset.themeOption}: URL palette updated`)
     assert(view.getComputedStyle(active().querySelector(".key")).color === color("secondary"), `${option.dataset.themeOption}: syntax palette updated`)
     const arrow = decodeURIComponent(view.getComputedStyle(active().querySelector(".demo-select")).backgroundImage)
-    assert(arrow.includes(theme.getPropertyValue("--demo-text-muted").trim()), `${option.dataset.themeOption}: dropdown arrow palette updated`)
+    assert(arrow.includes(theme.getPropertyValue("--demo-text").trim()), `${option.dataset.themeOption}: dropdown arrow palette updated`)
   }
   picker.dispatchEvent(new view.KeyboardEvent("keydown", { key: "F2", bubbles: true }))
   picker.dispatchEvent(new view.KeyboardEvent("keydown", { key: "Enter", ctrlKey: true, bubbles: true }))
@@ -301,6 +319,7 @@ async function checkNoodleDemo(doc = document) {
   assert(active().querySelector('[data-send]').textContent === "Sending…", "Changing themes preserves a pending send")
   await wait()
   assert(active().querySelector('[data-send]').textContent === "Send" && live.textContent.includes("complete."), "Pending send finishes after changing themes")
+  if (revealNavigation) navigationToggle.click()
   choice("create").click()
   tree.scrollTop = 0
   assert(fetches() === before, "Demo interactions made no fetch/XHR requests")
