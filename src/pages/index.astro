@@ -24,6 +24,7 @@ const capabilities = [
 
 const site = Astro.site ?? Astro.url
 const homeUrl = new URL("/", site).href
+const homeDescription = "Keep API requests, scripts, and tests versioned in Git alongside your code. Use the same collection from the TUI, CLI, CI, or a coding agent."
 const homeStructuredData = {
   "@context": "https://schema.org",
   "@graph": [
@@ -32,14 +33,14 @@ const homeStructuredData = {
       "@id": `${homeUrl}#website`,
       name: "Noodle",
       url: homeUrl,
-      description: "Write, send, inspect, and automate HTTP requests from version-controlled YAML files.",
+      description: homeDescription,
     },
     {
       "@type": "SoftwareApplication",
       "@id": `${homeUrl}#software`,
       name: "Noodle",
       url: homeUrl,
-      description: "A terminal REST client for repository-native API workflows.",
+      description: homeDescription,
       applicationCategory: "DeveloperApplication",
       operatingSystem: ["macOS", "Linux"],
       softwareVersion: update.version.replace(/^v/, ""),
@@ -58,8 +59,8 @@ const homeStructuredData = {
 ---
 
 <BaseLayout
-  title="Noodle · API workflows in your terminal"
-  description="Write, send, inspect, and automate HTTP requests from version-controlled YAML files."
+  title="Noodle · The repository is the workspace"
+  description={homeDescription}
   structuredData={homeStructuredData}
 >
   <HeroSection latestRelease={latestRelease} />
