@@ -22,11 +22,6 @@ const capabilities = [
   ["Visualization", "Search and explore JSON or XML responses as trees and tables", "/docs/guides/using-the-response-pane/#source-and-visual"],
 ]
 
-const nextItems = [
-  ["v0.9", "Advanced tests", "Build deeper request checks on inline pre/post scripting."],
-  ["v0.10", "Richer CI reporting", "Expand collection runs with reports such as JUnit."],
-]
-
 const site = Astro.site ?? Astro.url
 const homeUrl = new URL("/", site).href
 const homeStructuredData = {
@@ -160,22 +155,6 @@ const homeStructuredData = {
 
     </section>
 
-    <section class="coming-next" aria-labelledby="next-title">
-      <header>
-        <div><span class="section-kicker">On the stove</span><h2 id="next-title">Coming next</h2></div>
-        <p>Planned directions, clearly separated from what Noodle ships today.</p>
-      </header>
-      <div class="next-grid">
-        {nextItems.map(([version, title, body]) => (
-          <article>
-            <span>Roadmap · {version}</span>
-            <h3>{title}</h3>
-            <p>{body}</p>
-          </article>
-        ))}
-      </div>
-    </section>
-
     <section class="closing" aria-labelledby="closing-title">
       <h2 id="closing-title">Put your API workflow where it belongs.</h2>
       <p>Install Noodle and open your first collection.</p>
@@ -235,7 +214,6 @@ const homeStructuredData = {
   }
 
   .capability-section h2,
-  .coming-next h2,
   .closing h2 {
     color: var(--fg);
     font-family: var(--font-display);
@@ -291,7 +269,6 @@ const homeStructuredData = {
 
   .feature-copy p,
   .capability-section header p,
-  .coming-next header p,
   .closing > p {
     margin-top: 1rem;
     color: var(--muted);
@@ -497,8 +474,7 @@ const homeStructuredData = {
     padding-block: var(--section-space);
   }
 
-  .capability-section header,
-  .coming-next header {
+  .capability-section header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.7fr);
     gap: 3rem;
@@ -506,8 +482,7 @@ const homeStructuredData = {
     margin-bottom: 2.5rem;
   }
 
-  .capability-section header h2,
-  .coming-next header h2 {
+  .capability-section header h2 {
     max-width: 18ch;
   }
 
@@ -551,16 +526,14 @@ const homeStructuredData = {
     border-bottom: 0;
   }
 
-  .capability-grid h3,
-  .next-grid h3 {
+  .capability-grid h3 {
     color: var(--fg);
     font-family: var(--font-display);
     font-size: 1.5rem;
     font-weight: 400;
   }
 
-  .capability-grid p,
-  .next-grid p {
+  .capability-grid p {
     margin-top: 0.55rem;
     color: var(--muted);
     font-family: var(--font-sans);
@@ -568,64 +541,16 @@ const homeStructuredData = {
     line-height: 1.55;
   }
 
-  .coming-next {
-    margin-block: 0 var(--section-space);
-    padding: clamp(3rem, 6vw, 5rem);
-    color: var(--ivory-ink);
-    background: var(--ivory);
-    border: 0;
-    border-radius: 24px;
-  }
-
-  .next-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    border: 1px solid color-mix(in srgb, var(--ivory-ink) 24%, transparent);
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .next-grid article {
-    padding: 1.5rem;
-    border-right: 1px solid color-mix(in srgb, var(--ivory-ink) 16%, transparent);
-  }
-
-  .next-grid article:last-child {
-    border-right: 0;
-  }
-
-  .next-grid article > span {
-    display: block;
-    margin-bottom: 2rem;
-    color: var(--coral-ink);
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    text-transform: uppercase;
-  }
-
   .closing {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     padding: var(--section-space) 0;
-    border-top: 1px solid var(--rule);
     text-align: center;
   }
 
   .closing h2 {
     max-width: 22ch;
-  }
-
-  .coming-next h2,
-  .coming-next header p,
-  .coming-next .section-kicker,
-  .next-grid h3,
-  .next-grid p {
-    color: var(--ivory-ink);
-  }
-
-  .coming-next .section-kicker {
-    color: var(--coral-ink);
   }
 
   .closing h2 {
@@ -647,8 +572,7 @@ const homeStructuredData = {
       max-width: 42rem;
     }
 
-    .capability-section header,
-    .coming-next header {
+    .capability-section header {
       grid-template-columns: minmax(0, 1fr);
       gap: 1rem;
       align-items: start;
@@ -665,21 +589,18 @@ const homeStructuredData = {
       padding: 1.5rem 0;
     }
 
-    .capability-grid,
-    .next-grid {
+    .capability-grid {
       grid-template-columns: minmax(0, 1fr);
     }
 
     .capability-grid article,
     .capability-grid article:nth-child(3n),
-    .capability-grid article:nth-last-child(-n + 3),
-    .next-grid article {
+    .capability-grid article:nth-last-child(-n + 3) {
       border-right: 0;
       border-bottom: 1px solid var(--rule);
     }
 
-    .capability-grid article:last-child,
-    .next-grid article:last-child {
+    .capability-grid article:last-child {
       border-bottom: 0;
     }
 
