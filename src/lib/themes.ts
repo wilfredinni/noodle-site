@@ -160,7 +160,7 @@ export const siteThemes: { label: string; theme: ThemePalette }[] = [
     } },
 ]
 
-export function themeVariables(theme: ThemePalette) {
+export function themeVariables(theme: ThemePalette): Record<string, string> {
   const variables = Object.entries(theme)
     .filter(([key]) => key !== "name")
     .map(([key, value]) => [`--demo-${key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)}`, value])

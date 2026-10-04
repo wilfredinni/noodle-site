@@ -1,0 +1,364 @@
+---
+import { examples, folders } from "./noodle-demo-examples"
+import { demoThemes } from "./noodle-demo-themes"
+import SelectMenu from "../SelectMenu.astro"
+
+const commands = [
+  { section: "Request", label: "Find Request", key: "^f", target: "finder" },
+  { section: "Request", label: "Send Request", key: "^return", target: "send" },
+  { section: "Environment", label: "Select Environment", key: "e", target: "env-picker" },
+  { section: "Environment", label: "Cycle Environment", key: "^u", target: "cycle-environment" },
+  { section: "Environment", label: "Open Environment Editor", key: "f3", target: "environments" },
+  { section: "Workspace", label: "Run Collection", key: "f5", target: "runner" },
+  { section: "Workspace", label: "Toggle Layout", key: "^l", target: "layout" },
+  { section: "Workspace", label: "Expand/Collapse Pane", key: "f2", target: "expand" },
+  { section: "Workspace", label: "Toggle Sidebar", key: "^b", target: "sidebar" },
+  { section: "Workspace", label: "Show Script Execution Order", key: "^alt+r", target: "order" },
+  { section: "System", label: "Keyboard Shortcuts", key: "f1", target: "help" },
+  { section: "System", label: "Open Theme Picker", key: "^t", target: "themes" },
+]
+const commandSections = [...new Set(commands.map((command) => command.section))]
+const environments = [
+  { name: "development", color: "success", baseUrl: "https://api.example.com", token: "demo_development_token", userId: "1" },
+  { name: "staging", color: "warning", baseUrl: "https://staging.example.com", token: "demo_staging_token", userId: "2" },
+  { name: "production", color: "error", baseUrl: "https://production.example.com", token: "demo_production_token", userId: "3" },
+]
+const runnerRequests = examples.filter((example) => ["assert-post", "capture-post", "use-captures", "schema-test", "list-test", "data-test"].includes(example.id))
+const runnerTags = [...new Set(runnerRequests.flatMap((request) => request.tags ?? []))]
+---
+
+{["commands", "finder", "themes", "env-picker"].map((surface) => (
+  <div class="app-surface picker-backdrop" data-app-surface={surface} hidden>
+    <section class:list={["app-picker", `picker-${surface}`]} aria-label={surface === "commands" ? "Commands" : surface === "finder" ? "Find Request" : surface === "env-picker" ? "Environments" : "Themes"}>
+      <div class="picker-heading">
+        <h2>{surface === "commands" ? "Commands" : surface === "finder" ? "Find Request" : surface === "env-picker" ? "Environments" : "Themes"}</h2>
+        <button type="button" data-app-close aria-label="Close picker"><kbd>esc</kbd></button>
+      </div>
+      <input class="picker-search" data-picker-search type="search" placeholder={surface === "commands" ? "Type a command..." : surface === "finder" ? "Search requests..." : surface === "env-picker" ? "Search environments..." : "Search themes..."} aria-label={surface === "commands" ? "Search commands" : surface === "finder" ? "Search requests" : surface === "env-picker" ? "Search environments" : "Search themes"} role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls={`demo-${surface}-options`} autocomplete="off" spellcheck="false" />
+      <div class="picker-options" id={`demo-${surface}-options`} role="listbox" aria-label={surface === "commands" ? "Commands" : surface === "finder" ? "Requests and folders" : surface === "env-picker" ? "Environments" : "Themes"}>
+        {surface === "env-picker" && <button class="env-picker-editor" type="button" role="option" aria-selected="false" tabindex="-1" id="demo-env-picker-editor" data-picker-option data-picker-action data-search="" data-app-target="environments"><span>Open Environment Editor</span><kbd>f3</kbd></button>}
+        {surface === "env-picker" && environments.map((environment) => <button class="theme-option env-picker-option" type="button" role="option" aria-selected="false" tabindex="-1" id={`demo-env-picker-${environment.name}`} data-picker-option data-search={environment.name} data-picker-environment={environment.name}><span class="theme-current" aria-hidden="true"></span><span>{environment.name}</span></button>)}
+        {surface === "commands" && commandSections.map((section) => (
+          <div data-picker-section>
+            <h3>{section}</h3>
+            {commands.filter((command) => command.section === section).map((command) => <button type="button" role="option" aria-selected="false" tabindex="-1" id={`demo-command-${command.target}`} data-picker-option data-search={command.label.toLowerCase()} data-app-target={command.target}>
+              <span>{command.label}</span><kbd>{command.key}</kbd>
+            </button>)}
+          </div>
+        ))}
+        {surface === "finder" && examples.map((example) => (
+          <button class="finder-option" type="button" role="option" aria-selected="false" tabindex="-1" id={`demo-find-${example.id}`} data-picker-option data-search={`${example.name} ${example.method} ${example.folder} ${example.path}`.toLowerCase()} data-app-target={example.id}>
+            <span class="finder-main"><span class:list={["finder-method", example.method.toLowerCase()]}>{example.method}</span><strong>{example.name}</strong><span class="finder-path">{example.folder}</span></span>
+          </button>
+        ))}
+        {surface === "finder" && folders.map((folder) => (
+            <button class="finder-option" type="button" role="option" aria-selected="false" tabindex="-1" id={`demo-find-folder-${folders.indexOf(folder)}`} data-picker-option data-search={`folder ${folder}`} data-find-folder={folder}>
+              <span class="finder-main"><span class="finder-method folder-method">FOLDER</span><strong>{folder}</strong><span class="finder-path">({examples.filter((example) => example.folder === folder).length} reqs)</span></span>
+            </button>
+        ))}
+        {surface === "themes" && demoThemes.map((theme) => (
+          <button class="theme-option" type="button" role="option" aria-selected="false" tabindex="-1" id={`demo-theme-${theme.name}`} data-picker-option data-search={theme.name} data-demo-theme={theme.name}>
+            <span class="theme-current" aria-hidden="true"></span><span>{theme.name}</span>
+          </button>
+        ))}
+        <p class="picker-empty" data-picker-empty hidden>No results found</p>
+      </div>
+    </section>
+  </div>
+))}
+
+<div class="app-surface picker-backdrop" data-app-surface="help" hidden>
+  <section class="app-picker picker-commands" role="dialog" aria-label="Keybindings" aria-modal="true">
+    <div class="picker-heading"><h2>Keybindings</h2><button type="button" data-app-close aria-label="Close keybindings"><kbd>esc</kbd></button></div>
+    <div class="command-help" tabindex="0" aria-label="Keyboard shortcuts">
+      {commandSections.map((section) => <section><h3>{section}</h3>{commands.filter((command) => command.section === section).map((command) => <p><kbd>{command.key}</kbd><span>{command.label}</span></p>)}</section>)}
+      <section><h3>Navigation</h3><p><kbd>^p</kbd><span>Open command palette</span></p><p><kbd>↑ / ↓</kbd><span>Select an option</span></p><p><kbd>Enter</kbd><span>Open selected option</span></p><p><kbd>esc</kbd><span>Close overlay</span></p></section>
+    </div>
+  </section>
+</div>
+<div class="app-surface picker-backdrop" data-app-surface="order" hidden>
+  <section class="app-picker script-order" role="dialog" aria-label="Execution order" aria-modal="true">
+    <div class="picker-heading"><h2>Execution order</h2><button type="button" data-app-close aria-label="Close execution order"><kbd>esc</kbd></button></div>
+    <div class="script-order-content" tabindex="0"><p data-script-order-description></p><ol data-script-order-entries><li><span>1</span><span data-script-order-label></span><span data-script-order-kind></span></li></ol></div>
+  </section>
+</div>
+
+<div class="app-surface environment-workspace" data-app-surface="environments" hidden>
+  <section class="app-pane env-sidebar" aria-label="Environments" tabindex="-1">
+    <h2 class="app-pane-title">Environments</h2>
+    {environments.map((environment, index) => (
+      <button class="env-choice" type="button" data-demo-env={environment.name} aria-pressed={index === 0 ? "true" : "false"} aria-controls={`demo-env-${environment.name}`}>
+        <span class="env-dot" style={`color: var(--demo-${environment.color})`} aria-hidden="true">●</span><span>{environment.name}</span>
+      </button>
+    ))}
+  </section>
+  <div class="env-detail">
+    <section class="app-pane env-header" aria-label="Environment details">
+      <input data-env-name value="development" aria-label="Environment name" spellcheck="false" />
+      <div class="native-select-group" data-native-select>
+        <input type="hidden" data-env-color value="success" />
+        <SelectMenu label="Environment color" class="app-native-select env-color-picker" fitContent>
+          <button slot="trigger" class="select-trigger env-color" type="button" data-select-trigger aria-label="Environment color" aria-haspopup="menu" aria-expanded="false" disabled><span data-native-select-label>success</span><span aria-hidden="true"> ▼</span></button>
+          {["none", "primary", "secondary", "accent", "success", "warning", "error", "info"].map((color) => <button type="button" role="menuitemradio" aria-checked={color === "success" ? "true" : "false"} data-native-select-option={color}><span style={color !== "none" ? `color: var(--demo-${color})` : undefined}>{color === "none" ? "(none)" : color}</span><span class="native-select-current" aria-hidden="true">●</span></button>)}
+        </SelectMenu>
+      </div>
+    </section>
+    <section class="app-pane env-variables" aria-label="Environment variables">
+      <h2 class="app-pane-title">Variables</h2>
+      {environments.map((environment, index) => (
+        <div data-env-panel={environment.name} id={`demo-env-${environment.name}`} hidden={index !== 0}>
+          <table aria-label={`${environment.name} variables`}>
+            <thead class="sr-only"><tr><th>Enabled</th><th>Key</th><th>Value</th><th>Origin</th><th>Secret</th></tr></thead>
+            <tbody>
+              {[{ key: "base_url", value: environment.baseUrl }, { key: "user_id", value: environment.userId }, { key: "token", value: environment.token, secret: true }, { key: "debug", value: "true", disabled: true }].map((variable) => (
+                <tr class:list={{ "env-disabled": variable.disabled }}>
+                  <td><button class="env-toggle" type="button" data-env-toggle aria-pressed={variable.disabled ? "false" : "true"} aria-label={`Enable ${variable.key}`}><span aria-hidden="true">{variable.disabled ? "[ ]" : "[x]"}</span></button></td>
+                  <th scope="row">{variable.key}</th>
+                  <td><input data-env-value data-env-secret={variable.secret ? variable.value : undefined} type="text" value={variable.secret ? "••••••••" : variable.value} aria-label={`${environment.name} ${variable.key} value`} spellcheck="false" autocomplete="off" /></td>
+                  <td></td>
+                  <td>{variable.secret ? <button class="env-secret-toggle" type="button" data-env-reveal aria-pressed="false" aria-label={`Reveal ${environment.name} sample token`}>[secret]</button> : <span class="env-plain">[plain]</span>}</td>
+                </tr>
+              ))}
+              <tr class="env-add-row" data-env-add>
+                <td><button class="env-toggle" type="button" data-env-add-submit aria-label="Add variable" disabled>[ ]</button></td>
+                <th scope="row"><input data-env-add-key placeholder="Key..." aria-label={`${environment.name} new variable key`} spellcheck="false" /></th>
+                <td><input data-env-add-value placeholder="Value..." aria-label={`${environment.name} new variable value`} spellcheck="false" /></td>
+                <td></td><td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      ))}
+    </section>
+  </div>
+</div>
+
+<div class="app-surface runner-workspace" data-app-surface="runner" hidden>
+  <section class="app-pane runner-options" aria-label="Runner configuration">
+    <h2 class="app-pane-title title-left">Runner</h2>
+    <div class="runner-options-scroll">
+      <p class="workspace-note">Configure and run requests from your collection.</p>
+      <div class="runner-scope"><span>Scope: Entire collection</span><p>Run every request in the collection or selected folder.</p></div>
+      <div class="runner-field"><div class="runner-control"><label for="demo-runner-env">Environment: </label><div class="native-select-group" data-native-select><input type="hidden" data-runner-env value="Collection default" /><SelectMenu label="Runner environment" class="app-native-select" fitContent><button slot="trigger" id="demo-runner-env" class="select-trigger native-select-trigger" type="button" data-select-trigger aria-haspopup="menu" aria-expanded="false" disabled><span data-native-select-label>Collection default</span><span aria-hidden="true"> ▼</span></button>{["Collection default", ...environments.map((environment) => environment.name)].map((name, index) => <button type="button" role="menuitemradio" aria-checked={index === 0 ? "true" : "false"} data-native-select-option={name}><span>{name}</span><span class="native-select-current" aria-hidden="true">●</span></button>)}</SelectMenu></div></div><p>Select the environment used for this run.</p></div>
+      {["include", "exclude"].map((filter) => (
+        <div class="runner-field tag-filter" role="group" aria-label={filter === "include" ? "Include tags" : "Exclude tags"}><div class="runner-control"><span>{filter === "include" ? "Include tags: " : "Exclude tags: "}</span>
+          <div class="runner-tags">{runnerTags.map((tag) => <button class="tag-filter-choice" type="button" data-runner-filter={filter} data-tag={tag} aria-pressed="false" aria-label={`Remove ${filter} tag ${tag}`} hidden>#{tag}</button>)}
+            <button class="tag-filter-add" type="button" data-runner-add-filter={filter} aria-label={`Add ${filter} tag`}>+ Add tag</button>
+          </div></div>
+          <p>{filter === "include" ? "Only run requests with every included tag." : "Skip requests with any excluded tag."}</p>
+        </div>
+      ))}
+      <div class="runner-field"><div class="runner-control"><span>Fail fast: </span><button type="button" data-runner-fail-fast aria-label="Fail fast" aria-pressed="false">[ ]</button></div><p>Stop running after the first failed request.</p></div>
+      <div class="runner-field"><div class="runner-control"><label for="demo-runner-delay">Delay (ms): </label><input id="demo-runner-delay" data-runner-delay inputmode="numeric" value="0" /></div><p>Wait between completed requests before starting the next.</p></div>
+      <div class="runner-field"><div class="runner-control"><label for="demo-runner-data">Data file: </label><input id="demo-runner-data" data-runner-data placeholder="./data.csv or @/Downloads/data.json" /></div><p>Optional CSV or JSON.</p></div>
+      <p class="workspace-note" data-runner-iterations hidden>2 iterations</p>
+    </div>
+    <button class="runner-run" type="button" data-runner-run><kbd>r</kbd> <span>Run {runnerRequests.length} requests</span></button>
+    <p class="runner-error" data-runner-error role="status" hidden></p>
+  </section>
+  <section class="app-pane runner-requests" aria-label="Runner requests">
+    <h2 class="app-pane-title title-left">Requests</h2>
+    <div class="runner-tabs" role="tablist" aria-label="Runner views">
+      <button type="button" role="tab" id="demo-runner-select-tab" aria-controls="demo-runner-select" aria-selected="true" data-runner-tab="select">Select</button>
+      <button type="button" role="tab" id="demo-runner-results-tab" aria-controls="demo-runner-results" aria-selected="false" tabindex="-1" data-runner-tab="results" hidden>Results</button>
+    </div>
+    <div class="runner-panel" role="tabpanel" id="demo-runner-select" aria-labelledby="demo-runner-select-tab" tabindex="0">
+      {folders.filter((folder) => runnerRequests.some((request) => request.folder === folder)).map((folder) => (
+        <div class="runner-folder">
+          <button class="runner-row runner-folder-choice" type="button" data-runner-folder={folder} aria-pressed="true"><span data-runner-check aria-hidden="true">[x]</span><span class="runner-method">FOLDER</span><span class="runner-name">{folder}</span></button>
+          {runnerRequests.filter((request) => request.folder === folder).map((request) => (
+            <button class="runner-row" type="button" data-runner-request={request.id} data-folder={folder} data-tags={(request.tags ?? []).join(" ")} data-method={request.method} data-name={request.name} data-status={request.status} data-duration={request.duration} data-response={JSON.stringify(request.response, null, 2)} aria-pressed="true">
+              <span data-runner-check aria-hidden="true">[x]</span><span class:list={["runner-method", request.method.toLowerCase()]}>{request.method}</span><span class="runner-name">{request.name}</span><span class="runner-request-tags">{request.tags?.map((tag) => <span>#{tag}</span>)}</span>
+            </button>
+          ))}
+        </div>
+      ))}
+    </div>
+    <div class="runner-panel runner-results" role="tabpanel" id="demo-runner-results" aria-labelledby="demo-runner-results-tab" tabindex="0" hidden>
+      <p class="workspace-note" data-runner-summary>Run the sample collection to see results.</p>
+      <div data-runner-results></div>
+      <p class="workspace-note">Sample responses. No API requests are sent.</p>
+    </div>
+  </section>
+  <div class="picker-backdrop runner-tag-overlay" data-runner-tag-overlay hidden>
+    <section class="app-picker runner-tag-editor" role="dialog" aria-label="Add runner tag" aria-modal="true">
+      <div class="picker-heading"><h2 data-runner-tag-title>Include Tag</h2><button type="button" data-runner-tag-close aria-label="Close tag editor"><kbd>esc</kbd></button></div>
+      <div class="runner-tag-field"><label for="demo-runner-tag">Tag</label><input id="demo-runner-tag" data-runner-tag-value placeholder="e.g. smoke" autocomplete="off" spellcheck="false" aria-controls="demo-runner-tag-suggestions" /><div class="runner-tag-suggestions" id="demo-runner-tag-suggestions" data-runner-tag-suggestions hidden>{runnerTags.map((tag) => <button type="button" data-runner-tag-suggestion={tag}>{tag}</button>)}</div><p class="runner-error" data-runner-tag-error role="status" hidden>Tag must be a non-empty trimmed string</p></div>
+      <div class="runner-tag-actions"><button type="button" data-runner-tag-save><kbd>^S</kbd> save</button><button type="button" data-runner-tag-close><kbd>esc</kbd> close</button></div>
+    </section>
+  </div>
+</div>
+
+<style>
+  .app-surface { position: absolute; inset: 0; z-index: 2; min-width: 0; color: var(--demo-text); }
+  .app-surface[hidden], .app-surface [hidden], .runner-tag-overlay[hidden], .runner-tag-overlay [hidden] { display: none !important; }
+  .picker-backdrop { display: grid; place-items: center; padding: 2ch; border-radius: inherit; background: rgb(0 0 0 / 58.8%); }
+  .app-picker { box-sizing: border-box; width: 48ch; max-width: 100%; padding: var(--demo-line) 1ch; background: var(--demo-background-panel); }
+  .picker-commands { width: 60ch; }
+  .picker-finder { width: 68ch; }
+  .picker-heading { display: flex; justify-content: space-between; gap: 2ch; padding-inline: 4ch; }
+  h2, h3, p { margin: 0; font: inherit; }
+  .picker-heading button { padding-inline: 1ch; color: var(--demo-text-muted); }
+  kbd { font: inherit; }
+  button { padding: 0; border: 0; border-radius: 0; color: inherit; background: transparent; font: inherit; cursor: pointer; }
+  button:disabled { cursor: default; color: var(--demo-text-muted); }
+  button, input, select { min-height: 44px; }
+  input, select { box-sizing: border-box; max-width: 100%; min-width: 0; padding: 0; border: 0; border-radius: 0; color: var(--demo-text); background: transparent; font: inherit; caret-color: var(--demo-primary); }
+  input::placeholder { color: var(--demo-text-muted); opacity: 1; }
+  .app-surface :is(button, input, select, [tabindex]):focus-visible, .runner-tag-overlay :is(button, input):focus-visible { outline: none; }
+  .app-surface button:focus-visible { background: var(--demo-background-element); }
+  .picker-heading button:is(:hover, :focus-visible) { color: var(--demo-text); background: var(--demo-background-element); }
+  .picker-search { display: block; width: calc(100% - 8ch); margin: var(--demo-line) 4ch; color: var(--demo-text-muted); background: var(--demo-background-panel); }
+  .picker-search::-webkit-search-cancel-button { display: none; }
+  .picker-options { height: calc(var(--demo-line) * 16); padding-inline: 1ch; overflow: auto; scrollbar-width: none; }
+  .picker-options h3 { padding: 0 3ch; color: var(--demo-primary); font-weight: 700; }
+  .picker-options [data-picker-section] + [data-picker-section] h3 { margin-top: var(--demo-line); }
+  .picker-options button { display: flex; align-items: center; justify-content: space-between; gap: 1ch; width: 100%; padding: 0 3ch; text-align: left; }
+  .picker-options kbd, .finder-path { color: var(--demo-text-muted); }
+  .picker-options button[aria-selected="true"] { color: var(--demo-picker-ink); background: var(--demo-primary); }
+  .picker-options button[aria-selected="true"] :is(span, strong, kbd) { color: inherit; }
+  .command-help { max-height: calc(var(--demo-line) * 20); margin-top: var(--demo-line); overflow: auto; scrollbar-width: thin; scrollbar-color: var(--demo-border-active) var(--demo-background); }
+  .command-help section + section { margin-top: var(--demo-line); }
+  .command-help h3, .command-help p { padding-inline: 4ch; }
+  .command-help h3 { font-weight: 700; }
+  .command-help p { display: flex; }
+  .command-help kbd { flex: none; width: 16ch; }
+  .command-help p span, .script-order-content > p { color: var(--demo-text-muted); }
+  .script-order { width: 64ch; }
+  .script-order-content { margin-top: var(--demo-line); padding-inline: 4ch; }
+  .script-order-content ol { margin: var(--demo-line) 0 0; padding: 0; list-style: none; }
+  .script-order-content li { display: flex; gap: 2ch; color: var(--demo-primary); }
+  .script-order-content li span:first-child { width: 1ch; }
+  .script-order-content li span:last-child { margin-left: auto; color: var(--demo-text-muted); }
+  .picker-empty { padding: var(--demo-line) 3ch 0; color: var(--demo-text-muted); }
+  .finder-main { display: flex; align-items: center; width: 100%; min-width: 0; }
+  .finder-method { flex: none; width: 8ch; }
+  .folder-method { color: var(--demo-info); }
+  .finder-main strong { max-width: 28ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .finder-path { max-width: 20ch; margin-left: auto; padding-left: 1ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .theme-option .theme-current { flex: none; width: 1ch; color: var(--demo-primary); }
+  .picker-options .theme-option { justify-content: flex-start; }
+  .theme-option[data-current="true"] { color: var(--demo-primary); }
+  .theme-option[aria-selected="true"] { font-weight: 700; }
+  .picker-env-picker .picker-options { height: calc(var(--demo-line) * 15); }
+  .picker-env-picker .env-picker-editor { width: calc(100% - 2ch); margin: 0 1ch 0 2ch; padding-inline: 3ch; background: var(--demo-background-element); }
+  .env-picker-option[data-current="true"] { font-weight: 700; }
+  .env-picker-option[data-current="true"]:not([aria-selected="true"]) { color: var(--demo-text); }
+  .env-picker-option[aria-selected="true"]:not([data-current="true"]) { font-weight: 400; }
+  .environment-workspace { display: grid; grid-template-columns: min(38ch, 35%) minmax(0, 1fr); gap: 1ch; background: var(--demo-background-panel); }
+  .app-pane { position: relative; min-width: 0; min-height: 0; padding: calc(var(--demo-line) / 2) 1ch; background: var(--demo-background-panel); border: 1px solid var(--demo-border-subtle); }
+  .app-pane:focus-within, .app-pane.is-active { border-color: var(--demo-primary); }
+  .app-pane-title { position: absolute; right: 2ch; top: calc(var(--demo-line) / -2); padding: 0 1ch; color: var(--demo-text-muted); background: var(--demo-background-panel); }
+  .app-pane:focus-within .app-pane-title, .app-pane.is-active .app-pane-title { color: var(--demo-primary); }
+  .title-left { right: auto; left: 1ch; }
+  .env-choice { display: flex; gap: 1ch; width: 100%; padding: 0 1ch; border-left: 1px solid transparent; text-align: left; }
+  .env-dot { flex: none; width: 1ch; }
+  .env-choice[aria-pressed="true"] { border-color: var(--demo-primary); background: var(--demo-background-element); }
+  .env-choice:hover, .runner-row:is(:hover, :focus-visible) { background: var(--demo-background-element); }
+  .env-detail { display: grid; grid-template-rows: calc(var(--demo-line) * 3) minmax(0, 1fr); min-width: 0; }
+  .env-header { display: flex; align-items: center; gap: 1ch; }
+  [data-env-name] { flex: 1; width: 0; padding-inline: 1ch; }
+  [data-env-name]:focus-visible { background: var(--demo-border-subtle); }
+  .native-select-group { flex: none; min-width: 0; --env-badge: var(--demo-success); }
+  [data-native-select-label] + span { white-space: pre; }
+  .app-native-select :global(.select-trigger) { gap: 0; padding: 0 1ch; border-radius: 0; color: var(--demo-text); background: var(--demo-background-element); }
+  .app-native-select :global(.select-trigger:is(:hover, :focus-visible)) { color: var(--demo-text); background: var(--demo-border-subtle); outline: none; }
+  .app-native-select :global(.select-trigger[aria-expanded="true"]) { color: var(--demo-picker-ink); background: var(--demo-primary); }
+  .env-color-picker :global(.select-trigger) { color: var(--env-ink, var(--demo-picker-ink)); background: var(--env-badge); }
+  .env-color-picker :global(.select-trigger:is(:hover, :focus-visible, [aria-expanded="true"])) { color: var(--env-badge); background: color-mix(in srgb, var(--demo-background-element) 70%, var(--env-badge)); }
+  .app-native-select :global(.select-menu) { padding: 0; border: 1px solid var(--demo-primary); border-radius: 0; font: inherit; color: var(--demo-text); background: var(--demo-background); scrollbar-width: none; }
+  .app-native-select :global(.select-menu button) { display: flex; justify-content: space-between; gap: 1ch; padding: 0 1ch; border-radius: 0; color: var(--demo-text); }
+  .app-native-select :global(.select-menu button:is(:hover, :focus-visible)) { background: var(--demo-background-element); font-weight: 700; outline: none; }
+  .app-native-select :global(.select-menu [aria-checked="true"]) { color: var(--demo-primary); }
+  .native-select-current { color: var(--demo-primary); visibility: hidden; }
+  [aria-checked="true"] .native-select-current { visibility: visible; }
+  .env-variables { padding-top: calc(var(--demo-line) * 1.5); }
+  [data-env-panel] { height: 100%; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--demo-border-active) var(--demo-background); }
+  table, tbody { display: block; width: 100%; border-collapse: collapse; }
+  tbody tr { display: grid; grid-template-columns: 4ch minmax(0, 4fr) minmax(0, 6fr) 12ch 10ch; }
+  th, td { box-sizing: border-box; min-width: 0; padding: 0; text-align: left; font-weight: 400; }
+  th { color: var(--demo-primary); padding-inline: 1ch; overflow: hidden; text-overflow: ellipsis; }
+  tbody tr:nth-child(even) { background: var(--demo-stripe); }
+  tbody tr:focus-within { background: var(--demo-background-element); }
+  td input { width: 100%; padding-inline: 1ch; text-overflow: ellipsis; }
+  .env-toggle { color: var(--demo-primary); }
+  .env-secret-toggle { color: var(--demo-warning); }
+  .env-plain { color: var(--demo-text-muted); }
+  .env-disabled :is(th, input, button) { color: var(--demo-text-muted); }
+  .env-add-row :is(input, button) { color: var(--demo-text-muted); }
+  .env-add-row th { padding: 0; }
+  .env-add-row th input { width: 100%; padding-inline: 1ch; }
+  .env-add-row input:focus-visible { color: var(--demo-text); }
+  .workspace-note, .runner-scope p, .runner-field p { color: var(--demo-text-muted); }
+  .runner-workspace { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1ch; background: var(--demo-background-panel); }
+  .runner-options { display: flex; flex-direction: column; }
+  .runner-options-scroll { flex: 1; min-height: 0; padding-bottom: var(--demo-line); overflow: auto; scrollbar-width: none; }
+  .runner-scope, .runner-field { margin-top: var(--demo-line); }
+  .runner-control { display: flex; align-items: center; min-width: 0; gap: 1ch; padding-left: 1ch; border-left: 1px solid var(--demo-border-subtle); }
+  .runner-control > :is(label, span) { flex: none; }
+  .runner-control:focus-within { border-color: var(--demo-primary); }
+  .runner-control:is(:hover, :focus-within) { background: var(--demo-background-element); }
+  .runner-control > input { flex: 1; width: 0; }
+  [data-runner-fail-fast] { color: var(--demo-text-muted); }
+  [data-runner-fail-fast][aria-pressed="true"] { color: var(--demo-primary); }
+  .tag-filter .runner-control { align-items: flex-start; }
+  .runner-tags { display: flex; flex: 1; min-width: 0; gap: 1ch; flex-wrap: wrap; }
+  .tag-filter-choice, .runner-request-tags span { padding: 0 1ch; color: var(--demo-accent); background: var(--demo-background-element); }
+  .tag-filter-choice:is(:hover, :focus-visible) { background: var(--demo-border-subtle); }
+  .tag-filter-add { padding: 0 1ch; color: var(--demo-text-muted); background: var(--demo-background-element); }
+  .tag-filter-add:is(:hover, :focus-visible) { color: var(--demo-text); background: var(--demo-border-subtle); }
+  .runner-tag-overlay { position: absolute; inset: 0; z-index: 3; }
+  .runner-tag-editor { display: grid; gap: var(--demo-line); width: 50ch; }
+  .runner-tag-editor .picker-heading { padding: 0 2ch var(--demo-line); }
+  .runner-tag-field { position: relative; padding: 0 2ch var(--demo-line); }
+  .runner-tag-field label, .runner-tag-field input { display: block; width: 100%; }
+  .runner-tag-field label { color: var(--demo-text-muted); }
+  .runner-tag-field input { padding-inline: 1ch; background: var(--demo-background-element); }
+  .runner-tag-field input:focus-visible { background: var(--demo-border-subtle); }
+  .runner-tag-suggestions { position: absolute; top: calc(var(--demo-line) * 2); left: 2ch; right: 2ch; z-index: 1; border: 1px solid var(--demo-primary); background: var(--demo-background); }
+  .runner-tag-suggestions button { display: block; width: 100%; padding-inline: 1ch; text-align: left; }
+  .runner-tag-suggestions button:is(:hover, :focus-visible) { background: var(--demo-background-element); font-weight: 700; }
+  .runner-tag-actions { display: flex; justify-content: flex-end; gap: 1ch; padding-inline: 2ch; }
+  .runner-tag-actions button { padding-inline: 1ch; background: var(--demo-background-element); color: var(--demo-text-muted); }
+  .runner-tag-actions kbd { color: var(--demo-secondary); }
+  .runner-tag-actions button:hover { color: var(--demo-secondary-ink); background: var(--demo-secondary); }
+  .runner-tag-actions button:focus-visible { color: var(--demo-picker-ink); background: var(--demo-primary); }
+  .runner-tag-actions button:is(:hover, :focus-visible) kbd { color: inherit; }
+  .runner-run { flex: none; align-self: flex-start; padding: 0 1ch; color: var(--demo-text-muted); background: var(--demo-background-element); }
+  .runner-run kbd { color: var(--demo-secondary); }
+  .runner-run:hover:not(:disabled) { color: var(--demo-secondary-ink); background: var(--demo-secondary); }
+  .runner-run:focus-visible:not(:disabled) { color: var(--demo-picker-ink); background: var(--demo-primary); }
+  .runner-run:is(:hover, :focus-visible):not(:disabled) kbd { color: inherit; }
+  .runner-error { color: var(--demo-error); }
+  .runner-requests { display: flex; flex-direction: column; }
+  .runner-tabs { display: flex; flex: none; height: calc(var(--demo-line) * 2); border-bottom: 1px solid var(--demo-border-subtle); }
+  .runner-tabs button { align-self: stretch; padding: 0 2ch 0 1ch; color: var(--demo-text-muted); border-bottom: 1px solid transparent; }
+  .runner-tabs [aria-selected="true"] { color: var(--demo-primary); border-color: var(--demo-primary); }
+  .runner-panel { flex: 1; min-height: 0; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--demo-border-active) var(--demo-background); }
+  .runner-row { display: flex; align-items: center; width: 100%; padding: 0; text-align: left; overflow: hidden; white-space: nowrap; }
+  .runner-row > [data-runner-check] { flex: none; width: 4ch; color: var(--demo-primary); }
+  .runner-method { flex: none; width: 7ch; }
+  .runner-name { flex: none; width: 16ch; max-width: calc(100% - 13ch); overflow: hidden; text-overflow: ellipsis; }
+  .runner-folder-choice .runner-name { width: auto; max-width: none; }
+  .runner-row[data-runner-request] { padding-left: 2ch; }
+  .runner-row[aria-pressed="false"] :is(.runner-name, [data-runner-check]), .runner-folder-choice .runner-method { color: var(--demo-text-muted); }
+  .runner-request-tags { display: flex; gap: 1ch; min-width: 0; padding-left: 1ch; overflow: hidden; }
+  .runner-request-tags span { flex: none; }
+  .runner-results :global(.runner-result summary) { display: flex; justify-content: space-between; gap: 1ch; min-height: 44px; padding-inline: 1ch; color: var(--demo-success); cursor: pointer; }
+  .runner-results :global(.runner-result summary span:first-child) { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .runner-results :global(.runner-result summary span:last-child) { flex: none; color: var(--demo-text-muted); }
+  .runner-results :global(.runner-result[open]) { background: var(--demo-background-element); }
+  .runner-results :global(.runner-result pre) { margin: 0; padding: 0 1ch var(--demo-line); font: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .post { color: var(--demo-warning); }
+  .get { color: var(--demo-success); }
+  .patch, .put { color: var(--demo-info); }
+  .delete { color: var(--demo-error); }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  @media (min-width: 680px) and (pointer: fine) {
+    button, input, select, .app-native-select :global(.select-trigger), .app-native-select :global(.select-menu button) { min-height: var(--demo-line); }
+    .runner-results :global(.runner-result summary) { min-height: var(--demo-line); }
+  }
+  @media (max-width: 900px) {
+    .runner-workspace { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); gap: var(--demo-line); }
+  }
+</style>

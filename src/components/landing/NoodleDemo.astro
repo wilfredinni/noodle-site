@@ -2,6 +2,7 @@
 import { codeLines, formatSize, formatStatus, statusColorToken } from "./noodle-demo"
 import { examples, folders, tourChapters, type Example } from "./noodle-demo-examples"
 import SelectMenu from "../SelectMenu.astro"
+import NoodleAppExamples from "./NoodleAppExamples.astro"
 
 interface Props {
   version?: string
@@ -33,7 +34,7 @@ const requestSettings = [
 ]
 // Default shortcuts from Noodle's keybindingHints and StatusBar. Only local demo actions are enabled.
 const expand = ["f2", "expand", "expand"]
-const commands = ["^p", "commands"]
+const commands = ["^p", "commands", "commands"]
 const footerHints: Record<string, string[][]> = {
   sidebar: [["^n", "new"], ["^alt+n", "new folder"], ["^k", "clone"], ["^w", "delete"], ["^s", "save"]],
   urlbar: [["^s", "save"]],
@@ -46,6 +47,9 @@ const footerHints: Record<string, string[][]> = {
   "response-body": [expand, ["m", "visual"], ["^g", "fold"], ["/", "filter"], ["^alt+b", "copy", "copy"], commands],
   "response-cookies": [expand, ["↑/↓", "select"], ["Enter", "details"], commands],
   "response-base": [expand, commands],
+  "app-picker": [["↑/↓", "select"], ["Enter", "open"], commands],
+  "app-environments": [["Space", "toggle"], commands],
+  "app-runner": [["r", "run", "run"], ["Space", "toggle"], commands],
 }
 ---
 
@@ -64,7 +68,7 @@ const footerHints: Record<string, string[][]> = {
             </button>
             {tourChapters.map((chapter, index) => {
               const example = examples.find((example) => example.id === chapter.request)!
-              return <button type="button" role="menuitemradio" aria-checked={index === 0 ? "true" : "false"} data-tour-option={chapter.request} data-select-search={chapter.title} data-title={chapter.title} data-description={chapter.description} data-response-tab={chapter.responseTab ?? "Body"} data-duration={example.scripts || example.tests ? 16000 : 12000} tabindex="-1">
+              return <button type="button" role="menuitemradio" aria-checked={index === 0 ? "true" : "false"} data-tour-option={chapter.request ?? chapter.surface} data-tour-surface={chapter.surface} data-select-search={chapter.title} data-title={chapter.title} data-description={chapter.description} data-response-tab={chapter.responseTab ?? "Body"} data-duration={chapter.surface ? 20000 : example.scripts || example.tests ? 16000 : 12000} tabindex="-1">
                 <svg class="select-check" viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8 3 3 7-7" /></svg>
                 <span>{index + 1} / {tourChapters.length} · {chapter.title}</span>
               </button>
@@ -73,7 +77,7 @@ const footerHints: Record<string, string[][]> = {
         </div>
       </div>
       <div class="terminal-actions">
-        <span class="environment"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="4" rx="5" ry="2" /><path d="M3 4v7c0 2.7 10 2.7 10 0V4M3 7.5c0 2.7 10 2.7 10 0" /></svg>development</span>
+        <span class="environment"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="4" rx="5" ry="2" /><path d="M3 4v7c0 2.7 10 2.7 10 0V4M3 7.5c0 2.7 10 2.7 10 0" /></svg><span data-active-environment>development</span></span>
         <div class="tour-controls tour-buttons" role="group" aria-label="Guided tour controls">
           <button type="button" data-tour-previous aria-label="Previous chapter" title="Previous chapter" disabled>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg>
@@ -286,6 +290,7 @@ const footerHints: Record<string, string[][]> = {
           </div>
         )
       })}
+      <NoodleAppExamples />
     </div>
     <div class="terminal-foot" aria-label="Noodle keyboard shortcuts" aria-describedby="noodle-demo-shortcuts">
       {Object.entries(footerHints).map(([context, hints]) => (
@@ -298,22 +303,28 @@ const footerHints: Record<string, string[][]> = {
         </div>
       ))}
       <button type="button" class="footer-send" data-footer-send disabled><kbd>^return</kbd><span>send</span></button>
+      <button type="button" data-app-return hidden><kbd>esc</kbd><span>back to requests</span></button>
     </div>
   </div>
-  <p class="sr-only" id="noodle-demo-shortcuts">Shortcuts from the Noodle app. Expand, copy, and send work in this demo. Other commands are shown for reference and disabled.</p>
+  <p class="sr-only" id="noodle-demo-shortcuts">Keyboard shortcuts from Noodle are shown for reference only. Use the buttons and menus to explore this demo. Environment edits stay in the demo.</p>
   <p class="sr-only" role="status" data-demo-status></p>
 </figure>
 
 <script>
+  import { initAppExamples } from "./noodle-app-examples"
+
   document.querySelectorAll<HTMLElement>("[data-noodle-demo]").forEach((demo) => {
     const choices = [...demo.querySelectorAll<HTMLButtonElement>("[data-request]")]
     const examples = [...demo.querySelectorAll<HTMLElement>("[data-example]")]
-    const panes = [...demo.querySelectorAll<HTMLElement>(".pane")]
+    const panes = [...demo.querySelectorAll<HTMLElement>(".pane, .app-pane")]
     const status = demo.querySelector<HTMLElement>("[data-demo-status]")!
     const footerSend = demo.querySelector<HTMLButtonElement>("[data-footer-send]")!
+    const footerReturn = demo.querySelector<HTMLButtonElement>("[data-app-return]")!
     let active = examples[0]!
     let pending: ReturnType<typeof setTimeout> | undefined
     let focusedGroup: HTMLElement | null = null
+    let appSurface: HTMLElement | undefined
+    const appExamples = initAppExamples(demo, (target) => navigateApp(target), () => pauseTour(), (message) => { status.textContent = message })
 
     const activatePane = (target: HTMLElement) => {
       if (target.closest(".terminal-foot")) return
@@ -321,7 +332,8 @@ const footerHints: Record<string, string[][]> = {
       const tab = group?.querySelector<HTMLElement>('[aria-selected="true"]')?.dataset.tab
       const inPanel = !!target.closest("[role=tabpanel]")
       let context: string
-      if (target.closest(".collection")) context = "sidebar"
+      if (target.closest("[data-app-surface]")) context = appSurface?.dataset.appSurface === "environments" ? "app-environments" : appSurface?.dataset.appSurface === "runner" ? "app-runner" : "app-picker"
+      else if (target.closest(".collection")) context = "sidebar"
       else if (target.closest(".url-bar")) context = "urlbar"
       else if (group?.dataset.group === "Request") {
         context = inPanel && ["Headers", "Params"].includes(tab!) ? "request-fields"
@@ -332,7 +344,7 @@ const footerHints: Record<string, string[][]> = {
       } else if (group?.dataset.group === "Response") {
         context = tab === "Body" ? "response-body" : tab === "Cookies" ? "response-cookies" : "response-base"
       } else return
-      const selectedPane = target.closest<HTMLElement>(".pane")
+      const selectedPane = target.closest<HTMLElement>(".pane, .app-pane")
       if (selectedPane) panes.forEach((pane) => pane.classList.toggle("is-active", pane === selectedPane))
       focusedGroup = group
       demo.querySelectorAll<HTMLElement>("[data-footer-context]").forEach((hints) => {
@@ -362,8 +374,14 @@ const footerHints: Record<string, string[][]> = {
       }
     }
     demo.querySelectorAll<HTMLButtonElement>("[data-footer-action]").forEach((button) => {
-      button.addEventListener("click", () => button.dataset.footerAction === "expand" ? toggleExpanded() : void copyBody())
+      button.addEventListener("click", () => {
+        if (button.dataset.footerAction === "expand") toggleExpanded()
+        else if (button.dataset.footerAction === "commands") navigateApp("commands")
+        else if (button.dataset.footerAction === "run") demo.querySelector<HTMLButtonElement>("[data-runner-run]")!.click()
+        else void copyBody()
+      })
     })
+    footerReturn.addEventListener("click", () => navigateApp("close"))
     demo.addEventListener("keydown", (event) => {
       if (!(event.target as HTMLElement).closest(".terminal")) return
       const summary = (event.target as HTMLElement).closest(".disclosure-rows summary")
@@ -373,15 +391,6 @@ const footerHints: Record<string, string[][]> = {
         const next = event.key === "Home" ? 0 : event.key === "End" ? rows.length - 1 : Math.max(0, Math.min(rows.length - 1, index + (event.key === "ArrowDown" ? 1 : -1)))
         event.preventDefault()
         rows[next]!.focus()
-      } else if (event.ctrlKey && event.key === "Enter") {
-        event.preventDefault()
-        footerSend.click()
-      } else if (event.key === "F2" && focusedGroup) {
-        event.preventDefault()
-        toggleExpanded()
-      } else if (event.ctrlKey && event.altKey && event.code === "KeyB" && focusedGroup?.dataset.group === "Response" && focusedGroup.querySelector('[data-tab="Body"]')?.getAttribute("aria-selected") === "true" && pending === undefined) {
-        event.preventDefault()
-        void copyBody()
       }
     })
 
@@ -414,6 +423,7 @@ const footerHints: Record<string, string[][]> = {
     }
 
     const selectRequest = (choice: HTMLButtonElement) => {
+      selectSurface()
       clearTimeout(pending)
       pending = undefined
       setSending(false)
@@ -513,6 +523,7 @@ const footerHints: Record<string, string[][]> = {
     })
 
     const sendSample = () => {
+      if (appSurface) return
       pauseTour()
       if (pending !== undefined) return
       pending = setTimeout(() => {
@@ -585,8 +596,28 @@ const footerHints: Record<string, string[][]> = {
       chapters.forEach((chapter, i) => chapter.setAttribute("aria-checked", String(i === index)))
       updatePlayback()
     }
-    const showChapter = (index: number) => {
+    const selectSurface = (id?: string) => {
+      clearTimeout(pending)
+      pending = undefined
+      setSending(false)
+      appSurface = appExamples.activate(id)
+      demo.querySelector<HTMLElement>(".terminal-layout")!.classList.toggle("app-workspace-visible", id === "environments" || id === "runner")
+      active.inert = !!appSurface
+      demo.querySelector<HTMLElement>(".collection")!.inert = !!appSurface
+      footerSend.hidden = !!appSurface
+      footerReturn.hidden = !appSurface
+      focusedGroup = null
+      if (appSurface) activatePane(appSurface.querySelector<HTMLElement>(".app-pane") ?? appSurface)
+    }
+    const showChapter = (index: number, focus = false) => {
       const chapter = chapters[index]!
+      if (chapter.dataset.tourSurface) {
+        selectSurface(chapter.dataset.tourSurface)
+        updateChapter(index)
+        status.textContent = `${chapter.dataset.title}. ${chapter.dataset.description}`
+        if (focus) queueMicrotask(() => (appSurface?.querySelector<HTMLElement>("[data-picker-search]") ?? appSurface?.querySelector<HTMLElement>('input:not([type="hidden"]), button'))?.focus())
+        return
+      }
       const choice = choices.find((button) => button.dataset.request === chapter.dataset.tourOption)!
       selectRequest(choice)
       fitTourFolders()
@@ -600,6 +631,60 @@ const footerHints: Record<string, string[][]> = {
       else if (row.bottom > bounds.bottom) tree.scrollTop += row.bottom - bounds.bottom
       updateChapter(index)
       status.textContent = `${chapter.dataset.title}. ${chapter.dataset.description}`
+    }
+    const navigateApp = (target: string) => {
+      pauseTour()
+      if (["send", "layout", "expand", "sidebar", "cycle-environment"].includes(target)) {
+        selectSurface()
+        updateChapter(chapters.findIndex((chapter) => chapter.dataset.tourOption === active.dataset.example))
+        const request = active.querySelector<HTMLElement>('.request')!
+        const layout = demo.querySelector<HTMLElement>(".terminal-layout")!
+        if (target === "send") active.querySelector<HTMLButtonElement>("[data-send]")!.click()
+        else if (target === "layout") {
+          const sideBySide = layout.classList.toggle("side-by-side")
+          status.textContent = sideBySide ? "Request and response panes side by side." : "Request and response panes stacked."
+        } else if (target === "expand") {
+          focusedGroup = active.querySelector<HTMLElement>(".detail-pane.is-expanded") ?? request
+          toggleExpanded()
+        } else if (target === "sidebar") {
+          const hidden = layout.classList.toggle("sidebar-hidden")
+          demo.querySelector<HTMLElement>(".collection")!.hidden = hidden
+          status.textContent = hidden ? "Request sidebar hidden." : "Request sidebar shown."
+        } else {
+          const environments = [...demo.querySelectorAll<HTMLButtonElement>("[data-demo-env]")]
+          const index = environments.findIndex((environment) => environment.getAttribute("aria-pressed") === "true")
+          environments[(index + 1) % environments.length]!.click()
+        }
+        request.querySelector<HTMLElement>('[role=tabpanel]:not([hidden])')!.focus()
+        return
+      }
+      if (target === "help" || target === "order" || target === "env-picker") {
+        if (target === "order") {
+          let script = active.querySelector<HTMLElement>('[role=tabpanel]:not([hidden]) .script-code, [role=tabpanel]:not([hidden]) .external-script') ?? active.querySelector<HTMLElement>('.script-code, .external-script')
+          if (!script) {
+            selectRequest(choices.find((choice) => choice.dataset.request === "create-post")!)
+            script = active.querySelector<HTMLElement>('.script-code')!
+          }
+          const phase = script.closest<HTMLElement>('[role=tabpanel]')!.id
+          const description = phase.includes("Post-Script") ? "Scripts run in this order after the response and captures." : phase.includes("Tests") ? "Tests run in this order after declarative assertions." : "Scripts run in this order before sending the request."
+          demo.querySelector<HTMLElement>("[data-script-order-description]")!.textContent = description
+          demo.querySelector<HTMLElement>("[data-script-order-label]")!.textContent = active.dataset.name!
+          demo.querySelector<HTMLElement>("[data-script-order-kind]")!.textContent = script.classList.contains("external-script") ? "file" : "inline"
+        }
+        selectSurface(target)
+        updateChapter(-1)
+        appSurface!.querySelector<HTMLElement>('[data-picker-search], [tabindex="0"]')!.focus()
+        status.textContent = target === "help" ? "Keyboard shortcuts." : target === "env-picker" ? "Select an environment." : `${active.dataset.name} script execution order.`
+        return
+      }
+      const id = target === "close" ? active.dataset.example! : target
+      const index = chapters.findIndex((chapter) => chapter.dataset.tourOption === id)
+      if (index >= 0) showChapter(index, true)
+      else {
+        selectRequest(choices.find((choice) => choice.dataset.request === id)!)
+        updateChapter(-1)
+      }
+      if (!appSurface) active.querySelector<HTMLElement>('[role=tabpanel]:not([hidden])')?.focus()
     }
     const scheduleChapter = () => {
       clearTimeout(tourTimer)
@@ -628,7 +713,7 @@ const footerHints: Record<string, string[][]> = {
       if (!chapterMenu.matches(":popover-open")) scheduleChapter()
     })
     chapters.forEach((option, index) => option.addEventListener("click", () => {
-      showChapter(index)
+      showChapter(index, true)
       scheduleChapter()
     }))
     previous.addEventListener("click", () => { showChapter(chapterIndex - 1); scheduleChapter() })
@@ -716,7 +801,9 @@ const footerHints: Record<string, string[][]> = {
   .title-divider, .terminal-foot, .folder-name { color: var(--demo-text-muted); }
   .environment { gap: 1ch; }
   .environment svg { width: 14px; height: 14px; fill: none; stroke: var(--demo-success); stroke-width: 1; }
-  .terminal-layout { display: grid; grid-template-columns: minmax(190px, 25%) minmax(0, 1fr); align-items: stretch; gap: 2ch; }
+  .terminal-layout { position: relative; display: grid; grid-template-columns: minmax(190px, 25%) minmax(0, 1fr); align-items: stretch; gap: 2ch; }
+  .terminal-layout.sidebar-hidden { grid-template-columns: minmax(0, 1fr); }
+  .terminal-layout.app-workspace-visible > :is(.collection, .workspace) { visibility: hidden; }
   .pane { position: relative; min-width: 0; background: var(--demo-background-panel); border: 1px solid var(--demo-border-subtle); }
   .pane-heading, .collection > .pane-title { position: absolute; top: calc(var(--demo-line) / -2); right: 1ch; padding: 0 1ch; background: var(--demo-background-panel); }
   .pane-heading { display: flex; align-items: center; gap: 2ch; }
@@ -741,6 +828,8 @@ const footerHints: Record<string, string[][]> = {
   .patch, .put { color: var(--demo-info); }
   .delete { color: var(--demo-error); }
   .workspace { display: grid; gap: var(--demo-line); min-width: 0; }
+  .terminal-layout.side-by-side .workspace:not(.is-expanded) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .terminal-layout.side-by-side .url-bar { grid-column: 1 / -1; }
   .workspace.is-expanded .detail-pane:not(.is-expanded) { display: none; }
   .detail-pane.is-expanded .tab-panel, .detail-pane.is-expanded .sending-message { height: calc(var(--demo-line) * 20); }
   .url-bar { display: flex; gap: 2ch; align-items: center; min-width: 0; min-height: 46px; padding: 0 1ch; border: 1px solid var(--demo-border-subtle); }

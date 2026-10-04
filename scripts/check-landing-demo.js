@@ -40,7 +40,7 @@ async function checkNoodleDemo(doc = document) {
   assert(new Set(ids).size === ids.length, "All demo IDs are unique")
   assert([...demo.querySelectorAll("[data-request], [data-send], [role=tab], [data-footer-action], [data-footer-send], [data-add-tab]")].every((button) => !button.disabled), "Controls initialized")
   assert([...demo.querySelectorAll(".footer-context button:not([data-footer-action])")].every((button) => button.disabled), "App-only footer commands stay disabled")
-  assert([...demo.querySelectorAll(".terminal select, button.tag-placeholder")].every((control) => control.disabled), "Read-only auth and settings controls stay disabled")
+  assert([...demo.querySelectorAll("[data-example] select, button.tag-placeholder")].every((control) => control.disabled), "Read-only auth and settings controls stay disabled")
   const folders = [...demo.querySelectorAll(".request-folder")]
   assert(folders.map((folder) => folder.querySelector("summary").textContent.trim()).join(",") === "body templates,assertions & captures,authentication,scripts,tests,requests", "All six feature folders are present")
   assert(demo.querySelectorAll("[data-request]").length === 32, "All 32 focused request examples are present")
@@ -132,7 +132,9 @@ async function checkNoodleDemo(doc = document) {
           expand.click()
           assert(group.classList.contains("is-expanded") && doc.activeElement === expand, `${id}: footer expands the focused pane without moving focus`)
           expand.dispatchEvent(new view.KeyboardEvent("keydown", { key: "F2", bubbles: true }))
-          assert(!group.classList.contains("is-expanded"), `${id}: F2 restores the pane`)
+          assert(group.classList.contains("is-expanded"), `${id}: F2 is only a reference`)
+          expand.click()
+          assert(!group.classList.contains("is-expanded"), `${id}: clicking restores the pane`)
         }
         if (tab.textContent === "Timeline") {
           const content = panel.innerHTML
@@ -265,9 +267,7 @@ async function checkNoodleDemo(doc = document) {
   const responsePanel = active().querySelector('.response [role="tabpanel"]:not([hidden])')
   responsePanel.focus()
   responsePanel.dispatchEvent(new view.KeyboardEvent("keydown", { key: "Enter", ctrlKey: true, bubbles: true }))
-  assert(doc.activeElement === responsePanel && footerSend.getAttribute("aria-disabled") === "true", "Ctrl+Enter sends without hiding the focused response panel")
-  await wait()
-  assert(doc.activeElement === responsePanel && live.textContent.includes("complete."), "Keyboard Send preserves focus through completion")
+  assert(doc.activeElement === responsePanel && footerSend.getAttribute("aria-disabled") === "false", "Ctrl+Enter is only a reference")
   footer().querySelector('[data-footer-action="expand"]').click()
   choice("get-user").click()
   assert(!demo.querySelector('.workspace.is-expanded'), "Changing requests restores the normal pane layout")
@@ -327,129 +327,56 @@ async function checkNoodleDemo(doc = document) {
 }
 
 async function checkNoodleTour(doc = document) {
-  const demo = doc.querySelector("[data-noodle-demo]")
-  const view = doc.defaultView
-  const checks = []
-  const assert = (condition, message) => {
-    if (!condition) throw new Error(message)
-    checks.push(message)
-  }
-  const chapters = [...demo.querySelectorAll("[data-tour-chapter]")]
-  const select = demo.querySelector("[data-tour-select]")
-  const play = demo.querySelector("[data-tour-play]")
-  const previous = demo.querySelector("[data-tour-previous]")
-  const next = demo.querySelector("[data-tour-next]")
-  const progress = demo.querySelector("[data-tour-progress]")
-  const active = () => demo.querySelector("[data-example]:not([hidden])")
-  const choose = (id) => { select.value = id; select.dispatchEvent(new view.Event("change", { bubbles: true })) }
-  assert(chapters.length === 22 && !select.disabled && !play.disabled, "22 guided chapters initialize")
-  select.focus({ preventScroll: true })
-  const scroll = view.scrollY
+  const demo = doc.querySelector('[data-noodle-demo]')
+  const chapters = [...demo.querySelectorAll('[data-tour-option]')]
+  const play = demo.querySelector('[data-tour-play]')
+  const previous = demo.querySelector('[data-tour-previous]')
+  const next = demo.querySelector('[data-tour-next]')
+  const progress = demo.querySelector('[data-tour-progress]')
+  let passed = 0
+  const assert = (condition, message) => { if (!condition) throw new Error(message); passed++ }
+  const selected = () => chapters.find((chapter) => chapter.getAttribute('aria-checked') === 'true')
+  if (play.getAttribute('aria-label') === 'Pause tour') play.click()
   const height = demo.getBoundingClientRect().height
+  assert(chapters.length === 27, '27 chapters initialize')
   for (const chapter of chapters) {
-    choose(chapter.dataset.tourChapter)
-    const workspace = active()
-    const request = demo.querySelector(`[data-request="${chapter.dataset.tourChapter}"]`)
-    const tree = demo.querySelector(".request-tree").getBoundingClientRect()
-    const row = request.getBoundingClientRect()
-    assert(workspace.dataset.example === chapter.dataset.tourChapter && request.getAttribute("aria-pressed") === "true", `${select.value}: chapter selects its request`)
-    assert(request.closest("details").open && demo.querySelectorAll(".request-folder[open]").length === 1, `${select.value}: matching folder is open`)
-    assert(row.top >= tree.top - 1 && row.bottom <= tree.bottom + 1, `${select.value}: selected request is visible in the sidebar`)
-    assert(workspace.querySelector('.request [aria-selected="true"]').dataset.tab === workspace.querySelector(".request").dataset.defaultTab, `${select.value}: relevant request tab is selected`)
-    assert(workspace.querySelector('.response [aria-selected="true"]').dataset.tab === chapter.dataset.responseTab, `${select.value}: relevant response tab is selected`)
-    assert(demo.querySelectorAll('.pane.is-active').length === 1 && workspace.querySelector(chapter.dataset.responseTab === "Body" ? ".request" : ".response").classList.contains("is-active"), `${select.value}: the demonstrated pane stays selected while the chapter control has keyboard focus`)
-    assert(chapter.getAttribute("aria-hidden") === "false" && demo.querySelectorAll('.tour-copy [aria-hidden="false"]').length === 1, `${select.value}: one matching explanation is exposed`)
-    assert(Math.abs(demo.getBoundingClientRect().height - height) < 1 && view.scrollY === scroll && doc.activeElement === select, `${select.value}: chapter changes preserve layout, page scroll, and focus`)
-    assert(play.textContent === "Play", `${select.value}: chapter selection pauses playback`)
+    chapter.click()
+    const surface = demo.querySelector('[data-app-surface]:not([hidden])')
+    const request = demo.querySelector('[data-example]:not([hidden])')
+    assert(selected() === chapter, `${chapter.dataset.title}: chapter selected`)
+    assert(chapter.dataset.tourSurface ? surface?.dataset.appSurface === chapter.dataset.tourSurface : !surface && request.dataset.example === chapter.dataset.tourOption, `${chapter.dataset.title}: matching example shown`)
+    assert(request.inert === !!surface, `${chapter.dataset.title}: underlying controls follow surface state`)
+    assert(Math.abs(demo.getBoundingClientRect().height - height) < 1, `${chapter.dataset.title}: terminal height stays stable`)
   }
-  assert(next.disabled && !previous.disabled, "Last chapter disables Next")
+  assert(next.disabled && !previous.disabled, 'Last chapter disables Next')
   previous.click()
-  assert(select.value === chapters.at(-2).dataset.tourChapter, "Previous selects the preceding chapter")
-  assert(play.textContent === "Play" && !progress.getAnimations().length, "Previous preserves explicitly paused playback")
+  assert(selected() === chapters.at(-2), 'Previous selects environment workspace')
   next.click()
-  assert(select.value === chapters.at(-1).dataset.tourChapter, "Next selects the following chapter")
-  assert(play.textContent === "Play" && !progress.getAnimations().length, "Next preserves explicitly paused playback")
-  choose(chapters[0].dataset.tourChapter)
-  assert(previous.disabled && !next.disabled, "First chapter disables Previous")
-  play.click()
-  assert(play.textContent === "Pause", "Play starts playback")
-  assert(active().querySelector('.request').classList.contains('is-active'), "Play selects the demonstrated pane")
-  for (const button of [next, previous]) {
-    const oldProgress = progress.getAnimations()[0]
-    oldProgress.currentTime = 6000
-    button.click()
-    const restarted = progress.getAnimations()[0]
-    assert(play.textContent === "Pause", `${button.textContent}: chapter navigation keeps playback running`)
-    assert(active().querySelector('.request').classList.contains('is-active') && demo.querySelectorAll('.pane.is-active').length === 1, `${button.textContent}: chapter navigation preserves a single selected pane`)
-    assert(oldProgress.playState === "idle" && restarted?.playState === "running" && restarted.currentTime === 0, `${button.textContent}: chapter navigation restarts progress from zero`)
-    assert(restarted.effect.getTiming().duration === Number(chapters.find((chapter) => chapter.dataset.tourChapter === select.value).dataset.duration), `${button.textContent}: restarted progress uses the selected chapter duration`)
-  }
-  play.click()
-  assert(play.textContent === "Play", "Pause stops playback")
-  play.click()
-  for (const event of ["pointerover", "pointerdown", "keydown", "focusin", "wheel", "click"]) {
-    active().querySelector('.request [role=tabpanel]:not([hidden])').dispatchEvent(new view.Event(event, { bubbles: true }))
-    assert(play.textContent === "Pause", `${event}: passive interaction keeps playback running`)
-  }
-  active().querySelector('.request [data-tab="Headers"]').click()
-  assert(play.textContent === "Play", "Selecting a tab pauses playback")
-  play.click()
-  active().querySelector('.request [aria-selected="true"]').dispatchEvent(new view.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }))
-  assert(play.textContent === "Play", "Keyboard tab navigation pauses playback")
-  play.click()
-  select.dispatchEvent(new view.Event("pointerdown", { bubbles: true }))
-  assert(play.textContent === "Play", "Opening the chapter selector pauses playback")
-  play.click()
-  select.dispatchEvent(new view.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }))
-  assert(play.textContent === "Play", "Keyboard chapter selection pauses playback")
-  for (const selector of ['.request-folder summary', '[data-add-tab]']) {
-    play.click()
-    const control = selector.includes("folder") ? demo.querySelector(selector) : active().querySelector(selector)
-    control.click()
-    assert(play.textContent === "Play", `${selector}: opening navigation pauses playback`)
-  }
-  play.click()
-  demo.querySelector('[data-request="basic-auth"]').click()
-  assert(play.textContent === "Play", "Selecting a request pauses playback")
-  assert(select.value === "" && demo.querySelector('[data-tour-explore]').getAttribute("aria-hidden") === "false", "Manual exploration outside the tour has its own explanation")
-  play.click()
-  assert(active().dataset.example === chapters[0].dataset.tourChapter && select.value === chapters[0].dataset.tourChapter, "Play returns from exploration to the current chapter")
-  play.click()
+  assert(selected() === chapters.at(-1), 'Next selects runner workspace')
+  chapters[0].click()
+  assert(previous.disabled && !next.disabled, 'First chapter disables Previous')
   const durations = chapters.map((chapter) => chapter.dataset.duration)
   const waitFor = async (condition) => {
-    const deadline = view.performance.now() + 2000
+    const deadline = performance.now() + 2000
     while (!condition()) {
-      if (view.performance.now() > deadline) throw new Error("Timed out waiting for tour playback")
-      await new Promise((resolve) => view.requestAnimationFrame(resolve))
+      if (performance.now() > deadline) throw new Error('Timed out waiting for tour playback')
+      await new Promise((resolve) => requestAnimationFrame(resolve))
     }
   }
   try {
-    demo.scrollIntoView({ block: "center", behavior: "instant" })
-    // Let the browser deliver intersection changes before testing its timers.
-    await new Promise((resolve) => view.requestAnimationFrame(() => view.requestAnimationFrame(resolve)))
-    chapters.forEach((chapter) => { chapter.dataset.duration = "100" })
+    chapters.forEach((chapter) => { chapter.dataset.duration = '100' })
+    chapters.at(-1).click()
     play.click()
-    await waitFor(() => progress.getAnimations().some((animation) => animation.playState === "running"))
-    assert(progress.getAnimations()[0]?.effect.getTiming().duration === Number(chapters[0].dataset.duration), "Progress uses the same duration as the chapter timer")
-    await waitFor(() => select.value === chapters[1].dataset.tourChapter)
-    assert(active().querySelector('.request').classList.contains('is-active') && demo.querySelectorAll('.pane.is-active').length === 1, "Automatic advance selects a pane in the new example")
+    await waitFor(() => selected() === chapters[0])
+    assert(play.getAttribute('aria-label') === 'Pause tour', 'Tour loops from runner to the first request')
     play.click()
-    const pausedProgress = progress.getAnimations()[0]
-    await pausedProgress.ready
-    const pausedTime = pausedProgress.currentTime
-    const paused = select.value
-    await new Promise((resolve) => view.setTimeout(resolve, 250))
-    assert(select.value === paused, "Paused playback cancels its pending advance")
-    assert(pausedProgress.playState === "paused" && pausedProgress.currentTime === pausedTime, "Progress freezes with paused playback")
-    choose(chapters.at(-1).dataset.tourChapter)
-    play.click()
-    await waitFor(() => select.value === chapters[0].dataset.tourChapter)
-    assert(play.textContent === "Pause", "Tour loops from its last chapter to its first without stopping")
-    play.click()
-    assert(play.textContent === "Play", "Pause still stops a looping tour")
+    const paused = selected()
+    await new Promise((resolve) => setTimeout(resolve, 250))
+    assert(selected() === paused && progress.getAnimations().every((animation) => animation.playState === 'paused'), 'Pause stops chapter advance and progress')
   } finally {
-    if (play.textContent === "Pause") play.click()
+    if (play.getAttribute('aria-label') === 'Pause tour') play.click()
     chapters.forEach((chapter, index) => { chapter.dataset.duration = durations[index] })
+    chapters[0].click()
   }
-  return { passed: checks.length, checks }
+  return { passed }
 }

@@ -9,15 +9,17 @@ function checkTourSelector(doc = document) {
   const selected = options.filter((option) => option.getAttribute('aria-checked') === 'true')
   const chapter = selected[0]
   const active = demo.querySelector('[data-example]:not([hidden])')
+  const surface = demo.querySelector('[data-app-surface]:not([hidden])')
   let passed = 0
   const assert = (condition, message) => { if (!condition) throw new Error(message); passed++ }
   assert(trigger.tagName === 'BUTTON' && !trigger.disabled && trigger.closest('.terminal-title'), 'Chapter selector is enabled in the terminal title bar')
   assert(!demo.querySelector('.demo-tour, .tour-copy, .tour-descriptions'), 'Separate tour heading and descriptions are removed')
-  assert(options.length === 22, 'Every chapter is selectable')
+  assert(options.length === 27, 'Every chapter is selectable')
   assert(demo.querySelector('.terminal-title .tour-controls'), 'Playback controls share the terminal title bar')
   if (chapter) {
     assert(selected.length === 1, 'Exactly one chapter is selected')
-    assert(active.dataset.example === chapter.dataset.tourOption, 'Selected chapter matches the terminal request')
+    assert(chapter.dataset.tourSurface ? surface?.dataset.appSurface === chapter.dataset.tourSurface : !surface && active.dataset.example === chapter.dataset.tourOption, 'Selected chapter matches the terminal request or app surface')
+    assert(active.inert === !!surface && demo.querySelector('.collection').inert === !!surface, 'App examples protect the underlying request controls')
     assert(title === `Tour chapter, ${options.indexOf(chapter) + 1} / ${options.length} · ${chapter.dataset.title} selected`, 'Accessible selector label identifies the current chapter')
   } else {
     assert(title === `Tour chapter, ${active.dataset.name} selected`, 'Exploration identifies the request without a false chapter selection')

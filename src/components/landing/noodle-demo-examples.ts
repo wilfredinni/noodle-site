@@ -208,7 +208,12 @@ export const examples: Example[] = [
   },
 ]
 
-export const tourChapters: { request: string; title: string; description: string; responseTab?: string }[] = [
+type TourChapter = { title: string; description: string; responseTab?: string } & (
+  | { request: string; surface?: never }
+  | { surface: string; request?: never }
+)
+
+export const tourChapters: TourChapter[] = [
   { request: "create", title: "Random request data", description: "Put names, email addresses, and text directly into a JSON body with $random placeholders. Compare the template with its sample response." },
   { request: "random-post", title: "Keep generated values typed", description: "Generate numbers, booleans, UUIDs, and choices in your request body. Whole-value placeholders keep their JSON types." },
   { request: "time-post", title: "Timestamps without a script", description: "Use $time placeholders for ISO dates, milliseconds, and Unix seconds. One request uses a shared timestamp across its body." },
@@ -231,4 +236,9 @@ export const tourChapters: { request: string; title: string; description: string
   { request: "multipart-post", title: "Upload files with fields", description: "Combine text fields and file paths in a multipart request. This example pairs a username with a README upload." },
   { request: "xml-post", title: "Send an XML body", description: "Choose the body format your API expects. This request sends an XML message with the matching Content-Type header." },
   { request: "cookie-request", title: "Inspect response cookies", description: "See captured cookies and their values. Expand a row to inspect its domain and path. This sample response sets theme, locale, and timezone cookies for httpbin.org.", responseTab: "Cookies" },
+  { surface: "commands", title: "Command palette", description: "Search Noodle's commands to send requests, switch environments, change the workspace layout, inspect script execution order, or open the runner and theme picker. Use the arrow keys and Enter, or select a command." },
+  { surface: "finder", title: "Find requests", description: "Search the sample collection by request name, method, or folder. Select a result to open its request workspace." },
+  { surface: "themes", title: "Theme switcher", description: "Preview Noodle's colors as you move through the theme picker. Select a theme to keep it in this demo; Escape restores the previous palette." },
+  { surface: "environments", title: "Environment workspace", description: "Switch between sample environments, edit variable values, and reveal a sample secret. These changes stay in the demo." },
+  { surface: "runner", title: "Runner workspace", description: "Select requests, filter by tags, and run the sample collection. Results show each request's sample status and timing without contacting an API." },
 ]
