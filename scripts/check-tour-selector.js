@@ -4,28 +4,33 @@ function checkTourSelector(doc = document) {
   const view = doc.defaultView
   const demo = doc.querySelector('[data-noodle-demo]')
   const trigger = demo.querySelector('[data-tour-select]')
-  const title = demo.querySelector('[data-tour-title]').textContent.trim()
-  const chapters = [...demo.querySelectorAll('[data-tour-chapter]')]
+  const title = trigger.getAttribute('aria-label')
   const options = [...demo.querySelectorAll('[data-tour-option]')]
-  const chapter = chapters.find((item) => item.getAttribute('aria-hidden') === 'false')
   const selected = options.filter((option) => option.getAttribute('aria-checked') === 'true')
+  const chapter = selected[0]
   const active = demo.querySelector('[data-example]:not([hidden])')
   let passed = 0
   const assert = (condition, message) => { if (!condition) throw new Error(message); passed++ }
-  assert(trigger.tagName === 'BUTTON' && !trigger.disabled && trigger.closest('h2'), 'Chapter heading is the enabled selector')
-  assert(!demo.querySelector('.tour-controls select'), 'No duplicate chapter selector')
-  assert(options.length === chapters.length, 'Every chapter is selectable')
+  assert(trigger.tagName === 'BUTTON' && !trigger.disabled && trigger.closest('.terminal-title'), 'Chapter selector is enabled in the terminal title bar')
+  assert(!demo.querySelector('.demo-tour, .tour-copy, .tour-descriptions'), 'Separate tour heading and descriptions are removed')
+  assert(options.length === 22, 'Every chapter is selectable')
+  assert(demo.querySelector('.terminal-title .tour-controls'), 'Playback controls share the terminal title bar')
   if (chapter) {
-    assert(selected.length === 1 && selected[0].dataset.tourOption === chapter.dataset.tourChapter, 'Selected menu option matches the description')
-    assert(active.dataset.example === chapter.dataset.tourChapter, 'Selected chapter matches the terminal request')
-    assert(title === `${chapters.indexOf(chapter) + 1} / ${chapters.length} · ${chapter.dataset.title}`, 'Heading shows the current number and title')
+    assert(selected.length === 1, 'Exactly one chapter is selected')
+    assert(active.dataset.example === chapter.dataset.tourOption, 'Selected chapter matches the terminal request')
+    assert(title === `Tour chapter, ${options.indexOf(chapter) + 1} / ${options.length} · ${chapter.dataset.title} selected`, 'Accessible selector label identifies the current chapter')
   } else {
-    assert(selected.length === 0 && title === active.dataset.name, 'Exploration keeps the request name without a false chapter selection')
+    assert(title === `Tour chapter, ${active.dataset.name} selected`, 'Exploration identifies the request without a false chapter selection')
   }
-  const rem = Number.parseFloat(view.getComputedStyle(doc.documentElement).fontSize)
+  assert(demo.querySelector('[data-tour-title]').textContent === (chapter ? chapter.dataset.title : active.dataset.name), 'Visible title follows the selected chapter or request')
   const fontSize = Number.parseFloat(view.getComputedStyle(trigger).fontSize)
-  assert(Math.abs(fontSize - Math.max(1.75 * rem, Math.min(0.03 * view.innerWidth, 2.5 * rem))) < 0.02, 'Original responsive heading size is preserved')
-  assert(trigger.getBoundingClientRect().width <= demo.querySelector('.tour-copy').getBoundingClientRect().width + 1, 'Title fits its column')
+  assert(fontSize === Number.parseFloat(view.getComputedStyle(demo).fontSize), 'Selector uses the compact terminal typography')
+  const bar = demo.querySelector('.terminal-title').getBoundingClientRect()
+  for (const button of demo.querySelectorAll('.terminal-title button:not([role="menuitemradio"])')) {
+    const rect = button.getBoundingClientRect()
+    const minimum = view.matchMedia('(min-width: 680px) and (pointer: fine)').matches ? 28 : 44
+    assert(rect.height >= minimum && rect.left >= bar.left && rect.right <= bar.right, 'Title bar controls keep their pointer or touch size and stay inside the terminal')
+  }
   for (const picker of doc.querySelectorAll('[data-select-menu]')) {
     const button = picker.querySelector('[data-select-trigger]')
     const menu = picker.querySelector('[popover]')
@@ -53,7 +58,7 @@ function checkTourPlayback(playing, minTime = 0, maxTime = Infinity) {
   const open = demo.querySelector('.tour-picker [popover]').matches(':popover-open')
   const animation = demo.querySelector('[data-tour-progress]').getAnimations()[0]
   const elapsed = Number(animation?.currentTime ?? 0)
-  if ((demo.querySelector('[data-tour-play]').textContent === 'Pause') !== playing) throw new Error('Playback intent changed')
+  if ((demo.querySelector('[data-tour-play]').getAttribute('aria-label') === 'Pause tour') !== playing) throw new Error('Playback intent changed')
   const tree = demo.querySelector('.request-tree')
   const openFolders = tree.querySelectorAll('.request-folder[open]').length
   if (playing && (openFolders < 3 || openFolders > 4)) throw new Error('Playback should show three or four folders')

@@ -68,56 +68,42 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
 ---
 
 <figure class="noodle-demo" data-noodle-demo aria-label="Interactive Noodle demo with sample responses">
-  <div class="demo-tour">
-    <div class="tour-copy">
-      <SelectMenu class="tour-picker" label="Tour chapter" fitContent>
-        <h2 slot="trigger">
-          <button type="button" class="select-trigger tour-title-trigger" data-select-trigger data-tour-select aria-label={`Tour chapter, 1 / ${tourChapters.length} · ${tourChapters[0]!.title} selected`} aria-haspopup="menu" aria-expanded="false" disabled>
-            <span class="select-name" data-tour-title>1 / {tourChapters.length} · {tourChapters[0]!.title}</span>
-            <svg class="select-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
-          </button>
-        </h2>
-        {tourChapters.map((chapter, index) => (
-          <button type="button" role="menuitemradio" aria-checked={index === 0 ? "true" : "false"} data-tour-option={chapter.request} data-select-search={chapter.title} tabindex="-1">
-            <svg class="select-check" viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8 3 3 7-7" /></svg>
-            <span>{index + 1} / {tourChapters.length} · {chapter.title}</span>
-          </button>
-        ))}
-      </SelectMenu>
-      <div class="tour-descriptions">
-        {tourChapters.map((chapter, index) => {
-          const example = examples.find((example) => example.id === chapter.request)!
-          return <div data-tour-chapter={chapter.request} data-title={chapter.title} data-response-tab={chapter.responseTab ?? "Body"} data-duration={example.scripts || example.tests ? 16000 : 12000} aria-hidden={index !== 0 ? "true" : "false"}>
-            <p>{chapter.description}</p>
-          </div>
-        })}
-        <div data-tour-explore aria-hidden="true">
-          <p>Explore this request's tabs and sample response. Choose a chapter or play the tour to return to the guided walkthrough.</p>
-        </div>
-      </div>
-    </div>
-    <div class="tour-controls" role="group" aria-label="Guided tour controls">
-      <div class="tour-buttons">
-        <button type="button" data-tour-previous aria-label="Previous chapter" title="Previous chapter" disabled>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg>
-        </button>
-        <button type="button" data-tour-play aria-label="Play tour" title="Play tour" disabled>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7z" /></svg>
-        </button>
-        <button type="button" data-tour-next aria-label="Next chapter" title="Next chapter" disabled>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg>
-        </button>
-      </div>
-    </div>
-  </div>
   <div class="terminal">
     <div class="tour-progress" aria-hidden="true"><span data-tour-progress></span></div>
     <div class="terminal-title">
-      <div>
+      <div class="terminal-identity">
         <span class="terminal-brand"><strong>Noodle</strong>{version && <span class="terminal-version"> {version}</span>}</span>
-        <span class="collection-label"><span class="title-divider">/</span><span>Feature Tour <svg class="chevron collection-chevron" viewBox="0 0 10 6" aria-hidden="true"><path d="M0 0h10L5 6z" /></svg></span></span>
+        <div class="collection-label">
+          <span class="title-divider">/</span>
+          <SelectMenu class="tour-picker" label="Tour chapter" fitContent>
+            <button slot="trigger" type="button" class="select-trigger tour-title-trigger" data-select-trigger data-tour-select aria-label={`Tour chapter, 1 / ${tourChapters.length} · ${tourChapters[0]!.title} selected`} aria-haspopup="menu" aria-expanded="false" disabled>
+              <span class="select-name" data-tour-title>{tourChapters[0]!.title}</span>
+              <svg class="select-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg>
+            </button>
+            {tourChapters.map((chapter, index) => {
+              const example = examples.find((example) => example.id === chapter.request)!
+              return <button type="button" role="menuitemradio" aria-checked={index === 0 ? "true" : "false"} data-tour-option={chapter.request} data-select-search={chapter.title} data-title={chapter.title} data-description={chapter.description} data-response-tab={chapter.responseTab ?? "Body"} data-duration={example.scripts || example.tests ? 16000 : 12000} tabindex="-1">
+                <svg class="select-check" viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8 3 3 7-7" /></svg>
+                <span>{index + 1} / {tourChapters.length} · {chapter.title}</span>
+              </button>
+            })}
+          </SelectMenu>
+        </div>
       </div>
-      <span class="environment"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="4" rx="5" ry="2" /><path d="M3 4v7c0 2.7 10 2.7 10 0V4M3 7.5c0 2.7 10 2.7 10 0" /></svg>development</span>
+      <div class="terminal-actions">
+        <span class="environment"><svg viewBox="0 0 16 16" aria-hidden="true"><ellipse cx="8" cy="4" rx="5" ry="2" /><path d="M3 4v7c0 2.7 10 2.7 10 0V4M3 7.5c0 2.7 10 2.7 10 0" /></svg>development</span>
+        <div class="tour-controls tour-buttons" role="group" aria-label="Guided tour controls">
+          <button type="button" data-tour-previous aria-label="Previous chapter" title="Previous chapter" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg>
+          </button>
+          <button type="button" data-tour-play aria-label="Play tour" title="Play tour" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7z" /></svg>
+          </button>
+          <button type="button" data-tour-next aria-label="Next chapter" title="Next chapter" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg>
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="terminal-layout">
@@ -534,17 +520,15 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     footerSend.addEventListener("click", sendSample)
     demo.querySelectorAll<HTMLButtonElement>("[data-request], [data-send], [role=tab], [data-footer-action], [data-footer-send], [data-add-tab]").forEach((button) => { button.disabled = false })
 
-    const chapters = [...demo.querySelectorAll<HTMLElement>("[data-tour-chapter]")]
+    const chapters = [...demo.querySelectorAll<HTMLButtonElement>("[data-tour-option]")]
     const chapterSelect = demo.querySelector<HTMLButtonElement>("[data-tour-select]")!
     const chapterTitle = demo.querySelector<HTMLElement>("[data-tour-title]")!
-    const chapterOptions = [...demo.querySelectorAll<HTMLButtonElement>("[data-tour-option]")]
     const chapterMenu = demo.querySelector<HTMLElement>(".tour-picker [popover]")!
     const play = demo.querySelector<HTMLButtonElement>("[data-tour-play]")!
     const playbackIcon = play.querySelector("path")!
     const previous = demo.querySelector<HTMLButtonElement>("[data-tour-previous]")!
     const next = demo.querySelector<HTMLButtonElement>("[data-tour-next]")!
     const progress = demo.querySelector<HTMLElement>("[data-tour-progress]")!
-    const explore = demo.querySelector<HTMLElement>("[data-tour-explore]")!
     const tree = demo.querySelector<HTMLElement>(".request-tree")!
     const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)")
     let chapterIndex = 0
@@ -583,20 +567,20 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
         else if (++openCount === 4) break
       }
     }
-    const showChapterCopy = (index: number) => {
+    const updateChapter = (index: number) => {
       progressAnimation?.cancel()
       progressAnimation = undefined
       if (index >= 0) chapterIndex = index
-      chapters.forEach((chapter, i) => chapter.setAttribute("aria-hidden", String(i !== index)))
-      explore.setAttribute("aria-hidden", String(index >= 0))
-      chapterTitle.textContent = index >= 0 ? `${index + 1} / ${chapters.length} · ${chapters[index]!.dataset.title}` : active.dataset.name!
-      chapterSelect.setAttribute("aria-label", `Tour chapter, ${chapterTitle.textContent} selected`)
-      chapterOptions.forEach((option, i) => option.setAttribute("aria-checked", String(i === index)))
+      chapterTitle.textContent = index >= 0 ? chapters[index]!.dataset.title! : active.dataset.name!
+      const title = index >= 0 ? `${index + 1} / ${chapters.length} · ${chapters[index]!.dataset.title}` : active.dataset.name!
+      chapterSelect.setAttribute("aria-label", `Tour chapter, ${title} selected`)
+      chapterSelect.title = title
+      chapters.forEach((chapter, i) => chapter.setAttribute("aria-checked", String(i === index)))
       updatePlayback()
     }
     const showChapter = (index: number) => {
       const chapter = chapters[index]!
-      const choice = choices.find((button) => button.dataset.request === chapter.dataset.tourChapter)!
+      const choice = choices.find((button) => button.dataset.request === chapter.dataset.tourOption)!
       selectRequest(choice)
       fitTourFolders()
       const response = active.querySelector<HTMLElement>('.response')!
@@ -607,8 +591,8 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
       const bounds = tree.getBoundingClientRect()
       if (row.top < bounds.top) tree.scrollTop += row.top - bounds.top
       else if (row.bottom > bounds.bottom) tree.scrollTop += row.bottom - bounds.bottom
-      showChapterCopy(index)
-      status.textContent = `${chapter.dataset.title}. ${chapter.querySelector("p")!.textContent}`
+      updateChapter(index)
+      status.textContent = `${chapter.dataset.title}. ${chapter.dataset.description}`
     }
     const scheduleChapter = () => {
       clearTimeout(tourTimer)
@@ -626,7 +610,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     choices.forEach((choice) => choice.addEventListener("click", () => {
       pauseTour()
       selectRequest(choice)
-      showChapterCopy(chapters.findIndex((chapter) => chapter.dataset.tourChapter === choice.dataset.request))
+      updateChapter(chapters.findIndex((chapter) => chapter.dataset.tourOption === choice.dataset.request))
     }))
     chapterMenu.addEventListener("beforetoggle", (event) => {
       if (event.newState !== "open") return
@@ -636,7 +620,7 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     chapterMenu.addEventListener("toggle", () => {
       if (!chapterMenu.matches(":popover-open")) scheduleChapter()
     })
-    chapterOptions.forEach((option, index) => option.addEventListener("click", () => {
+    chapters.forEach((option, index) => option.addEventListener("click", () => {
       showChapter(index)
       scheduleChapter()
     }))
@@ -679,20 +663,15 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
     color-scheme: dark;
   }
   .noodle-demo [hidden] { display: none !important; }
-  .demo-tour { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 2rem; margin-bottom: 1.5rem; color: var(--fg); font-family: var(--font-sans); }
-  .tour-copy { min-width: 0; }
-  .tour-descriptions { display: grid; }
-  .tour-descriptions > div { grid-area: 1 / 1; }
-  .tour-descriptions [aria-hidden="true"] { visibility: hidden; }
-  .tour-copy h2 { min-width: 0; margin: 0 0 0.65rem; font: 400 clamp(1.75rem, 3vw, 2.5rem)/1.15 var(--font-display); text-wrap: balance; }
-  .tour-copy .tour-title-trigger { padding: 0; color: var(--fg); text-align: left; }
-  .tour-copy .select-chevron { width: 0.45em; height: 0.45em; margin-left: 0.25em; }
-  .tour-copy p { max-width: 68ch; margin: 0; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+  .collection-label .tour-title-trigger { padding: 0; color: var(--demo-text); }
+  .collection-label :global(.tour-picker) { min-width: 0; }
+  .tour-title-trigger .select-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .collection-label .select-chevron { width: 0.65ch; height: 0.6em; }
   .tour-buttons { display: flex; gap: 0.25rem; }
-  .tour-buttons button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 8px; color: var(--muted); }
+  .tour-buttons button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border-radius: 8px; color: var(--demo-text-muted); }
   .tour-buttons button:disabled { opacity: 0.35; }
-  .tour-buttons button:not(:disabled):is(:hover, :focus-visible) { color: var(--accent); }
-  .tour-buttons svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+  .tour-buttons button:not(:disabled):is(:hover, :focus-visible) { color: var(--demo-primary); }
+  .tour-buttons svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
   .tour-progress {
     position: absolute;
     inset: -5px -1px auto;
@@ -718,13 +697,14 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .noodle-demo :is(pre, .tab-panel, .url-bar code, .request-tree, .footer-context) { scrollbar-width: thin; scrollbar-color: var(--demo-border-active) var(--demo-background); }
   .noodle-demo :is(button, summary, [tabindex]):focus-visible { outline: 2px solid var(--demo-primary); outline-offset: -2px; }
   .terminal-title, .terminal-title > div, .environment, .terminal-foot { display: flex; align-items: center; }
-  .terminal-title { justify-content: space-between; gap: 2ch; min-height: 36px; padding: 0 1ch; }
+  .terminal-title { justify-content: space-between; flex-wrap: wrap; gap: 0 2ch; min-height: 44px; padding: 0 1ch; }
   .terminal-title > div { flex-wrap: wrap; gap: 0 2ch; min-width: 0; }
+  .terminal-title > .terminal-identity { flex: 1; flex-wrap: nowrap; }
   .terminal-brand, .collection-label { white-space: nowrap; }
-  .collection-label { display: inline-flex; align-items: center; gap: 2ch; }
+  .collection-label { display: inline-flex; align-items: center; gap: 2ch; min-width: 0; }
   .terminal-version { color: var(--demo-text-muted); }
   .chevron { flex: none; display: inline-block; width: 1ch; height: 0.6em; fill: currentColor; }
-  .collection-chevron { width: 0.65ch; }
+  .terminal-title > .terminal-actions { flex: none; flex-wrap: nowrap; margin-left: auto; }
   .terminal-title strong, .variable { color: var(--demo-primary); }
   .title-divider, .terminal-foot, .folder-name { color: var(--demo-text-muted); }
   .environment { gap: 1ch; }
@@ -872,10 +852,11 @@ const codeLines = (code: string) => code.split("\n").map((line) => {
   .footer-send[aria-disabled="true"] { cursor: wait; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
   @media (min-width: 680px) and (pointer: fine) {
+    .collection-label .tour-title-trigger { min-height: 28px; border-radius: 4px; }
+    .tour-buttons button { width: 28px; height: 28px; }
     .request-choice, .folder-name, .tab-menu button, .result-entry summary, .timeline-row { min-height: 24px; }
   }
   @media (max-width: 900px) {
-    .demo-tour { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
     .terminal-layout { grid-template-columns: 190px minmax(0, 1fr); }
     .request-choice { font-size: 0.75rem; }
   }
