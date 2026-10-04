@@ -156,10 +156,10 @@ const comparisonUrl = new URL("/compare/", Astro.site ?? Astro.url)
 const comparisonStructuredData = {
   "@context": "https://schema.org",
   "@type": "WebPage",
-  name: "Compare Noodle, Posting, Yaak, and Bruno",
+  name: "Compare Noodle REST, Posting, Yaak, and Bruno",
   description: "A source-backed comparison of repository-native API clients and testing tools.",
   url: comparisonUrl.href,
-  about: products.map((name) => ({ "@type": "SoftwareApplication", name })),
+  about: products.map((name) => ({ "@type": "SoftwareApplication", name: name === "Noodle" ? "Noodle REST" : name })),
   citation: comparisonSources.flatMap(([, links]) => links.map(([, href]) => href)),
 }
 ---

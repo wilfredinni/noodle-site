@@ -40,7 +40,7 @@ export default defineConfig({
       },
     }),
     starlight({
-      title: "Noodle",
+      title: "Noodle REST",
       plugins: [starlightLlmsTxt()],
       description:
         "Terminal REST client for inspecting, sending, and iterating on HTTP requests from YAML files on disk.",
@@ -128,7 +128,7 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             property: "og:image:alt",
-            content: "Noodle terminal REST client",
+            content: "Noodle REST terminal API client",
           },
         },
         { tag: "meta", attrs: { property: "og:image:width", content: "1200" } },
@@ -144,7 +144,7 @@ export default defineConfig({
           tag: "meta",
           attrs: {
             name: "twitter:image:alt",
-            content: "Noodle terminal REST client",
+            content: "Noodle REST terminal API client",
           },
         },
       ],

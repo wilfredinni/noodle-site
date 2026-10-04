@@ -9,7 +9,7 @@ interface Props {
 
 const { latestRelease } = Astro.props
 const latestReleaseLabel = latestRelease?.data.title
-  .replace(/^Noodle\s+/, "v")
+  .replace(/^Noodle(?: REST)?\s+/, "v")
   .replace(":", " ·")
 const [latestVersion, latestTitle] = (latestReleaseLabel ?? "").split(" · ")
 ---
