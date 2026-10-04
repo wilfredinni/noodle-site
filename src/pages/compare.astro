@@ -66,7 +66,7 @@ const sections = [
     id: "security",
     kicker: "03 · Auth and networking",
     title: "Serious networking without a cloud account.",
-    description: "Noodle's recent releases substantially expanded authentication, secrets, TLS, proxy, and cookie handling.",
+    description: "Noodle supports authentication, secrets, TLS, proxy, and cookie handling.",
     rows: [
       ["Basic", "✅", "◐ Programmatic, not a rich Auth UI", "✅", "✅"],
       ["Bearer", "✅", "✅", "✅", "✅"],
@@ -87,7 +87,7 @@ const sections = [
     id: "automation",
     kicker: "04 · Testing and automation",
     title: "Testing and automation in the collection.",
-    description: "Noodle 0.9.5 adds TUI script editors with completion, diagnostics, formatting, and Console logs to inline or external JavaScript, inherited scripts and tests, async request chaining, and CSV/JSON runs in the CLI and TUI Runner. Bruno offers a broader testing platform; parallel execution remains on Noodle's roadmap.",
+    description: "Noodle includes TUI script editors with completion, diagnostics, formatting, and Console logs for inline or external JavaScript, inherited scripts and tests, async request chaining, and CSV/JSON runs in the CLI and TUI Runner. Bruno offers a broader testing platform; parallel execution remains on Noodle's roadmap.",
     rows: [
       ["Pre-request scripts", "✅ Bounded async JS; inline or .js files", "✅ Python", "🧭 Arbitrary scripts under consideration", "✅ JavaScript"],
       ["Post-response scripts", "✅ Bounded async JS; inline or .js files", "✅ Python", "🧭 Arbitrary scripts under consideration", "✅ JavaScript"],
@@ -96,7 +96,7 @@ const sections = [
       ["Assertions and tests", "✅ Declarative + async JS + JSON Schema", "🧭 Test framework planned", "❌ No current framework", "✅ Chai/JS assertions"],
       ["Run one request headlessly", "✅", "❔ No documented runner", "✅", "✅"],
       ["Run folder/collection headlessly", "✅ Selective folders or full collection", "❔ No documented runner", "✅ Workspace/folder", "✅"],
-      ["Parallel and batch execution", "◐ Batch + Runner now; parallel v1.5", "❌", "✅ CLI --parallel", "✅ Runner"],
+      ["Parallel and batch execution", "◐ Batch + Runner; parallel planned", "❌", "✅ CLI --parallel", "✅ Runner"],
       ["Dedicated runner/results UI", "✅ Transient collection Runner", "❌", "❌ No runner UI; bulk runs via CLI", "✅"],
       ["Data-driven CSV/JSON runs", "✅ CLI + TUI Runner", "❌", "🧭 Under consideration", "◐ CSV/JSON; free CLI, paid desktop"],
       ["CI-friendly structured output", "✅ JSON", "❔ No documented CI runner", "✅ CLI", "✅ CLI + JUnit/reports"],
@@ -129,10 +129,10 @@ const sections = [
     rows: [
       ["Requests naturally editable by agents", "✅ Plain YAML source of truth", "✅ Plain YAML", "◐ CLI/database or sync YAML", "✅ Files"],
       ["Dedicated agent CLI workflow", "✅", "❌", "✅", "◐ General CLI"],
-      ["Agent Skill", "✅ noodle-use", "❌", "✅ As of 2026.6", "❔ No equivalent found"],
+      ["Agent Skill", "✅ noodle-use", "❌", "✅", "❔ No equivalent found"],
       ["Claude/Codex/Cursor/OpenCode", "✅", "❌ No dedicated integration", "✅", "◐ General tooling"],
       ["MCP server", "❌", "❌", "✅ Plugin", "❔ No official equivalent found"],
-      ["Built-in AI assistant", "External-agent workflow by design", "No built-in assistant", "No built-in assistant", "BYOK AI in v4"],
+      ["Built-in AI assistant", "External-agent workflow by design", "No built-in assistant", "No built-in assistant", "BYOK AI"],
       ["Plugin system", "❌", "❌ Python scripting instead", "✅ Substantial plugin system", "◐ Apps + scripting"],
     ],
   },
@@ -159,7 +159,6 @@ const comparisonStructuredData = {
   name: "Compare Noodle, Posting, Yaak, and Bruno",
   description: "A source-backed comparison of repository-native API clients and testing tools.",
   url: comparisonUrl.href,
-  dateModified: "2026-09-26",
   about: products.map((name) => ({ "@type": "SoftwareApplication", name })),
   citation: comparisonSources.flatMap(([, links]) => links.map(([, href]) => href)),
 }
@@ -236,8 +235,8 @@ const comparisonStructuredData = {
 
     <section id="sources" class="comparison-section source-section" aria-labelledby="sources-title">
       <header>
-        <div><span class="section-kicker">Verification</span><h2 id="sources-title">Official sources, checked recently.</h2></div>
-        <p>Noodle features reflect v0.9.4. Scripting, runners, generated data, and related pricing were reviewed against the linked documentation on <time datetime="2026-09-24">September 24, 2026</time>. Status icons were reviewed on <time datetime="2026-09-26">September 26, 2026</time>. Products change, so use these sources for the latest details.</p>
+        <div><span class="section-kicker">Verification</span><h2 id="sources-title">Official sources.</h2></div>
+        <p>See each product's official documentation for feature and pricing details.</p>
       </header>
       <ul class="source-list">
         {comparisonSources.map(([product, links]) => (
