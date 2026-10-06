@@ -19,8 +19,9 @@ noodle agent install
 
 The built-in installer writes a managed copy to
 `~/.agents/skills/noodle-use` and links detected Claude, Cursor, Codex, and
-OpenCode installations to it. Noodle refreshes an existing managed copy when
-it updates. Use `--json` for scripted installation.
+OpenCode installations to it. Standalone updates refresh an existing managed
+copy. After a Homebrew upgrade, run `noodle agent install` again to refresh it.
+Use `--json` for scripted installation.
 
 If any detected path contains an unmanaged copy, Noodle preserves every copy
 and reports all conflicts before changing anything. Review those paths, then

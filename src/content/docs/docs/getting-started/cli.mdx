@@ -119,7 +119,7 @@ for validation, failures, and binary diagnostics. For the TUI workflow, see
 
 ## Update
 
-Updates noodle to the latest version. Homebrew installs run `brew upgrade noodle` instead. Standalone binaries use Noodle's update manifest and verify the downloaded SHA-256 checksum before replacement.
+Updates standalone Noodle binaries to the latest version using Noodle's update manifest and SHA-256 checksum verification. For Homebrew installations, the command prints `Run: brew upgrade noodle` without running it, even with `--force`.
 
 ```bash
 noodle update
@@ -127,10 +127,15 @@ noodle update --force       # bypass the one-hour release-check cache
 noodle update --json        # emit one JSON result envelope
 ```
 
-Non-Homebrew installs cache validated release metadata for one hour. If the
+For Homebrew, `--json` returns a successful envelope with
+`data.status: "homebrew_managed"` and `data.command: "brew upgrade noodle"`.
+Run `brew upgrade noodle` yourself, then `noodle agent install` to refresh an
+existing managed skill.
+
+Standalone installs cache validated release metadata for one hour. If the
 manifest is temporarily unavailable, Noodle can use a valid cached release for
 up to seven days. When a managed `noodle-use` skill is already installed, a
-successful standalone, Homebrew, or TUI update refreshes it with the new
+successful standalone update through the CLI or TUI refreshes it with the new
 Noodle version. Skill refresh failure does not roll back the Noodle update and
 reports `noodle agent install` as the retry.
 

@@ -26,13 +26,13 @@ export PATH="$HOME/.local/bin:$PATH"
 **Custom install location?** Set `NOODLE_INSTALL_DIR`:
 
 ```bash
-NOODLE_INSTALL_DIR=/usr/local/bin curl -LsSf ... | sh
+curl -LsSf https://noodlerest.dev/install.sh | NOODLE_INSTALL_DIR=/usr/local/bin sh
 ```
 
 **Need a specific version?** Pin it with `NOODLE_VERSION`:
 
 ```bash
-NOODLE_VERSION=v0.6.0 curl -LsSf https://noodlerest.dev/install.sh | sh
+curl -LsSf https://noodlerest.dev/install.sh | NOODLE_VERSION=v0.9.8 sh
 ```
 
 ## Windows x64 (beta)
@@ -52,7 +52,7 @@ another directory, or `$env:NOODLE_SKIP_PATH_UPDATE = "1"` to leave PATH alone.
 For example:
 
 ```powershell
-$env:NOODLE_VERSION = "v0.9.7"
+$env:NOODLE_VERSION = "v0.9.8"
 irm https://noodlerest.dev/install.ps1 | iex
 ```
 
@@ -68,6 +68,9 @@ brew tap wilfredinni/noodle
 brew trust wilfredinni/noodle
 brew install noodle
 ```
+
+Use the existing tap while the source-built Homebrew core formula awaits
+acceptance. Upgrades stay under Homebrew's control.
 
 ## From source
 
@@ -118,13 +121,25 @@ of the downloaded artifact's checksum, signature, version, and script sandbox.
 noodle update
 ```
 
-Homebrew installs run `brew upgrade noodle`. Standalone binaries read Noodle's
-update manifest, download the matching release, and verify its SHA-256 checksum
-before replacement. Update checks cache release metadata for one hour; pass
-`--force` to bypass that cache, or `--json` for scripted use.
+For Homebrew installations, `noodle update` prints `Run: brew upgrade noodle`
+without running it, including with `--force`. Run the upgrade yourself:
 
-The TUI performs the same check when it starts and installs an available update
-automatically. On Windows, the verified update is staged until Noodle exits;
+```bash
+brew upgrade noodle
+```
+
+Then run `noodle agent install` if you have installed the managed agent skill.
+The TUI checks for available versions and shows the upgrade command in
+**About and Updates**, without installing a Homebrew update.
+
+Standalone binaries read Noodle's update manifest, download the matching
+release, and verify its SHA-256 checksum before replacement. Update checks
+cache release metadata for one hour; pass `--force` to bypass that cache,
+or `--json` for scripted use.
+
+For standalone installations, the TUI performs the same check when it starts
+and installs an available update automatically. On Windows, the verified
+update is staged until Noodle exits;
 close and reopen it to apply the update. `noodle update --json` reports
 `restart_required` with `log_path`. If replacement fails, inspect that log, close
 all Noodle processes, and retry `noodle update` or rerun the PowerShell installer.
@@ -141,9 +156,10 @@ noodle agent install
 ```
 
 Noodle stores one managed copy under `~/.agents/skills/noodle-use`, links
-detected Claude, Cursor, Codex, and OpenCode installations to it, and keeps an
-existing managed installation synchronized when Noodle updates. For other
-clients, use the skills CLI fallback:
+detected Claude, Cursor, Codex, and OpenCode installations to it, and refreshes
+an existing managed installation after standalone updates. After a Homebrew
+upgrade, run `noodle agent install` explicitly. For other clients, use the
+skills CLI fallback:
 
 ```bash
 npx skills add wilfredinni/noodle --skill noodle-use -g

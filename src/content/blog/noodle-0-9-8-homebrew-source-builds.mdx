@@ -1,0 +1,89 @@
+---
+title: "Noodle 0.9.8: Homebrew Source Builds"
+description: Keep Homebrew in control of upgrades, build native components from source, and try the local development collection.
+date: 2026-10-06
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+Noodle 0.9.8 keeps Homebrew installations under Homebrew's control. It also
+adds a native source-build path for a proposed core formula, reuses the
+binaries validated by CI for release publication, and replaces the contributor
+samples with a collection backed by local services.
+
+## Upgrade Homebrew installations through Homebrew
+
+When Noodle is installed with Homebrew, `noodle update` now prints the upgrade
+command without running it:
+
+```bash
+brew upgrade noodle
+```
+
+The TUI still checks for available versions. **About and Updates** shows the
+new version and the command to run, while the updater leaves the Homebrew
+executable in place. The same rule applies to `noodle update --force`.
+For automation, `noodle update --json` returns a successful result with
+`data.status: "homebrew_managed"` and `data.command: "brew upgrade noodle"`.
+
+If you have installed the managed agent skill, refresh it after the upgrade:
+
+```bash
+noodle agent install
+```
+
+Standalone updates continue to verify downloaded binaries and refresh an
+existing managed skill. See [Installation](/docs/getting-started/installation/#updating)
+for the workflow that matches your installation.
+
+## Build native components from source
+
+The new `build:homebrew` command rebuilds OpenTUI and Noodle's response-file
+C addon from source, compiles the host's native assets, and verifies the
+embedded asset set. It reuses the signing and compiled scripting checks,
+with archived-source validation on the Unix CI targets.
+
+This prepares Noodle for a source-built Homebrew core formula. Core acceptance
+is still pending, so the existing tap remains the installation path. The
+[source-build guide](https://github.com/wilfredinni/noodle/tree/v0.9.8/packaging/homebrew)
+covers the build inputs and formula preparation.
+
+## Publish the binaries that passed CI
+
+Release publication now reuses all five validated binaries from CI at the
+exact release commit. Version, platform, build-run, and SHA-256 metadata tie
+each artifact to that validation. Eligible artifacts are rebuilt only when
+they are absent or expired; failed CI and invalid metadata block publication.
+
+Recovery of an already-published release verifies its existing binaries and
+checksums before retrying website manifest and Homebrew tap synchronization.
+It does not rebuild or replace those release binaries.
+
+## Try requests against local services
+
+Contributors can start the local HTTP, HTTPS, authentication, and proxy
+services together with the TUI:
+
+```bash
+bun run dev
+```
+
+The development collection opens from `dev/collection/`. Run
+`bun run dev:check` to validate its scenarios against local fixtures without
+relying on public endpoints. The [development guide](https://github.com/wilfredinni/noodle/blob/v0.9.8/dev/README.md)
+explains the suites and fixture setup.
+
+Noodle also flushes pending cookie writes before destroying the terminal
+renderer on supported exit signals, keeping shutdown coordinated with the
+local services.
+
+The maintained `noodle-dev`, `noodle-use`, and `noodle-release` skills have
+been updated for the changed development, installation, and release workflows.
+Read the [full changelog](https://github.com/wilfredinni/noodle/blob/v0.9.8/CHANGELOG.md)
+for the release details.
