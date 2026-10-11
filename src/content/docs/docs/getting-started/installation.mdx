@@ -64,13 +64,35 @@ executable, checksums, and build information for prerelease testing.
 ## Homebrew
 
 ```bash
-brew tap wilfredinni/noodle
-brew trust wilfredinni/noodle
 brew install noodle
 ```
 
-Use the existing tap while the source-built Homebrew core formula awaits
-acceptance. Upgrades stay under Homebrew's control.
+Noodle is available from [Homebrew core](https://formulae.brew.sh/formula/noodle).
+No additional tap is required. Upgrades stay under Homebrew's control.
+
+### Migrate from the old tap
+
+If you installed Noodle from `wilfredinni/noodle`, run:
+
+```bash
+brew update
+brew reinstall noodle
+brew untap wilfredinni/noodle
+```
+
+`brew update` transfers the installation to core. The one-time reinstall
+replaces the old tap binary with the official Homebrew build, including when
+both are v0.9.8. Run `brew untap` only after the reinstall succeeds. Your
+collections, configuration, and installed agent skills are preserved.
+
+If you installed the managed agent skill, refresh it afterward:
+
+```bash
+noodle agent install
+```
+
+Use `brew upgrade noodle` for future updates. The old tap repository remains
+available to provide the migration mapping.
 
 ## From source
 

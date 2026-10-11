@@ -17,6 +17,14 @@ adds a native source-build path for a proposed core formula, reuses the
 binaries validated by CI for release publication, and replaces the contributor
 samples with a collection backed by local services.
 
+**Update, October 11, 2026:** Noodle is now in
+[Homebrew core](https://formulae.brew.sh/formula/noodle). Install with
+`brew install noodle`. Existing tap users can follow the
+[migration instructions](/docs/getting-started/installation/#migrate-from-the-old-tap).
+The old tap's formula and update automation have been retired; release recovery
+now synchronizes only the website manifest. The sections below describe the
+original v0.9.8 release preparation.
+
 ## Upgrade Homebrew installations through Homebrew
 
 When Noodle is installed with Homebrew, `noodle update` now prints the upgrade
