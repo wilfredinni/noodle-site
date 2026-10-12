@@ -107,6 +107,31 @@ The delay must be a non-negative safe integer. Noodle waits after a completed
 request only when another selected request remains. Failed requests are followed
 by the delay when execution continues; fail-fast skips it.
 
+## Interrupt a collection run
+
+Press Ctrl+C or send SIGTERM to stop a CLI `collection run`. Noodle cancels
+active HTTP, OAuth, scripts, child requests, and inter-request delay, closes
+cookie jars, and returns the partial result with exit status `130`.
+
+Completed request rows remain in `data.results`. An interrupted execution has
+`cancelled: true`; requests that never started appear in `data.skipped` with
+reason `cancelled`. Dataset results and skips retain their zero-based iteration
+index. `data.cancelled` marks the run, while the existing envelope still uses
+`status: "error"`, `data`, and `errors`.
+
+The summary includes `completed`, `cancelled`, and `unstarted`:
+
+```text
+selected = completed + cancelled + unstarted
+executed = completed + cancelled
+```
+
+Cancelled executions do not count as ordinary request failures. Timeouts remain
+transport or script failures, and fail-fast skips retain their own reason.
+Finished response diagnostics are retained, unfinished script writes roll back,
+and later phases remain unevaluated. Cancellation cannot undo HTTP effects
+already sent. These interruption controls apply to CLI collection runs.
+
 ## Run the same workflow in the TUI
 
 Press **F5** to select requests, configure a run, and inspect results in the [Collection Runner](/docs/guides/collection-runner/).
@@ -179,7 +204,7 @@ Successful commands exit with status `0`. Both `request run` and `collection run
 exit `1` when an executed request fails and `2` when environment, proxy, TLS,
 cookie, target, tag, or other applicable pre-run configuration fails. This makes the exit status enough for a
 simple gate, while JSON provides the detail needed for reports or follow-up
-steps.
+steps. Gracefully cancelled `collection run` commands exit `130`.
 
 For `request run`, the request result is in `data.result`. For `collection run`,
 the ordered results are in `data.results`, fail-fast skips are in `data.skipped`,
@@ -305,7 +330,7 @@ jobs:
 
       - name: Install Noodle
         env:
-          NOODLE_VERSION: v0.9.8
+          NOODLE_VERSION: v0.10.0
         run: |
           curl -fsSL "https://raw.githubusercontent.com/wilfredinni/noodle/$NOODLE_VERSION/scripts/install.sh" -o "$RUNNER_TEMP/noodle-install.sh"
           bash "$RUNNER_TEMP/noodle-install.sh"
@@ -322,7 +347,7 @@ jobs:
           noodle collection run ./my-api --env ci --fail-fast
 ```
 
-The installer pins Noodle to `v0.9.8` and verifies its binary checksum. Change
+The installer pins Noodle to `v0.10.0` and verifies its binary checksum. Change
 that version deliberately when upgrading the workflow. The Actions secret
 supplies the declared `API_TOKEN` through the process environment, so this
 example needs no interactive keyring. Cookies are disabled because this bearer

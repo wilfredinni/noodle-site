@@ -231,6 +231,12 @@ noodle collection run ./my-api users/ health --env staging --tag smoke --exclude
 
 Use [Collection Runner](/docs/guides/collection-runner/) for the TUI equivalent.
 
+Collection runs handle Ctrl+C (SIGINT) and SIGTERM gracefully: partial output
+retains completed diagnostics, marks the interrupted execution `cancelled`, and
+lists unstarted executions as cancellation skips. Both signals exit `130`;
+success, ordinary failure, and configuration failure retain `0`, `1`, and `2`.
+See [cancellation accounting](/docs/guides/automation/#interrupt-a-collection-run).
+
 ## Request create
 
 ```bash

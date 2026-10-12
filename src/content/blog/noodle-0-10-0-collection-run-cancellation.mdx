@@ -1,0 +1,78 @@
+---
+title: "Noodle 0.10.0: Collection Run Cancellation"
+description: Stop CLI collection runs gracefully, retain partial results, and distinguish cancelled work from failures and timeouts.
+date: 2026-10-12
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - update
+---
+
+Noodle 0.10.0 makes interruption part of collection execution. Stop a CLI run
+with Ctrl+C or SIGTERM and keep the completed requests and response diagnostics
+instead of losing the run's results.
+
+## Stop a run and inspect what happened
+
+```bash
+noodle collection run ./api --data ./rows.csv --json
+```
+
+Interruption cancels active HTTP, OAuth operations, scripts, saved or direct
+child requests, and inter-request delays. Noodle closes cookie jars and returns
+one partial result envelope, then exits with status **130**. Success remains
+**0**, completed failures remain **1**, and configuration failures remain **2**.
+
+Finished response phases and redacted diagnostics survive. An unfinished script
+invocation rolls back its staged writes, and later phases remain unevaluated.
+Cancellation cannot undo HTTP effects already sent.
+
+## Count completed, cancelled, and unstarted executions
+
+Completed and interrupted requests share `data.results`; interrupted entries
+carry `cancelled: true`. Unstarted requests appear in `data.skipped` with reason
+`cancelled`. Dataset rows retain their iteration identity.
+
+The summary adds `completed`, `cancelled`, and `unstarted` counts:
+
+```text
+selected = completed + cancelled + unstarted
+executed = completed + cancelled
+```
+
+Cancellation does not count as an ordinary request failure. Request and script
+timeouts keep their failure behavior, and fail-fast skips keep their own reason.
+See [CLI cancellation](/docs/guides/automation/#interrupt-a-collection-run)
+for the full result contract.
+
+## One execution path
+
+The shared collection runner accepts an AbortSignal and emits request-start,
+completion, and skip events with request and optional iteration identity.
+Events describe selected top-level executions; child calls remain in existing
+script diagnostics. Selection, tags, RunScope, dataset cookie isolation, and
+noninteractive OAuth behavior stay on the existing execution path.
+
+TUI cancellation controls, setup/teardown hooks, and additional reporters are
+left for later releases.
+
+## Homebrew core and release maintenance
+
+Install Noodle with `brew install noodle` from Homebrew core. Existing tap users
+can follow the [migration guide](/docs/getting-started/installation/#migrate-from-the-old-tap).
+After upgrading through Homebrew, run `noodle agent install` to refresh an
+installed skill.
+
+The release also aligns the OpenTUI source-build pin with package dependencies
+at 0.5.17, updates JSONPath Plus, and verifies artifact producer Bun metadata
+independently of the local test runtime. The retired tap no longer receives
+release dispatches; published-release recovery synchronizes only the website
+update manifest.
+
+The maintained development and usage skills now document cancellation,
+accounting, acceptance tests, and official Homebrew installation. The release
+skill retains the Homebrew core and recovery guidance committed since v0.9.8.
