@@ -1,0 +1,88 @@
+---
+title: "Noodle 0.10.0: Collection Run Cancellation"
+description: Interrupt CLI collection runs with partial results, retain cancelled manual-send history, and install from Homebrew core.
+date: 2026-10-13
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - automation
+---
+
+Noodle 0.10.0 lets you stop a CLI collection run and keep the results you
+already have. Cancellation reaches the active request, OAuth operation,
+script, child call, or delay, while partial output shows what completed,
+what was interrupted, and what never started. Manual sends also retain
+cancelled history and any response received before cancellation.
+
+## Stop a CLI run and inspect its results
+
+Start a collection run as usual:
+
+```bash
+noodle collection run ./my-api --env development --json
+```
+
+Press **Ctrl+C** or send SIGTERM to stop it. Noodle returns partial output
+and exits with status `130`; success, completed failure, and configuration
+failure retain exit statuses `0`, `1`, and `2`. A second interruption forces
+exit `130` and clears terminal progress.
+
+Completed requests remain in `data.results`. An interrupted row carries
+`cancelled: true`, and selected requests that never started appear in
+`data.skipped` with reason `cancelled`. The summary counts `completed`,
+`cancelled`, and `unstarted` separately. With CSV or JSON data, each result
+and skip keeps its iteration identity.
+
+Finished response phases and redacted diagnostics remain available.
+Unfinished script writes roll back, and later phases stay unevaluated.
+Cancellation cannot reverse HTTP effects already sent. Request, OAuth,
+and child-request timeouts remain failures, with their network traces and
+original transport causes preserved.
+
+The shared runner also exposes request-start, completion, and skip events
+with request and optional iteration identity. Read
+[CLI automation and CI](/docs/guides/automation/#interrupt-a-collection-run)
+for output fields and accounting.
+
+## Keep manual responses and history associated with their request
+
+Cancelled manual sends now show `cancelled` in Timeline and retain
+any completed response plus partial diagnostics. They do not lower folder
+success rates or contribute to timing averages.
+
+Overlapping sends keep their own request and completion ownership. An older
+response or cancellation cannot replace a newer result for the selected
+request, and repeated Send clicks start only one execution. History also
+preserves entries saved while a load is pending, keeps late completions in
+their original collection, and continues saving after a failed write.
+
+See [Timeline storage](/docs/reference/timeline/) for retained fields and
+known-secret redaction.
+
+## Install from Homebrew core
+
+Noodle is available from the official core formula:
+
+```bash
+brew install noodle
+```
+
+Existing tap users can follow the
+[migration instructions](/docs/getting-started/installation/#migrate-from-the-old-tap).
+Use `brew upgrade noodle` for future updates and `noodle agent install` to
+refresh an installed agent skill afterward.
+
+This release aligns the Homebrew source-build OpenTUI pin with version
+0.5.17 and updates JSONPath Plus. The retired tap no longer receives release
+dispatches; published-release recovery synchronizes only the website
+manifest. Release-artifact tests also verify producer Bun metadata
+independently of the local runtime.
+
+The maintained `noodle-dev`, `noodle-use`, and `noodle-release` skills cover
+the changed cancellation, installation, and release workflows. Read the
+[full changelog](https://github.com/wilfredinni/noodle/blob/v0.10.0/CHANGELOG.md)
+for the release details.

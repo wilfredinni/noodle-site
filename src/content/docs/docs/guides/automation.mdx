@@ -179,10 +179,10 @@ Successful commands exit with status `0`. Both `request run` and `collection run
 exit `1` when an executed request fails and `2` when environment, proxy, TLS,
 cookie, target, tag, or other applicable pre-run configuration fails. This makes the exit status enough for a
 simple gate, while JSON provides the detail needed for reports or follow-up
-steps.
+steps. CLI collection interruption exits `130` with partial results.
 
 For `request run`, the request result is in `data.result`. For `collection run`,
-the ordered results are in `data.results`, fail-fast skips are in `data.skipped`,
+the ordered results are in `data.results`, fail-fast or cancellation skips are in `data.skipped`,
 and `data.summary` counts selected, executed, skipped, successful, and failed
 requests plus assertion, capture, duration, and failure-category totals. When
 test groups are present, it also includes `testPasses`, `testFailures`, and
@@ -207,6 +207,32 @@ without printing raw captured or actual response values. It reports script statu
 duration, log count, and redacted failures without printing console messages.
 It also names failure categories such as configuration error, script failure,
 transport error, HTTP error, capture failure, assertion failure, and test failure.
+
+## Interrupt a collection run
+
+Press **Ctrl+C** (SIGINT) or send SIGTERM to stop `noodle collection run`.
+Noodle cancels the active HTTP or OAuth operation, script, child request, or
+inter-request delay, closes the run's cookie jars, and returns partial human
+or JSON output with exit status `130`. A second interruption forces exit `130`.
+
+Completed rows stay in `data.results`. An interrupted execution carries
+`cancelled: true`; unstarted selections appear in `data.skipped` with
+`reason: "cancelled"`. The run itself has `data.cancelled: true`.
+`data.summary` includes `completed`, `cancelled`, and `unstarted`, with:
+
+```text
+selected = completed + cancelled + unstarted
+executed = completed + cancelled
+```
+
+Cancelled executions do not count as request failures. Finished response
+phases and redacted diagnostics remain available; unfinished script writes
+roll back and later phases remain unevaluated. Cancellation cannot undo HTTP
+effects already sent. Request and script timeouts remain ordinary failures.
+With iteration data, results and skips keep their zero-based `iteration`.
+
+This signal workflow applies to CLI collection runs. Use the
+[Collection Runner guide](/docs/guides/collection-runner/) for F5 controls.
 
 ## Maintain collections without the TUI
 
@@ -305,7 +331,7 @@ jobs:
 
       - name: Install Noodle
         env:
-          NOODLE_VERSION: v0.9.8
+          NOODLE_VERSION: v0.10.0
         run: |
           curl -fsSL "https://raw.githubusercontent.com/wilfredinni/noodle/$NOODLE_VERSION/scripts/install.sh" -o "$RUNNER_TEMP/noodle-install.sh"
           bash "$RUNNER_TEMP/noodle-install.sh"
@@ -322,7 +348,7 @@ jobs:
           noodle collection run ./my-api --env ci --fail-fast
 ```
 
-The installer pins Noodle to `v0.9.8` and verifies its binary checksum. Change
+The installer pins Noodle to `v0.10.0` and verifies its binary checksum. Change
 that version deliberately when upgrading the workflow. The Actions secret
 supplies the declared `API_TOKEN` through the process environment, so this
 example needs no interactive keyring. Cookies are disabled because this bearer

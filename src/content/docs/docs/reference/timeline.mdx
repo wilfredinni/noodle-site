@@ -53,6 +53,12 @@ TUI Runner do not create timeline entries.
     size: 27520
 ```
 
+Cancelled manual sends show `cancelled` in Timeline and carry `cancelled: true`.
+If HTTP completed before cancellation interrupted response processing, the
+entry retains that response alongside the cancellation error and completed
+diagnostics. Cancelled attempts do not affect folder success rates or timing
+averages. Legacy entries without the flag remain readable.
+
 ## Entry Structure
 
 | Field | Type | Description |
@@ -60,9 +66,10 @@ TUI Runner do not create timeline entries.
 | `timestamp` | number | Unix timestamp in ms |
 | `id` | string | Unique entry ID used to name body sidecars |
 | `envName` | string | Active environment name when sent |
+| `cancelled` | boolean | Optional `true` for an interrupted manual send |
 | `request` | object | Snapshot of the request at send time |
-| `response` | object | Response data (present on success) |
-| `error` | object | Error data (present on failure, instead of `response`) |
+| `response` | object | Completed HTTP response, including when later processing was cancelled |
+| `error` | object | Error or cancellation data; may coexist with a completed `response` |
 | `scripts` | object | Optional bounded, redacted pre/post diagnostics, persistence outcomes, origins, and child-call summaries |
 | `tests` | object | Optional bounded, redacted scripted-test results, logs, block errors, and origins |
 
@@ -146,8 +153,8 @@ timeline is cleared. Treat sidecars as application-managed files.
 
 Agents and scripts can analyze timeline data:
 
-- **Average response time**: Sum `response.timeMs` / count
-- **Success rate**: Count `response.status` in 2xx range / total count
+- **Average response time**: Exclude entries with `cancelled: true`, then sum `response.timeMs` / response count
+- **Success rate**: Exclude entries with `cancelled: true`, then count successful responses / completed attempts
 - **Recent errors**: Filter entries where `error` is present
 - **Response size trend**: Compare `response.size` across entries
 - **Environment usage**: Which `envName` was used per entry

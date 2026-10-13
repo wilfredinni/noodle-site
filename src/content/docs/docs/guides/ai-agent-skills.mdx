@@ -112,7 +112,11 @@ a request. Request tags combine with every ancestor folder's tags, and exclusion
 wins when both filter types match. Structured output keeps executed requests in `data.results`,
 fail-fast skips in `data.skipped`, and aggregate counts plus fixed failure
 categories in `data.summary`. Collection runs exit `0` on success, `1` after a
-completed request failure, and `2` for a pre-run configuration failure.
+completed request failure, `2` for a pre-run configuration failure, and `130`
+for SIGINT/SIGTERM cancellation. Interrupted rows carry `cancelled: true`;
+unstarted selections use skip reason `cancelled`. Summary
+`completed`, `cancelled`, and `unstarted` keep partial results accountable. See
+[cancellation results](/docs/guides/automation/#interrupt-a-collection-run).
 
 Agents can add `--delay <milliseconds>` to wait between selected requests. The
 value must be a non-negative safe integer; no delay runs after the last request
@@ -124,7 +128,8 @@ origin changes, it disables request auth, removes sensitive headers and headers
 containing known secrets, and refuses to preserve a body containing a known
 secret. Redirects that discard the body may continue. A configured request
 timeout appears as a transport failure, while caller-triggered cancellation
-continues to propagate to its owner.
+returns the partial collection result without counting the interrupted row
+as a request failure.
 
 Agents can author synchronous or async `scripts.pre` and `scripts.post`
 inline in YAML or through collection-relative `./file.js` references using the frozen `noodle` namespace. Pre prepares a request;

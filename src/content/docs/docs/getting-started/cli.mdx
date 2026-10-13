@@ -225,6 +225,13 @@ Tags are case-sensitive, inherited from non-root folders, and exclusion wins.
 An empty filtered selection is a configuration failure. Captures and script
 writes remain transient across one ordered run.
 
+Interrupt a CLI collection run with **Ctrl+C** (SIGINT) or SIGTERM to return
+partial results and exit `130`. Completed rows remain available; interrupted
+rows carry `cancelled: true`, and unstarted selections use skip reason
+`cancelled`. A second interruption forces exit `130`. See
+[cancellation results](/docs/guides/automation/#interrupt-a-collection-run) for
+accounting and response diagnostics.
+
 ```bash
 noodle collection run ./my-api users/ health --env staging --tag smoke --exclude-tag destructive --fail-fast --delay 500
 ```
