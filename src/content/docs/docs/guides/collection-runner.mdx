@@ -1,6 +1,6 @@
 ---
 title: Collection Runner
-description: Select requests, run an ordered collection in the TUI, and inspect each result.
+description: Run an ordered collection, inspect live results, and stop or resume the Runner workspace.
 ---
 
 Run a group of saved requests without leaving the terminal interface. You need
@@ -9,7 +9,8 @@ Save pending request and folder changes before starting.
 
 ## Configure a run
 
-1. Press **F5**, or open **Ctrl+P** and choose **Run Collection**.
+1. Press **F5**, or open **Ctrl+P** and choose **Run Collection**. F5 resumes
+   the current workspace when it already has a run.
 2. Select the requests or folders to include. A folder includes its descendants.
 3. Choose the environment. Add **Include** or **Exclude** tags to narrow the selection.
 4. Enable **Fail-fast** if later requests should stop after a failure. Set a delay
@@ -33,15 +34,40 @@ for the same selection rules in scripts.
 
 ## Inspect results
 
-The Runner shows progress and a result for each executed request. Expand a
-request to inspect its response and script, capture, assertion, and test outcomes.
-Details include **Console** when logs are available. Before HTTP, the TUI Runner
-checks the syntax of applicable scripts and tests for all selected requests
-without executing them during validation.
-With fail-fast enabled, later selected requests are recorded as skipped after
-all available diagnostics for the failed request finish.
+Results appear as each request finishes. Rows show pending, running, passed,
+failed, skipped, or cancelled executions, grouped by iteration when using data.
+Select a completed row and press **Enter**, or click it, to inspect the response,
+script, capture, assertion, and test outcomes while later requests continue.
+Details include **Console** when logs are available. Tab and scrolling remain
+available during execution.
 
-![Collection Runner with environment, tag, fail-fast, request, and folder controls](../../../../assets/runner-workspace.png)
+Before HTTP, the TUI Runner checks the syntax of applicable scripts and tests
+for all selected requests without executing them during validation. With
+fail-fast enabled, later selected requests are recorded as skipped after all
+available diagnostics for the failed request finish.
+
+![Live Runner results in an 80 by 24 terminal, with a passed request, a running request, a pending request, and Stop](../../../../assets/runner-live-80x24.png)
+
+## Stop a run or return later
+
+Press **s** in the Runner or its completed-result detail overlay, click **Stop**,
+or focus the Stop action and press **Enter** or **Space**. The command palette
+also offers **Stop Collection Run**. The action shows **Stopping** until shared
+cancellation and cookie cleanup finish.
+
+Completed results and finished response diagnostics remain available. Cancelled
+executions stay separate from failures, and selected requests that never start
+are recorded as skipped because of cancellation. Stopping cannot undo HTTP
+effects already sent.
+
+Press **Escape** to leave the Runner while it continues. Read-only browsing,
+view navigation, and appearance controls remain available. Press **F5** to
+return to the current workspace's live, partial, or final results.
+
+Request and folder edits, additional sends, collection switches and reloads,
+and environment, cookie, or transport configuration changes stay locked until
+the run and cleanup finish. Afterward, use **Left** from the results list to
+return to configuration.
 
 ## Share values within a run
 
@@ -49,9 +75,10 @@ all available diagnostics for the failed request finish.
 requests in the same run. Each new run starts with a fresh scope. The Runner
 keeps those values transient even when a request declares persistence.
 
-Runner options and results belong to this workspace. They do not create a new
-runner file, edit request declarations, or write timeline entries. Binary
-responses retain metadata only in Runner details.
+Runner options and results stay in the current workspace until a new run or
+workspace reset. They do not create a new runner file, edit request declarations,
+or write timeline entries. Results are not retained per collection or on disk.
+Binary responses retain metadata only in Runner details.
 
 ## Run the same collection from the CLI
 
@@ -79,7 +106,8 @@ the optional **Data file** path, check the iteration count, and select **Run**.
 Relative CLI paths start at the current directory; relative F5 paths start at
 the collection root. Both accept absolute paths. The F5 field also completes
 paths and accepts `@/` for your home directory. F5 revalidates at run start.
-The path and results are temporary Runner options.
+The path and results stay in the current Runner workspace until a new run or
+workspace reset.
 
 CSV uses a header row as variable names and keeps cells as strings, including
 quoted commas and multiline fields; a UTF-8 BOM is accepted. JSON requires a

@@ -8,6 +8,11 @@ for connection details and **Results** for script, capture, assertion, or test e
 
 ## I cannot edit or send a request
 
+An active Collection Runner locks edits, additional sends, and execution
+configuration changes even after you leave its view. Press **F5** to resume it,
+then wait for completion or press **s** to stop. Editing unlocks after
+cancellation and cleanup finish.
+
 A directory with no `.environments/`, `settings.yml`, or root request `.yml` file
 opens in read-only browse or empty mode.
 Press **Ctrl+P** and choose **Initialize Collection**, or initialize the existing
@@ -98,6 +103,11 @@ fallback. Fix Credential Manager access before retrying. An existing plaintext
 jar on Windows requires an explicit reset, which backs up the original file.
 Malformed stored encryption keys are preserved rather than replaced; investigate
 the vault before resetting storage.
+Cookie jar and encryption-key locks recover automatically only when valid owner
+metadata identifies a confirmed exited process. Noodle preserves an abandoned-lock
+backup, existing cookies, and stored keys. Live or uncertain owners remain locked;
+do not clear session data to resolve contention. This does not change environment
+transaction lock recovery.
 For other storage errors, open **Cookies** and retry with **r** after fixing the
 reported cause. Resetting unavailable storage from the jar view creates a backup;
 use it only if you intend to discard the current jar's usable session state.

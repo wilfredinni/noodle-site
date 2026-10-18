@@ -80,7 +80,10 @@ Agents can inspect storage health with `noodle cookie list` and clear or recover
 a jar with `noodle cookie clear`. Cookie list output includes live cookie values,
 so agents should redact it from logs and shared reports. Per-request
 `sendCookies: false` disables outgoing jar cookies but still captures response
-cookies.
+cookies. Cookie locks with valid metadata for a confirmed exited owner recover
+automatically while preserving session data and an abandoned-lock backup. Live
+or uncertain owners remain locked; agents should investigate contention before
+considering a reset.
 
 Agents can configure server NTLMv2, AWS SigV4, OAuth 1.0a, or OAuth 2.0 auth
 through request or folder YAML when the user provides the needed values. They
@@ -99,6 +102,12 @@ browser. Generated client-code snippets are unavailable for NTLMv2, AWS SigV4,
 OAuth 1.0a, and OAuth 2.0 requests.
 
 ### Run and verify
+
+The skill also documents the interactive Runner: humans can inspect completed
+responses, Results, and Console during a run, stop with **s** or **Stop**, and
+leave with **Escape** before resuming the current workspace with **F5**.
+Execution-affecting edits remain locked through cleanup; results stay in that
+workspace until a new run or reset. See the [Runner guide](/docs/guides/collection-runner/).
 
 Run one request with `noodle request run`, selected request IDs or folder paths
 with `noodle collection run <dir> [<target>...]`, or omit targets to run the

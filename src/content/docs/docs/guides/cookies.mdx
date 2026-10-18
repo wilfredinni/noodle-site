@@ -62,6 +62,12 @@ plaintext jars. If the key cannot be loaded or stored, the jar is unavailable;
 requests can continue without jar cookies and report the warning. Noodle preserves
 malformed stored keys instead of replacing them.
 
+Cookie jar and encryption-key locks left by a confirmed exited process recover
+automatically when their owner metadata is valid. Recovery preserves the cookies,
+stored key, and an abandoned-lock backup. Locks with live or uncertain owners
+remain in place; age alone never triggers recovery. Environment transaction
+locks still require the separate manual investigation described in troubleshooting.
+
 After fixing storage, open the jar and press **r** to retry. Use
 [Troubleshooting](/docs/guides/troubleshooting/#cookie-storage-is-unavailable-or-plaintext)
 before resetting unavailable storage. For URL-scoped script operations, see

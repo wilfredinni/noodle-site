@@ -34,7 +34,7 @@ listed, reflecting your current custom keybinds.
 | `Ctrl+O`             | Switch collection                                    |
 | `Ctrl+L`             | Toggle layout (stacked / side-by-side)               |
 | `F2`                 | Expand/collapse focused pane                         |
-| `F5`                 | Open collection Runner                               |
+| `F5`                 | Open or resume collection Runner                     |
 | `F1`                 | Toggle help overlay                                  |
 | `Ctrl+T`             | Open theme picker                                    |
 | `Ctrl+E`             | Edit request in overlay                              |
@@ -58,6 +58,25 @@ The command palette includes **Import Collection** and **Export Collection**
 alongside request and workspace actions. When the selected request's effective
 auth is OAuth 2.0, it also includes actions to fetch or authorize, copy, and
 clear the current secure token.
+
+## Collection Runner
+
+| Key | Action |
+| --- | --- |
+| `Tab` / `Shift+Tab` | Switch between options and requests/results |
+| `↑` / `↓` | Move through the focused pane |
+| `Space` | Toggle a request/folder selection before running |
+| `Enter` | Activate an option or inspect a completed result |
+| `r` | Start the configured run from options |
+| `s` | Stop the active run, including from a result detail overlay |
+| `Enter` / `Space` on Stop | Stop the active run |
+| `←` from results | Return to configuration after the run finishes |
+| `Escape` | Leave the Runner while an active run continues |
+| `F5` | Return to the current workspace's live or completed results |
+
+Execution-affecting edits and additional sends stay locked until the run and
+cleanup finish. See the [Runner guide](/docs/guides/collection-runner/) for live
+results, cancellation, and workspace retention.
 
 ## Field Browse Mode
 
