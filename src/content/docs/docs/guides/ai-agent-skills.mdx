@@ -106,8 +106,13 @@ OAuth 1.0a, and OAuth 2.0 requests.
 The skill also documents the interactive Runner: humans can inspect completed
 responses, Results, and Console during a run, stop with **s** or **Stop**, and
 leave with **Escape** before resuming the current workspace with **F5**.
-Execution-affecting edits remain locked through cleanup; results stay in that
-workspace until a new run or reset. See the [Runner guide](/docs/guides/collection-runner/).
+Execution-affecting edits remain locked through cleanup. Each collection keeps
+its latest settled run in memory across reloads and collection switches until
+app exit, including the executed configuration and selected iteration/result.
+In settled details, **o** opens the request or selected result's source, with a
+searchable picker for multiple test origins. Retained body previews and
+diagnostics have explicit truncation or omission notices; no disk history is
+added. See the [Runner guide](/docs/guides/collection-runner/).
 
 Run one request with `noodle request run`, selected request IDs or folder paths
 with `noodle collection run <dir> [<target>...]`, or omit targets to run the

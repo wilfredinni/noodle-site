@@ -1,6 +1,6 @@
 ---
 title: Collection Runner
-description: Run an ordered collection, inspect live results, and stop or resume the Runner workspace.
+description: Run an ordered collection, inspect live or retained results, and open their request or inherited script source.
 ---
 
 Run a group of saved requests without leaving the terminal interface. You need
@@ -10,7 +10,7 @@ Save pending request and folder changes before starting.
 ## Configure a run
 
 1. Press **F5**, or open **Ctrl+P** and choose **Run Collection**. F5 resumes
-   the current workspace when it already has a run.
+   live results or the collection's latest retained run when available.
 2. Select the requests or folders to include. A folder includes its descendants.
 3. Choose the environment. Add **Include** or **Exclude** tags to narrow the selection.
 4. Enable **Fail-fast** if later requests should stop after a failure. Set a delay
@@ -67,7 +67,8 @@ return to the current workspace's live, partial, or final results.
 Request and folder edits, additional sends, collection switches and reloads,
 and environment, cookie, or transport configuration changes stay locked until
 the run and cleanup finish. Afterward, use **Left** from the results list to
-return to configuration.
+return to configuration. Editing options does not change the configuration
+shown with retained results.
 
 ## Share values within a run
 
@@ -75,10 +76,38 @@ return to configuration.
 requests in the same run. Each new run starts with a fresh scope. The Runner
 keeps those values transient even when a request declares persistence.
 
-Runner options and results stay in the current workspace until a new run or
-workspace reset. They do not create a new runner file, edit request declarations,
-or write timeline entries. Results are not retained per collection or on disk.
-Binary responses retain metadata only in Runner details.
+## Keep results during the app session
+
+Each collection keeps its latest settled run in memory until you exit Noodle.
+Reload the collection, switch to another collection and back, or browse other
+views, then press **F5** to return. The result keeps its original request labels,
+executed configuration, and selected request/iteration even after you edit the
+next run's options or change collection files.
+
+A later settled run replaces the snapshot, including failed or cancelled runs.
+A configuration or preflight failure leaves the previous result available.
+Runner snapshots do not create files, edit request declarations, or write
+Timeline history, and they disappear when the app exits.
+
+Retained text body previews stop at 10,000 UTF-8 bytes and show a truncation
+notice. Diagnostic limits may omit details; an explicit notice appears while
+failure summaries and source origins remain available. Binary responses retain
+metadata only, without a body that can be downloaded from the snapshot.
+
+## Open the source of a result
+
+After the run and cleanup finish, open a completed result's details and press
+**o**, or choose **Open source**. From **Results**, this opens the source of the
+selected script, test, assertion, or capture. Inherited scripts and tests open
+the owning folder or collection script phase. An aggregate test result with
+multiple origins offers a searchable picker. From other detail tabs, the action
+opens the request.
+
+External sources open their declaration; use the existing **Ctrl+Alt+X** action
+to open the validated JavaScript file in your configured editor. If a source was
+renamed or deleted, Noodle warns and keeps the result available. Press **F5** to
+return to the retained result selection. Source navigation is available after
+cleanup, while completed results remain inspectable during active runs.
 
 ## Run the same collection from the CLI
 
@@ -106,8 +135,8 @@ the optional **Data file** path, check the iteration count, and select **Run**.
 Relative CLI paths start at the current directory; relative F5 paths start at
 the collection root. Both accept absolute paths. The F5 field also completes
 paths and accepts `@/` for your home directory. F5 revalidates at run start.
-The path and results stay in the current Runner workspace until a new run or
-workspace reset.
+The data-file path used by a settled run stays with its session snapshot;
+the dataset contents are not retained.
 
 CSV uses a header row as variable names and keeps cells as strings, including
 quoted commas and multiline fields; a UTF-8 BOM is accepted. JSON requires a
