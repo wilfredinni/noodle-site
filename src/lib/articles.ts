@@ -7,5 +7,7 @@ export async function getArticles(tag?: string) {
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
   )
 
-  return tag ? posts.filter((post) => post.data.tags.includes(tag)) : posts
+  return tag
+    ? posts.filter((post) => post.data.tags.includes(tag))
+    : posts.filter((post) => !post.data.tags.includes("release"))
 }
