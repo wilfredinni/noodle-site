@@ -24,6 +24,32 @@ collection order. Within each directory, folders come first, ordered by their
 For a sequence such as create then fetch, prefix request names with `01` and `02`
 to make the intended order explicit. See [Collection YAML](/docs/reference/collection-format/).
 
+## Setup and teardown
+
+In **F4 → Collection → General**, choose a **Setup request** and/or a
+**Teardown request** from saved requests. Each is optional; the two must use
+different request IDs. Settings saves the choices to `settings.yml`, and the
+Runner waits for pending collection settings saves before starting.
+
+For each nonempty main selection, Noodle runs setup, the selected requests in
+collection order, then teardown. With a CSV/JSON data file, this sequence runs
+once per row. All stages use the normal request lifecycle, including inherited
+scripts and tests, and share that run or row's variables and cookie jar.
+Hook requests stay outside the selectable main list and are not filtered by tags.
+
+A failed setup skips the row's main requests with reason `setup-failed`, then
+attempts teardown. Ordinary failures and **Fail-fast** also attempt teardown for
+the started row; fail-fast prevents later data rows from starting. **Stop**
+cancels active work and does not start teardown or another request.
+
+Results and details label each stage, and totals include hooks. Settled results
+keep execution order even when main requests were skipped, along with the hook
+configuration used for that run. Unassign a hook before renaming or deleting its
+request, or deleting a containing folder, in the TUI.
+
+See [the YAML fields](/docs/reference/collection-format/#setup-and-teardown-hooks)
+and [CLI results](/docs/guides/automation/#setup-and-teardown) for automation.
+
 ## Filter with tags
 
 Request tags and tags inherited from non-root folders form dynamic suites.
@@ -44,7 +70,8 @@ available during execution.
 Before HTTP, the TUI Runner checks the syntax of applicable scripts and tests
 for all selected requests without executing them during validation. With
 fail-fast enabled, later selected requests are recorded as skipped after all
-available diagnostics for the failed request finish.
+available diagnostics for the failed request finish. A configured teardown is
+still attempted for the started row unless the run is cancelled.
 
 ![Live Runner results in an 80 by 24 terminal, with a passed request, a running request, a pending request, and Stop](../../../../assets/runner-live-80x24.png)
 
@@ -149,8 +176,9 @@ non-empty array of objects and preserves JSON value types:
 The entire file is validated before requests are sent. Empty files, invalid or
 unsafe variable names, duplicate CSV headers, and inconsistent CSV rows fail.
 Names use letters, digits, or underscores. Limits are 5 MiB per file, 1,000
-rows, and 10,000 selected request executions. Rows must fit the existing
-256 KiB/depth-32 bridge limits, including the iteration wrapper.
+rows, and 10,000 request executions, including configured hooks for each row.
+Rows must fit the existing 256 KiB/depth-32 bridge limits, including the iteration
+wrapper.
 
 Each row runs every selected request in collection order. Its variables
 override environment values for `$name` substitution and `noodle.run.get`;
@@ -162,7 +190,8 @@ with child requests. JavaScript objects in `data` retain their JSON types.
 
 Each row starts with fresh variables and an in-memory copy of the same initial
 cookie jar. Cookies change within that row only and are never persisted.
-Fail-fast skips every remaining request and row. Delay applies between all
+Fail-fast skips remaining main requests and later rows, but still attempts
+the started row's teardown unless cancelled. Delay applies between all
 consecutive executions, including row boundaries. Results, skips, and details
 carry zero-based `iteration`; the collection result adds `iterations`. F5 groups
 results by iteration and counts progress across all executions. Human labels

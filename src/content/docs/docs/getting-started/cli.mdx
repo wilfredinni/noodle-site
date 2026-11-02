@@ -214,7 +214,7 @@ in collection order. Folder targets include descendants.
 | `--env/-e <name>` | Collection `settings.yml` environment | Select the environment |
 | `--tag <tag>` | No include filter | Repeatable; every include tag must match |
 | `--exclude-tag <tag>` | No exclude filter | Repeatable; any matching tag excludes |
-| `--fail-fast` | `false` | Skip remaining selected requests after a failure |
+| `--fail-fast` | `false` | Skip remaining mains and later rows after a failure; attempt the started row's teardown unless cancelled |
 | `--delay <milliseconds>` | `0` | Wait between selected requests, including iteration boundaries; non-negative safe integer |
 | `--data <file.csv\|file.json>` | No data | Validate the file and run selected requests once per row |
 | `--noproxy` | `false` | Force direct connections for this invocation |
@@ -222,8 +222,15 @@ in collection order. Folder targets include descendants.
 | `--json` | `false` | Write a JSON result envelope |
 
 Tags are case-sensitive, inherited from non-root folders, and exclusion wins.
-An empty filtered selection is a configuration failure. Captures and script
-writes remain transient across one ordered run.
+An empty filtered selection is a configuration failure unless setup or teardown
+is configured; hook-enabled empty main selections succeed without HTTP.
+Captures and script writes remain transient across one ordered run.
+
+Optional `hooks.setup` and `hooks.teardown` in collection `settings.yml` run
+saved requests before and after the main selection, once per data row. Targets
+and tags exclude hook requests. Teardown is attempted after failures, including
+fail-fast, but cancellation starts no cleanup requests. Results identify each
+stage. See [setup and teardown](/docs/guides/automation/#setup-and-teardown).
 
 Interrupt a CLI collection run with **Ctrl+C** (SIGINT) or SIGTERM to return
 partial results and exit `130`. Completed rows remain available; interrupted

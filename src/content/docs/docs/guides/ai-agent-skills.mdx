@@ -121,7 +121,8 @@ overlapping targets run once in collection order.
 
 Agents can run dynamic suites with repeated `--tag` filters, remove matching
 requests with repeated `--exclude-tag` filters, and stop after the first failed
-request with `--fail-fast`. Every include tag must match; any exclude tag removes
+main request with `--fail-fast`, while still attempting configured teardown
+for the started row unless cancelled. Every include tag must match; any exclude tag removes
 a request. Request tags combine with every ancestor folder's tags, and exclusion
 wins when both filter types match. Structured output keeps executed requests in `data.results`,
 fail-fast skips in `data.skipped`, and aggregate counts plus fixed failure
@@ -134,7 +135,16 @@ unstarted selections use skip reason `cancelled`. Summary
 
 Agents can add `--delay <milliseconds>` to wait between selected requests. The
 value must be a non-negative safe integer; no delay runs after the last request
-or after fail-fast stops the run.
+or for skipped requests; teardown after fail-fast still observes the delay.
+
+Agents can set `hooks.setup` and `hooks.teardown` in collection `settings.yml`
+to reference distinct existing requests. They surround each nonempty main
+selection or data row and share that row's variables and cookies. Hooks are
+excluded from target/tag selection; an empty main selection sends nothing.
+Setup failure skips mains with `setup-failed` but still attempts teardown;
+cancellation starts no further HTTP. Read `stage` on result/skip rows and
+`data.summary.stages` for stage counts. Manual sends and `request run` do not
+automatically run hooks. See [the hook workflow](/docs/guides/automation/#setup-and-teardown).
 
 Agents should keep credentials in declared secret variables so Noodle can apply
 its redirect protections. Noodle rejects HTTPS-to-HTTP redirects. When the

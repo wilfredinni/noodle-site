@@ -1,0 +1,85 @@
+---
+title: "Noodle 0.10.3: Set Up, Run, Tear Down"
+description: Run saved setup and teardown requests around collection selections and data rows, with shared variables, stage results, and explicit cleanup rules.
+date: 2026-11-02
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - automation
+---
+
+Noodle 0.10.3 adds setup and teardown requests to collection runs. A saved login
+request can prepare a session before your selected requests run, and a saved
+logout request can clean up afterward. Configure them once and use the same
+sequence from the CLI or the TUI Runner, including runs with CSV or JSON data.
+
+## Give the run a beginning and an end
+
+Open **F4 → Collection → General** and choose a **Setup request** and a
+**Teardown request**, or add their IDs to collection `settings.yml`:
+
+```yaml
+hooks:
+  setup: auth/login
+  teardown: auth/logout
+```
+
+Either field is optional. Both IDs must refer to existing requests, and they
+must differ. Setup runs first, followed by your selected main requests in
+collection order, then teardown. Each stage uses the normal request lifecycle,
+including inherited scripts and tests. Captures, script writes, and cookies
+can pass from setup to the main requests and on to teardown.
+
+Targets and tags select the main requests. The configured hooks stay outside
+that selection, so a smoke suite can use its login and logout requests without
+adding the smoke tag to them or running them twice. If no main requests remain,
+no stage sends HTTP. Manual sends and `request run` keep their existing behavior.
+
+## Keep cleanup predictable
+
+If setup fails, Noodle skips the main requests with reason `setup-failed` and
+still attempts teardown. A failed main request also leaves teardown available,
+even with **Fail-fast** enabled. Teardown reports its own result alongside the
+earlier failure.
+
+Cancellation has a different purpose: stop the work. Pressing **Stop** or
+interrupting a CLI collection run cancels the active operation and starts no
+further requests, including teardown.
+
+Hook references and script/test sources are checked before HTTP. Saving hook
+settings validates the referenced requests on disk, and collection audits check
+them without rewriting request files. The Runner waits for pending collection
+settings saves. In the TUI, unassign a hook before renaming or deleting its
+request or deleting a folder that contains it.
+
+## Repeat the sequence for each data row
+
+With CSV or JSON iteration data, each row runs its own setup, main requests,
+and teardown. Those stages share the row's variables and cookies; the next row
+starts with a fresh scope and a transient copy of the initial cookie jar.
+Collection runs keep capture and script writes transient.
+
+Fail-fast still attempts teardown for the started row unless cancelled, then
+prevents later rows from starting. Hooks count toward progress totals and the
+10,000 data-run execution limit.
+
+## See which stage produced the result
+
+Runner results and details label setup, main, and teardown. Settled results
+preserve execution order even when main requests were skipped, and retained
+session results keep the hook configuration used for that run.
+
+CLI results carry the same stage labels and per-stage summary counts. Existing
+collections without hooks keep their result shapes. The maintained
+`noodle-dev` and `noodle-use` skills now cover the hook lifecycle and its
+selection, failure, cancellation, and iteration rules.
+
+Read the [Collection Runner guide](/docs/guides/collection-runner/#setup-and-teardown)
+for the interactive workflow, [CLI automation](/docs/guides/automation/#setup-and-teardown)
+for scripts and results, or the
+[full changelog](https://github.com/wilfredinni/noodle/blob/v0.10.3/CHANGELOG.md)
+for the release details.

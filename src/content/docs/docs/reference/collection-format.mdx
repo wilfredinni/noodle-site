@@ -591,6 +591,7 @@ tls:
 | `collection_id` | UUID string | Generated credential-vault namespace. Preserve it when moving a collection; do not copy it into another collection. |
 | `scripts` | object | Optional inline or external `pre`/`post` blocks; collection scripts run before folder and request scripts in both phases. |
 | `tests` | string | Optional inline or external tests that run before descendant test blocks. |
+| `hooks` | object | Optional `setup` and `teardown` saved request IDs; run around each nonempty main selection or data row. |
 | `name` | string | Optional display name; defaults to the collection directory name. |
 | `description` | string | Optional collection notes. |
 | `timeline_max_entries` | non-negative integer | Per-request history retention. Defaults to `50`; `0` disables recording. |
@@ -619,6 +620,34 @@ missing or empty file uses defaults.
 Redirects follow only HTTP or HTTPS. Noodle rejects HTTPS-to-HTTP downgrades and
 removes authorization, proxy authorization, cookies, `Host`, and header API-key
 credentials before following a cross-origin redirect.
+
+### Setup and teardown hooks
+
+Add either or both fields to collection `settings.yml`:
+
+```yaml
+hooks:
+  setup: auth/login
+  teardown: auth/logout
+```
+
+IDs are collection-relative request paths without `.yml`. They must exist and
+must differ. Unknown hook keys, non-string values, and invalid IDs are rejected.
+Noodle validates references before saving hook settings, auditing, or running a
+collection. Sources for all stages are checked before the first HTTP request.
+
+Setup runs before selected main requests, and teardown follows them. Targets
+and tags select only main requests; configured hooks run once in their assigned
+stage. An empty main selection sends no HTTP. With CSV/JSON data, the sequence
+runs once per row with fresh variables and a transient copy of the initial
+cookie jar. Stages within a row share both, and hook executions count toward
+the data-run limit. Collection runs keep capture and script writes transient.
+
+Setup failure skips mains but still attempts teardown. Ordinary failures and
+fail-fast also attempt teardown for the started row; fail-fast skips later
+rows. Cancellation never starts another stage. Manual sends and `request run`
+do not automatically execute hooks. See [CLI automation](/docs/guides/automation/#setup-and-teardown)
+for stage results and [Settings](/docs/guides/settings/#general) for editing.
 
 ## Hidden State (`.noodle/`)
 

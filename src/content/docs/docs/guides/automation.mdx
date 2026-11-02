@@ -88,12 +88,15 @@ Tag values must be non-empty and already trimmed. A root-level `folder.yml` is
 ignored, and descendants cannot remove inherited tags. Noodle resolves and
 validates positional targets first, then applies inclusion and exclusion before
 loading environment, proxy, TLS, cookies, or sending requests. Exclusion wins
-when both filters match. A filtered selection with no requests is a
-configuration failure.
+when both filters match. Without configured hooks, a filtered selection with
+no requests is a configuration failure. With setup or teardown configured,
+an empty main selection succeeds without sending any HTTP.
 
 Add `--fail-fast` when later requests would add no useful signal after the first
 failure. Completed requests stay in `data.results`; every remaining selected
-request appears in order under `data.skipped` with reason `fail-fast`. Requests
+main request appears in order under `data.skipped` with reason `fail-fast`.
+A configured teardown is still attempted for the started row unless cancelled;
+setup failure uses `setup-failed` for that row's skipped mains. Requests
 removed by tag filters appear in neither list and cannot change run-scoped
 captures.
 
@@ -105,7 +108,44 @@ noodle collection run ./api --delay 500 --env staging
 
 The delay must be a non-negative safe integer. Noodle waits after a completed
 request only when another selected request remains. Failed requests are followed
-by the delay when execution continues; fail-fast skips it.
+by the delay when execution continues, including teardown after fail-fast.
+Skipped requests add no delay.
+
+## Setup and teardown
+
+Reference saved requests in collection `settings.yml` to prepare a run and
+clean up afterward:
+
+```yaml
+hooks:
+  setup: auth/login
+  teardown: auth/logout
+```
+
+Either field is optional. IDs omit `.yml`, must exist, and must differ. You can
+also choose them in **Collection Settings → General**. Both the CLI and TUI
+Runner use the same settings; manual sends and `request run` do not run hooks.
+
+For a nonempty main selection, the order is setup → selected main requests →
+teardown. Targets and tags select only mains, so hooks do not run twice or get
+filtered out. Hook references and applicable script/test sources are checked
+before HTTP. Every stage uses the shared request lifecycle with inherited
+scripts and tests. An empty main selection sends nothing, including hooks.
+
+Setup failure skips mains with `setup-failed`, then attempts teardown. Ordinary
+failures and `--fail-fast` also attempt teardown for the started row. Teardown
+keeps its own result without replacing an earlier failure. Cancellation stops
+active work and starts no teardown or other HTTP requests.
+
+With `--data`, the sequence repeats per row. Each row shares variables and
+cookies across its stages and starts with a fresh scope and a transient copy
+of the initial cookie jar. Fail-fast prevents later rows from starting.
+Hooks count toward the 10,000 data-run execution limit and progress totals.
+
+Hook-enabled results and skips carry `stage: "setup"`, `"main"`, or `"teardown"`.
+`data.summary.stages` counts `executed`, `passed`, `failed`, `skipped`, and
+`cancelled` executions for each stage. Human output labels stages too.
+Collections without hooks keep their existing result shapes.
 
 ## Run the same workflow in the TUI
 
@@ -182,7 +222,7 @@ simple gate, while JSON provides the detail needed for reports or follow-up
 steps. CLI collection interruption exits `130` with partial results.
 
 For `request run`, the request result is in `data.result`. For `collection run`,
-the ordered results are in `data.results`, fail-fast or cancellation skips are in `data.skipped`,
+the ordered results are in `data.results`, fail-fast, setup-failed, or cancellation skips are in `data.skipped`,
 and `data.summary` counts selected, executed, skipped, successful, and failed
 requests plus assertion, capture, duration, and failure-category totals. When
 test groups are present, it also includes `testPasses`, `testFailures`, and
@@ -331,7 +371,7 @@ jobs:
 
       - name: Install Noodle
         env:
-          NOODLE_VERSION: v0.10.2
+          NOODLE_VERSION: v0.10.3
         run: |
           curl -fsSL "https://raw.githubusercontent.com/wilfredinni/noodle/$NOODLE_VERSION/scripts/install.sh" -o "$RUNNER_TEMP/noodle-install.sh"
           bash "$RUNNER_TEMP/noodle-install.sh"
@@ -348,7 +388,7 @@ jobs:
           noodle collection run ./my-api --env ci --fail-fast
 ```
 
-The installer pins Noodle to `v0.10.2` and verifies its binary checksum. Change
+The installer pins Noodle to `v0.10.3` and verifies its binary checksum. Change
 that version deliberately when upgrading the workflow. The Actions secret
 supplies the declared `API_TOKEN` through the process environment, so this
 example needs no interactive keyring. Cookies are disabled because this bearer

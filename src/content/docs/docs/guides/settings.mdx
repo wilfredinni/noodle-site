@@ -84,6 +84,14 @@ off prevents both sending and capturing jar cookies for the collection. Use the
 request pane's **Send Cookies** control when only one request should omit
 outgoing jar cookies. See [Cookies](/docs/guides/cookies/) to inspect and manage the jar.
 
+Choose optional **Setup request** and **Teardown request** entries to surround
+collection runs, once per CSV/JSON row when using data. Select **None** to clear
+an assignment. Both requests must exist and their IDs must differ. Teardown is
+attempted after failures, including fail-fast; cancellation skips it. Manual
+sends and `request run` do not automatically run these hooks. Unassign a hook
+before renaming or deleting its request, or deleting its containing folder,
+in the TUI. See [Collection Runner](/docs/guides/collection-runner/#setup-and-teardown).
+
 ### Scripts
 
 Edit **Collection Pre Script**, **Collection Post Script**, and **Collection Tests**
