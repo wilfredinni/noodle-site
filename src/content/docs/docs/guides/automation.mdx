@@ -26,6 +26,7 @@ order.
   response time, headers, and JSON body values.
 - [Consume results](#let-the-exit-status-make-the-first-decision) through exit
   status, human-readable output, or a stable JSON envelope.
+- [Save a collection report](#save-a-collection-report) as JSON or JUnit XML.
 
 ## Choose the requests that matter
 
@@ -248,6 +249,41 @@ duration, log count, and redacted failures without printing console messages.
 It also names failure categories such as configuration error, script failure,
 transport error, HTTP error, capture failure, assertion failure, and test failure.
 
+## Save a collection report
+
+To give a CI test viewer a result for each selected request, write JUnit XML:
+
+```bash
+noodle collection run ./api --env ci --reporter junit --output results.xml
+```
+
+The terminal still shows the human-readable run summary. Each selected execution
+gets one JUnit testcase, identified by request ID and, when applicable, iteration
+and stage. Assertions and scripted tests appear inside the request's case.
+HTTP and assertion failures produce a failure, while script or transport errors
+produce an error. Skipped and interrupted executions carry their reason. A
+pre-run configuration failure gets its own case. The report includes redacted
+diagnostics and warnings and omits response bodies and headers.
+
+For a script that consumes Noodle's result fields, choose JSON:
+
+```bash
+noodle collection run ./api --env ci --json --output results.json
+```
+
+The file matches stdout byte for byte. Each executed request's `durationMs`
+covers the whole execution, including scripts and checks. JSON can include
+response text. Known secrets are masked, including their JSON-escaped forms,
+but other server data can still appear in artifacts.
+
+Choose a new filename for each run. Relative paths start at the working
+directory. Noodle rejects an existing destination or conflicting formats before
+sending HTTP and publishes the complete file atomically. A valid destination
+can receive a report for a failed run (exit `1`), a configuration failure (exit
+`2`), or a graceful interruption (exit `130`). If writing the file fails, the
+CLI keeps the execution diagnostics and preserves an existing nonzero exit code.
+A successful run with a write failure exits `1`.
+
 ## Interrupt a collection run
 
 Press **Ctrl+C** (SIGINT) or send SIGTERM to stop `noodle collection run`.
@@ -369,13 +405,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install Noodle
-        env:
-          NOODLE_VERSION: v0.10.3
-        run: |
-          curl -fsSL "https://raw.githubusercontent.com/wilfredinni/noodle/$NOODLE_VERSION/scripts/install.sh" -o "$RUNNER_TEMP/noodle-install.sh"
-          bash "$RUNNER_TEMP/noodle-install.sh"
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - uses: wilfredinni/setup-noodle@v1
+        with:
+          version: v0.10.4
 
       - name: Validate collection
         run: noodle collection audit ./my-api
@@ -385,20 +417,24 @@ jobs:
           API_TOKEN: ${{ secrets.NOODLE_API_TOKEN }}
         run: |
           test -n "$API_TOKEN" || { echo "NOODLE_API_TOKEN is not configured" >&2; exit 2; }
-          noodle collection run ./my-api --env ci --fail-fast
+          noodle collection run ./my-api --env ci --fail-fast --reporter junit --output results.xml
+
+      - name: Upload API report
+        if: ${{ always() && hashFiles('results.xml') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: api-results
+          path: results.xml
 ```
 
-The installer pins Noodle to `v0.10.3` and verifies its binary checksum. Change
-that version deliberately when upgrading the workflow. The Actions secret
-supplies the declared `API_TOKEN` through the process environment, so this
-example needs no interactive keyring. Cookies are disabled because this bearer
-health check does not need a session jar.
+The [setup action](https://github.com/wilfredinni/setup-noodle) verifies the
+binary for the CLI version in `with.version`. The run step supplies the
+declared `API_TOKEN` from GitHub Secrets. This bearer health check uses neither
+an interactive keyring nor a cookie jar.
 
-The job fails on an audit error or a nonzero run exit status. Human output gives
-request results, failed checks, and a summary in the Actions log. To process
-structured results instead, use `--json` and inspect `data.results`; do not
-swallow the command's exit status. Known secrets are redacted, but arbitrary
-server data can remain in JSON, so review reports before sharing them.
+A failed API check fails the job and leaves the human summary in the log. The
+upload step runs whenever the report exists, including after a failed check.
+Open the workflow run's **Artifacts** to download `api-results`.
 
 This example intentionally runs the committed collection only on trusted pushes
 or manual dispatch. If you extend it to pull requests, account for which events

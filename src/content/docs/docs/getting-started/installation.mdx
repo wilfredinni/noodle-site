@@ -3,9 +3,8 @@ title: Installation
 description: Install Noodle on macOS, Linux, or Windows x64 beta, confirm the binary works, and keep it current.
 ---
 
-Install Noodle with the script for the shortest path, Homebrew when you prefer
-package-managed updates, or source when you need a platform without a prebuilt
-binary.
+Use the standalone installer for your platform, Homebrew for package-managed
+updates, or the [setup action](#github-actions) in a GitHub Actions workflow.
 
 ## Quick install
 
@@ -32,7 +31,7 @@ curl -LsSf https://noodlerest.dev/install.sh | NOODLE_INSTALL_DIR=/usr/local/bin
 **Need a specific version?** Pin it with `NOODLE_VERSION`:
 
 ```bash
-curl -LsSf https://noodlerest.dev/install.sh | NOODLE_VERSION=v0.10.3 sh
+curl -LsSf https://noodlerest.dev/install.sh | NOODLE_VERSION=v0.10.4 sh
 ```
 
 ## Windows x64 (beta)
@@ -52,7 +51,7 @@ another directory, or `$env:NOODLE_SKIP_PATH_UPDATE = "1"` to leave PATH alone.
 For example:
 
 ```powershell
-$env:NOODLE_VERSION = "v0.10.3"
+$env:NOODLE_VERSION = "v0.10.4"
 irm https://noodlerest.dev/install.ps1 | iex
 ```
 
@@ -94,6 +93,23 @@ noodle agent install
 Use `brew upgrade noodle` for future updates. The old tap repository remains
 available to provide the migration mapping.
 
+## GitHub Actions
+
+Install an exact CLI release for the next steps in your job:
+
+```yaml
+- uses: wilfredinni/setup-noodle@v1
+  with:
+    version: v0.10.4
+- run: noodle --version
+```
+
+`@v1` selects the installer. Its required `version` input takes a stable Noodle
+release tag. The action downloads the runner's binary, checks it against the
+release's `SHA256SUMS`, and adds it to PATH. It supports macOS and Linux (glibc)
+on x64 and arm64, and Windows on x64. See the [action repository](https://github.com/wilfredinni/setup-noodle)
+or [run a collection and upload its report](/docs/guides/automation/#run-in-github-actions-ci).
+
 ## From source
 
 Requires [Bun](https://bun.sh).
@@ -123,14 +139,14 @@ noodle
 
 ## Supported platforms
 
-Prebuilt binaries for these combos: others need to build from source.
+The CLI and its native file writer ship for these five targets.
 
 | Platform | Architecture | Binary |
 | -------- | ------------ | ------ |
 | macOS    | arm64        | ✅     |
 | macOS    | x86_64       | ✅     |
-| Linux    | x86_64       | ✅     |
-| Linux    | arm64        | ✅     |
+| Linux (glibc) | x86_64       | ✅     |
+| Linux (glibc) | arm64        | ✅     |
 | Windows  | x86_64       | Beta, unsigned `.exe` |
 
 Both Apple Silicon and Intel Macs have prebuilt binaries. macOS release

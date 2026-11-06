@@ -133,6 +133,11 @@ unstarted selections use skip reason `cancelled`. Summary
 `completed`, `cancelled`, and `unstarted` keep partial results accountable. See
 [cancellation results](/docs/guides/automation/#interrupt-a-collection-run).
 
+Agents can save a collection result with `--json --output results.json`, or
+produce a JUnit artifact with `--reporter junit --output results.xml`. The
+skill's CI example installs the CLI with `setup-noodle` and preserves the run
+step's exit status when uploading the report. See [CLI automation and CI](/docs/guides/automation/#run-in-github-actions-ci).
+
 Agents can add `--delay <milliseconds>` to wait between selected requests. The
 value must be a non-negative safe integer; no delay runs after the last request
 or for skipped requests; teardown after fail-fast still observes the delay.

@@ -1,0 +1,70 @@
+---
+title: "Noodle 0.10.4: Collection Reports in CI"
+description: Install Noodle in GitHub Actions and keep a JSON or JUnit report when a collection passes, fails, or stops early.
+date: 2026-11-06
+author:
+  name: Carlos Montecinos
+  title: Developer
+  url: https://github.com/wilfredinni
+  picture: https://github.com/wilfredinni.png
+tags:
+  - release
+  - automation
+---
+
+A red CI job tells you a collection failed. To find out why, you might need to
+know which request failed, which data row it used, or whether setup failed
+before the first check. Noodle 0.10.4 can save those results as a JUnit report
+for a test viewer or as JSON for a script.
+
+## Take a collection from checkout to artifact
+
+For a repository with a collection in `./api`, these job steps install Noodle,
+run the collection, and make the XML report available to download:
+
+```yaml
+- uses: actions/checkout@v6
+- uses: wilfredinni/setup-noodle@v1
+  with:
+    version: v0.10.4
+- run: noodle collection run ./api --reporter junit --output results.xml
+- uses: actions/upload-artifact@v7
+  if: ${{ always() && hashFiles('results.xml') != '' }}
+  with:
+    name: api-results
+    path: results.xml
+```
+
+The two versions do different jobs. `@v1` selects the setup action.
+`version: v0.10.4` selects the CLI binary, which the action verifies against
+the release checksum. The collection command writes its usual summary to the
+job log. If an assertion fails, the job fails and the upload step still saves
+the report. The [CI guide](/docs/guides/automation/#run-in-github-actions-ci)
+includes a complete workflow with a staging credential.
+
+## Read the failure at the request that caused it
+
+Each selected execution gets one JUnit case. If a setup request fails, you
+can see the failed setup, the skipped main requests, and the outcome of
+teardown. If the collection uses a dataset, the case name includes the
+iteration so you can tell two executions of the same request apart. Each
+case includes the time spent on the full request lifecycle.
+
+When a downstream script needs response data, use JSON:
+
+```bash
+noodle collection run ./api --json --output results.json
+```
+
+The file contains exactly the JSON envelope printed to stdout. A graceful
+interruption preserves partial results in either format and exits with status
+`130`. Choose a fresh report path each time. Noodle checks the destination
+before the first request and writes only a complete file.
+
+Noodle also masks known secrets when they appear as JSON-escaped strings.
+JSON reports can still include other server response data. JUnit keeps the
+request outcomes and diagnostics and omits response bodies.
+
+See the [setup action](https://github.com/wilfredinni/setup-noodle),
+[report formats](/docs/guides/automation/#save-a-collection-report), and
+[full changelog](https://github.com/wilfredinni/noodle/blob/v0.10.4/CHANGELOG.md).

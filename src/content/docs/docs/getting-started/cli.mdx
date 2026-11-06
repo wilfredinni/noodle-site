@@ -219,7 +219,13 @@ in collection order. Folder targets include descendants.
 | `--data <file.csv\|file.json>` | No data | Validate the file and run selected requests once per row |
 | `--noproxy` | `false` | Force direct connections for this invocation |
 | `--insecure` | `false` | Disable TLS certificate verification for this invocation |
-| `--json` | `false` | Write a JSON result envelope |
+| `--json` | `false` | Write a JSON result envelope to stdout and, with `--output`, to a file |
+| `--reporter junit` | No reporter | Write JUnit XML to `--output` and print the human-readable summary |
+| `--output/-o <file>` | No file | Create a new report file with either `--json` or `--reporter junit` |
+
+Choose one report format per run. Noodle rejects conflicting flags and existing
+destinations before sending requests. See [collection report files](/docs/guides/automation/#save-a-collection-report)
+for examples, exit codes, and JUnit outcomes.
 
 Tags are case-sensitive, inherited from non-root folders, and exclusion wins.
 An empty filtered selection is a configuration failure unless setup or teardown

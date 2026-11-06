@@ -17,7 +17,7 @@ const sections = [
       ["Protocol breadth", "◐ HTTP today", "◐ HTTP today", "✅ Very high", "✅ Very high"],
       ["Auth and networking", "✅ Very high", "◐ Basic", "✅ Very high", "✅ Very high"],
       ["Scripting and testing today", "✅ Async scripts + assertions + scripted tests", "◐ Good scripting, tests planned", "◐ Chaining/templates, no arbitrary scripting", "✅ Most complete"],
-      ["Headless and CI automation", "✅ Yes", "❔ No documented runner", "✅ Yes", "✅ Very mature"],
+      ["Headless and CI automation", "✅ CLI + GitHub Action", "❔ No documented runner", "✅ Yes", "✅ Very mature"],
       ["AI-agent workflow", "✅ Skill + files + CLI", "◐ Files; no dedicated integration", "✅ Skill + CLI + MCP", "◐ In-app BYOK AI + general CLI"],
       ["Main differentiator", "The repository is the workspace", "HTTP client inside the terminal", "Local-first GUI without Postman weight", "Git-native testing powerhouse"],
     ],
@@ -99,9 +99,9 @@ const sections = [
       ["Parallel and batch execution", "◐ Batch + Runner; parallel planned", "❌", "✅ CLI --parallel", "✅ Runner"],
       ["Dedicated runner/results UI", "✅ Live results, Stop, session retention, source navigation", "❌", "❌ No runner UI; bulk runs via CLI", "✅"],
       ["Data-driven CSV/JSON runs", "✅ CLI + TUI Runner", "❌", "🧭 Under consideration", "◐ CSV/JSON; free CLI, paid desktop"],
-      ["CI-friendly structured output", "✅ JSON + partial results on cancellation", "❔ No documented CI runner", "✅ CLI", "✅ CLI + JUnit/reports"],
+      ["CI-friendly structured output", "✅ JSON and JUnit XML, including partial runs", "❔ No documented CI runner", "✅ CLI", "✅ CLI + JUnit/reports"],
       ["Docker runner", "❌ No official image", "❌", "❔ No official image found", "✅ Official CLI images"],
-      ["GitHub Action", "❌ No dedicated action", "❌", "❔ No dedicated action found", "✅ Official action"],
+      ["GitHub Action", "✅ setup-noodle installs a checksum-verified CLI release", "❌", "❔ No dedicated action found", "✅ Official action"],
     ],
   },
   {
@@ -146,7 +146,7 @@ const bestFits = [
 ]
 
 const comparisonSources = [
-  ["Noodle", [["Documentation", "/docs/"], ["Scripting", "/docs/guides/pre-request-scripting/"], ["Tests", "/docs/guides/scripted-tests/"], ["Runner", "/docs/guides/collection-runner/"], ["Cancellation", "/docs/guides/automation/#interrupt-a-collection-run"], ["Body templates", "/docs/guides/using-the-request-pane/#random-and-time-body-values"], ["Response visualization", "/docs/guides/using-the-response-pane/#source-and-visual"], ["GitHub", "https://github.com/wilfredinni/noodle"]]],
+  ["Noodle", [["Documentation", "/docs/"], ["Scripting", "/docs/guides/pre-request-scripting/"], ["Tests", "/docs/guides/scripted-tests/"], ["Runner", "/docs/guides/collection-runner/"], ["CI reports", "/docs/guides/automation/#save-a-collection-report"], ["Setup action", "https://github.com/wilfredinni/setup-noodle"], ["Cancellation", "/docs/guides/automation/#interrupt-a-collection-run"], ["Body templates", "/docs/guides/using-the-request-pane/#random-and-time-body-values"], ["Response visualization", "/docs/guides/using-the-response-pane/#source-and-visual"], ["GitHub", "https://github.com/wilfredinni/noodle"]]],
   ["Posting", [["Website", "https://posting.sh/"], ["Guide", "https://posting.sh/guide/"], ["Importing", "https://posting.sh/guide/importing/"], ["Scripting", "https://posting.sh/guide/scripting/"], ["External pagers", "https://posting.sh/guide/external_tools/"], ["Roadmap", "https://posting.sh/roadmap/"], ["GitHub", "https://github.com/darrenburns/posting"]]],
   ["Yaak", [["Documentation", "https://yaak.app/docs"], ["Scripting and templates", "https://yaak.app/docs/templating/pre-post-request-scripting"], ["Runner", "https://yaak.app/docs/advanced/running-multiple-requests"], ["Response views", "https://yaak.app/docs/request-types/http-requests"], ["GitHub", "https://github.com/mountain-loop/yaak"]]],
   ["Bruno", [["Documentation", "https://docs.usebruno.com/"], ["CLI data runs", "https://docs.usebruno.com/bru-cli/runCollection"], ["CLI licensing", "https://www.usebruno.com/product/cli"], ["Dynamic variables", "https://docs.usebruno.com/testing/script/dynamic-variables"], ["Response views", "https://docs.usebruno.com/send-requests/res-data-cookies/res-data"], ["Pricing", "https://www.usebruno.com/pricing"], ["GitHub", "https://github.com/usebruno/bruno"]]],
